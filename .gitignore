@@ -64,6 +64,9 @@ Thumbs.db
 # Question bank data
 backend/question_bank.json
 
+# Manim output
+backend/manim_output/
+
 # Engine folder
 engine/
 

@@ -17,6 +17,7 @@ import json
 import sys
 import os
 import uuid
+import re
 from pathlib import Path
 from supabase import create_client
 from dotenv import load_dotenv
@@ -34,6 +35,50 @@ supabase = create_client(
     os.getenv('SUPABASE_URL'),
     os.getenv('SUPABASE_SERVICE_ROLE_KEY') or os.getenv('SUPABASE_ANON_KEY')
 )
+
+
+def extract_answer_from_rationale(rationale_html):
+    """
+    Extract numeric/text answer from 'The correct answer is X' pattern in rationale.
+
+    Handles multiple patterns:
+    - "The correct answer is 2.6"
+    - "The correct answer is 28"
+    - "The correct answer is either 0 or 3" (returns list)
+    """
+    if not rationale_html:
+        return []
+
+    # Remove HTML tags to get clean text
+    text = re.sub(r'<[^>]+>', '', rationale_html)
+
+    # Pattern 1: "either X or Y" for multiple valid answers
+    either_pattern = r'correct answer is either\s+([0-9.,/\-]+)\s+or\s+([0-9.,/\-]+)'
+    either_match = re.search(either_pattern, text, re.IGNORECASE)
+    if either_match:
+        return [either_match.group(1).strip(), either_match.group(2).strip()]
+
+    # Pattern 2: "either X, Y, or Z" for three valid answers
+    either_three_pattern = r'correct answer is either\s+([0-9.,/\-]+),\s+([0-9.,/\-]+),\s+or\s+([0-9.,/\-]+)'
+    either_three_match = re.search(either_three_pattern, text, re.IGNORECASE)
+    if either_three_match:
+        return [either_three_match.group(1).strip(), either_three_match.group(2).strip(), either_three_match.group(3).strip()]
+
+    # Pattern 3: Single answer "The correct answer is X"
+    patterns = [
+        r'The correct answer is\s+([0-9.,/\-]+)',
+        r'correct answer is\s+([0-9.,/\-]+)',
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
+        if match:
+            answer = match.group(1).strip()
+            # Remove trailing periods
+            answer = answer.rstrip('.')
+            return [answer]
+
+    return []
 
 
 def transform_question(q_id: str, q_data: dict) -> dict:
@@ -98,9 +143,21 @@ def transform_question(q_id: str, q_data: dict) -> dict:
             else:
                 correct = []
         else:
+            # IBN SPR format - no choices, need to extract answer
             answer_options = None
             correct_choice = answer_obj.get('correct_choice')
-            correct = [correct_choice] if correct_choice else []
+
+            if correct_choice:
+                correct = [correct_choice]
+            else:
+                # Try to extract answer from rationale
+                rationale = answer_obj.get('rationale', '')
+                correct = extract_answer_from_rationale(rationale)
+
+                if not correct:
+                    # Last resort: set empty and log warning
+                    correct = []
+                    print(f"  ⚠️  Warning: Could not extract answer for IBN SPR question")
 
     # Determine question type (infer if not present)
     question_type = content.get('type')

@@ -434,6 +434,35 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/practice-sessions/{session_id}/add-similar-question": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Similar Question
+         * @description Add a similar question to an existing practice session.
+         *
+         *     Args:
+         *         session_id: Practice session ID
+         *         request: Question and topic information
+         *         user_id: User ID from authentication token
+         *         db: Database client
+         *
+         *     Returns:
+         *         Added question details
+         */
+        post: operations["add_similar_question_api_practice_sessions__session_id__add_similar_question_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/practice-sessions/wrong-answers": {
         parameters: {
             query?: never;
@@ -454,6 +483,34 @@ export interface paths {
          *         List of questions answered incorrectly with session context
          */
         get: operations["get_wrong_answers_api_practice_sessions_wrong_answers_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/practice-sessions/completed": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Completed Sessions
+         * @description Get completed practice sessions for the current user.
+         *
+         *     Args:
+         *         limit: Maximum number of sessions to return (1-100)
+         *         db: Database session
+         *         current_user: Current authenticated user
+         *
+         *     Returns:
+         *         List of completed practice sessions with basic info
+         */
+        get: operations["get_completed_sessions_api_practice_sessions_completed_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1642,6 +1699,95 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/admin/questions/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Question Stats
+         * @description Get question bank statistics for admin dashboard.
+         *     Admin only endpoint.
+         */
+        get: operations["get_question_stats_api_admin_questions_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Questions
+         * @description List questions with filters and pagination.
+         *     Admin only endpoint.
+         */
+        get: operations["list_questions_api_admin_questions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/admin/questions/{question_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Question Detail
+         * @description Get full question details including usage statistics.
+         *     Admin only endpoint.
+         */
+        get: operations["get_question_detail_api_admin_questions__question_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Question
+         * @description Update question fields.
+         *     Admin only endpoint.
+         */
+        patch: operations["update_question_api_admin_questions__question_id__patch"];
+        trace?: never;
+    };
+    "/api/admin/questions/bulk-update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Bulk Update Questions
+         * @description Bulk update multiple questions.
+         *     Admin only endpoint.
+         */
+        post: operations["bulk_update_questions_api_admin_questions_bulk_update_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/": {
         parameters: {
             query?: never;
@@ -1713,6 +1859,13 @@ export interface components {
             /** Is Cached */
             is_cached: boolean;
         };
+        /** AddSimilarQuestionRequest */
+        AddSimilarQuestionRequest: {
+            /** Question Id */
+            question_id: string;
+            /** Topic Id */
+            topic_id: string;
+        };
         /** BatchAnswerResult */
         BatchAnswerResult: {
             /** Question Id */
@@ -1742,6 +1895,16 @@ export interface components {
              * Format: binary
              */
             file: string;
+        };
+        /**
+         * BulkUpdate
+         * @description Model for bulk updating questions
+         */
+        BulkUpdate: {
+            /** Question Ids */
+            question_ids: string[];
+            /** Updates */
+            updates: Record<string, never>;
         };
         /**
          * CategoriesAndTopicsResponse
@@ -2293,6 +2456,24 @@ export interface components {
             question_type: string;
         };
         /**
+         * QuestionUpdate
+         * @description Model for updating question fields
+         */
+        QuestionUpdate: {
+            /** Correct Answer */
+            correct_answer?: string[] | null;
+            /** Acceptable Answers */
+            acceptable_answers?: string[] | null;
+            /** Is Active */
+            is_active?: boolean | null;
+            /** Difficulty */
+            difficulty?: string | null;
+            /** Topic Id */
+            topic_id?: string | null;
+            /** Rationale */
+            rationale?: string | null;
+        };
+        /**
          * SessionQuestion
          * @description Session question with details
          */
@@ -2752,7 +2933,7 @@ export interface components {
              * Timezone
              * @default America/New_York
              */
-            timezone: string;
+            timezone: string | null;
             /** Bio */
             bio?: string | null;
             /** Study Goal */
@@ -3384,6 +3565,41 @@ export interface operations {
             };
         };
     };
+    add_similar_question_api_practice_sessions__session_id__add_similar_question_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AddSimilarQuestionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_wrong_answers_api_practice_sessions_wrong_answers_get: {
         parameters: {
             query?: {
@@ -3403,6 +3619,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": Record<string, never>[];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_completed_sessions_api_practice_sessions_completed_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */
@@ -4773,6 +5020,173 @@ export interface operations {
                 };
                 content: {
                     "application/json": Record<string, never>;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_question_stats_api_admin_questions_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    list_questions_api_admin_questions_get: {
+        parameters: {
+            query?: {
+                /** @description Search in question stem */
+                search?: string | null;
+                /** @description Filter by module (math/english) */
+                module?: string | null;
+                /** @description Filter by difficulty (E/M/H) */
+                difficulty?: string | null;
+                /** @description Filter by type (mc/spr) */
+                question_type?: string | null;
+                /** @description Filter by active status */
+                is_active?: boolean | null;
+                /** @description Filter by topic ID */
+                topic_id?: string | null;
+                /** @description Filter questions with empty answers */
+                has_empty_answers?: boolean | null;
+                /** @description Number of results per page */
+                limit?: number;
+                /** @description Offset for pagination */
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_question_detail_api_admin_questions__question_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                question_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_question_api_admin_questions__question_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                question_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuestionUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    bulk_update_questions_api_admin_questions_bulk_update_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BulkUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */

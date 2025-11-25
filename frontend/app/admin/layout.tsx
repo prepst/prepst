@@ -163,7 +163,7 @@ export default function AdminLayout({
           isSidebarOpen ? "ml-64" : "ml-20"
         }`}
       >
-        <div className="min-h-screen p-8">{children}</div>
+        <div className="min-h-screen">{children}</div>
       </main>
     </div>
   );

@@ -7,14 +7,14 @@ type ProfileResponse = components["schemas"]["ProfileResponse"];
 
 /**
  * Hook to fetch the current user's profile
- * 
+ *
  * Returns complete profile data including:
  * - User profile information
  * - User preferences (theme, notifications, etc)
  * - Streak data
  * - Statistics (practice sessions, accuracy, etc)
  * - Recent achievements
- * 
+ *
  * Caches data for 5 minutes
  */
 export function useProfile() {

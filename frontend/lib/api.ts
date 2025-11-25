@@ -1096,4 +1096,116 @@ export const api = {
 
     return response.json();
   },
+
+  // Admin Question Management
+  async getQuestionStats(): Promise<any> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${config.apiUrl}/api/admin/questions/stats`, {
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch question stats");
+    }
+
+    return response.json();
+  },
+
+  async listQuestions(params: {
+    search?: string;
+    module?: string;
+    difficulty?: string;
+    question_type?: string;
+    is_active?: boolean;
+    topic_id?: string;
+    has_empty_answers?: boolean;
+    limit?: number;
+    offset?: number;
+  }): Promise<any> {
+    const headers = await getAuthHeaders();
+    const queryParams = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        queryParams.append(key, String(value));
+      }
+    });
+
+    const response = await fetch(
+      `${config.apiUrl}/api/admin/questions?${queryParams}`,
+      { headers }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch questions");
+    }
+
+    return response.json();
+  },
+
+  async getQuestionDetail(questionId: string): Promise<any> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${config.apiUrl}/api/admin/questions/${questionId}`,
+      { headers }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch question detail");
+    }
+
+    return response.json();
+  },
+
+  async updateQuestion(
+    questionId: string,
+    updates: {
+      correct_answer?: string[];
+      acceptable_answers?: string[];
+      is_active?: boolean;
+      difficulty?: string;
+      topic_id?: string;
+      rationale?: string;
+    }
+  ): Promise<any> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${config.apiUrl}/api/admin/questions/${questionId}`,
+      {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify(updates),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to update question");
+    }
+
+    return response.json();
+  },
+
+  async bulkUpdateQuestions(
+    questionIds: string[],
+    updates: Record<string, any>
+  ): Promise<any> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${config.apiUrl}/api/admin/questions/bulk-update`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          question_ids: questionIds,
+          updates,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to bulk update questions");
+    }
+
+    return response.json();
+  },
 };

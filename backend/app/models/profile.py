@@ -14,7 +14,7 @@ class UserProfile(BaseModel):
     school_name: Optional[str] = None
     phone_number: Optional[str] = None
     parent_email: Optional[str] = None
-    timezone: str = "America/New_York"
+    timezone: Optional[str] = "America/New_York"  # Make timezone optional
     bio: Optional[str] = None
     study_goal: Optional[str] = None
     onboarding_completed: bool = False

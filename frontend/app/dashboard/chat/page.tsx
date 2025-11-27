@@ -70,7 +70,7 @@ const suggestionGroups = [
 ];
 
 interface ChatMessage {
-  id: number;
+  id: string | number;
   content: string;
   sender: "user" | "ai";
   timestamp?: string;
@@ -91,14 +91,38 @@ export default function ChatPage() {
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [activeCategory, setActiveCategory] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
-  const streamIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const streamContentRef = useRef("");
 
-  const streamResponse = (fullResponse: string) => {
-    if (isStreaming) return;
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || isStreaming) return;
 
+    // Generate unique IDs to prevent collisions
+    const generateUniqueId = () => {
+      if (typeof crypto !== "undefined" && crypto.randomUUID) {
+        return crypto.randomUUID();
+      }
+      return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    };
+
+    // Add user message
+    const userMessage: ChatMessage = {
+      id: generateUniqueId(),
+      content: inputMessage,
+      sender: "user",
+      timestamp: new Date().toISOString(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    const currentInput = inputMessage;
+    setInputMessage("");
+    setIsLoading(true);
+    setShowSuggestions(false);
+
+    // Create AI message placeholder
+    const newMessageId = generateUniqueId();
     setIsStreaming(true);
-    const newMessageId = Date.now(); // Use timestamp for unique ID
+    streamContentRef.current = "";
+
     setMessages((prev) => [
       ...prev,
       {
@@ -109,75 +133,52 @@ export default function ChatPage() {
       },
     ]);
 
-    let charIndex = 0;
-    streamContentRef.current = "";
-
-    streamIntervalRef.current = setInterval(() => {
-      if (charIndex < fullResponse.length) {
-        streamContentRef.current += fullResponse[charIndex];
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === newMessageId
-              ? { ...msg, content: streamContentRef.current }
-              : msg
-          )
-        );
-        charIndex++;
-      } else {
-        clearInterval(streamIntervalRef.current!);
-        setIsStreaming(false);
-      }
-    }, 30);
-  };
-
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return;
-
-    // Add user message
-    const userMessage: ChatMessage = {
-      id: Date.now(),
-      content: inputMessage,
-      sender: "user",
-      timestamp: new Date().toISOString(),
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-    setInputMessage("");
-    setIsLoading(true);
-    setShowSuggestions(false);
-
     try {
-      // Convert messages to API format
+      // Convert messages to API format (excluding the empty AI message we just added)
       const conversationHistory: ChatMessageAPI[] = messages.map((msg) => ({
         role: msg.sender === "user" ? "user" : "assistant",
         content: msg.content,
         timestamp: msg.timestamp || new Date().toISOString(),
       }));
 
-      // Call OpenAI API through our backend
-      const response = await api.chatWithAI({
-        message: inputMessage,
-        conversation_history: conversationHistory,
-      });
-
-      // Stream the AI response
-      streamResponse(response.response);
+      // Call OpenAI API with streaming
+      await api.chatWithAI(
+        {
+          message: currentInput,
+          conversation_history: conversationHistory,
+        },
+        (chunk: string) => {
+          // Update message content as chunks arrive
+          streamContentRef.current += chunk;
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === newMessageId
+                ? { ...msg, content: streamContentRef.current }
+                : msg
+            )
+          );
+        }
+      );
     } catch (error) {
       console.error("Chat error:", error);
       toast.error("Failed to get AI response. Please try again.");
 
-      // Add error message
-      const errorResponse: ChatMessage = {
-        id: Date.now(),
-        content:
-          "Sorry, I'm having trouble responding right now. Please try again in a moment.",
-        sender: "ai",
-        timestamp: new Date().toISOString(),
-      };
-
-      setMessages((prev) => [...prev, errorResponse]);
+      // Update the message with error
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === newMessageId
+            ? {
+                ...msg,
+                content:
+                  "Sorry, I'm having trouble responding right now. Please try again in a moment.",
+              }
+            : msg
+        )
+      );
     } finally {
       setIsLoading(false);
+      setIsStreaming(false);
+      streamContentRef.current = "";
     }
   };
 
@@ -202,14 +203,6 @@ export default function ChatPage() {
 
   // Determine which suggestions to show
   const showCategorySuggestions = activeCategory !== "";
-
-  useEffect(() => {
-    return () => {
-      if (streamIntervalRef.current) {
-        clearInterval(streamIntervalRef.current);
-      }
-    };
-  }, []);
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {

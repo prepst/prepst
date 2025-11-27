@@ -146,13 +146,14 @@ export default function DashboardLayout({
   ];
 
   // Add admin analytics link if user is admin
-  if (isAdmin) {
-    mainNavItems.push({
-      name: "Admin Analytics",
-      href: "/dashboard/admin/analytics",
-      icon: Settings,
-    });
-  }
+  // Commented out - keeping implementation as dead code
+  // if (isAdmin) {
+  //   mainNavItems.push({
+  //     name: "Admin Analytics",
+  //     href: "/dashboard/admin/analytics",
+  //     icon: Settings,
+  //   });
+  // }
 
   const accountItems = [
     { name: "Chat", href: "/dashboard/chat", icon: MessageCircle },

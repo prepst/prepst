@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   FileQuestion,
-  BarChart3,
+  // BarChart3, // Removed - analytics link commented out
   ArrowLeft,
   Menu,
   X,
@@ -53,11 +53,12 @@ export default function AdminLayout({
       href: "/admin/questions",
       icon: FileQuestion,
     },
-    {
-      name: "Analytics",
-      href: "/admin/analytics",
-      icon: BarChart3,
-    },
+    // Analytics link commented out - keeping implementation as dead code
+    // {
+    //   name: "Analytics",
+    //   href: "/admin/analytics",
+    //   icon: BarChart3,
+    // },
   ];
 
   if (loading || !user) {

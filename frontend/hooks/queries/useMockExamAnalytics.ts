@@ -3,21 +3,21 @@ import { api } from "@/lib/api";
 import { queryKeys } from "@/lib/query-keys";
 
 /**
- * Hook to fetch mock exam analytics
- * 
- * Returns comprehensive mock exam analytics including:
+ * Hook to fetch mock exam performance data for current user
+ *
+ * Returns user's mock exam performance including:
  * - Recent exam scores
- * - Average scores
- * - Improvement velocity
- * - Readiness score
- * 
+ * - Total count of exams
+ *
  * Caches data for 5 minutes
+ *
+ * Note: Previously called admin endpoint, now uses user-specific endpoint
  */
 export function useMockExamAnalytics() {
   return useQuery({
     queryKey: queryKeys.adminAnalytics.mockExamAnalytics(),
-    queryFn: () => api.getMockExamAnalytics(),
+    queryFn: () => api.getMockExamPerformance(10),
     staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: 1, // Only retry once for admin endpoints
+    retry: 1,
   });
 }

@@ -136,11 +136,6 @@ export default function DashboardLayout({
           href: "/dashboard/progress",
           icon: BarChart3,
         },
-        {
-          name: "Lorem",
-          href: "/dashboard/lorem",
-          icon: FileText,
-        },
       ],
     },
   ];

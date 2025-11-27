@@ -116,12 +116,6 @@ function categorizeSessions(sessions: PracticeSession[]): TodoSectionType[] {
       icon: "🎯",
       todos: [{ ...mockSession, id: "mock-test-2" }],
     },
-    {
-      id: "lorem",
-      title: "Lorem Ipsum",
-      icon: "📝",
-      todos: [], // Static placeholder, no logic
-    },
   ];
 }
 
@@ -136,7 +130,7 @@ function StudyPlanContent() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [sections, setSections] = useState<TodoSectionType[]>([]);
   const [activeFilter, setActiveFilter] = useState<
-    "all" | "completed" | "lorem"
+    "all" | "completed"
   >("all");
 
   // Initialize sections when study plan loads
@@ -322,14 +316,6 @@ function StudyPlanContent() {
                   >
                     Completed
                   </Button>
-                  <Button
-                    variant={activeFilter === "lorem" ? "default" : "outline"}
-                    className="rounded-lg"
-                    size="sm"
-                    onClick={() => setActiveFilter("lorem")}
-                  >
-                    Lorem
-                  </Button>
                 </div>
                 <div className="ml-auto flex items-center gap-2">
                   <Button
@@ -372,14 +358,9 @@ function StudyPlanContent() {
             <div className="space-y-6">
               {sections
                 .filter((section) => {
-                  if (activeFilter === "completed") {
-                    return section.id === "lorem";
-                  }
-                  if (activeFilter === "lorem") {
-                    return section.id === "lorem";
-                  }
-                  // "all" shows everything except lorem
-                  return section.id !== "lorem";
+                  // "completed" filter shows only completed sessions
+                  // "all" shows everything
+                  return true;
                 })
                 .map((section) => (
                   <TodoSection

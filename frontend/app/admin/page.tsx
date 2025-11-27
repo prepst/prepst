@@ -96,7 +96,8 @@ export default function AdminHomePage() {
           </p>
         </Link>
 
-        <Link
+        {/* Analytics link commented out - implementation exists at /dashboard/admin/analytics but not exposed */}
+        {/* <Link
           href="/admin/analytics"
           className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700"
         >
@@ -107,7 +108,7 @@ export default function AdminHomePage() {
           <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
             User progress and system metrics
           </p>
-        </Link>
+        </Link> */}
 
         <button
           onClick={() => loadStats()}

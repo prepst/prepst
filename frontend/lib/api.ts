@@ -900,16 +900,21 @@ export const api = {
     return response.json();
   },
 
-  async chatWithAI(data: ChatRequest): Promise<ChatResponse> {
+  async chatWithAI(
+    data: ChatRequest,
+    onStream?: (chunk: string) => void
+  ): Promise<ChatResponse> {
     const headers = await getAuthHeaders();
+
+    // Keep Content-Type for request body parsing - response will be text/event-stream
     const response = await fetch(`${config.apiUrl}/api/ai-feedback/chat`, {
       method: "POST",
-      headers,
+      headers, // Keep all headers including Content-Type
       body: JSON.stringify(data),
     });
 
     if (!response.ok) {
-      const error = await response.json();
+      const error = await response.json().catch(() => ({}));
       const errorMessage =
         typeof error.detail === "string"
           ? error.detail
@@ -920,6 +925,51 @@ export const api = {
       throw new Error(errorMessage);
     }
 
+    // If streaming callback provided, stream the response
+    if (onStream && response.body) {
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let fullResponse = "";
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n\n");
+          buffer = lines.pop() || ""; // Keep incomplete line in buffer
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                if (data.content) {
+                  fullResponse += data.content;
+                  onStream(data.content);
+                }
+                if (data.done || data.error) {
+                  break;
+                }
+              } catch (e) {
+                console.error("Error parsing SSE data:", e);
+              }
+            }
+          }
+        }
+      } finally {
+        reader.releaseLock();
+      }
+
+      return {
+        success: true,
+        response: fullResponse,
+        timestamp: new Date().toISOString(),
+      };
+    }
+
+    // Fallback to non-streaming (shouldn't happen with new endpoint)
     return response.json();
   },
 

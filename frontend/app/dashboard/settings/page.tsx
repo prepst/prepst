@@ -123,7 +123,7 @@ function SettingsContent() {
 
   const tabs = [
     { id: "account", label: "Account", icon: Lock },
-    { id: "study", label: "Study Preferences", icon: BookOpen },
+    { id: "study", label: "Study", icon: BookOpen },
     { id: "notifications", label: "Notifications", icon: Bell },
     { id: "display", label: "Display", icon: Monitor },
     { id: "privacy", label: "Privacy", icon: Shield },
@@ -169,15 +169,16 @@ function SettingsContent() {
             onValueChange={setActiveTab}
             className="space-y-6"
           >
-            <TabsList className="grid w-full grid-cols-5 bg-muted/50">
+            <TabsList className="flex w-full bg-muted/50 overflow-x-auto lg:grid lg:grid-cols-5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {tabs.map((tab) => (
                 <TabsTrigger
                   key={tab.id}
                   value={tab.id}
-                  className="flex items-center gap-2"
+                  className="flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm whitespace-nowrap flex-shrink-0 px-4 sm:px-5 lg:px-2 lg:flex-1 min-w-[90px] sm:min-w-[110px] lg:min-w-0"
                 >
-                  <tab.icon className="w-4 h-4" />
+                  <tab.icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0" />
                   <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden">{tab.label.split(" ")[0]}</span>
                 </TabsTrigger>
               ))}
             </TabsList>

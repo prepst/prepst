@@ -38,14 +38,8 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Initialize sidebar collapsed state from localStorage
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("dashboard-sidebar-collapsed");
-      return saved === "true";
-    }
-    return false;
-  });
+  // Initialize sidebar collapsed state (always start with false to avoid hydration mismatch)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isStudyPlanExpanded, setIsStudyPlanExpanded] = useState(true);
@@ -56,28 +50,18 @@ export default function DashboardLayout({
   const { user } = useAuth();
   const { data: profileData, isLoading } = useProfile();
 
-  // Persist sidebar collapsed state to localStorage
-  useEffect(() => {
-    if (typeof window !== "undefined" && !isMobile) {
-      localStorage.setItem(
-        "dashboard-sidebar-collapsed",
-        String(isSidebarCollapsed)
-      );
-    }
-  }, [isSidebarCollapsed, isMobile]);
-
-  // Handle responsive behavior
+  // Load sidebar collapsed state from localStorage on mount (client-side only)
   useEffect(() => {
     const checkScreenSize = () => {
       const mobile = window.innerWidth < 1024; // lg breakpoint
       setIsMobile(mobile);
 
-      // Auto-collapse sidebar on mobile (override saved state)
       if (mobile) {
+        // Auto-collapse sidebar on mobile
         setIsSidebarCollapsed(true);
         setIsMobileMenuOpen(false);
       } else {
-        // On desktop, restore saved state
+        // On desktop, restore saved state from localStorage
         const saved = localStorage.getItem("dashboard-sidebar-collapsed");
         if (saved !== null) {
           setIsSidebarCollapsed(saved === "true");
@@ -90,6 +74,16 @@ export default function DashboardLayout({
 
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
+
+  // Persist sidebar collapsed state to localStorage (only on desktop)
+  useEffect(() => {
+    if (!isMobile) {
+      localStorage.setItem(
+        "dashboard-sidebar-collapsed",
+        String(isSidebarCollapsed)
+      );
+    }
+  }, [isSidebarCollapsed, isMobile]);
 
   // Close mobile menu when route changes
   useEffect(() => {

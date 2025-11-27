@@ -38,7 +38,14 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  // Initialize sidebar collapsed state from localStorage
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("dashboard-sidebar-collapsed");
+      return saved === "true";
+    }
+    return false;
+  });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isStudyPlanExpanded, setIsStudyPlanExpanded] = useState(true);
@@ -49,16 +56,32 @@ export default function DashboardLayout({
   const { user } = useAuth();
   const { data: profileData, isLoading } = useProfile();
 
+  // Persist sidebar collapsed state to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined" && !isMobile) {
+      localStorage.setItem(
+        "dashboard-sidebar-collapsed",
+        String(isSidebarCollapsed)
+      );
+    }
+  }, [isSidebarCollapsed, isMobile]);
+
   // Handle responsive behavior
   useEffect(() => {
     const checkScreenSize = () => {
       const mobile = window.innerWidth < 1024; // lg breakpoint
       setIsMobile(mobile);
 
-      // Auto-collapse sidebar on mobile
+      // Auto-collapse sidebar on mobile (override saved state)
       if (mobile) {
         setIsSidebarCollapsed(true);
         setIsMobileMenuOpen(false);
+      } else {
+        // On desktop, restore saved state
+        const saved = localStorage.getItem("dashboard-sidebar-collapsed");
+        if (saved !== null) {
+          setIsSidebarCollapsed(saved === "true");
+        }
       }
     };
 

@@ -88,6 +88,7 @@ export default function AdminQuestionTestPage() {
     setAnswer({
       userAnswer: [value],
       isCorrect: false,
+      status: "not_started",
     });
   };
 

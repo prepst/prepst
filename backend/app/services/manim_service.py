@@ -295,6 +295,17 @@ Do not include any explanations or markdown formatting, just the code."""
         """Execute Manim to generate video from scene file"""
 
         try:
+            # Check if manim is available
+            try:
+                import manim
+            except ImportError:
+                raise Exception(
+                    "Manim is not available in this environment. "
+                    "Manim requires system dependencies (pangocairo, cairo, ffmpeg) "
+                    "that are not available in serverless environments. "
+                    "Please use a dedicated server or Docker container for video generation."
+                )
+
             # Extract class name from file
             code = scene_file.read_text()
             class_name = None

@@ -1,10 +1,6 @@
 "use client";
 
-import { 
-  useStudyPlan,
-  useGrowthCurve,
-  useSkillHeatmap,
-} from "@/hooks/queries";
+import { useStudyPlan, useGrowthCurve, useSkillHeatmap } from "@/hooks/queries";
 import { LineChart } from "@/components/charts/LineChart";
 import { RadarChart } from "@/components/charts/RadarChart";
 import { AreaChart } from "@/components/charts/AreaChart";
@@ -22,10 +18,10 @@ export default function ProgressPage() {
   // Derive data from queries
   const growthData = growthCurveQuery.data?.data || [];
   const heatmap = heatmapQuery.data?.heatmap || {};
-  
+
   // Combined loading state
   const chartsLoading = growthCurveQuery.isLoading || heatmapQuery.isLoading;
-  
+
   // Mock exam and predictive data (TODO: create hooks for these)
   const mockExamData = null;
   const predictiveData = null;
@@ -45,7 +41,10 @@ export default function ProgressPage() {
                 <Skeleton className="h-6 w-96" />
               </div>
               {/* MagicBento Grid Skeleton */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 p-3" style={{ fontSize: 'clamp(1rem, 0.9rem + 0.5vw, 1.5rem)' }}>
+              <div
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 p-3"
+                style={{ fontSize: "clamp(1rem, 0.9rem + 0.5vw, 1.5rem)" }}
+              >
                 <Skeleton className="h-[200px] rounded-[20px]" />
                 <Skeleton className="h-[200px] rounded-[20px]" />
                 <Skeleton className="h-[200px] rounded-[20px] lg:col-span-2 lg:row-span-2 lg:h-[412px]" />
@@ -289,19 +288,21 @@ export default function ProgressPage() {
                   Mock Exam Performance
                 </h2>
                 <div className="bg-white border rounded-2xl p-8">
-                  {mockExamData && (mockExamData as any).recent_exams?.length > 0 ? (
+                  {mockExamData &&
+                  (mockExamData as any).recent_exams?.length > 0 ? (
                     <div>
                       <LineChart
-                        data={(mockExamData as any).recent_exams.map((exam: any) => ({
-                          ...exam,
-                          date: new Date(exam.completed_at).toLocaleDateString(
-                            "en-US",
-                            {
+                        data={(mockExamData as any).recent_exams.map(
+                          (exam: any) => ({
+                            ...exam,
+                            date: new Date(
+                              exam.completed_at
+                            ).toLocaleDateString("en-US", {
                               month: "short",
                               day: "numeric",
-                            }
-                          ),
-                        }))}
+                            }),
+                          })
+                        )}
                         lines={[
                           {
                             dataKey: "total_score",
@@ -331,8 +332,13 @@ export default function ProgressPage() {
                         <div className="bg-gray-50 rounded-lg p-4 text-center">
                           <p className="text-sm text-gray-600">Improvement</p>
                           <p className="text-2xl font-bold text-green-600">
-                            {(mockExamData as any).improvement_velocity > 0 ? "+" : ""}
-                            {Math.round((mockExamData as any).improvement_velocity)} pts
+                            {(mockExamData as any).improvement_velocity > 0
+                              ? "+"
+                              : ""}
+                            {Math.round(
+                              (mockExamData as any).improvement_velocity
+                            )}{" "}
+                            pts
                           </p>
                         </div>
                         <div className="bg-gray-50 rounded-lg p-4 text-center">

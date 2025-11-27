@@ -79,7 +79,8 @@ export default function DashboardLayout({
     user?.app_metadata?.role === "admin";
 
   const mainNavItems = [
-    { name: "Mind Map", href: "/dashboard/mind-map", icon: Brain },
+    // Mind Map commented out - keeping implementation as dead code
+    // { name: "Mind Map", href: "/dashboard/mind-map", icon: Brain },
   ];
 
   const dashboardItems = [

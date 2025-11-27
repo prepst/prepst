@@ -19,6 +19,8 @@ import {
   ChevronUp,
   PlayCircle,
   RotateCcw,
+  Video,
+  Notebook,
 } from "lucide-react";
 import { StatisticsPanel } from "@/components/dashboard/StatisticsPanel";
 import { ProfileDropdown } from "@/components/dashboard/ProfileDropdown";
@@ -162,6 +164,8 @@ export default function DashboardLayout({
         },
       ],
     },
+    { name: "Manim", href: "/dashboard/manim", icon: Video },
+    { name: "Notebook", href: "/dashboard/notebook", icon: Notebook },
   ];
 
   // Add admin analytics link if user is admin

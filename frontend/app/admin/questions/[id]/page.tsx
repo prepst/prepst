@@ -226,9 +226,10 @@ export default function AdminQuestionTestPage() {
             aiFeedback={
               showFeedback && adminQuestion.rationale
                 ? {
-                    feedback: adminQuestion.rationale,
+                    explanation: adminQuestion.rationale,
+                    hints: [],
+                    learning_points: [],
                     key_concepts: [],
-                    common_mistakes: [],
                   }
                 : null
             }

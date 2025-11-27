@@ -103,7 +103,13 @@ export default function DashboardLayout({
     user?.user_metadata?.role === "admin" ||
     user?.app_metadata?.role === "admin";
 
-  const mainNavItems = [
+  type NavItem = {
+    name: string;
+    href: string;
+    icon: React.ComponentType<{ className?: string }>;
+  };
+
+  const mainNavItems: NavItem[] = [
     // Mind Map commented out - keeping implementation as dead code
     // { name: "Mind Map", href: "/dashboard/mind-map", icon: Brain },
   ];

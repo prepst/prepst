@@ -73,26 +73,44 @@ export default function MockProgressPage() {
                   <div className="bg-gray-50 rounded-lg p-4 text-center">
                     <p className="text-sm text-gray-600">Total Exams</p>
                     <p className="text-2xl font-bold text-gray-900">
-                      {mockExamData.total_exams}
+                      {mockExamData.total_count}
                     </p>
                   </div>
                   <div className="bg-gray-50 rounded-lg p-4 text-center">
                     <p className="text-sm text-gray-600">Average Score</p>
                     <p className="text-2xl font-bold text-blue-600">
-                      {Math.round(mockExamData.avg_total_score)}
+                      {mockExamData.recent_exams.length > 0
+                        ? Math.round(
+                            mockExamData.recent_exams.reduce(
+                              (sum, exam) => sum + exam.total_score,
+                              0
+                            ) / mockExamData.recent_exams.length
+                          )
+                        : 0}
                     </p>
                   </div>
                   <div className="bg-gray-50 rounded-lg p-4 text-center">
                     <p className="text-sm text-gray-600">Improvement</p>
                     <p className="text-2xl font-bold text-green-600">
-                      {mockExamData.improvement_velocity > 0 ? "+" : ""}
-                      {Math.round(mockExamData.improvement_velocity)} pts
+                      {mockExamData.recent_exams.length >= 2
+                        ? (() => {
+                            const scores = mockExamData.recent_exams.map(
+                              (e) => e.total_score
+                            );
+                            const improvement =
+                              scores[scores.length - 1] - scores[0];
+                            return improvement > 0 ? `+${Math.round(improvement)}` : Math.round(improvement);
+                          })()
+                        : "—"}
+                      {mockExamData.recent_exams.length >= 2 ? " pts" : ""}
                     </p>
                   </div>
                   <div className="bg-gray-50 rounded-lg p-4 text-center">
-                    <p className="text-sm text-gray-600">Readiness</p>
+                    <p className="text-sm text-gray-600">Latest Score</p>
                     <p className="text-2xl font-bold text-purple-600">
-                      {mockExamData.readiness_score}/100
+                      {mockExamData.recent_exams.length > 0
+                        ? mockExamData.recent_exams[0].total_score
+                        : "—"}
                     </p>
                   </div>
                 </div>

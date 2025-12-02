@@ -21,6 +21,8 @@ import {
   RotateCcw,
   Video,
   Notebook,
+  UserPlus,
+  LogIn,
 } from "lucide-react";
 import { StatisticsPanel } from "@/components/dashboard/StatisticsPanel";
 import { ProfileDropdown } from "@/components/dashboard/ProfileDropdown";
@@ -242,13 +244,13 @@ export default function DashboardLayout({
         {/* Left Sidebar */}
         <aside
           key={`sidebar-${isMobile}-${isSidebarCollapsed}`}
-          className={`transition-all duration-300 sticky top-0 h-screen flex-shrink-0 bg-card border-r border-border shadow-sm ${
-            isSidebarCollapsed ? "w-16" : "w-56"
+          className={`transition-all duration-300 ease-in-out sticky top-0 h-screen flex-shrink-0 bg-card border-r border-border z-30 ${
+            isSidebarCollapsed ? "w-[80px]" : "w-[280px]"
           } ${
             isMobile
               ? isSidebarCollapsed
-                ? "w-0 overflow-hidden" // Hide completely on mobile when collapsed
-                : `fixed left-0 z-50 w-56 ${
+                ? "w-0 overflow-hidden border-none" // Hide completely on mobile when collapsed
+                : `fixed left-0 z-50 w-[280px] shadow-2xl ${
                     isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
                   }`
               : ""
@@ -256,18 +258,30 @@ export default function DashboardLayout({
         >
           <div
             className={`flex flex-col h-full ${
-              isMobile ? "px-3 pt-4" : "px-4 pt-6"
+              isMobile ? "px-4 pt-6" : "px-4 pt-8"
             }`}
           >
-            {/* Logo removed per request */}
+            {/* Toggle button aligned with menu items */}
+            <button
+              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              className={`absolute -right-3 top-8 w-8 h-8 bg-background border border-border rounded-full flex items-center justify-center hover:bg-muted hover:text-primary transition-all duration-300 shadow-sm z-50 group ${
+                isMobile ? "hidden" : "flex"
+              }`}
+            >
+              {isSidebarCollapsed ? (
+                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              ) : (
+                <ChevronLeft className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              )}
+            </button>
 
             {/* Main Navigation Section */}
-            <div className="space-y-1 flex-1">
+            <div className="space-y-6 flex-1 overflow-y-auto scrollbar-hide py-2">
               {/* Dashboard Section */}
-              <div className="space-y-1">
+              <div className="space-y-2">
                 {/* Dashboard Label */}
                 {!isSidebarCollapsed && (
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 mb-3">
+                  <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest px-4 mb-4">
                     Dashboard
                   </p>
                 )}
@@ -300,29 +314,29 @@ export default function DashboardLayout({
                         {/* Collapsible Header */}
                         <button
                           onClick={() => setExpanded(!isExpanded)}
-                          className={`flex items-center rounded-xl transition-colors ${
+                          className={`w-full flex items-center rounded-2xl transition-all duration-200 group ${
                             isActive 
-                              ? "bg-primary/10 text-primary" 
-                              : "hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+                              ? "bg-primary/10 text-primary font-semibold" 
+                              : "hover:bg-muted/60 text-muted-foreground hover:text-foreground font-medium"
                           } ${
                             isSidebarCollapsed
-                              ? "justify-center p-3 mx-auto w-11"
-                              : `gap-3 py-3 px-4 ${
+                              ? "justify-center p-3 mx-auto w-12 h-12"
+                              : `gap-3 py-3 px-4 mx-auto ${
                                   isMobile ? "py-4" : ""
-                                } text-sm`
+                                } text-[15px]`
                           }`}
                           title={isSidebarCollapsed ? item.name : undefined}
                         >
-                          <Icon className="w-4 h-4 flex-shrink-0" />
+                          <Icon className={`flex-shrink-0 transition-colors ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"} ${isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5"}`} />
                           {!isSidebarCollapsed && (
                             <>
-                              <span className="whitespace-nowrap">
+                              <span className="whitespace-nowrap flex-1 text-left">
                                 {item.name}
                               </span>
                               {isExpanded ? (
-                                <ChevronUp className="w-4 h-4 ml-auto" />
+                                <ChevronUp className="w-4 h-4 text-muted-foreground/70" />
                               ) : (
-                                <ChevronDown className="w-4 h-4 ml-auto" />
+                                <ChevronDown className="w-4 h-4 text-muted-foreground/70" />
                               )}
                             </>
                           )}
@@ -330,7 +344,10 @@ export default function DashboardLayout({
 
                         {/* Sub-items */}
                         {!isSidebarCollapsed && isExpanded && item.subItems && (
-                          <div className="ml-6 space-y-1">
+                          <div className="mt-1 space-y-1 relative">
+                            {/* Vertical line for hierarchy */}
+                            <div className="absolute left-[26px] top-0 bottom-2 w-px bg-border/60" />
+                            
                             {item.subItems.map((subItem) => {
                               const SubIcon = subItem.icon;
                               const isSubActive = pathname === subItem.href;
@@ -338,16 +355,16 @@ export default function DashboardLayout({
                                 <Link
                                   key={subItem.href}
                                   href={subItem.href}
-                                  className={`flex items-center rounded-xl transition-colors ${
+                                  className={`flex items-center rounded-xl transition-all duration-200 relative z-10 ml-3 mr-2 ${
                                     isSubActive
-                                      ? "bg-primary/10 text-primary"
-                                      : "hover:bg-accent hover:text-accent-foreground text-muted-foreground"
-                                  } gap-3 py-2 px-4 text-xs ${
+                                      ? "bg-primary/5 text-primary font-medium"
+                                      : "hover:bg-muted/50 hover:text-foreground text-muted-foreground"
+                                  } gap-3 py-2.5 px-4 text-sm ${
                                     isMobile ? "py-3" : ""
                                   }`}
                                 >
-                                  <SubIcon className="w-3 h-3 flex-shrink-0" />
-                                  <span className="whitespace-nowrap text-sm">
+                                  <span className={`w-1.5 h-1.5 rounded-full ${isSubActive ? "bg-primary" : "bg-muted-foreground/40"} flex-shrink-0`} />
+                                  <span className="whitespace-nowrap">
                                     {subItem.name}
                                   </span>
                                 </Link>
@@ -364,18 +381,18 @@ export default function DashboardLayout({
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`flex items-center rounded-xl transition-colors ${
+                      className={`flex items-center rounded-2xl transition-all duration-200 group ${
                         isActive
-                          ? "bg-primary/10 text-primary"
-                          : "hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+                          ? "bg-primary/10 text-primary font-semibold"
+                          : "hover:bg-muted/60 hover:text-foreground text-muted-foreground font-medium"
                       } ${
                         isSidebarCollapsed
-                          ? "justify-center p-3 mx-auto w-11"
-                          : `gap-3 py-3 px-4 ${isMobile ? "py-4" : ""} text-sm`
+                          ? "justify-center p-3 mx-auto w-12 h-12"
+                          : `gap-3 py-3 px-4 ${isMobile ? "py-4" : ""} text-[15px]`
                       }`}
                       title={isSidebarCollapsed ? item.name : undefined}
                     >
-                      <Icon className="w-4 h-4 flex-shrink-0" />
+                      <Icon className={`flex-shrink-0 transition-colors ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"} ${isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5"}`} />
                       {!isSidebarCollapsed && (
                         <span className="whitespace-nowrap">{item.name}</span>
                       )}
@@ -385,37 +402,46 @@ export default function DashboardLayout({
               </div>
 
               {/* Main Navigation Items */}
-              {mainNavItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname === item.href;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center rounded-xl transition-colors ${
-                      isActive
-                        ? "bg-primary/10 text-primary"
-                        : item.name === "Mind Map"
-                        ? "hover:bg-accent text-purple-500"
-                        : "hover:bg-accent hover:text-accent-foreground text-muted-foreground"
-                    } ${
-                      isSidebarCollapsed
-                        ? "justify-center p-3 mx-auto w-11"
-                        : `gap-3 py-3 px-4 ${isMobile ? "py-4" : ""} text-sm`
-                    }`}
-                    title={isSidebarCollapsed ? item.name : undefined}
-                  >
-                    <Icon className="w-4 h-4 flex-shrink-0" />
-                    {!isSidebarCollapsed && (
-                      <span className="whitespace-nowrap">{item.name}</span>
-                    )}
-                  </Link>
-                );
-              })}
+              {mainNavItems.length > 0 && (
+                <div className="space-y-2">
+                  {!isSidebarCollapsed && (
+                     <div className="h-px bg-border/50 mx-4 my-2" />
+                  )}
+                  {mainNavItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = pathname === item.href;
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className={`flex items-center rounded-2xl transition-all duration-200 group ${
+                          isActive
+                            ? "bg-primary/10 text-primary font-semibold"
+                            : item.name === "Mind Map"
+                            ? "hover:bg-accent text-purple-500"
+                            : "hover:bg-muted/60 hover:text-foreground text-muted-foreground font-medium"
+                        } ${
+                          isSidebarCollapsed
+                            ? "justify-center p-3 mx-auto w-12 h-12"
+                            : `gap-3 py-3 px-4 ${isMobile ? "py-4" : ""} text-[15px]`
+                        }`}
+                        title={isSidebarCollapsed ? item.name : undefined}
+                      >
+                        <Icon className={`flex-shrink-0 transition-colors ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"} ${isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5"}`} />
+                        {!isSidebarCollapsed && (
+                          <span className="whitespace-nowrap">{item.name}</span>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Account section */}
-            <div className="space-y-1">
+            <div className="space-y-3 pb-6">
+              {!isSidebarCollapsed && <div className="h-px bg-border/50 mx-4 mb-2" />}
+              
               {/* Account Menu Items */}
               {accountItems.map((item) => {
                 const Icon = item.icon;
@@ -424,18 +450,18 @@ export default function DashboardLayout({
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center rounded-xl transition-colors ${
+                    className={`flex items-center rounded-2xl transition-all duration-200 group ${
                       isActive
-                        ? "bg-primary/10 text-primary"
-                        : "hover:bg-accent hover:text-accent-foreground text-muted-foreground"
+                        ? "bg-primary/10 text-primary font-semibold"
+                        : "hover:bg-muted/60 hover:text-foreground text-muted-foreground font-medium"
                     } ${
                       isSidebarCollapsed
-                        ? "justify-center p-3 mx-auto w-11"
-                        : `gap-3 py-3 px-4 ${isMobile ? "py-4" : ""} text-sm`
+                        ? "justify-center p-3 mx-auto w-12 h-12"
+                        : `gap-3 py-3 px-4 ${isMobile ? "py-4" : ""} text-[15px]`
                     }`}
                     title={isSidebarCollapsed ? item.name : undefined}
                   >
-                    <Icon className="w-4 h-4 flex-shrink-0" />
+                    <Icon className={`flex-shrink-0 transition-colors ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"} ${isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5"}`} />
                     {!isSidebarCollapsed && (
                       <span className="whitespace-nowrap">{item.name}</span>
                     )}
@@ -444,73 +470,61 @@ export default function DashboardLayout({
               })}
 
               {/* Theme Toggle */}
-              {!isSidebarCollapsed && (
-                <>
-                  <div className="flex items-center justify-between px-4 py-3 mb-4">
-                    <div className="flex items-center gap-2">
-                      <Sun
-                        className={`w-4 h-4 ${
-                          !isDarkMode ? "text-yellow-500" : "text-muted-foreground"
-                        }`}
-                      />
-                      <Switch
-                        checked={isDarkMode}
-                        onCheckedChange={(checked) =>
-                          setTheme(checked ? "dark" : "light")
-                        }
-                      />
-                      <Moon
-                        className={`w-4 h-4 ${
-                          isDarkMode ? "text-blue-400" : "text-muted-foreground"
-                        }`}
-                      />
+              {!isSidebarCollapsed ? (
+                <div className="flex items-center justify-between px-4 py-2 bg-muted/30 rounded-2xl border border-border/50 mx-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-background flex items-center justify-center shadow-sm border border-border/50">
+                       {isDarkMode ? <Moon className="w-4 h-4 text-blue-400" /> : <Sun className="w-4 h-4 text-yellow-500" />}
                     </div>
+                    <span className="text-sm font-medium text-muted-foreground">Theme</span>
                   </div>
-                  {/* Divider after theme toggle */}
-                  <div className="border-t border-border mx-4 mb-4"></div>
-                </>
+                  <Switch
+                    checked={isDarkMode}
+                    onCheckedChange={(checked) =>
+                      setTheme(checked ? "dark" : "light")
+                    }
+                    className="data-[state=checked]:bg-primary"
+                  />
+                </div>
+              ) : (
+                <button 
+                  onClick={() => setTheme(isDarkMode ? "light" : "dark")}
+                  className="flex items-center justify-center p-3 mx-auto w-12 h-12 rounded-2xl hover:bg-muted/60 text-muted-foreground transition-all duration-200"
+                >
+                  {isDarkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+                </button>
               )}
 
               {/* Profile Section - Show for signed in users */}
               {user && (
-                <ProfileDropdown isSidebarCollapsed={isSidebarCollapsed} />
+                <div className={`mt-2 ${isSidebarCollapsed ? "mx-auto" : ""}`}>
+                  <ProfileDropdown isSidebarCollapsed={isSidebarCollapsed} />
+                </div>
               )}
             </div>
 
             {/* Auth buttons for non-signed in users */}
             {!user && (
-              <div className="space-y-2 pb-2">
+              <div className="space-y-3 pb-6 px-2">
                 <Link href="/signup" className="block">
                   <Button
-                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                    className={`w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 rounded-xl ${isSidebarCollapsed ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center" : "h-11"}`}
                     size="sm"
                   >
-                    {!isSidebarCollapsed && "Register"}
+                    {isSidebarCollapsed ? <UserPlus className="w-5 h-5" /> : "Get Started"}
                   </Button>
                 </Link>
                 <Link href="/login" className="block">
                   <Button
                     variant="outline"
-                    className="w-full border-primary/20 hover:bg-primary/5"
+                    className={`w-full border-border hover:bg-muted/50 rounded-xl ${isSidebarCollapsed ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center" : "h-11"}`}
                     size="sm"
                   >
-                    {!isSidebarCollapsed && "Log In"}
+                    {isSidebarCollapsed ? <LogIn className="w-5 h-5" /> : "Sign In"}
                   </Button>
                 </Link>
               </div>
             )}
-
-            {/* Toggle button aligned with menu items */}
-            <button
-              onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className="absolute -right-9 top-6 w-6 h-6 bg-card border border-border rounded-full flex items-center justify-center hover:bg-accent transition-colors shadow-sm z-10"
-            >
-              {isSidebarCollapsed ? (
-                <ChevronRight className="w-3 h-3 text-muted-foreground" />
-              ) : (
-                <ChevronLeft className="w-3 h-3 text-muted-foreground" />
-              )}
-            </button>
           </div>
         </aside>
 

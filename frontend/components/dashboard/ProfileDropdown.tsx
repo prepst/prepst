@@ -103,13 +103,13 @@ export function ProfileDropdown({
           <Button
             variant="ghost"
             size="icon"
-            className="w-11 h-11 rounded-full p-0 overflow-hidden"
+            className="w-12 h-12 rounded-2xl p-0 overflow-hidden hover:bg-muted/60 transition-all duration-200"
           >
             <Image
               src="/profile.png"
               alt="Profile"
-              width={44}
-              height={44}
+              width={48}
+              height={48}
               className="object-cover"
             />
           </Button>
@@ -146,10 +146,10 @@ export function ProfileDropdown({
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className={`flex items-center rounded-xl transition-colors hover:bg-accent text-foreground gap-3 py-3 px-4 w-full justify-between ${className}`}
+            className={`flex items-center rounded-2xl transition-all duration-200 hover:bg-muted/60 text-foreground gap-3 py-3 px-4 w-full justify-between group ${className}`}
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+              <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-border/50 shadow-sm">
                 <Image
                   src="/profile.png"
                   alt="Profile"
@@ -159,7 +159,7 @@ export function ProfileDropdown({
                 />
               </div>
               <div className="flex flex-col items-start flex-1">
-                <span className="text-sm font-medium text-foreground">
+                <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
                   {getDisplayName()}
                 </span>
                 <span className="text-xs text-muted-foreground">
@@ -167,7 +167,7 @@ export function ProfileDropdown({
                 </span>
               </div>
             </div>
-            <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="start">

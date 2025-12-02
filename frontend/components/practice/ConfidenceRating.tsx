@@ -28,11 +28,11 @@ export function ConfidenceRating({
   };
 
   return (
-    <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-      <p className="text-sm font-medium text-gray-700 mb-2">
+    <div className="mt-4 p-4 bg-muted/30 rounded-lg">
+      <p className="text-sm font-medium text-foreground mb-2">
         How confident were you? (Optional)
       </p>
-      <p className="text-xs text-gray-500 mb-3">
+      <p className="text-xs text-muted-foreground mb-3">
         This helps analyze your learning progress and mastery level
       </p>
 
@@ -45,8 +45,8 @@ export function ConfidenceRating({
               flex items-center gap-1 p-2 rounded-lg transition-all
               ${
                 selectedRating === rating.value
-                  ? "bg-white border-2 border-blue-500 shadow-sm"
-                  : "hover:bg-white hover:border-blue-300 border-2 border-transparent"
+                  ? "bg-background border-2 border-primary shadow-sm"
+                  : "hover:bg-background hover:border-primary/50 border-2 border-transparent"
               }
             `}
           >
@@ -56,7 +56,7 @@ export function ConfidenceRating({
                 ${
                   selectedRating !== null && selectedRating >= rating.value
                     ? rating.color
-                    : "text-gray-300"
+                    : "text-muted-foreground/30"
                 }
                 ${
                   selectedRating !== null && selectedRating >= rating.value
@@ -65,14 +65,14 @@ export function ConfidenceRating({
                 }
               `}
             />
-            <span className="text-xs font-medium text-gray-700">
+            <span className="text-xs font-medium text-foreground">
               {rating.value}
             </span>
           </button>
         ))}
       </div>
 
-      <p className="text-xs text-gray-500 mt-2">
+      <p className="text-xs text-muted-foreground mt-2">
         Default: {defaultScore} -{" "}
         {ratings.find((r) => r.value === defaultScore)?.label}
       </p>

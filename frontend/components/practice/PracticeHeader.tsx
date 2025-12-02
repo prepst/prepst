@@ -34,19 +34,19 @@ export function PracticeHeader({
   const progress = ((currentIndex + 1) / totalQuestions) * 100;
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm border-b px-8 py-4 flex-shrink-0">
+    <div className="bg-background/90 backdrop-blur-sm border-b border-border px-8 py-4 flex-shrink-0">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-4">
           {/* Question List Button */}
           <button
             onClick={onToggleQuestionList}
-            className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors border border-gray-200"
+            className="p-2 bg-secondary hover:bg-secondary/80 rounded-full transition-colors border border-border"
             title="View all questions"
           >
-            <List className="w-5 h-5 text-gray-600" />
+            <List className="w-5 h-5 text-muted-foreground" />
           </button>
-          <h1 className="text-xl font-bold text-gray-800">Practice Session</h1>
-          <span className="text-sm text-gray-600 font-medium">
+          <h1 className="text-xl font-bold text-foreground">Practice Session</h1>
+          <span className="text-sm text-muted-foreground font-medium">
             {currentIndex + 1} / {totalQuestions}
           </span>
 
@@ -55,57 +55,57 @@ export function PracticeHeader({
             <div className="relative">
               <button
                 onClick={onToggleTimerModal}
-                className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors border border-gray-200"
+                className="p-2 bg-secondary hover:bg-secondary/80 rounded-full transition-colors border border-border"
               >
-                <Clock className="w-5 h-5 text-gray-600" />
+                <Clock className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
           ) : (
             <div
               className={`flex items-center gap-2 px-3 py-1 rounded-full border ${
                 timerMode === 'timer'
-                  ? 'bg-gradient-to-r from-orange-50 to-amber-50 border-orange-200'
-                  : 'bg-gradient-to-r from-blue-50 to-cyan-50 border-blue-200'
+                  ? 'bg-orange-500/10 border-orange-500/20'
+                  : 'bg-blue-500/10 border-blue-500/20'
               }`}
             >
-              <span className="text-sm font-mono font-semibold text-gray-800">
+              <span className="text-sm font-mono font-semibold text-foreground">
                 {formatTime(time)}
               </span>
               <button
                 onClick={onPauseResume}
-                className="p-1 hover:bg-white/50 rounded-full transition-colors"
+                className="p-1 hover:bg-background/50 rounded-full transition-colors"
               >
                 {isRunning ? (
                   <Pause
                     className={`w-3.5 h-3.5 ${
-                      timerMode === 'timer' ? 'text-orange-600' : 'text-blue-600'
+                      timerMode === 'timer' ? 'text-orange-600 dark:text-orange-400' : 'text-blue-600 dark:text-blue-400'
                     }`}
                   />
                 ) : (
                   <Play
                     className={`w-3.5 h-3.5 ${
-                      timerMode === 'timer' ? 'text-orange-600' : 'text-blue-600'
+                      timerMode === 'timer' ? 'text-orange-600 dark:text-orange-400' : 'text-blue-600 dark:text-blue-400'
                     }`}
                   />
                 )}
               </button>
               <button
                 onClick={onReset}
-                className="p-1 hover:bg-white/50 rounded-full transition-colors"
+                className="p-1 hover:bg-background/50 rounded-full transition-colors"
               >
                 <RotateCcw
                   className={`w-3.5 h-3.5 ${
-                    timerMode === 'timer' ? 'text-orange-600' : 'text-blue-600'
+                    timerMode === 'timer' ? 'text-orange-600 dark:text-orange-400' : 'text-blue-600 dark:text-blue-400'
                   }`}
                 />
               </button>
               <button
                 onClick={onCloseTimer}
-                className="p-1 hover:bg-white/50 rounded-full transition-colors"
+                className="p-1 hover:bg-background/50 rounded-full transition-colors"
               >
                 <X
                   className={`w-3.5 h-3.5 ${
-                    timerMode === 'timer' ? 'text-orange-600' : 'text-blue-600'
+                    timerMode === 'timer' ? 'text-orange-600 dark:text-orange-400' : 'text-blue-600 dark:text-blue-400'
                   }`}
                 />
               </button>
@@ -114,12 +114,12 @@ export function PracticeHeader({
         </div>
         <button
           onClick={onExit}
-          className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          className="p-2 hover:bg-muted rounded-full transition-colors"
         >
-          <X className="w-5 h-5 text-gray-600" />
+          <X className="w-5 h-5 text-muted-foreground" />
         </button>
       </div>
-      <Progress value={progress} className="h-2 bg-gray-200" />
+      <Progress value={progress} className="h-2 bg-muted" />
     </div>
   );
 }

@@ -47,12 +47,12 @@ export function AIFeedbackDisplay({
 
       {/* Hints (if incorrect) */}
       {!isCorrect && feedback.hints.length > 0 && (
-        <div className="mb-5 rounded-lg p-4 bg-amber-50/60 border border-amber-200">
+        <div className="mb-5 rounded-lg p-4 bg-amber-500/10 border border-amber-500/20">
           <div className="flex items-center gap-2 mb-3">
-            <Lightbulb className="w-4 h-4 text-amber-700" />
-            <h5 className="font-semibold">Strategic Hints</h5>
+            <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+            <h5 className="font-semibold text-foreground">Strategic Hints</h5>
           </div>
-          <ol className="space-y-3 list-decimal pl-5 marker:text-amber-700">
+          <ol className="space-y-3 list-decimal pl-5 marker:text-amber-600 marker:dark:text-amber-400">
             {feedback.hints.map((hint, i) => (
               <li
                 key={i}
@@ -67,15 +67,15 @@ export function AIFeedbackDisplay({
 
       {/* Learning Points */}
       {feedback.learning_points.length > 0 && (
-        <div className="mb-5 rounded-lg p-4 bg-emerald-50/60 border border-emerald-200">
+        <div className="mb-5 rounded-lg p-4 bg-emerald-500/10 border border-emerald-500/20">
           <div className="flex items-center gap-2 mb-3">
-            <Target className="w-4 h-4 text-emerald-700" />
-            <h5 className="font-semibold">Key Learning Points</h5>
+            <Target className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <h5 className="font-semibold text-foreground">Key Learning Points</h5>
           </div>
           <ul className="space-y-2">
             {feedback.learning_points.map((point, i) => (
               <li key={i} className="flex items-start gap-3">
-                <div className="mt-2 w-1.5 h-1.5 rounded-full bg-emerald-600" />
+                <div className="mt-2 w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400" />
                 <span className="text-sm leading-relaxed text-muted-foreground">
                   {point}
                 </span>

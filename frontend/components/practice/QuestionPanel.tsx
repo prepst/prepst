@@ -19,10 +19,10 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
           <span
             className={`px-4 py-1.5 rounded-full text-xs font-semibold ${
               question.question.difficulty === "E"
-                ? "bg-emerald-100 text-emerald-700"
+                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                 : question.question.difficulty === "M"
-                ? "bg-amber-100 text-amber-700"
-                : "bg-rose-100 text-rose-700"
+                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                : "bg-rose-500/10 text-rose-600 dark:text-rose-400"
             }`}
           >
             {question.question.difficulty === "E"
@@ -31,14 +31,14 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
               ? "Medium"
               : "Hard"}
           </span>
-          <span className="text-sm text-gray-600 font-medium">
+          <span className="text-sm text-muted-foreground font-medium">
             {question.topic.name}
           </span>
         </div>
 
         {/* Question Stem */}
         <div
-          className="question-stem text-lg max-w-none mb-8 text-gray-800 leading-relaxed font-semibold"
+          className="question-stem text-lg max-w-none mb-8 text-foreground leading-relaxed font-semibold"
           dangerouslySetInnerHTML={{
             __html: processedStem,
           }}
@@ -47,7 +47,7 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
         {/* Stimulus (Passage/Context) - Only for English questions */}
         {processedStimulus && (
           <div
-            className="stimulus-passage text-base max-w-none mb-10 p-6 bg-slate-50 rounded-lg border border-slate-200 text-gray-700 leading-relaxed"
+            className="stimulus-passage text-base max-w-none mb-10 p-6 bg-muted/50 rounded-lg border border-border text-foreground leading-relaxed"
             dangerouslySetInnerHTML={{
               __html: processedStimulus,
             }}

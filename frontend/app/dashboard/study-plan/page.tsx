@@ -164,7 +164,7 @@ function StudyPlanContent() {
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="bg-white rounded-xl p-6 shadow-sm border border-gray-200"
+                className="bg-card rounded-xl p-6 shadow-sm border border-border"
               >
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -198,9 +198,9 @@ function StudyPlanContent() {
         <div className="mx-auto max-w-7xl">
           <div className="min-h-[60vh] flex items-center justify-center">
             <div className="max-w-md text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-2">
+              <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-500/10 rounded-full mb-2">
                 <svg
-                  className="w-8 h-8 text-purple-600"
+                  className="w-8 h-8 text-purple-600 dark:text-purple-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -213,10 +213,10 @@ function StudyPlanContent() {
                   />
                 </svg>
               </div>
-              <h2 className="text-2xl font-semibold text-gray-900">
+              <h2 className="text-2xl font-semibold text-foreground">
                 No Study Plan Yet
               </h2>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Create a personalized study plan tailored to your SAT goals and
                 timeline.
               </p>
@@ -342,10 +342,10 @@ function StudyPlanContent() {
           {study_plan.sessions.length === 0 ? (
             <div className="text-center py-12">
               <div className="text-6xl mb-4">📚</div>
-              <h3 className="text-xl font-semibold mb-2">
+              <h3 className="text-xl font-semibold mb-2 text-foreground">
                 No Practice Sessions
               </h3>
-              <p className="text-gray-500 mb-6">
+              <p className="text-muted-foreground mb-6">
                 Create your study plan to get started with personalized SAT
                 prep.
               </p>

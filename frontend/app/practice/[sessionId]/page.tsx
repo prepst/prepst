@@ -208,8 +208,8 @@ function PracticeSessionContent() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 flex flex-col overflow-hidden">
-        <div className="p-4 border-b bg-white/60 backdrop-blur-sm">
+      <div className="h-screen bg-background flex flex-col overflow-hidden">
+        <div className="p-4 border-b border-border bg-background/80 backdrop-blur-sm">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Skeleton className="h-6 w-24" />
@@ -233,9 +233,9 @@ function PracticeSessionContent() {
             </div>
           </div>
           {/* Divider */}
-          <div className="w-1 bg-gray-200" />
+          <div className="w-1 bg-border" />
           {/* Right answer panel */}
-          <div className="border-l bg-white/60 backdrop-blur-sm flex flex-col" style={{ width: `480px` }}>
+          <div className="border-l border-border bg-card/50 backdrop-blur-sm flex flex-col" style={{ width: `480px` }}>
             <div className="p-6 space-y-4">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3">
@@ -244,7 +244,7 @@ function PracticeSessionContent() {
                 </div>
               ))}
             </div>
-            <div className="mt-auto p-4 border-t bg-white/70">
+            <div className="mt-auto p-4 border-t border-border bg-card/70">
               <div className="flex items-center justify-between">
                 <Skeleton className="h-10 w-24" />
                 <div className="flex gap-2">
@@ -271,7 +271,7 @@ function PracticeSessionContent() {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 flex flex-col overflow-hidden">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Header with Progress */}
       <PracticeHeader
         currentIndex={currentIndex}
@@ -328,8 +328,8 @@ function PracticeSessionContent() {
 
         {/* Draggable Divider */}
         <div
-          className={`w-1 bg-gray-300 hover:bg-blue-400 cursor-col-resize transition-colors ${
-            isDragging ? "bg-blue-500" : ""
+          className={`w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ${
+            isDragging ? "bg-primary" : ""
           }`}
           onMouseDown={handleMouseDown}
           style={{
@@ -340,7 +340,7 @@ function PracticeSessionContent() {
 
         {/* Right Panel - Answer Choices & Feedback - Dynamic width */}
         <div
-          className="border-l bg-white/60 backdrop-blur-sm flex flex-col"
+          className="border-l border-border bg-card/50 backdrop-blur-sm flex flex-col"
           style={{ width: `${dividerPosition}px` }}
         >
           <AnswerPanel

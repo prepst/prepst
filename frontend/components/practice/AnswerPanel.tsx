@@ -40,7 +40,7 @@ export function AnswerPanel({
 }: AnswerPanelProps) {
   return (
     <div className="p-8 flex-1 overflow-y-auto">
-      <h3 className="text-lg font-bold text-gray-800 mb-6">
+      <h3 className="text-lg font-bold text-foreground mb-6">
         {question.question.question_type === "mc"
           ? "Answer Choices"
           : "Your Answer"}
@@ -56,7 +56,7 @@ export function AnswerPanel({
             value={answer?.userAnswer[0] || ""}
             onChange={(e) => onAnswerChange(e.target.value)}
             disabled={showFeedback}
-            className="text-xl h-14 bg-white border-2 focus:border-blue-500 rounded-xl"
+            className="text-xl h-14 bg-background border-2 focus:border-primary rounded-xl"
           />
 
           {/* Show correct answer for wrong SPR answers */}
@@ -64,8 +64,8 @@ export function AnswerPanel({
             answer &&
             !answer.isCorrect &&
             question.question.correct_answer && (
-              <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-green-700 italic font-medium">
+              <div className="mt-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                <p className="text-green-600 dark:text-green-400 italic font-medium">
                   <span className="font-bold">Correct answer: </span>
                   {Array.isArray(question.question.correct_answer)
                     ? question.question.correct_answer.join(", ")
@@ -126,7 +126,7 @@ export function AnswerPanel({
                   <div key={optionId} className="flex items-center gap-3">
                     {/* Label outside the box */}
                     <div className="flex-shrink-0">
-                      <span className="font-bold text-blue-600 text-lg">
+                      <span className="font-bold text-primary text-lg">
                         {label}.
                       </span>
                     </div>
@@ -135,14 +135,14 @@ export function AnswerPanel({
                     <div
                       className={`flex items-center gap-3 p-4 border-2 rounded-xl transition-all cursor-pointer flex-1 ${
                         isCorrect
-                          ? "border-green-500 bg-green-50"
+                          ? "border-green-500 bg-green-500/10"
                           : isWrong
-                          ? "border-red-500 bg-red-50"
+                          ? "border-destructive bg-destructive/10"
                           : isCorrectAnswer
-                          ? "border-green-500 bg-green-100"
+                          ? "border-green-500 bg-green-500/10"
                           : isSelected && !isCorrectAnswer
-                          ? "border-blue-500 bg-blue-50 shadow-sm"
-                          : "border-gray-200 hover:border-blue-300 hover:bg-blue-50/30"
+                          ? "border-primary bg-primary/10 shadow-sm"
+                          : "border-border hover:border-primary/50 hover:bg-accent"
                       }`}
                       onClick={() => !showFeedback && onAnswerChange(optionId)}
                     >
@@ -151,18 +151,18 @@ export function AnswerPanel({
                         <div
                           className={`w-4 h-4 rounded-full border-2 ${
                             isSelected
-                              ? "bg-blue-600 border-blue-600"
-                              : "border-gray-400"
+                              ? "bg-primary border-primary"
+                              : "border-muted-foreground"
                           }`}
                         >
                           {isSelected && (
-                            <div className="w-full h-full rounded-full bg-white scale-50" />
+                            <div className="w-full h-full rounded-full bg-background scale-50" />
                           )}
                         </div>
                       </div>
 
                       {/* Answer Content */}
-                      <div className="flex-1 text-gray-800">
+                      <div className="flex-1 text-foreground">
                         <span
                           dangerouslySetInnerHTML={{
                             __html: String(optionContent),
@@ -189,26 +189,26 @@ export function AnswerPanel({
       {showFeedback && answer && (
         <div className="mt-8">
           {answer.isCorrect ? (
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300 rounded-2xl p-6">
+            <div className="bg-green-500/10 border-2 border-green-500/20 rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-2">
                 <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
                   <Check className="w-6 h-6 text-white" />
                 </div>
-                <h4 className="text-2xl font-bold text-green-700">Correct!</h4>
+                <h4 className="text-2xl font-bold text-green-600 dark:text-green-400">Correct!</h4>
               </div>
-              <p className="text-green-600 font-medium">
+              <p className="text-green-600 dark:text-green-400 font-medium">
                 Great job! Keep it up! 🎉
               </p>
             </div>
           ) : (
-            <div className="bg-gradient-to-br from-red-50 to-rose-50 border-2 border-red-300 rounded-2xl p-6">
+            <div className="bg-destructive/10 border-2 border-destructive/20 rounded-2xl p-6">
               <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 bg-red-500 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-destructive rounded-full flex items-center justify-center">
                   <X className="w-6 h-6 text-white" />
                 </div>
-                <h4 className="text-2xl font-bold text-red-700">Not quite</h4>
+                <h4 className="text-2xl font-bold text-destructive">Not quite</h4>
               </div>
-              <p className="text-red-600 font-medium">
+              <p className="text-destructive font-medium">
                 Don't worry, keep practicing!
               </p>
             </div>
@@ -271,7 +271,7 @@ export function AnswerPanel({
                 </svg>
                 Similar Question
               </Button>
-              <p className="text-xs text-gray-500 italic mt-2 text-center">
+              <p className="text-xs text-muted-foreground italic mt-2 text-center">
                 This will add a similar question to the end and move to next
                 question
               </p>

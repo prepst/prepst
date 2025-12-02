@@ -75,6 +75,35 @@ function PracticeSessionContent() {
     }
   });
 
+  // Handler functions (defined before useEffect that uses them)
+  const handleAnswerChange = (value: string) => {
+    if (!currentQuestion || showFeedback) return;
+    sessionHandleAnswerChange(currentQuestion.question.id, value);
+  };
+
+  const handleSubmit = async () => {
+    if (!currentAnswer || !currentQuestion) return;
+    // Submit with current confidence score (default or user-selected)
+    const timeSpent = getTimeSpent();
+    const isCorrect = await sessionHandleSubmit(
+      currentQuestion.question.id,
+      currentAnswer.userAnswer,
+      confidenceScore, // Use current confidence score
+      timeSpent
+    );
+
+    if (isCorrect !== undefined) {
+      setShowFeedback(true);
+    }
+  };
+
+  const handleNext = () => {
+    const isLastQuestion = navHandleNext();
+    if (isLastQuestion) {
+      router.push(`/practice/${sessionId}/summary`);
+    }
+  };
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -179,41 +208,13 @@ function PracticeSessionContent() {
     handleNext,
   ]);
 
-  const handleAnswerChange = (value: string) => {
-    if (!currentQuestion || showFeedback) return;
-    sessionHandleAnswerChange(currentQuestion.question.id, value);
-  };
-
-  const handleSubmit = async () => {
-    if (!currentAnswer || !currentQuestion) return;
-    // Submit with current confidence score (default or user-selected)
-    const timeSpent = getTimeSpent();
-    const isCorrect = await sessionHandleSubmit(
-      currentQuestion.question.id,
-      currentAnswer.userAnswer,
-      confidenceScore, // Use current confidence score
-      timeSpent
-    );
-
-    if (isCorrect !== undefined) {
-      setShowFeedback(true);
-    }
-  };
-
   const handleConfidenceSelected = (selectedConfidence: number) => {
     // Just update the confidence score, don't submit
     setConfidenceScore(selectedConfidence);
   };
 
-  const handleNext = () => {
-    const isLastQuestion = handleNavigation(() => navHandleNext());
-    if (isLastQuestion) {
-      router.push(`/practice/${sessionId}/summary`);
-    }
-  };
-
   const handlePrevious = () => {
-    handleNavigation(() => navHandlePrevious());
+    navHandlePrevious();
   };
 
   const handleQuestionNavigation = (questionIndex: number) => {

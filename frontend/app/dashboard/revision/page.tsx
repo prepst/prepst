@@ -27,87 +27,116 @@ export default function RevisionPage() {
   ) => (typeof html === "string" ? html.replace(/<[^>]*>/g, "") : fallback);
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Revision Sessions
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Review and reinforce your knowledge with targeted practice
-          </p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-background pb-20">
+      <div className="flex justify-center">
+        <div className="w-full max-w-6xl px-6 py-12 space-y-12">
+          {/* Header */}
+          <div className="flex flex-col gap-2">
+            <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+              Revision Sessions
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl">
+              Review and reinforce your knowledge by practicing questions you missed.
+            </p>
+          </div>
 
-      {/* All drill-related sections moved to Drill page */}
+          {/* Wrong Answers Section */}
+          <div className="bg-card rounded-3xl p-8 border border-border shadow-sm">
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
+                  <div className="p-2 bg-destructive/10 rounded-lg">
+                    <BookOpen className="w-6 h-6 text-destructive" />
+                  </div>
+                  Questions for Review
+                </h2>
+                <p className="text-muted-foreground text-sm mt-1 ml-14">
+                  Select a question to start a focused revision session.
+                </p>
+              </div>
+            </div>
 
-      {/* Wrong Answers Section */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Questions You Got Wrong</CardTitle>
-              <CardDescription>Simple list of question titles</CardDescription>
+            <div className="space-y-4">
+              {loadingWrongAnswers ? (
+                <div className="space-y-4">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="border border-border rounded-2xl p-6 bg-background">
+                      <Skeleton className="h-6 w-3/4 mb-4" />
+                      <div className="flex gap-4">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-4 w-24" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : wrongAnswers.length === 0 ? (
+                <div className="flex flex-col items-center justify-center p-12 text-center bg-muted/10 border-2 border-dashed border-border rounded-3xl">
+                  <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-6">
+                    <BookOpen className="w-10 h-10 text-muted-foreground/50" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-foreground mb-2">
+                    No Wrong Answers Yet
+                  </h3>
+                  <p className="text-muted-foreground max-w-md">
+                    Great job! Start practicing to see questions you need to review here.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {wrongAnswers.map((wrongAnswer) => (
+                    <button
+                      key={wrongAnswer.session_question_id}
+                      className="group relative w-full text-left bg-background border border-border rounded-2xl p-6 hover:border-primary/50 hover:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={creatingSessionId !== null}
+                      onClick={() => {
+                        setCreatingSessionId(wrongAnswer.session.id);
+                        createRevisionMutation.mutate(
+                          { sessionId: wrongAnswer.session.id, numQuestions: 1 },
+                          {
+                            onSuccess: (result: any) => {
+                              if (result.success) {
+                                window.location.href = `/practice/${result.session_id}`;
+                              }
+                            },
+                            onError: (error) => {
+                              console.error(error);
+                              setCreatingSessionId(null);
+                            },
+                          }
+                        );
+                      }}
+                    >
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="flex-1">
+                          <p className="text-lg font-medium text-foreground line-clamp-2 leading-relaxed mb-3 group-hover:text-primary transition-colors">
+                            {stripHtml(wrongAnswer.question?.stem)}
+                          </p>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground font-medium uppercase tracking-wide">
+                            <span className="px-2 py-1 bg-muted rounded-md">
+                              {wrongAnswer.topic?.name || "Unknown Topic"}
+                            </span>
+                            <span>•</span>
+                            <span>
+                              {wrongAnswer.session?.created_at 
+                                ? new Date(wrongAnswer.session.created_at).toLocaleDateString() 
+                                : "Unknown Date"}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
-        </CardHeader>
-        <CardContent>
-          {loadingWrongAnswers ? (
-            <div className="space-y-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="border rounded-lg p-4">
-                  <Skeleton className="h-5 w-40 mb-2" />
-                  <Skeleton className="h-4 w-3/4 mb-3" />
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Skeleton className="h-16 w-full" />
-                    <Skeleton className="h-16 w-full" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : wrongAnswers.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <BookOpen className="h-12 w-12 text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No Wrong Answers Yet
-              </h3>
-              <p className="text-gray-500">
-                Start practicing to see questions you need to review here.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {wrongAnswers.map((wrongAnswer) => (
-                <button
-                  key={wrongAnswer.session_question_id}
-                  className="w-full text-left border rounded-lg p-3 hover:bg-gray-50 transition-colors disabled:opacity-50"
-                  disabled={creatingSessionId !== null}
-                  onClick={() => {
-                    setCreatingSessionId(wrongAnswer.session.id);
-                    createRevisionMutation.mutate(
-                      { sessionId: wrongAnswer.session.id, numQuestions: 1 },
-                      {
-                        onSuccess: (result: any) => {
-                          if (result.success) {
-                            window.location.href = `/practice/${result.session_id}`;
-                          }
-                        },
-                        onError: (error) => {
-                          console.error(error);
-                          setCreatingSessionId(null);
-                        },
-                      }
-                    );
-                  }}
-                >
-                  {stripHtml(wrongAnswer.question?.stem)}
-                </button>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

@@ -151,7 +151,11 @@ function PracticeSessionContent() {
 
         if (!showFeedback) {
           // Currently answering
-          if (currentAnswer?.userAnswer.length > 0 && !isSubmitting) {
+          if (
+            currentAnswer?.userAnswer &&
+            currentAnswer.userAnswer.length > 0 &&
+            !isSubmitting
+          ) {
             handleSubmit();
           }
         } else {

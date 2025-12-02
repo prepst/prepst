@@ -11,7 +11,6 @@ import { QuestionPanel } from "@/components/practice/QuestionPanel";
 import { AnswerPanel } from "@/components/practice/AnswerPanel";
 import { NavigationControls } from "@/components/practice/NavigationControls";
 import { QuestionListSidebar } from "@/components/practice/QuestionListSidebar";
-import { TimerModal } from "@/components/practice/TimerModal";
 import { usePracticeSession } from "@/hooks/usePracticeSession";
 import { useTimer } from "@/hooks/useTimer";
 import { useQuestionNavigation } from "@/hooks/useQuestionNavigation";
@@ -80,22 +79,34 @@ function PracticeSessionContent() {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       const key = event.key.toLowerCase();
-      const isInputFocused = document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA';
-      
+      const isInputFocused =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA";
+
       // If typing in an input, ONLY handle Enter key (for submission), ignore everything else
-      if (isInputFocused && key !== 'enter') {
+      if (isInputFocused && key !== "enter") {
         return;
       }
 
       // Prevent default behavior for keys we handle (unless typing)
-      const isHandledKey = ['1', '2', '3', '4', 'a', 'b', 'c', 'd', 'Enter'].includes(event.key);
+      const isHandledKey = [
+        "1",
+        "2",
+        "3",
+        "4",
+        "a",
+        "b",
+        "c",
+        "d",
+        "Enter",
+      ].includes(event.key);
       if (isHandledKey && !isInputFocused) {
         event.preventDefault();
       }
 
       if (!currentQuestion || isSubmitting) return;
 
-      const isMultipleChoice = currentQuestion.question.question_type === 'mc';
+      const isMultipleChoice = currentQuestion.question.question_type === "mc";
 
       // --- Handle Answer Selection (1, 2, 3, 4, A, B, C, D) ---
       // Only if NOT typing in an input box
@@ -107,15 +118,21 @@ function PracticeSessionContent() {
         let selectedOptionId: string | undefined;
 
         // Map numerical keys to options
-        if (key >= '1' && key <= '4') { // Assuming max 4 options for now
+        if (key >= "1" && key <= "4") {
+          // Assuming max 4 options for now
           const index = parseInt(key) - 1;
           if (index < options.length) {
-            selectedOptionId = String((options[index] as any).id || (options[index] as any)[0]);
+            selectedOptionId = String(
+              (options[index] as any).id || (options[index] as any)[0]
+            );
           }
-        } else if (key >= 'a' && key <= 'd') { // Map alphabetical keys to options
-          const index = key.charCodeAt(0) - 'a'.charCodeAt(0);
+        } else if (key >= "a" && key <= "d") {
+          // Map alphabetical keys to options
+          const index = key.charCodeAt(0) - "a".charCodeAt(0);
           if (index < options.length) {
-            selectedOptionId = String((options[index] as any).id || (options[index] as any)[0]);
+            selectedOptionId = String(
+              (options[index] as any).id || (options[index] as any)[0]
+            );
           }
         }
 
@@ -125,25 +142,35 @@ function PracticeSessionContent() {
       }
 
       // --- Handle Enter Key for Submit/Next ---
-      if (key === 'enter') {
+      if (key === "enter") {
         // For Enter, we generally want to prevent default (form submission) and handle it manually
         event.preventDefault();
-        
-        if (!showFeedback) { // Currently answering
+
+        if (!showFeedback) {
+          // Currently answering
           if (currentAnswer?.userAnswer.length > 0 && !isSubmitting) {
             handleSubmit();
           }
-        } else { // Feedback is shown
+        } else {
+          // Feedback is shown
           handleNext();
         }
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [currentQuestion, currentAnswer, showFeedback, isSubmitting, handleAnswerChange, handleSubmit, handleNext]);
+  }, [
+    currentQuestion,
+    currentAnswer,
+    showFeedback,
+    isSubmitting,
+    handleAnswerChange,
+    handleSubmit,
+    handleNext,
+  ]);
 
   const handleAnswerChange = (value: string) => {
     if (!currentQuestion || showFeedback) return;
@@ -218,7 +245,10 @@ function PracticeSessionContent() {
       const next = new Set(prev);
       next.add(qid);
       try {
-        localStorage.setItem("saved-questions", JSON.stringify(Array.from(next)));
+        localStorage.setItem(
+          "saved-questions",
+          JSON.stringify(Array.from(next))
+        );
       } catch {}
       return next;
     });
@@ -287,7 +317,10 @@ function PracticeSessionContent() {
           {/* Divider */}
           <div className="w-1 bg-border" />
           {/* Right answer panel */}
-          <div className="border-l border-border bg-card/50 backdrop-blur-sm flex flex-col" style={{ width: `480px` }}>
+          <div
+            className="border-l border-border bg-card/50 backdrop-blur-sm flex flex-col"
+            style={{ width: `480px` }}
+          >
             <div className="p-6 space-y-4">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3">
@@ -333,7 +366,6 @@ function PracticeSessionContent() {
         isRunning={timer.isRunning}
         formatTime={timer.formatTime}
         onToggleQuestionList={() => setShowQuestionList(!showQuestionList)}
-        
         // Timer Props
         showTimerModal={timer.showTimerModal}
         onToggleTimerModal={timer.setShowTimerModal}
@@ -348,7 +380,6 @@ function PracticeSessionContent() {
         onPauseResume={timer.handlePauseResume}
         onReset={timer.handleReset}
         onCloseTimer={timer.handleCloseTimer}
-        
         onExit={() => router.push("/dashboard/study-plan")}
       />
 

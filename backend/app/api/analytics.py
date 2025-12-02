@@ -688,6 +688,22 @@ async def get_mock_exam_analytics(
         
         exams_result = exams_query.execute()
         
+        if not exams_result.data:
+            return {
+                "total_exams": 0,
+                "completion_rate": 0,
+                "avg_total_score": 0,
+                "avg_math_score": 0,
+                "avg_rw_score": 0,
+                "score_distribution": {},
+                "weak_topics": [],
+                "stamina_pattern": {"module1_avg": 0, "module2_avg": 0, "drop_percentage": 0},
+                "improvement_velocity": 0,
+                "readiness_score": 0,
+                "recent_exams": [],
+                "is_admin": user_is_admin
+            }
+
         total_exams = len(exams_result.data)
         completed_exams = [e for e in exams_result.data if e.get("status") == "completed"]
         completion_rate = (len(completed_exams) / total_exams * 100) if total_exams > 0 else 0
@@ -712,18 +728,23 @@ async def get_mock_exam_analytics(
                 range_key = f"{(score // 100) * 100}-{(score // 100) * 100 + 99}"
                 score_distribution[range_key] = score_distribution.get(range_key, 0) + 1
         
-        # Get modules for stamina analysis
+        # Get modules for stamina analysis - optimize by selecting only needed fields
         exam_ids = [e["id"] for e in exams_result.data]
-        if exam_ids:
-            modules_result = db.table("mock_exam_modules").select("*").in_("exam_id", exam_ids).execute()
-        else:
-            modules_result = type('obj', (object,), {'data': []})()
+        
+        # Batch fetch modules if too many exams
+        modules_data = []
+        chunk_size = 20
+        for i in range(0, len(exam_ids), chunk_size):
+            chunk = exam_ids[i:i + chunk_size]
+            result = db.table("mock_exam_modules").select("id, exam_id, raw_score, module_number").in_("exam_id", chunk).execute()
+            if result.data:
+                modules_data.extend(result.data)
         
         # Stamina pattern: compare module 1 vs module 2 performance
         module1_scores = []
         module2_scores = []
         
-        for module in modules_result.data:
+        for module in modules_data:
             if module.get("raw_score") is not None:
                 if module.get("module_number") == 1:
                     module1_scores.append(module["raw_score"])
@@ -735,53 +756,65 @@ async def get_mock_exam_analytics(
         drop_percentage = ((module1_avg - module2_avg) / module1_avg * 100) if module1_avg > 0 else 0
         
         # Weak topics: Get questions and analyze by topic
-        module_ids = [m["id"] for m in modules_result.data]
-        if module_ids:
-            questions_result = db.table("mock_exam_questions").select(
-                "question_id, is_correct"
-            ).in_("module_id", module_ids).execute()
-        else:
-            questions_result = type('obj', (object,), {'data': []})()
+        # Only fetch for completed exams to reduce load
+        completed_exam_ids = [e["id"] for e in completed_exams]
+        completed_module_ids = [m["id"] for m in modules_data if m["exam_id"] in completed_exam_ids]
         
-        # Get topic info for questions
-        question_ids = [q["question_id"] for q in questions_result.data if q.get("question_id")]
-        if question_ids:
-            questions_with_topics = db.table("questions").select(
-                "id, topic_id"
-            ).in_("id", question_ids).execute()
+        weak_topics = []
+        if completed_module_ids:
+            # Batch fetch questions for completed modules
+            # Fetch simplified data
+            questions_data = []
+            for i in range(0, len(completed_module_ids), chunk_size):
+                chunk = completed_module_ids[i:i + chunk_size]
+                result = db.table("mock_exam_questions").select(
+                    "question_id, is_correct"
+                ).in_("module_id", chunk).execute()
+                if result.data:
+                    questions_data.extend(result.data)
             
-            topic_ids = list(set(q["topic_id"] for q in questions_with_topics.data if q.get("topic_id")))
-            topics_result = db.table("topics").select("id, name").in_("id", topic_ids).execute()
-            topic_names = {t["id"]: t["name"] for t in topics_result.data}
+            # Get topic info for questions
+            question_ids = list(set(q["question_id"] for q in questions_data if q.get("question_id")))
             
-            # Map questions to topics
-            question_topics = {q["id"]: q["topic_id"] for q in questions_with_topics.data}
-            
-            # Calculate accuracy by topic
-            topic_stats = {}
-            for q in questions_result.data:
-                q_id = q.get("question_id")
-                if q_id and q_id in question_topics:
-                    topic_id = question_topics[q_id]
-                    if topic_id not in topic_stats:
-                        topic_stats[topic_id] = {"correct": 0, "total": 0}
-                    topic_stats[topic_id]["total"] += 1
-                    if q.get("is_correct"):
-                        topic_stats[topic_id]["correct"] += 1
-            
-            weak_topics = []
-            for topic_id, stats in topic_stats.items():
-                accuracy = (stats["correct"] / stats["total"] * 100) if stats["total"] > 0 else 0
-                if accuracy < 60:  # Weak if below 60%
-                    weak_topics.append({
-                        "topic_name": topic_names.get(topic_id, "Unknown"),
-                        "accuracy": round(accuracy, 1),
-                        "attempts": stats["total"]
-                    })
-            
-            weak_topics.sort(key=lambda x: x["accuracy"])
-        else:
-            weak_topics = []
+            if question_ids:
+                # Batch fetch question topics
+                questions_with_topics = []
+                for i in range(0, len(question_ids), chunk_size):
+                    chunk = question_ids[i:i + chunk_size]
+                    result = db.table("questions").select("id, topic_id").in_("id", chunk).execute()
+                    if result.data:
+                        questions_with_topics.extend(result.data)
+                
+                topic_ids = list(set(q["topic_id"] for q in questions_with_topics if q.get("topic_id")))
+                
+                topics_result = db.table("topics").select("id, name").in_("id", topic_ids).execute()
+                topic_names = {t["id"]: t["name"] for t in topics_result.data}
+                
+                # Map questions to topics
+                question_topics = {q["id"]: q["topic_id"] for q in questions_with_topics}
+                
+                # Calculate accuracy by topic
+                topic_stats = {}
+                for q in questions_data:
+                    q_id = q.get("question_id")
+                    if q_id and q_id in question_topics:
+                        topic_id = question_topics[q_id]
+                        if topic_id not in topic_stats:
+                            topic_stats[topic_id] = {"correct": 0, "total": 0}
+                        topic_stats[topic_id]["total"] += 1
+                        if q.get("is_correct"):
+                            topic_stats[topic_id]["correct"] += 1
+                
+                for topic_id, stats in topic_stats.items():
+                    accuracy = (stats["correct"] / stats["total"] * 100) if stats["total"] > 0 else 0
+                    if accuracy < 60:  # Weak if below 60%
+                        weak_topics.append({
+                            "topic_name": topic_names.get(topic_id, "Unknown"),
+                            "accuracy": round(accuracy, 1),
+                            "attempts": stats["total"]
+                        })
+                
+                weak_topics.sort(key=lambda x: x["accuracy"])
         
         # Improvement velocity: score progression over time
         completed_sorted = sorted(completed_exams, key=lambda x: x.get("completed_at") or "")
@@ -803,7 +836,6 @@ async def get_mock_exam_analytics(
             if completed_at and hasattr(completed_at, 'isoformat'):
                 completed_at = completed_at.isoformat()
             elif completed_at and isinstance(completed_at, str):
-                # Already a string, keep as is
                 pass
             else:
                 completed_at = None

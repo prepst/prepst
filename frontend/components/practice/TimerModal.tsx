@@ -1,6 +1,7 @@
-import { Clock, Timer, ChevronLeft, Play } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Clock, Timer, ChevronLeft, Play } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface TimerConfigProps {
   showTimerSetup: boolean;
@@ -50,7 +51,7 @@ export function TimerConfig({
                   type="number"
                   min="0"
                   max="23"
-                  value={customHours.toString().padStart(2, '0')}
+                  value={customHours.toString().padStart(2, "0")}
                   onChange={(e) => {
                     const val = parseInt(e.target.value) || 0;
                     setCustomHours(Math.max(0, Math.min(23, val)));
@@ -58,10 +59,14 @@ export function TimerConfig({
                   className="w-12 text-2xl font-bold text-center bg-transparent text-foreground outline-none p-0 border-none focus:ring-0"
                 />
               </div>
-              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">hr</span>
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+                hr
+              </span>
             </div>
 
-            <span className="text-2xl font-bold text-muted-foreground mb-5">:</span>
+            <span className="text-2xl font-bold text-muted-foreground mb-5">
+              :
+            </span>
 
             {/* Minutes Input */}
             <div className="flex flex-col items-center">
@@ -70,7 +75,7 @@ export function TimerConfig({
                   type="number"
                   min="0"
                   max="59"
-                  value={customMinutes.toString().padStart(2, '0')}
+                  value={customMinutes.toString().padStart(2, "0")}
                   onChange={(e) => {
                     const val = parseInt(e.target.value) || 0;
                     setCustomMinutes(Math.max(0, Math.min(59, val)));
@@ -78,7 +83,9 @@ export function TimerConfig({
                   className="w-12 text-2xl font-bold text-center bg-transparent text-foreground outline-none p-0 border-none focus:ring-0"
                 />
               </div>
-              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">min</span>
+              <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+                min
+              </span>
             </div>
           </div>
         </div>
@@ -114,8 +121,12 @@ export function TimerConfig({
             <Clock className="w-5 h-5" />
           </div>
           <div className="flex flex-col items-start">
-            <span className="font-semibold text-sm text-foreground">Stopwatch</span>
-            <span className="text-xs text-muted-foreground font-normal">Count up</span>
+            <span className="font-semibold text-sm text-foreground">
+              Stopwatch
+            </span>
+            <span className="text-xs text-muted-foreground font-normal">
+              Count up
+            </span>
           </div>
         </div>
       </Button>
@@ -132,10 +143,56 @@ export function TimerConfig({
           </div>
           <div className="flex flex-col items-start">
             <span className="font-semibold text-sm text-foreground">Timer</span>
-            <span className="text-xs text-muted-foreground font-normal">Count down</span>
+            <span className="text-xs text-muted-foreground font-normal">
+              Count down
+            </span>
           </div>
         </div>
       </Button>
     </div>
+  );
+}
+
+interface TimerModalProps {
+  showTimerModal: boolean;
+  showTimerSetup: boolean;
+  customHours: number;
+  customMinutes: number;
+  setCustomHours: (hours: number) => void;
+  setCustomMinutes: (minutes: number) => void;
+  setShowTimerModal: (show: boolean) => void;
+  setShowTimerSetup: (show: boolean) => void;
+  onStartStopwatch: () => void;
+  onStartTimer: () => void;
+}
+
+export function TimerModal({
+  showTimerModal,
+  showTimerSetup,
+  customHours,
+  customMinutes,
+  setCustomHours,
+  setCustomMinutes,
+  setShowTimerModal,
+  setShowTimerSetup,
+  onStartStopwatch,
+  onStartTimer,
+}: TimerModalProps) {
+  return (
+    <Dialog open={showTimerModal} onOpenChange={setShowTimerModal}>
+      <DialogContent className="w-auto p-4" showCloseButton={false}>
+        <TimerConfig
+          showTimerSetup={showTimerSetup}
+          customHours={customHours}
+          customMinutes={customMinutes}
+          setCustomHours={setCustomHours}
+          setCustomMinutes={setCustomMinutes}
+          setShowTimerSetup={setShowTimerSetup}
+          onStartStopwatch={onStartStopwatch}
+          onStartTimer={onStartTimer}
+          onClose={() => setShowTimerModal(false)}
+        />
+      </DialogContent>
+    </Dialog>
   );
 }

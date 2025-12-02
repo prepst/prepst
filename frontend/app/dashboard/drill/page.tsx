@@ -90,31 +90,37 @@ export default function DrillPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-background pb-20">
       <div className="flex justify-center">
-        <div className="w-full max-w-7xl px-4 py-8 space-y-8">
-          <div className="mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-4xl font-bold text-foreground mb-2">
-                  Drill Session
-                </h1>
-                <p className="text-muted-foreground">
-                  Targeted drills by skill mastery
-                </p>
-              </div>
+        <div className="w-full max-w-6xl px-6 py-12 space-y-12">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+            <div>
+              <h1 className="text-4xl font-extrabold tracking-tight text-foreground mb-2">
+                Drill Session
+              </h1>
+              <p className="text-lg text-muted-foreground">
+                Master specific skills with targeted practice sets
+              </p>
             </div>
+            <Button
+              onClick={handleStartDrill}
+              disabled={selectedTopics.length === 0}
+              size="lg"
+              className="bg-[#866ffe] hover:bg-[#7a5ffe] text-white font-semibold shadow-lg shadow-primary/25 h-12 px-8 transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+            >
+              Start Practice Drill
+            </Button>
           </div>
 
           {loading ? (
-            <div className="space-y-6">
-              <Skeleton className="h-10 w-72" />
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="bg-card border border-border rounded-2xl p-8">
-                  <Skeleton className="h-6 w-48 mb-4" />
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                    {Array.from({ length: 8 }).map((_, j) => (
-                      <Skeleton key={j} className="h-40 w-full rounded-xl" />
+            <div className="space-y-8">
+              {Array.from({ length: 2 }).map((_, i) => (
+                <div key={i} className="bg-card rounded-3xl p-8 border border-border shadow-sm">
+                  <Skeleton className="h-8 w-48 mb-6" />
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {Array.from({ length: 4 }).map((_, j) => (
+                      <Skeleton key={j} className="aspect-square rounded-2xl" />
                     ))}
                   </div>
                 </div>
@@ -122,206 +128,156 @@ export default function DrillPage() {
             </div>
           ) : (
             Object.keys(heatmap).length > 0 && (
-              <div className="mb-12">
-                <div className="bg-card border border-border rounded-2xl p-8">
-                  <div>
-                    <CardTitle>Select Topics for Drills</CardTitle>
-                    <CardDescription>
-                      Choose specific topics to drill on.
-                    </CardDescription>
-                  </div>
-                  <br></br>
-                  <div className="space-y-6">
-                    {Object.entries(heatmap).map(([categoryName, category]) => (
-                      <div key={categoryName}>
-                        <h3 className="text-lg font-semibold text-foreground mb-3">
-                          {categoryName}
-                          <span className="text-sm text-muted-foreground ml-2">
-                            ({category.section})
-                          </span>
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-stretch">
-                          {category.skills.map((skill) => (
-                            <SkillRadialChart
-                              key={skill.skill_id}
-                              skillName={skill.skill_name}
-                              mastery={skill.mastery}
-                              correctAttempts={skill.correct_attempts}
-                              totalAttempts={skill.total_attempts}
-                              velocity={skill.velocity}
-                              plateau={skill.plateau}
-                              skillId={skill.skill_id}
-                            />
-                          ))}
+              <div className="space-y-8">
+                {Object.entries(heatmap).map(([categoryName, category]) => (
+                  <div key={categoryName} className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-xl font-bold text-foreground">
+                        {categoryName}
+                      </h3>
+                      <Badge variant="secondary" className="text-muted-foreground bg-muted font-medium">
+                        {category.section === 'math' ? 'Math' : 'Reading & Writing'}
+                      </Badge>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {category.skills.map((skill) => (
+                        <div 
+                          key={skill.skill_id} 
+                          className="bg-card rounded-2xl p-1 border border-border shadow-sm hover:shadow-md transition-shadow duration-300"
+                        >
+                          <SkillRadialChart
+                            skillName={skill.skill_name}
+                            mastery={skill.mastery}
+                            correctAttempts={skill.correct_attempts}
+                            totalAttempts={skill.total_attempts}
+                            velocity={skill.velocity}
+                            plateau={skill.plateau}
+                            skillId={skill.skill_id}
+                          />
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
             )
           )}
 
-          {/* Topics Selection */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <CardTitle>Select Categories for Drills</CardTitle>
-                  <CardDescription>
-                    Choose categories to target in your drill session.
-                  </CardDescription>
-                </div>
-                <Button
-                  onClick={handleStartDrill}
-                  disabled={selectedTopics.length === 0}
-                  className="px-6"
-                >
-                  Drill
-                </Button>
+          {/* Categories Selection */}
+          <section>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-foreground">Select Categories</h2>
+              <p className="text-sm text-muted-foreground">
+                {selectedTopics.length} selected
+              </p>
+            </div>
+            
+            {loadingCategories ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="h-24 rounded-xl" />
+                ))}
               </div>
-            </CardHeader>
-            <CardContent>
-              {loadingCategories ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <Card key={i}>
-                      <CardContent className="p-4">
-                        <Skeleton className="h-5 w-48 mb-3" />
-                        <Skeleton className="h-2 w-full mb-2" />
-                        <Skeleton className="h-2 w-2/3" />
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {revisionTopics.map((topic) => (
-                    <Card
-                      key={topic.id}
-                      className={`cursor-pointer transition-all duration-200 border ${
-                        selectedTopics.includes(topic.id)
-                          ? "ring-2 ring-primary bg-primary/5 border-primary"
-                          : "hover:shadow-md border-border bg-card"
-                      }`}
-                      onClick={() => handleTopicToggle(topic.id)}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between mb-3">
-                          <h3 className="font-semibold text-card-foreground">
-                            {topic.name}
-                          </h3>
-                          <div className="flex gap-2">
-                            <Badge
-                              className={
-                                topic.section === "math"
-                                  ? "bg-[#FAC710] text-black hover:bg-[#FAC710]/90"
-                                  : "bg-[#FD87DC] text-black hover:bg-[#FD87DC]/90"
-                              }
-                            >
-                              {topic.section === "math"
-                                ? "Math"
-                                : "Reading/Writing"}
-                            </Badge>
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between text-sm text-muted-foreground">
-                            <span>Topics Available</span>
-                            <span className="font-medium">
-                              {topic.questionsCount}
-                            </span>
-                          </div>
-                          <div className="w-full bg-muted rounded-full h-2">
-                            <div
-                              className={`h-2 rounded-full ${
-                                topic.section === "math"
-                                  ? "bg-[#FAC710]"
-                                  : "bg-[#FD87DC]"
-                              }`}
-                              style={{
-                                width: `${Math.min(
-                                  100,
-                                  (topic.questionsCount / 10) * 100
-                                )}%`,
-                              }}
-                            />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {revisionTopics.map((topic) => (
+                  <div
+                    key={topic.id}
+                    className={`
+                      relative group cursor-pointer p-5 rounded-xl border-2 transition-all duration-200 ease-out
+                      ${selectedTopics.includes(topic.id)
+                        ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                        : "border-border bg-card hover:border-primary/50 hover:bg-accent/50"
+                      }
+                    `}
+                    onClick={() => handleTopicToggle(topic.id)}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-semibold text-foreground pr-8 leading-tight">
+                        {topic.name}
+                      </h3>
+                      <div className={`
+                        w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors
+                        ${selectedTopics.includes(topic.id)
+                          ? "bg-primary border-primary"
+                          : "border-muted-foreground/30 group-hover:border-primary/50"
+                        }
+                      `}>
+                        {selectedTopics.includes(topic.id) && (
+                          <div className="w-2 h-2 bg-white rounded-full" />
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2 mt-3">
+                      <div className={`
+                        h-1.5 flex-1 rounded-full overflow-hidden bg-muted
+                      `}>
+                        <div
+                          className={`h-full rounded-full ${
+                            topic.section === "math" ? "bg-amber-500" : "bg-rose-500"
+                          }`}
+                          style={{ width: `${Math.min(100, (topic.questionsCount / 10) * 100)}%` }}
+                        />
+                      </div>
+                      <span className="text-xs text-muted-foreground font-medium whitespace-nowrap">
+                        {topic.questionsCount} Qs
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
 
           {/* Recent Drill Sessions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Drill Sessions</CardTitle>
-              <CardDescription>
-                Your recent drill activity and performance
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
+          <section className="bg-card rounded-3xl border border-border shadow-sm overflow-hidden">
+            <div className="p-8 border-b border-border">
+              <h2 className="text-2xl font-bold text-foreground">Recent Activity</h2>
+              <p className="text-muted-foreground">Your latest practice performance</p>
+            </div>
+            
+            <div className="divide-y divide-border">
               {loadingSessions ? (
-                <div className="space-y-4">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="p-4 border border-border rounded-lg bg-card/50">
-                      <div className="flex justify-between">
-                        <div className="space-y-2">
-                          <Skeleton className="h-5 w-40" />
-                          <Skeleton className="h-4 w-24" />
-                        </div>
-                        <div className="space-y-2 text-right">
-                          <Skeleton className="h-6 w-12 ml-auto" />
-                          <Skeleton className="h-4 w-16 ml-auto" />
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="p-8 space-y-4">
+                  <Skeleton className="h-16 w-full rounded-xl" />
+                  <Skeleton className="h-16 w-full rounded-xl" />
                 </div>
               ) : !completedSessions || completedSessions.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
+                <div className="p-12 text-center text-muted-foreground">
                   <p>No completed drill sessions yet.</p>
-                  <Button 
-                    variant="link" 
-                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-                    className="mt-2"
-                  >
-                    Start your first drill above
-                  </Button>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {completedSessions.map((session: any) => (
-                    <div key={session.id} className="flex items-center justify-between p-4 border border-border rounded-lg bg-card/50">
-                      <div>
-                        <h4 className="font-medium text-card-foreground">
-                          {session.session_type === 'drill' ? 'Targeted Drill' : 
-                           session.session_type === 'revision' ? 'Revision Session' : 'Practice Session'}
-                        </h4>
-                        <p className="text-sm text-muted-foreground">
-                          {formatDistanceToNow(new Date(session.created_at), { addSuffix: true })} • {session.total_questions} questions
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <div className={`text-lg font-semibold ${
-                          (session.correct_count / session.total_questions) >= 0.8 ? 'text-green-600 dark:text-green-400' :
-                          (session.correct_count / session.total_questions) >= 0.6 ? 'text-blue-600 dark:text-blue-400' :
-                          'text-orange-600 dark:text-orange-400'
-                        }`}>
-                          {Math.round((session.correct_count / session.total_questions) * 100)}%
-                        </div>
-                        <p className="text-sm text-muted-foreground">Accuracy</p>
-                      </div>
+                completedSessions.map((session: any) => (
+                  <div key={session.id} className="p-6 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                    <div className="space-y-1">
+                      <h4 className="font-semibold text-foreground">
+                        {session.session_type === 'drill' ? 'Targeted Drill' : 
+                         session.session_type === 'revision' ? 'Revision Session' : 'Practice Session'}
+                      </h4>
+                      <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        <span>{formatDistanceToNow(new Date(session.created_at), { addSuffix: true })}</span>
+                        <span className="w-1 h-1 bg-muted-foreground/30 rounded-full" />
+                        <span>{session.total_questions} questions</span>
+                      </p>
                     </div>
-                  ))}
-                </div>
+                    
+                    <div className="text-right">
+                      <div className={`text-xl font-bold ${
+                        (session.correct_count / session.total_questions) >= 0.8 ? 'text-green-600 dark:text-green-400' :
+                        (session.correct_count / session.total_questions) >= 0.6 ? 'text-blue-600 dark:text-blue-400' :
+                        'text-orange-600 dark:text-orange-400'
+                      }`}>
+                        {Math.round((session.correct_count / session.total_questions) * 100)}%
+                      </div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Accuracy</p>
+                    </div>
+                  </div>
+                ))
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </section>
         </div>
       </div>
     </div>

@@ -111,9 +111,12 @@ function PracticeSessionContent() {
       // --- Handle Answer Selection (1, 2, 3, 4, A, B, C, D) ---
       // Only if NOT typing in an input box
       if (!isInputFocused && isMultipleChoice && !showFeedback) {
-        const options = Array.isArray(currentQuestion.question.answer_options)
-          ? currentQuestion.question.answer_options
-          : Object.entries(currentQuestion.question.answer_options);
+        const answerOptions = currentQuestion.question.answer_options;
+        const options = Array.isArray(answerOptions)
+          ? answerOptions
+          : answerOptions
+          ? Object.entries(answerOptions)
+          : [];
 
         let selectedOptionId: string | undefined;
 

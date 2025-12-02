@@ -1000,45 +1000,61 @@ async def get_wrong_answers(
 @router.get("/completed")
 async def get_completed_sessions(
     limit: int = Query(20, ge=1, le=100),
-    db: Client = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
+    db: Client = Depends(get_authenticated_client),
+    user_id: str = Depends(get_current_user)
 ):
     """
     Get completed practice sessions for the current user.
     
     Args:
         limit: Maximum number of sessions to return (1-100)
-        db: Database session
-        current_user: Current authenticated user
+        db: Database client
+        user_id: Current authenticated user ID
         
     Returns:
         List of completed practice sessions with basic info
     """
     try:
-        user_id = current_user["id"]
-        
-        # Query completed sessions with study plan info
+        # Query completed sessions joining through study_plans to filter by user
+        # practice_sessions -> study_plans -> user_id
         sessions_response = db.table("practice_sessions").select(
-            "id, created_at, completed_at, session_number, total_questions, completed_questions, "
-            "study_plans(name)"
-        ).eq("user_id", user_id).eq("status", "completed").order(
+            "id, created_at, completed_at, session_number, session_type, status, study_plans!inner(user_id)"
+        ).eq("study_plans.user_id", user_id).eq("status", "completed").order(
             "completed_at", desc=True
         ).limit(limit).execute()
         
         if not sessions_response.data:
             return []
         
-        # Format the response
+        # Format the response and get scores
         completed_sessions = []
         for session in sessions_response.data:
             study_plan = session.get("study_plans", {})
+            
+            # Calculate score for this session
+            # Count correct answers
+            correct_count_response = db.table("session_questions").select(
+                "id", count="exact"
+            ).eq("session_id", session["id"]).eq("is_correct", True).execute()
+            
+            correct_count = correct_count_response.count if correct_count_response.count is not None else 0
+            
+            # Count total questions
+            total_questions_response = db.table("session_questions").select(
+                "id", count="exact"
+            ).eq("session_id", session["id"]).execute()
+            
+            total_questions = total_questions_response.count if total_questions_response.count is not None else 0
+            
             completed_sessions.append({
                 "id": session["id"],
                 "created_at": session["created_at"],
                 "completed_at": session["completed_at"],
                 "session_number": session["session_number"],
-                "total_questions": session["total_questions"],
-                "completed_questions": session["completed_questions"],
+                "session_type": session.get("session_type", "practice"),
+                "total_questions": total_questions,
+                "correct_count": correct_count,
+                "completed_questions": total_questions, # Assuming completed means all answered
                 "study_plan_name": study_plan.get("name") if study_plan else None,
                 "topics": []  # We can add topic info later if needed
             })
@@ -1046,6 +1062,7 @@ async def get_completed_sessions(
         return completed_sessions
         
     except Exception as e:
+        print(f"Error getting completed sessions: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get completed sessions: {str(e)}"

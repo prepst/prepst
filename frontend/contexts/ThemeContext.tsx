@@ -13,10 +13,25 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("auto");
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Initialize from localStorage on client mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("ui-theme") as Theme;
+    if (savedTheme && ["light", "dark", "auto"].includes(savedTheme)) {
+      setTheme(savedTheme);
+    }
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
+    if (!mounted) return;
+
+    // Save to localStorage
+    localStorage.setItem("ui-theme", theme);
+
     // Check system preference
     const systemPrefersDark = window.matchMedia(
       "(prefers-color-scheme: dark)"
@@ -32,7 +47,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       setIsDarkMode(false);
       document.documentElement.classList.remove("dark");
     }
-  }, [theme]);
+  }, [theme, mounted]);
 
   // Listen for system theme changes when in auto mode
   useEffect(() => {

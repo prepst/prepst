@@ -14,6 +14,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useCompletedSessions } from "@/hooks/queries";
+import { formatDistanceToNow } from "date-fns";
 
 export default function DrillPage() {
   const [heatmap, setHeatmap] = useState<Record<string, CategoryHeatmap>>({});
@@ -22,6 +24,10 @@ export default function DrillPage() {
     useState<CategoriesAndTopicsResponse | null>(null);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+  
+  // Fetch recent drill sessions
+  const { data: completedSessions, isLoading: loadingSessions } = useCompletedSessions(5);
+
   const handleStartDrill = () => {
     // TODO: wire to backend create drill session
     console.log("Starting drill with topics:", selectedTopics);
@@ -156,8 +162,6 @@ export default function DrillPage() {
             )
           )}
 
-          {/* Stats Cards removed per request */}
-
           {/* Topics Selection */}
           <Card>
             <CardHeader>
@@ -252,7 +256,7 @@ export default function DrillPage() {
             </CardContent>
           </Card>
 
-          {/* Recent Drills (static examples) */}
+          {/* Recent Drill Sessions */}
           <Card>
             <CardHeader>
               <CardTitle>Recent Drill Sessions</CardTitle>
@@ -261,36 +265,61 @@ export default function DrillPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border border-border rounded-lg bg-card/50">
-                  <div>
-                    <h4 className="font-medium text-card-foreground">Algebra & Advanced Math</h4>
-                    <p className="text-sm text-muted-foreground">
-                      2 days ago • 25 questions
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-lg font-semibold text-green-600 dark:text-green-400">
-                      85%
+              {loadingSessions ? (
+                <div className="space-y-4">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="p-4 border border-border rounded-lg bg-card/50">
+                      <div className="flex justify-between">
+                        <div className="space-y-2">
+                          <Skeleton className="h-5 w-40" />
+                          <Skeleton className="h-4 w-24" />
+                        </div>
+                        <div className="space-y-2 text-right">
+                          <Skeleton className="h-6 w-12 ml-auto" />
+                          <Skeleton className="h-4 w-16 ml-auto" />
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">Accuracy</p>
-                  </div>
+                  ))}
                 </div>
-                <div className="flex items-center justify-between p-4 border border-border rounded-lg bg-card/50">
-                  <div>
-                    <h4 className="font-medium text-card-foreground">Craft and Structure</h4>
-                    <p className="text-sm text-muted-foreground">
-                      1 week ago • 18 questions
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-lg font-semibold text-blue-600 dark:text-blue-400">
-                      72%
+              ) : !completedSessions || completedSessions.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>No completed drill sessions yet.</p>
+                  <Button 
+                    variant="link" 
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    className="mt-2"
+                  >
+                    Start your first drill above
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {completedSessions.map((session: any) => (
+                    <div key={session.id} className="flex items-center justify-between p-4 border border-border rounded-lg bg-card/50">
+                      <div>
+                        <h4 className="font-medium text-card-foreground">
+                          {session.session_type === 'drill' ? 'Targeted Drill' : 
+                           session.session_type === 'revision' ? 'Revision Session' : 'Practice Session'}
+                        </h4>
+                        <p className="text-sm text-muted-foreground">
+                          {formatDistanceToNow(new Date(session.created_at), { addSuffix: true })} • {session.total_questions} questions
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className={`text-lg font-semibold ${
+                          (session.correct_count / session.total_questions) >= 0.8 ? 'text-green-600 dark:text-green-400' :
+                          (session.correct_count / session.total_questions) >= 0.6 ? 'text-blue-600 dark:text-blue-400' :
+                          'text-orange-600 dark:text-orange-400'
+                        }`}>
+                          {Math.round((session.correct_count / session.total_questions) * 100)}%
+                        </div>
+                        <p className="text-sm text-muted-foreground">Accuracy</p>
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground">Accuracy</p>
-                  </div>
+                  ))}
                 </div>
-              </div>
+              )}
             </CardContent>
           </Card>
         </div>

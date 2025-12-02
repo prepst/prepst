@@ -222,7 +222,7 @@ function OnboardContent() {
   // Shared Animation Variants
   const containerVariants = {
     hidden: { opacity: 0, y: 10 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
     exit: { opacity: 0, y: -10, transition: { duration: 0.2 } }
   };
 

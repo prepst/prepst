@@ -23,7 +23,7 @@ import { components } from "@/lib/types/api.generated";
 import type {
   SubmitModuleAnswerRequest,
   BatchSubmitResponse,
-  MockQuestionStatus
+  MockQuestionStatus,
 } from "@/lib/types";
 
 type QuestionWithDetails = components["schemas"]["MockExamQuestionWithDetails"];
@@ -228,7 +228,9 @@ function ModuleContent() {
           .then(async (response) => {
             if (response.ok) {
               const result: BatchSubmitResponse = await response.json();
-              console.log(`✓ Submitted ${result.successful}/${result.total} answers`);
+              console.log(
+                `✓ Submitted ${result.successful}/${result.total} answers`
+              );
             } else {
               console.error("Failed to submit batch answers");
             }
@@ -303,15 +305,7 @@ function ModuleContent() {
         err instanceof Error ? err.message : "Failed to complete module"
       );
     }
-  }, [
-    examId,
-    moduleId,
-    questions,
-    answers,
-    timeRemaining,
-    moduleData,
-    router,
-  ]);
+  }, [examId, moduleId, questions, answers, timeRemaining, moduleData, router]);
 
   const handleNext = async () => {
     // Submit current answer if there is one
@@ -400,15 +394,28 @@ function ModuleContent() {
     const handleKeyDown = (event: KeyboardEvent) => {
       // Prevent default browser behavior for keys we handle
       const key = event.key.toLowerCase();
-      const isInputFocused = document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA';
-      const isMultipleChoice = currentQuestion?.question?.question_type === 'mc';
+      const isInputFocused =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA";
+      const isMultipleChoice =
+        currentQuestion?.question?.question_type === "mc";
 
       // If typing in an input, ONLY handle Enter key (for submission), ignore everything else
-      if (isInputFocused && key !== 'enter') {
+      if (isInputFocused && key !== "enter") {
         return;
       }
 
-      const isHandledKey = ['1', '2', '3', '4', 'a', 'b', 'c', 'd', 'Enter'].includes(event.key);
+      const isHandledKey = [
+        "1",
+        "2",
+        "3",
+        "4",
+        "a",
+        "b",
+        "c",
+        "d",
+        "Enter",
+      ].includes(event.key);
       if (isHandledKey && !isInputFocused) {
         event.preventDefault();
       }
@@ -417,7 +424,7 @@ function ModuleContent() {
 
       // --- Handle Answer Selection (1, 2, 3, 4, A, B, C, D) ---
       // Only for MC questions and when NOT typing
-      if (isMultipleChoice && !isInputFocused) { 
+      if (isMultipleChoice && !isInputFocused) {
         const options = Array.isArray(currentQuestion.question.answer_options)
           ? currentQuestion.question.answer_options
           : Object.entries(currentQuestion.question.answer_options);
@@ -425,15 +432,21 @@ function ModuleContent() {
         let selectedOptionId: string | undefined;
 
         // Map numerical keys to options
-        if (key >= '1' && key <= '4') { // Assuming max 4 options for now
+        if (key >= "1" && key <= "4") {
+          // Assuming max 4 options for now
           const index = parseInt(key) - 1;
           if (index < options.length) {
-            selectedOptionId = String((options[index] as any).id || (options[index] as any)[0]);
+            selectedOptionId = String(
+              (options[index] as any).id || (options[index] as any)[0]
+            );
           }
-        } else if (key >= 'a' && key <= 'd') { // Map alphabetical keys to options
-          const index = key.charCodeAt(0) - 'a'.charCodeAt(0);
+        } else if (key >= "a" && key <= "d") {
+          // Map alphabetical keys to options
+          const index = key.charCodeAt(0) - "a".charCodeAt(0);
           if (index < options.length) {
-            selectedOptionId = String((options[index] as any).id || (options[index] as any)[0]);
+            selectedOptionId = String(
+              (options[index] as any).id || (options[index] as any)[0]
+            );
           }
         }
 
@@ -443,8 +456,12 @@ function ModuleContent() {
       }
 
       // --- Handle Enter Key for Next/Complete Module ---
-      if (key === 'enter') {
-        if (currentAnswer?.userAnswer.length > 0 && !isSubmitting) {
+      if (key === "enter") {
+        if (
+          currentAnswer?.userAnswer &&
+          currentAnswer.userAnswer.length > 0 &&
+          !isSubmitting
+        ) {
           if (currentIndex < questions.length - 1) {
             handleNext();
           } else {
@@ -454,12 +471,20 @@ function ModuleContent() {
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [currentQuestion, currentAnswer, isSubmitting, handleAnswerChange, handleNext, handleCompleteModule, currentIndex, questions.length]);
-
+  }, [
+    currentQuestion,
+    currentAnswer,
+    isSubmitting,
+    handleAnswerChange,
+    handleNext,
+    handleCompleteModule,
+    currentIndex,
+    questions.length,
+  ]);
 
   if (isLoading) {
     return (
@@ -480,8 +505,14 @@ function ModuleContent() {
             <AlertCircle className="w-8 h-8 text-destructive" />
           </div>
           <h2 className="text-2xl font-bold mb-2 text-foreground">Oops!</h2>
-          <p className="text-muted-foreground mb-6">{error || "Question not found"}</p>
-          <Button onClick={() => router.push("/dashboard/mock-exam")} size="lg" variant="default">
+          <p className="text-muted-foreground mb-6">
+            {error || "Question not found"}
+          </p>
+          <Button
+            onClick={() => router.push("/dashboard/mock-exam")}
+            size="lg"
+            variant="default"
+          >
             Back to Mock Exams
           </Button>
         </div>
@@ -536,10 +567,15 @@ function ModuleContent() {
               >
                 <List className="w-4 h-4" />
               </Button>
-              <Badge variant="secondary" className="font-mono font-medium bg-secondary/50 hover:bg-secondary/50">
+              <Badge
+                variant="secondary"
+                className="font-mono font-medium bg-secondary/50 hover:bg-secondary/50"
+              >
                 <span className="text-foreground">{currentIndex + 1}</span>
                 <span className="text-muted-foreground mx-1">/</span>
-                <span className="text-muted-foreground">{questions.length}</span>
+                <span className="text-muted-foreground">
+                  {questions.length}
+                </span>
               </Badge>
               <span className="text-xs text-muted-foreground ml-2">
                 {answeredCount} answered
@@ -587,18 +623,23 @@ function ModuleContent() {
               onClick={() => {
                 const newAnswers: Record<string, AnswerState> = {};
                 for (const q of questions) {
-                  if (q.question.question_type === 'spr') {
+                  if (q.question.question_type === "spr") {
                     newAnswers[q.question.id] = {
                       userAnswer: ["2"],
                       isMarkedForReview: false,
                     };
                   } else {
                     const answerOptions = q.question.answer_options as any;
-                    if (answerOptions && Array.isArray(answerOptions) && answerOptions.length > 1) {
+                    if (
+                      answerOptions &&
+                      Array.isArray(answerOptions) &&
+                      answerOptions.length > 1
+                    ) {
                       const optionB = answerOptions[1];
-                      const optionId = typeof optionB === 'object' && optionB !== null
-                        ? optionB.id || optionB[0]
-                        : optionB;
+                      const optionId =
+                        typeof optionB === "object" && optionB !== null
+                          ? optionB.id || optionB[0]
+                          : optionB;
 
                       newAnswers[q.question.id] = {
                         userAnswer: [String(optionId)],
@@ -629,7 +670,7 @@ function ModuleContent() {
         </div>
         {/* Progress Bar */}
         <div className="absolute bottom-0 left-0 w-full h-[2px] bg-muted overflow-hidden">
-          <div 
+          <div
             className="h-full bg-primary transition-all duration-500 ease-out shadow-[0_0_10px_rgba(var(--primary),0.5)]"
             style={{ width: `${progress}%` }}
           />
@@ -646,7 +687,9 @@ function ModuleContent() {
         {showQuestionList && (
           <div className="w-[400px] border-r border-border bg-background/95 backdrop-blur-xl flex flex-col h-full shadow-xl z-20">
             <div className="p-4 border-b border-border flex items-center justify-between bg-background/50">
-              <h3 className="text-base font-semibold text-foreground">Question Navigator</h3>
+              <h3 className="text-base font-semibold text-foreground">
+                Question Navigator
+              </h3>
               <Button
                 variant="ghost"
                 size="icon"
@@ -670,13 +713,14 @@ function ModuleContent() {
                     onClick={() => handleQuestionNavigation(index)}
                     className={`
                       group w-full p-3 rounded-xl text-left transition-all duration-200 border
-                      ${isCurrent
-                        ? "border-primary/50 bg-primary/5 ring-1 ring-primary/20 shadow-sm"
-                        : isMarked
-                        ? "border-orange-500/30 bg-orange-500/5"
-                        : isAnswered
-                        ? "border-border bg-muted/30 hover:bg-muted/50"
-                        : "border-transparent hover:bg-accent hover:border-border"
+                      ${
+                        isCurrent
+                          ? "border-primary/50 bg-primary/5 ring-1 ring-primary/20 shadow-sm"
+                          : isMarked
+                          ? "border-orange-500/30 bg-orange-500/5"
+                          : isAnswered
+                          ? "border-border bg-muted/30 hover:bg-muted/50"
+                          : "border-transparent hover:bg-accent hover:border-border"
                       }
                     `}
                   >
@@ -685,18 +729,25 @@ function ModuleContent() {
                         <span
                           className={`
                             flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-mono font-medium transition-colors
-                            ${isCurrent
-                              ? "bg-primary text-primary-foreground"
-                              : isAnswered
-                              ? "bg-secondary text-secondary-foreground"
-                              : "bg-muted text-muted-foreground"
+                            ${
+                              isCurrent
+                                ? "bg-primary text-primary-foreground"
+                                : isAnswered
+                                ? "bg-secondary text-secondary-foreground"
+                                : "bg-muted text-muted-foreground"
                             }
                           `}
                         >
                           {index + 1}
                         </span>
                         <div className="flex-1">
-                          <span className={`text-sm font-medium ${isCurrent ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
+                          <span
+                            className={`text-sm font-medium ${
+                              isCurrent
+                                ? "text-foreground"
+                                : "text-muted-foreground group-hover:text-foreground"
+                            }`}
+                          >
                             Question {index + 1}
                           </span>
                         </div>
@@ -717,14 +768,19 @@ function ModuleContent() {
           <div className="max-w-3xl mx-auto space-y-8">
             {/* Question Meta */}
             <div className="flex items-center gap-4">
-              <Badge variant="outline" className="pl-2 pr-3 py-1 gap-2 border-border bg-card text-foreground font-medium">
-                <div className={`w-1.5 h-1.5 rounded-full ${
-                  currentQuestion.question.difficulty === "E"
-                    ? "bg-emerald-500"
-                    : currentQuestion.question.difficulty === "M"
-                    ? "bg-amber-500"
-                    : "bg-rose-500"
-                }`} />
+              <Badge
+                variant="outline"
+                className="pl-2 pr-3 py-1 gap-2 border-border bg-card text-foreground font-medium"
+              >
+                <div
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    currentQuestion.question.difficulty === "E"
+                      ? "bg-emerald-500"
+                      : currentQuestion.question.difficulty === "M"
+                      ? "bg-amber-500"
+                      : "bg-rose-500"
+                  }`}
+                />
                 {currentQuestion.question.difficulty === "E"
                   ? "Easy"
                   : currentQuestion.question.difficulty === "M"
@@ -820,7 +876,9 @@ function ModuleContent() {
               >
                 <Flag
                   className={`w-4 h-4 mr-2 ${
-                    currentAnswer?.isMarkedForReview ? "fill-orange-500 text-orange-500" : ""
+                    currentAnswer?.isMarkedForReview
+                      ? "fill-orange-500 text-orange-500"
+                      : ""
                   }`}
                 />
                 {currentAnswer?.isMarkedForReview

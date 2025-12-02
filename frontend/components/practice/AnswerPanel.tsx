@@ -40,23 +40,23 @@ export function AnswerPanel({
 }: AnswerPanelProps) {
   return (
     <div className="p-8 flex-1 overflow-y-auto">
-      <h3 className="text-lg font-bold text-foreground mb-6">
+      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6">
         {question.question.question_type === "mc"
-          ? "Answer Choices"
+          ? "Select an Answer"
           : "Your Answer"}
       </h3>
 
       {/* Student Produced Response Input */}
       {question.question.question_type === "spr" && (
-        <div className="space-y-4">
+        <div className="space-y-6">
           <Input
             id="answer-input"
             type="text"
-            placeholder="Type your answer here..."
+            placeholder="Enter your answer..."
             value={answer?.userAnswer[0] || ""}
             onChange={(e) => onAnswerChange(e.target.value)}
             disabled={showFeedback}
-            className="text-xl h-14 bg-background border-2 focus:border-primary rounded-xl"
+            className="text-3xl h-20 text-center font-mono tracking-widest bg-card border-2 border-border focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-2xl transition-all"
           />
 
           {/* Show correct answer for wrong SPR answers */}
@@ -64,13 +64,16 @@ export function AnswerPanel({
             answer &&
             !answer.isCorrect &&
             question.question.correct_answer && (
-              <div className="mt-3 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
-                <p className="text-green-600 dark:text-green-400 italic font-medium">
-                  <span className="font-bold">Correct answer: </span>
-                  {Array.isArray(question.question.correct_answer)
-                    ? question.question.correct_answer.join(", ")
-                    : question.question.correct_answer}
-                </p>
+              <div className="p-4 bg-destructive/10 border border-destructive/20 rounded-xl flex items-center gap-3">
+                <div className="h-8 w-8 rounded-full bg-destructive/20 flex items-center justify-center text-destructive">
+                  <X className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-destructive">Incorrect</p>
+                  <p className="text-sm text-muted-foreground">
+                    Correct answer: <span className="font-mono font-bold text-foreground">{Array.isArray(question.question.correct_answer) ? question.question.correct_answer.join(", ") : question.question.correct_answer}</span>
+                  </p>
+                </div>
               </div>
             )}
         </div>
@@ -106,70 +109,63 @@ export function AnswerPanel({
                 const isWrong =
                   showFeedback && !answer?.isCorrect && isSelected;
 
-                // Check if this option is the correct answer (for highlighting when wrong)
                 const correctAnswer = question.question.correct_answer;
                 const isCorrectAnswer =
                   showFeedback &&
                   !answer?.isCorrect &&
                   (() => {
-                    // Compare correct_answer with the label (A, B, C, D), not the optionId (UUID)
                     const correctAnswerStr = Array.isArray(correctAnswer)
                       ? String(correctAnswer[0]).trim().toUpperCase()
                       : String(correctAnswer).trim().toUpperCase();
-
                     const optionLabel = label.trim().toUpperCase();
-
                     return correctAnswerStr === optionLabel;
                   })();
 
                 return (
-                  <div key={optionId} className="flex items-center gap-3">
-                    {/* Label outside the box */}
-                    <div className="flex-shrink-0">
-                      <span className="font-bold text-primary text-lg">
-                        {label}.
-                      </span>
-                    </div>
-
-                    {/* Clickable box without label */}
-                    <div
-                      className={`flex items-center gap-3 p-4 border-2 rounded-xl transition-all cursor-pointer flex-1 ${
+                  <div
+                    key={optionId}
+                    className={`
+                      group relative flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ease-in-out
+                      ${
                         isCorrect
-                          ? "border-green-500 bg-green-500/10"
+                          ? "border-green-500 bg-green-500/10 ring-1 ring-green-500/20"
                           : isWrong
-                          ? "border-destructive bg-destructive/10"
+                          ? "border-destructive bg-destructive/10 ring-1 ring-destructive/20"
                           : isCorrectAnswer
-                          ? "border-green-500 bg-green-500/10"
-                          : isSelected && !isCorrectAnswer
-                          ? "border-primary bg-primary/10 shadow-sm"
-                          : "border-border hover:border-primary/50 hover:bg-accent"
-                      }`}
-                      onClick={() => !showFeedback && onAnswerChange(optionId)}
-                    >
-                      {/* Custom Radio Button */}
-                      <div className="flex-shrink-0 self-start mt-0.5">
-                        <div
-                          className={`w-4 h-4 rounded-full border-2 ${
-                            isSelected
-                              ? "bg-primary border-primary"
-                              : "border-muted-foreground"
-                          }`}
-                        >
-                          {isSelected && (
-                            <div className="w-full h-full rounded-full bg-background scale-50" />
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Answer Content */}
-                      <div className="flex-1 text-foreground">
-                        <span
-                          dangerouslySetInnerHTML={{
-                            __html: String(optionContent),
-                          }}
-                        />
-                      </div>
+                          ? "border-green-500 bg-green-500/10 ring-1 ring-green-500/20 border-dashed"
+                          : isSelected
+                          ? "border-primary bg-primary/5 ring-1 ring-primary/20 scale-[1.01] shadow-sm"
+                          : "border-border bg-card hover:border-primary/50 hover:bg-accent hover:scale-[1.005]"
+                      }
+                    `}
+                    onClick={() => !showFeedback && onAnswerChange(optionId)}
+                  >
+                    {/* Label Badge */}
+                    <div className={`
+                      flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-sm font-bold transition-colors
+                      ${
+                        isSelected || isCorrect || isCorrectAnswer
+                          ? "border-transparent bg-primary text-primary-foreground"
+                          : isWrong
+                          ? "border-transparent bg-destructive text-destructive-foreground"
+                          : "border-border bg-muted text-muted-foreground group-hover:bg-background"
+                      }
+                    `}>
+                      {isSelected ? <Check className="w-4 h-4" /> : label}
                     </div>
+
+                    {/* Answer Content */}
+                    <div className="flex-1 text-foreground font-medium">
+                      <span
+                        dangerouslySetInnerHTML={{
+                          __html: String(optionContent),
+                        }}
+                      />
+                    </div>
+                    
+                    {/* Feedback Icon */}
+                    {isCorrect && <Check className="w-5 h-5 text-green-500" />}
+                    {isWrong && <X className="w-5 h-5 text-destructive" />}
                   </div>
                 );
               });
@@ -179,53 +175,57 @@ export function AnswerPanel({
 
       {/* Confidence Rating - Show when answer is selected but before feedback */}
       {answer && !showFeedback && onConfidenceSelect && (
-        <ConfidenceRating
-          onSelect={onConfidenceSelect}
-          defaultScore={defaultConfidence}
-        />
+        <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+          <ConfidenceRating
+            onSelect={onConfidenceSelect}
+            defaultScore={defaultConfidence}
+          />
+        </div>
       )}
 
       {/* Feedback Section */}
       {showFeedback && answer && (
-        <div className="mt-8">
-          {answer.isCorrect ? (
-            <div className="bg-green-500/10 border-2 border-green-500/20 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center">
-                  <Check className="w-6 h-6 text-white" />
-                </div>
-                <h4 className="text-2xl font-bold text-green-600 dark:text-green-400">Correct!</h4>
+        <div className="mt-8 space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-500">
+          <div className={`
+            rounded-2xl p-6 border
+            ${answer.isCorrect 
+              ? "bg-green-500/10 border-green-500/20" 
+              : "bg-destructive/10 border-destructive/20"}
+          `}>
+            <div className="flex items-center gap-4">
+              <div className={`
+                h-12 w-12 rounded-full flex items-center justify-center
+                ${answer.isCorrect 
+                  ? "bg-green-500 text-white" 
+                  : "bg-destructive text-white"}
+              `}>
+                {answer.isCorrect ? <Check className="w-6 h-6" /> : <X className="w-6 h-6" />}
               </div>
-              <p className="text-green-600 dark:text-green-400 font-medium">
-                Great job! Keep it up! 🎉
-              </p>
-            </div>
-          ) : (
-            <div className="bg-destructive/10 border-2 border-destructive/20 rounded-2xl p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 bg-destructive rounded-full flex items-center justify-center">
-                  <X className="w-6 h-6 text-white" />
-                </div>
-                <h4 className="text-2xl font-bold text-destructive">Not quite</h4>
+              <div>
+                <h4 className="text-lg font-bold text-foreground">
+                  {answer.isCorrect ? "Excellent Work!" : "Not Quite Right"}
+                </h4>
+                <p className="text-muted-foreground">
+                  {answer.isCorrect 
+                    ? "You nailed this concept." 
+                    : "Review the explanation below to understand why."}
+                </p>
               </div>
-              <p className="text-destructive font-medium">
-                Don't worry, keep practicing!
-              </p>
             </div>
-          )}
+          </div>
 
-          {/* AI Feedback Button */}
-          <div className="mt-6">
+          {/* Action Buttons Grid */}
+          <div className="grid gap-3">
             <Button
               onClick={onGetFeedback}
               disabled={loadingFeedback}
-              variant="coss"
-              className="w-full font-semibold"
+              size="lg"
+              className="w-full font-semibold h-12 text-base shadow-sm"
             >
               {loadingFeedback ? (
                 <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-purple-600 border-t-transparent mr-2"></div>
-                  Generating AI Explanation...
+                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent mr-2"></div>
+                  Generating Insight...
                 </>
               ) : (
                 <>
@@ -242,76 +242,42 @@ export function AnswerPanel({
                       d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
                     />
                   </svg>
-                  Get AI Explanation
+                  AI Explanation
                 </>
               )}
             </Button>
+
+            <div className="grid grid-cols-2 gap-3">
+              {onGetSimilarQuestion && (
+                <Button
+                  onClick={onGetSimilarQuestion}
+                  variant="outline"
+                  className="h-12"
+                >
+                  Practice Similar
+                </Button>
+              )}
+              {onSaveQuestion && (
+                <Button
+                  onClick={onSaveQuestion}
+                  variant="outline"
+                  className="h-12"
+                  disabled={!!isQuestionSaved}
+                >
+                  {isQuestionSaved ? "Saved" : "Save Question"}
+                </Button>
+              )}
+            </div>
           </div>
-
-          {/* Get Similar Question Button */}
-          {onGetSimilarQuestion && (
-            <div className="mt-4">
-              <Button
-                onClick={onGetSimilarQuestion}
-                variant="coss"
-                className="w-full font-semibold"
-              >
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                  />
-                </svg>
-                Similar Question
-              </Button>
-              <p className="text-xs text-muted-foreground italic mt-2 text-center">
-                This will add a similar question to the end and move to next
-                question
-              </p>
-            </div>
-          )}
-
-          {/* Save Question Button */}
-          {onSaveQuestion && (
-            <div className="mt-4">
-              <Button
-                onClick={onSaveQuestion}
-                variant="coss"
-                className="w-full font-semibold"
-                disabled={!!isQuestionSaved}
-                aria-disabled={!!isQuestionSaved}
-              >
-                <svg
-                  className="w-4 h-4 mr-2"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M5 5v14l7-4 7 4V5a2 2 0 00-2-2H7a2 2 0 00-2 2z"
-                  />
-                </svg>
-                {isQuestionSaved ? "Saved" : "Save Question"}
-              </Button>
-            </div>
-          )}
 
           {/* AI Feedback Display */}
           {aiFeedback && (
-            <AIFeedbackDisplay
-              feedback={aiFeedback}
-              isCorrect={answer.isCorrect || false}
-            />
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <AIFeedbackDisplay
+                feedback={aiFeedback}
+                isCorrect={answer.isCorrect || false}
+              />
+            </div>
           )}
         </div>
       )}

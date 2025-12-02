@@ -29,7 +29,7 @@ export function NavigationControls({
           <Button
             onClick={onSubmit}
             disabled={!hasAnswer || isSubmitting}
-            className="w-full h-12 text-base font-semibold bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white border-0"
+            className="w-full h-12 text-base font-semibold bg-[#866ffe] hover:bg-[#7a5ffe] text-white border-0"
             size="lg"
           >
             {isSubmitting ? 'Checking...' : 'Check Answer'}
@@ -66,7 +66,7 @@ export function NavigationControls({
           </Button>
           <Button
             onClick={onNext}
-            className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white border-0"
+            className="flex-1 bg-[#866ffe] hover:bg-[#7a5ffe] text-white border-0"
             size="lg"
           >
             {isLastQuestion ? (

@@ -281,27 +281,23 @@ function PracticeSessionContent() {
         isRunning={timer.isRunning}
         formatTime={timer.formatTime}
         onToggleQuestionList={() => setShowQuestionList(!showQuestionList)}
-        onToggleTimerModal={() =>
-          timer.setShowTimerModal(!timer.showTimerModal)
-        }
+        
+        // Timer Props
+        showTimerModal={timer.showTimerModal}
+        onToggleTimerModal={timer.setShowTimerModal}
+        showTimerSetup={timer.showTimerSetup}
+        setShowTimerSetup={timer.setShowTimerSetup}
+        customHours={timer.customHours}
+        setCustomHours={timer.setCustomHours}
+        customMinutes={timer.customMinutes}
+        setCustomMinutes={timer.setCustomMinutes}
+        onStartStopwatch={timer.handleStartStopwatch}
+        onStartTimer={timer.handleStartTimer}
         onPauseResume={timer.handlePauseResume}
         onReset={timer.handleReset}
         onCloseTimer={timer.handleCloseTimer}
+        
         onExit={() => router.push("/dashboard/study-plan")}
-      />
-
-      {/* Timer/Stopwatch Modal */}
-      <TimerModal
-        showTimerModal={timer.showTimerModal}
-        showTimerSetup={timer.showTimerSetup}
-        customHours={timer.customHours}
-        customMinutes={timer.customMinutes}
-        setCustomHours={timer.setCustomHours}
-        setCustomMinutes={timer.setCustomMinutes}
-        setShowTimerModal={timer.setShowTimerModal}
-        setShowTimerSetup={timer.setShowTimerSetup}
-        onStartStopwatch={timer.handleStartStopwatch}
-        onStartTimer={timer.handleStartTimer}
       />
 
       <div

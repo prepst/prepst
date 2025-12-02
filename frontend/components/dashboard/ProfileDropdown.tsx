@@ -146,7 +146,7 @@ export function ProfileDropdown({
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className={`flex items-center rounded-xl transition-colors hover:bg-gray-100 text-gray-700 gap-3 py-3 px-4 w-full justify-between ${className}`}
+            className={`flex items-center rounded-xl transition-colors hover:bg-accent text-foreground gap-3 py-3 px-4 w-full justify-between ${className}`}
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
@@ -159,15 +159,15 @@ export function ProfileDropdown({
                 />
               </div>
               <div className="flex flex-col items-start flex-1">
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-sm font-medium text-foreground">
                   {getDisplayName()}
                 </span>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-muted-foreground">
                   {user?.email?.split("@")[0]}
                 </span>
               </div>
             </div>
-            <ChevronDown className="w-4 h-4 text-gray-400" />
+            <ChevronDown className="w-4 h-4 text-muted-foreground" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="start">

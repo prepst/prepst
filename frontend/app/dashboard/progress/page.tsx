@@ -141,10 +141,10 @@ export default function ProgressPage() {
       <div className="flex justify-center">
         <div className="w-full max-w-7xl px-4 py-8">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-800 mb-2">
+            <h1 className="text-4xl font-bold text-foreground mb-2">
               Progress Dashboard
             </h1>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Monitor your SAT preparation journey and track your improvement
             </p>
           </div>
@@ -178,10 +178,10 @@ export default function ProgressPage() {
               {/* SAT Score Progress */}
               {growthData.length > 0 && (
                 <div className="mb-12">
-                  <h2 className="text-3xl font-semibold mb-6">
+                  <h2 className="text-3xl font-semibold mb-6 text-foreground">
                     SAT Score Progress
                   </h2>
-                  <div className="bg-white border rounded-2xl p-8">
+                  <div className="bg-card border border-border rounded-2xl p-8">
                     <LineChart
                       data={growthData.map((point) => ({
                         ...point,
@@ -221,10 +221,10 @@ export default function ProgressPage() {
               {/* Mastery Progress by Category */}
               {Object.keys(heatmap).length > 0 && (
                 <div className="mb-12">
-                  <h2 className="text-3xl font-semibold mb-6">
+                  <h2 className="text-3xl font-semibold mb-6 text-foreground">
                     Mastery by Category
                   </h2>
-                  <div className="bg-white border rounded-2xl p-8">
+                  <div className="bg-card border border-border rounded-2xl p-8">
                     <RadarChart
                       data={(() => {
                         const categoryData = Object.entries(heatmap).map(
@@ -257,10 +257,10 @@ export default function ProgressPage() {
                       height={350}
                       formatTooltip={(val) => `${Number(val).toFixed(1)}%`}
                     />
-                    <div className="mt-6 pt-4 border-t border-gray-100">
-                      <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                    <div className="mt-6 pt-4 border-t border-border">
+                      <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
                         <span className="font-medium">Average Mastery:</span>
-                        <span className="font-bold text-purple-600">
+                        <span className="font-bold text-purple-600 dark:text-purple-400">
                           {(() => {
                             const categoryData = Object.entries(heatmap).map(
                               ([name, cat]) =>
@@ -285,10 +285,10 @@ export default function ProgressPage() {
 
               {/* Mock Exam Progress */}
               <div className="mb-12">
-                <h2 className="text-3xl font-semibold mb-6">
+                <h2 className="text-3xl font-semibold mb-6 text-foreground">
                   Mock Exam Performance
                 </h2>
-                <div className="bg-white border rounded-2xl p-8">
+                <div className="bg-card border border-border rounded-2xl p-8">
                   {mockExamData && (mockExamData as any).recent_exams?.length > 0 ? (
                     <div>
                       <LineChart
@@ -316,39 +316,39 @@ export default function ProgressPage() {
 
                       {/* Mock Exam Summary Stats */}
                       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-gray-50 rounded-lg p-4 text-center">
-                          <p className="text-sm text-gray-600">Total Exams</p>
-                          <p className="text-2xl font-bold text-gray-900">
+                        <div className="bg-muted/50 rounded-lg p-4 text-center">
+                          <p className="text-sm text-muted-foreground">Total Exams</p>
+                          <p className="text-2xl font-bold text-foreground">
                             {(mockExamData as any).total_exams}
                           </p>
                         </div>
-                        <div className="bg-gray-50 rounded-lg p-4 text-center">
-                          <p className="text-sm text-gray-600">Average Score</p>
-                          <p className="text-2xl font-bold text-blue-600">
+                        <div className="bg-muted/50 rounded-lg p-4 text-center">
+                          <p className="text-sm text-muted-foreground">Average Score</p>
+                          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                             {Math.round((mockExamData as any).avg_total_score)}
                           </p>
                         </div>
-                        <div className="bg-gray-50 rounded-lg p-4 text-center">
-                          <p className="text-sm text-gray-600">Improvement</p>
-                          <p className="text-2xl font-bold text-green-600">
+                        <div className="bg-muted/50 rounded-lg p-4 text-center">
+                          <p className="text-sm text-muted-foreground">Improvement</p>
+                          <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                             {(mockExamData as any).improvement_velocity > 0 ? "+" : ""}
                             {Math.round((mockExamData as any).improvement_velocity)} pts
                           </p>
                         </div>
-                        <div className="bg-gray-50 rounded-lg p-4 text-center">
-                          <p className="text-sm text-gray-600">Readiness</p>
-                          <p className="text-2xl font-bold text-purple-600">
+                        <div className="bg-muted/50 rounded-lg p-4 text-center">
+                          <p className="text-sm text-muted-foreground">Readiness</p>
+                          <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                             {(mockExamData as any).readiness_score}/100
                           </p>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center justify-center h-80 text-gray-500">
+                    <div className="flex flex-col items-center justify-center h-80 text-muted-foreground">
                       <div className="text-center">
-                        <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                        <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
                           <svg
-                            className="w-8 h-8 text-gray-400"
+                            className="w-8 h-8 text-muted-foreground"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -361,15 +361,15 @@ export default function ProgressPage() {
                             />
                           </svg>
                         </div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        <h3 className="text-lg font-medium text-foreground mb-2">
                           No Mock Exams Yet
                         </h3>
-                        <p className="text-gray-600 mb-4">
+                        <p className="text-muted-foreground mb-4">
                           Take your first mock exam to start tracking your
                           progress
                         </p>
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md">
-                          <p className="text-sm text-blue-800">
+                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 max-w-md">
+                          <p className="text-sm text-blue-600 dark:text-blue-400">
                             <strong>Tip:</strong> Mock exams help you practice
                             under real test conditions and track your
                             improvement over time.
@@ -385,10 +385,10 @@ export default function ProgressPage() {
               {growthData.length > 0 &&
                 growthData.some((d) => d.mastery !== undefined) && (
                   <div className="mb-12">
-                    <h2 className="text-3xl font-semibold mb-6">
+                    <h2 className="text-3xl font-semibold mb-6 text-foreground">
                       Average Mastery Over Time
                     </h2>
-                    <div className="bg-white border rounded-2xl p-8">
+                    <div className="bg-card border border-border rounded-2xl p-8">
                       <AreaChart
                         data={growthData
                           .filter((d) => d.mastery !== undefined)

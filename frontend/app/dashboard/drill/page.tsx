@@ -86,14 +86,14 @@ export default function DrillPage() {
   return (
     <div className="min-h-screen">
       <div className="flex justify-center">
-        <div className="w-full max-w-7xl px-4 py-8">
+        <div className="w-full max-w-7xl px-4 py-8 space-y-8">
           <div className="mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-4xl font-bold text-gray-800 mb-2">
+                <h1 className="text-4xl font-bold text-foreground mb-2">
                   Drill Session
                 </h1>
-                <p className="text-gray-600">
+                <p className="text-muted-foreground">
                   Targeted drills by skill mastery
                 </p>
               </div>
@@ -104,7 +104,7 @@ export default function DrillPage() {
             <div className="space-y-6">
               <Skeleton className="h-10 w-72" />
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="bg-white border rounded-2xl p-8">
+                <div key={i} className="bg-card border border-border rounded-2xl p-8">
                   <Skeleton className="h-6 w-48 mb-4" />
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                     {Array.from({ length: 8 }).map((_, j) => (
@@ -117,7 +117,7 @@ export default function DrillPage() {
           ) : (
             Object.keys(heatmap).length > 0 && (
               <div className="mb-12">
-                <div className="bg-white border rounded-2xl p-8">
+                <div className="bg-card border border-border rounded-2xl p-8">
                   <div>
                     <CardTitle>Select Topics for Drills</CardTitle>
                     <CardDescription>
@@ -128,9 +128,9 @@ export default function DrillPage() {
                   <div className="space-y-6">
                     {Object.entries(heatmap).map(([categoryName, category]) => (
                       <div key={categoryName}>
-                        <h3 className="text-lg font-semibold text-gray-700 mb-3">
+                        <h3 className="text-lg font-semibold text-foreground mb-3">
                           {categoryName}
-                          <span className="text-sm text-gray-500 ml-2">
+                          <span className="text-sm text-muted-foreground ml-2">
                             ({category.section})
                           </span>
                         </h3>
@@ -195,24 +195,24 @@ export default function DrillPage() {
                   {revisionTopics.map((topic) => (
                     <Card
                       key={topic.id}
-                      className={`cursor-pointer transition-all duration-200 ${
+                      className={`cursor-pointer transition-all duration-200 border ${
                         selectedTopics.includes(topic.id)
-                          ? "ring-2 ring-purple-500 bg-purple-50"
-                          : "hover:shadow-md"
+                          ? "ring-2 ring-primary bg-primary/5 border-primary"
+                          : "hover:shadow-md border-border bg-card"
                       }`}
                       onClick={() => handleTopicToggle(topic.id)}
                     >
                       <CardContent className="p-4">
                         <div className="flex items-start justify-between mb-3">
-                          <h3 className="font-semibold text-gray-900">
+                          <h3 className="font-semibold text-card-foreground">
                             {topic.name}
                           </h3>
                           <div className="flex gap-2">
                             <Badge
                               className={
                                 topic.section === "math"
-                                  ? "bg-[#FAC710] text-black"
-                                  : "bg-[#FD87DC] text-black"
+                                  ? "bg-[#FAC710] text-black hover:bg-[#FAC710]/90"
+                                  : "bg-[#FD87DC] text-black hover:bg-[#FD87DC]/90"
                               }
                             >
                               {topic.section === "math"
@@ -222,13 +222,13 @@ export default function DrillPage() {
                           </div>
                         </div>
                         <div className="space-y-2">
-                          <div className="flex items-center justify-between text-sm text-gray-600">
+                          <div className="flex items-center justify-between text-sm text-muted-foreground">
                             <span>Topics Available</span>
                             <span className="font-medium">
                               {topic.questionsCount}
                             </span>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="w-full bg-muted rounded-full h-2">
                             <div
                               className={`h-2 rounded-full ${
                                 topic.section === "math"
@@ -262,32 +262,32 @@ export default function DrillPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center justify-between p-4 border border-border rounded-lg bg-card/50">
                   <div>
-                    <h4 className="font-medium">Algebra & Advanced Math</h4>
-                    <p className="text-sm text-gray-500">
+                    <h4 className="font-medium text-card-foreground">Algebra & Advanced Math</h4>
+                    <p className="text-sm text-muted-foreground">
                       2 days ago • 25 questions
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-semibold text-green-600">
+                    <div className="text-lg font-semibold text-green-600 dark:text-green-400">
                       85%
                     </div>
-                    <p className="text-sm text-gray-500">Accuracy</p>
+                    <p className="text-sm text-muted-foreground">Accuracy</p>
                   </div>
                 </div>
-                <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center justify-between p-4 border border-border rounded-lg bg-card/50">
                   <div>
-                    <h4 className="font-medium">Craft and Structure</h4>
-                    <p className="text-sm text-gray-500">
+                    <h4 className="font-medium text-card-foreground">Craft and Structure</h4>
+                    <p className="text-sm text-muted-foreground">
                       1 week ago • 18 questions
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-semibold text-blue-600">
+                    <div className="text-lg font-semibold text-blue-600 dark:text-blue-400">
                       72%
                     </div>
-                    <p className="text-sm text-gray-500">Accuracy</p>
+                    <p className="text-sm text-muted-foreground">Accuracy</p>
                   </div>
                 </div>
               </div>

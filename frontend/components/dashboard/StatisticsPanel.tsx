@@ -163,8 +163,8 @@ export function StatisticsPanel({
   }
 
   return (
-    <div className="w-64 md:w-72 xl:w-80 p-4 md:p-5 flex-shrink-0 bg-white rounded-3xl shadow-sm">
-      <h2 className="text-3xl font-bold mb-8 text-gray-900">
+    <div className="w-64 md:w-72 xl:w-80 p-4 md:p-5 flex-shrink-0 bg-card rounded-3xl shadow-sm border border-border">
+      <h2 className="text-3xl font-bold mb-8 text-card-foreground">
         Study Statistics
       </h2>
 
@@ -172,8 +172,8 @@ export function StatisticsPanel({
       <div className="flex flex-col items-center mb-8">
         <div className="relative mb-5">
           {/* Progress ring - simplified version */}
-          <div className="w-36 h-36 rounded-full bg-gradient-to-br from-purple-100 to-purple-50 flex items-center justify-center relative shadow-sm">
-            <div className="w-32 h-32 rounded-full bg-white flex items-center justify-center">
+          <div className="w-36 h-36 rounded-full bg-primary/5 flex items-center justify-center relative shadow-sm border border-border">
+            <div className="w-32 h-32 rounded-full bg-card flex items-center justify-center">
               <div className="w-28 h-28 rounded-full overflow-hidden">
                 <Image
                   src="/profile.png"
@@ -184,15 +184,15 @@ export function StatisticsPanel({
                 />
               </div>
             </div>
-            <Badge className="absolute -top-2 -right-2 bg-purple-600 hover:bg-purple-600 text-white px-3 py-1 text-sm font-bold rounded-full shadow-md">
+            <Badge className="absolute -top-2 -right-2 bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-1 text-sm font-bold rounded-full shadow-md">
               {realProgressPercentage}%
             </Badge>
           </div>
         </div>
-        <h3 className="text-xl font-bold text-center mb-2 text-gray-900">
+        <h3 className="text-xl font-bold text-center mb-2 text-foreground">
           {getDisplayName() || userName}
         </h3>
-        <p className="text-sm text-gray-500 text-center px-4 leading-relaxed">
+        <p className="text-sm text-muted-foreground text-center px-4 leading-relaxed">
           {realProgressPercentage >= 100
             ? "🎉 Congratulations! You've reached your target!"
             : `Keep studying! ${100 - realProgressPercentage}% to go!`}
@@ -202,58 +202,58 @@ export function StatisticsPanel({
       {/* Study Metrics */}
       {studyStats && (
         <div className="mb-8">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">
+          <h3 className="text-lg font-bold text-foreground mb-4">
             This Week's Activity
           </h3>
           <div className="grid grid-cols-2 gap-4 mb-6">
-            <Card className="p-4 bg-blue-50 border-blue-100">
+            <Card className="p-4 bg-blue-500/10 border-blue-500/20 shadow-none">
               <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5 text-blue-600" />
+                <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 <div>
-                  <p className="text-sm text-blue-600 font-medium">
+                  <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
                     Study Time
                   </p>
-                  <p className="text-lg font-bold text-blue-900">
+                  <p className="text-lg font-bold text-blue-700 dark:text-blue-300">
                     {Math.floor(studyStats.totalStudyTime / 60)}h{" "}
                     {studyStats.totalStudyTime % 60}m
                   </p>
                 </div>
               </div>
             </Card>
-            <Card className="p-4 bg-green-50 border-green-100">
+            <Card className="p-4 bg-green-500/10 border-green-500/20 shadow-none">
               <div className="flex items-center gap-3">
-                <Zap className="w-5 h-5 text-green-600" />
+                <Zap className="w-5 h-5 text-green-600 dark:text-green-400" />
                 <div>
-                  <p className="text-sm text-green-600 font-medium">
+                  <p className="text-sm text-green-600 dark:text-green-400 font-medium">
                     Current Streak
                   </p>
-                  <p className="text-lg font-bold text-green-900">
+                  <p className="text-lg font-bold text-green-700 dark:text-green-300">
                     {studyStats.currentStreak} days
                   </p>
                 </div>
               </div>
             </Card>
-            <Card className="p-4 bg-purple-50 border-purple-100">
+            <Card className="p-4 bg-purple-500/10 border-purple-500/20 shadow-none">
               <div className="flex items-center gap-3">
-                <BookOpen className="w-5 h-5 text-purple-600" />
+                <BookOpen className="w-5 h-5 text-purple-600 dark:text-purple-400" />
                 <div>
-                  <p className="text-sm text-purple-600 font-medium">
+                  <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">
                     Sessions
                   </p>
-                  <p className="text-lg font-bold text-purple-900">
+                  <p className="text-lg font-bold text-purple-700 dark:text-purple-300">
                     {studyStats.sessionsCompleted}
                   </p>
                 </div>
               </div>
             </Card>
-            <Card className="p-4 bg-orange-50 border-orange-100">
+            <Card className="p-4 bg-orange-500/10 border-orange-500/20 shadow-none">
               <div className="flex items-center gap-3">
-                <TrendingUp className="w-5 h-5 text-orange-600" />
+                <TrendingUp className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                 <div>
-                  <p className="text-sm text-orange-600 font-medium">
+                  <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">
                     Avg Score
                   </p>
-                  <p className="text-lg font-bold text-orange-900">
+                  <p className="text-lg font-bold text-orange-700 dark:text-orange-300">
                     {studyStats.averageScore}%
                   </p>
                 </div>
@@ -263,7 +263,7 @@ export function StatisticsPanel({
 
           {/* Weekly Activity Chart */}
           <div className="mb-4">
-            <h4 className="text-sm font-semibold text-gray-700 mb-3">
+            <h4 className="text-sm font-semibold text-muted-foreground mb-3">
               Daily Study Time
             </h4>
             <ResponsiveContainer width="100%" height={120}>
@@ -273,12 +273,13 @@ export function StatisticsPanel({
                   fontSize={11}
                   tickLine={false}
                   axisLine={false}
-                  tick={{ fill: "#6b7280" }}
+                  tick={{ fill: "currentColor", className: "text-muted-foreground fill-current" }}
                 />
                 <YAxis hide />
                 <Bar
                   dataKey="minutes"
-                  fill="#8b5cf6"
+                  fill="var(--color-primary)"
+                  className="fill-primary"
                   radius={[4, 4, 0, 0]}
                   maxBarSize={30}
                 />
@@ -291,21 +292,21 @@ export function StatisticsPanel({
       {/* Top Skills */}
       {studyStats && (
         <div className="mb-8">
-          <h3 className="text-lg font-bold text-gray-900 mb-4">Top Skills</h3>
+          <h3 className="text-lg font-bold text-foreground mb-4">Top Skills</h3>
           <div className="space-y-3">
             {studyStats.topSkills.map((skill, idx) => (
               <div key={idx} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className={`w-3 h-3 rounded-full ${skill.color}`}></div>
-                  <span className="text-sm font-medium text-gray-700">
+                  <span className="text-sm font-medium text-muted-foreground">
                     {skill.name}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-gray-900">
+                  <span className="text-sm font-bold text-foreground">
                     {skill.mastery}%
                   </span>
-                  <div className="w-16 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
                     <div
                       className={`h-full ${skill.color} transition-all duration-500`}
                       style={{ width: `${skill.mastery}%` }}
@@ -320,17 +321,17 @@ export function StatisticsPanel({
 
       {/* Study Calendar */}
       <div className="mb-8">
-        <h3 className="text-lg font-bold text-gray-900 mb-4">Study Calendar</h3>
+        <h3 className="text-lg font-bold text-foreground mb-4">Study Calendar</h3>
         <div className="flex justify-center">
           <Calendar
             mode="single"
             selected={date}
             onSelect={setDate}
-            className="rounded-xl bg-gray-50 p-4 border-0"
+            className="rounded-xl bg-muted/30 p-4 border-0"
           />
         </div>
         <div className="mt-4 text-center">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             {studyStats
               ? `${studyStats.currentStreak} day streak`
               : "Start your study streak!"}
@@ -341,14 +342,14 @@ export function StatisticsPanel({
       {/* Study Goals & Achievements */}
       {studyStats && (
         <div className="space-y-4">
-          <Card className="p-5 bg-gradient-to-r from-purple-50 to-blue-50 border-purple-100 rounded-2xl shadow-sm">
+          <Card className="p-5 bg-purple-500/10 border-purple-500/20 rounded-2xl shadow-none">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center shadow-sm">
-                <Target className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center shadow-sm">
+                <Target className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               </div>
               <div>
-                <p className="text-sm font-bold text-gray-900">Study Goal</p>
-                <p className="text-xs text-gray-600 mt-0.5">
+                <p className="text-sm font-bold text-foreground">Study Goal</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
                   {studyStats.currentStreak >= 7
                     ? "🎉 Weekly goal achieved!"
                     : `${
@@ -359,14 +360,14 @@ export function StatisticsPanel({
             </div>
           </Card>
 
-          <Card className="p-5 bg-gradient-to-r from-green-50 to-emerald-50 border-green-100 rounded-2xl shadow-sm">
+          <Card className="p-5 bg-green-500/10 border-green-500/20 rounded-2xl shadow-none">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center shadow-sm">
-                <Award className="w-6 h-6 text-white" />
+              <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center shadow-sm">
+                <Award className="w-6 h-6 text-green-600 dark:text-green-400" />
               </div>
               <div>
-                <p className="text-sm font-bold text-gray-900">Achievement</p>
-                <p className="text-xs text-gray-600 mt-0.5">
+                <p className="text-sm font-bold text-foreground">Achievement</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
                   {studyStats.improvementRate > 0
                     ? `+${studyStats.improvementRate}% improvement this week`
                     : "Keep studying to see improvement!"}
@@ -376,16 +377,16 @@ export function StatisticsPanel({
           </Card>
 
           {currentSession && (
-            <Card className="p-5 bg-orange-50/50 border-orange-100 rounded-2xl shadow-sm">
+            <Card className="p-5 bg-orange-500/10 border-orange-500/20 rounded-2xl shadow-none">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-orange-100 flex items-center justify-center shadow-sm">
-                  <div className="w-7 h-7 rounded-full border-2 border-orange-600 border-t-transparent animate-spin" />
+                <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center shadow-sm">
+                  <div className="w-7 h-7 rounded-full border-2 border-orange-600 dark:border-orange-400 border-t-transparent animate-spin" />
                 </div>
                 <div>
-                  <p className="text-sm font-bold text-gray-900">
+                  <p className="text-sm font-bold text-foreground">
                     Session {currentSession.number}
                   </p>
-                  <p className="text-xs text-gray-600 mt-0.5">
+                  <p className="text-xs text-muted-foreground mt-0.5">
                     {currentSession.title}
                   </p>
                 </div>

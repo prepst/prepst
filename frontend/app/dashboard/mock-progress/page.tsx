@@ -37,12 +37,12 @@ export default function MockProgressPage() {
   return (
     <div className="flex justify-center">
       <div className="w-full max-w-4xl px-4">
-        <h1 className="text-4xl font-semibold mb-8">Mock Exam Progress</h1>
+        <h1 className="text-4xl font-semibold mb-8 text-foreground">Mock Exam Progress</h1>
 
         {/* Mock Exam Performance */}
         <div className="mb-12">
-          <h2 className="text-3xl font-semibold mb-6">Mock Exam Performance</h2>
-          <div className="bg-white border rounded-2xl p-8">
+          <h2 className="text-3xl font-semibold mb-6 text-foreground">Mock Exam Performance</h2>
+          <div className="bg-card border border-border rounded-2xl p-8">
             {mockExamData && mockExamData.recent_exams.length > 0 ? (
               <div>
                 <LineChart
@@ -70,15 +70,15 @@ export default function MockProgressPage() {
 
                 {/* Mock Exam Summary Stats */}
                 <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-gray-50 rounded-lg p-4 text-center">
-                    <p className="text-sm text-gray-600">Total Exams</p>
-                    <p className="text-2xl font-bold text-gray-900">
+                  <div className="bg-muted/50 rounded-lg p-4 text-center">
+                    <p className="text-sm text-muted-foreground">Total Exams</p>
+                    <p className="text-2xl font-bold text-foreground">
                       {mockExamData.total_count}
                     </p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-4 text-center">
-                    <p className="text-sm text-gray-600">Average Score</p>
-                    <p className="text-2xl font-bold text-blue-600">
+                  <div className="bg-muted/50 rounded-lg p-4 text-center">
+                    <p className="text-sm text-muted-foreground">Average Score</p>
+                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
                       {mockExamData.recent_exams.length > 0
                         ? Math.round(
                             mockExamData.recent_exams.reduce(
@@ -89,9 +89,9 @@ export default function MockProgressPage() {
                         : 0}
                     </p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-4 text-center">
-                    <p className="text-sm text-gray-600">Improvement</p>
-                    <p className="text-2xl font-bold text-green-600">
+                  <div className="bg-muted/50 rounded-lg p-4 text-center">
+                    <p className="text-sm text-muted-foreground">Improvement</p>
+                    <p className="text-2xl font-bold text-green-600 dark:text-green-400">
                       {mockExamData.recent_exams.length >= 2
                         ? (() => {
                             const scores = mockExamData.recent_exams.map(
@@ -105,9 +105,9 @@ export default function MockProgressPage() {
                       {mockExamData.recent_exams.length >= 2 ? " pts" : ""}
                     </p>
                   </div>
-                  <div className="bg-gray-50 rounded-lg p-4 text-center">
-                    <p className="text-sm text-gray-600">Latest Score</p>
-                    <p className="text-2xl font-bold text-purple-600">
+                  <div className="bg-muted/50 rounded-lg p-4 text-center">
+                    <p className="text-sm text-muted-foreground">Latest Score</p>
+                    <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
                       {mockExamData.recent_exams.length > 0
                         ? mockExamData.recent_exams[0].total_score
                         : "—"}
@@ -116,11 +116,11 @@ export default function MockProgressPage() {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-80 text-gray-500">
+              <div className="flex flex-col items-center justify-center h-80 text-muted-foreground">
                 <div className="text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
                     <svg
-                      className="w-8 h-8 text-gray-400"
+                      className="w-8 h-8 text-muted-foreground"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -133,14 +133,14 @@ export default function MockProgressPage() {
                       />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <h3 className="text-lg font-medium text-foreground mb-2">
                     No Mock Exams Yet
                   </h3>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-muted-foreground mb-4">
                     Take your first mock exam to start tracking your progress
                   </p>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-md">
-                    <p className="text-sm text-blue-800">
+                  <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 max-w-md">
+                    <p className="text-sm text-blue-800 dark:text-blue-300">
                       <strong>Tip:</strong> Mock exams help you practice under
                       real test conditions and track your improvement over time.
                     </p>

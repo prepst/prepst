@@ -112,7 +112,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="flex justify-center">
         <div className="w-full max-w-7xl px-4 py-8">
           <div className="space-y-8">
@@ -247,65 +247,65 @@ export default function DashboardPage() {
             {/* Stats Overview */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Study Streak */}
-              <Card className="p-6 rounded-2xl border-0 bg-gradient-to-br from-orange-50 to-orange-100 shadow-lg">
+              <Card className="p-6 rounded-2xl border-0 bg-orange-500/10 shadow-none">
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-orange-500 rounded-xl shadow-md">
                     <Flame className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-orange-700 font-medium">
+                    <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">
                       Study Streak
                     </p>
-                    <p className="text-2xl font-bold text-orange-900">0 days</p>
-                    <p className="text-xs text-orange-600">Keep it up!</p>
+                    <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">0 days</p>
+                    <p className="text-xs text-orange-600/80 dark:text-orange-400/80">Keep it up!</p>
                   </div>
                 </div>
               </Card>
 
               {/* Study Time Today */}
-              <Card className="p-6 rounded-2xl border-0 bg-gradient-to-br from-purple-50 to-purple-100 shadow-lg">
+              <Card className="p-6 rounded-2xl border-0 bg-purple-500/10 shadow-none">
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-purple-500 rounded-xl shadow-md">
                     <Clock className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-purple-700 font-medium">
+                    <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">
                       Today's Study
                     </p>
-                    <p className="text-2xl font-bold text-purple-900">0h 0m</p>
-                    <p className="text-xs text-purple-600">Goal: 2h 0m</p>
+                    <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">0h 0m</p>
+                    <p className="text-xs text-purple-600/80 dark:text-purple-400/80">Goal: 2h 0m</p>
                   </div>
                 </div>
               </Card>
 
               {/* Questions Completed */}
-              <Card className="p-6 rounded-2xl border-0 bg-gradient-to-br from-green-50 to-green-100 shadow-lg">
+              <Card className="p-6 rounded-2xl border-0 bg-green-500/10 shadow-none">
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-green-500 rounded-xl shadow-md">
                     <CheckCircle2 className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-green-700 font-medium">
+                    <p className="text-sm text-green-600 dark:text-green-400 font-medium">
                       Questions Done
                     </p>
-                    <p className="text-2xl font-bold text-green-900">0</p>
-                    <p className="text-xs text-green-600">This week</p>
+                    <p className="text-2xl font-bold text-green-700 dark:text-green-300">0</p>
+                    <p className="text-xs text-green-600/80 dark:text-green-400/80">This week</p>
                   </div>
                 </div>
               </Card>
 
               {/* Mock Exams */}
-              <Card className="p-6 rounded-2xl border-0 bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg">
+              <Card className="p-6 rounded-2xl border-0 bg-blue-500/10 shadow-none">
                 <div className="flex items-center gap-4">
                   <div className="p-3 bg-blue-500 rounded-xl shadow-md">
                     <Target className="h-6 w-6 text-white" />
                   </div>
                   <div>
-                    <p className="text-sm text-blue-700 font-medium">
+                    <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
                       Mock Exams
                     </p>
-                    <p className="text-2xl font-bold text-blue-900">0</p>
-                    <p className="text-xs text-blue-600">Completed</p>
+                    <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">0</p>
+                    <p className="text-xs text-blue-600/80 dark:text-blue-400/80">Completed</p>
                   </div>
                 </div>
               </Card>
@@ -314,12 +314,12 @@ export default function DashboardPage() {
             {/* Main Content Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Next Session */}
-              <Card className="lg:col-span-2 p-8 rounded-2xl border-0 shadow-lg bg-white">
+              <Card className="lg:col-span-2 p-8 rounded-2xl border-border shadow-sm bg-card">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-purple-100 rounded-lg">
-                    <BookOpen className="h-5 w-5 text-purple-600" />
+                  <div className="p-2 bg-purple-500/10 rounded-lg">
+                    <BookOpen className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900">
+                  <h3 className="text-2xl font-bold text-card-foreground">
                     Next Study Session
                   </h3>
                 </div>
@@ -347,13 +347,13 @@ export default function DashboardPage() {
                         <TodoItem todo={nextSession} onToggle={() => {}} />
                       ) : (
                         <div className="text-center py-8">
-                          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <CheckCircle2 className="h-8 w-8 text-green-600" />
+                          <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
                           </div>
-                          <p className="text-lg font-medium text-gray-900 mb-2">
+                          <p className="text-lg font-medium text-card-foreground mb-2">
                             All sessions completed!
                           </p>
-                          <p className="text-gray-500">
+                          <p className="text-muted-foreground">
                             Great job! Check back tomorrow for new sessions.
                           </p>
                         </div>
@@ -362,13 +362,13 @@ export default function DashboardPage() {
                   </div>
                 ) : (
                   <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <BookOpen className="h-8 w-8 text-purple-600" />
+                    <div className="w-16 h-16 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <BookOpen className="h-8 w-8 text-purple-600 dark:text-purple-400" />
                     </div>
-                    <p className="text-lg font-medium text-gray-900 mb-2">
+                    <p className="text-lg font-medium text-card-foreground mb-2">
                       No study plan found
                     </p>
-                    <p className="text-gray-500 mb-6">
+                    <p className="text-muted-foreground mb-6">
                       Create a personalized study plan to get started
                     </p>
                     <Button
@@ -383,12 +383,12 @@ export default function DashboardPage() {
               </Card>
 
               {/* Quick Actions */}
-              <Card className="p-6 rounded-2xl border-0 shadow-lg bg-white">
+              <Card className="p-6 rounded-2xl border-border shadow-sm bg-card">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <Zap className="h-5 w-5 text-blue-600" />
+                  <div className="p-2 bg-blue-500/10 rounded-lg">
+                    <Zap className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900">
+                  <h3 className="text-xl font-bold text-card-foreground">
                     Quick Actions
                   </h3>
                 </div>
@@ -404,7 +404,7 @@ export default function DashboardPage() {
                   <Button
                     onClick={() => router.push("/dashboard/mock-exam")}
                     variant="outline"
-                    className="w-full justify-start border-purple-200 text-purple-700 hover:bg-purple-50 rounded-xl py-3"
+                    className="w-full justify-start border-purple-500/20 text-purple-700 dark:text-purple-300 hover:bg-purple-500/10 rounded-xl py-3"
                   >
                     <Target className="w-4 h-4 mr-3" />
                     Take Mock Exam
@@ -412,7 +412,7 @@ export default function DashboardPage() {
                   <Button
                     onClick={() => router.push("/study-plan")}
                     variant="outline"
-                    className="w-full justify-start border-gray-200 text-gray-700 hover:bg-gray-50 rounded-xl py-3"
+                    className="w-full justify-start border-border text-muted-foreground hover:bg-accent rounded-xl py-3"
                   >
                     <BarChart3 className="w-4 h-4 mr-3" />
                     View Study Plan
@@ -420,7 +420,7 @@ export default function DashboardPage() {
                   <Button
                     onClick={() => router.push("/dashboard/progress")}
                     variant="outline"
-                    className="w-full justify-start border-gray-200 text-gray-700 hover:bg-gray-50 rounded-xl py-3"
+                    className="w-full justify-start border-border text-muted-foreground hover:bg-accent rounded-xl py-3"
                   >
                     <TrendingUp className="w-4 h-4 mr-3" />
                     View Progress

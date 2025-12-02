@@ -72,32 +72,32 @@ export function PerformanceChart() {
 
   return (
     <Card 
-      className="p-8 rounded-2xl border-0 shadow-lg bg-white"
+      className="p-8 rounded-2xl border-border shadow-sm bg-card"
     >
       <CardHeader>
         <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 bg-green-100 rounded-lg">
-            <TrendingUp className="h-5 w-5 text-green-600" />
+          <div className="p-2 bg-green-500/10 rounded-lg">
+            <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
           </div>
-          <CardTitle className="text-2xl font-bold text-gray-900">
+          <CardTitle className="text-2xl font-bold text-card-foreground">
             Mock Exam Performance
           </CardTitle>
         </div>
-        <CardDescription className="text-gray-500">
+        <CardDescription className="text-muted-foreground">
           Track your progress with completed mock exams over time
         </CardDescription>
       </CardHeader>
       <CardContent>
         {isLoading ? (
           <div className="flex items-center justify-center h-[300px]">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-500"></div>
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
           </div>
         ) : error ? (
-          <div className="flex items-center justify-center h-[300px] text-gray-500">
+          <div className="flex items-center justify-center h-[300px] text-muted-foreground">
             Failed to load performance data
           </div>
         ) : chartData.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-[300px] text-gray-500">
+          <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground">
             <p className="text-lg font-medium mb-2">No mock exams completed yet</p>
             <p className="text-sm">Complete a mock exam to see your performance here</p>
           </div>
@@ -111,22 +111,24 @@ export function PerformanceChart() {
                 right: 12,
               }}
             >
-              <CartesianGrid vertical={false} />
+              <CartesianGrid vertical={false} stroke="hsl(var(--border))" />
               <XAxis
                 dataKey="date"
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
+                tick={{ fill: "hsl(var(--muted-foreground))" }}
               />
               <YAxis
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
                 domain={['dataMin', 700]}
+                tick={{ fill: "hsl(var(--muted-foreground))" }}
               />
               <Legend 
                 formatter={(value) => {
-                  return chartConfig[value as keyof typeof chartConfig]?.label || value;
+                  return <span className="text-foreground">{chartConfig[value as keyof typeof chartConfig]?.label || value}</span>;
                 }}
               />
               <ChartTooltip
@@ -160,7 +162,7 @@ export function PerformanceChart() {
           <div className="flex w-full items-start gap-2 text-sm">
             <div className="grid gap-2">
               {trend && (
-                <div className="flex items-center gap-2 leading-none font-medium">
+                <div className="flex items-center gap-2 leading-none font-medium text-foreground">
                   {trend.direction === "up" ? "Trending up" : "Trending down"} by {trend.percentage.toFixed(1)}%{" "}
                   <TrendingUp className={`h-4 w-4 ${trend.direction === "down" ? "rotate-180" : ""}`} />
                 </div>

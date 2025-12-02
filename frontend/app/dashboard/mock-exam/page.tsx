@@ -139,10 +139,10 @@ export default function MockExamPage() {
 
   const getStatusBadge = (status: string) => {
     const styles = {
-      not_started: "bg-gray-100 text-gray-700",
-      in_progress: "bg-blue-100 text-blue-700",
-      completed: "bg-green-100 text-green-700",
-      abandoned: "bg-red-100 text-red-700",
+      not_started: "bg-muted text-muted-foreground",
+      in_progress: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+      completed: "bg-green-500/10 text-green-600 dark:text-green-400",
+      abandoned: "bg-red-500/10 text-red-600 dark:text-red-400",
     };
 
     const labels = {
@@ -168,53 +168,53 @@ export default function MockExamPage() {
       <div className="w-full max-w-4xl px-4">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-semibold mb-2">Mock SAT Exam</h1>
-          <p className="text-gray-600">
+          <h1 className="text-4xl font-semibold mb-2 text-foreground">Mock SAT Exam</h1>
+          <p className="text-muted-foreground">
             Take a full-length practice test that mimics the real SAT experience
           </p>
         </div>
 
         {/* Info Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <Clock className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 bg-blue-500/10 rounded-full flex items-center justify-center">
+                <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
               </div>
-              <h3 className="font-semibold text-gray-900">2 Hours 8 Minutes</h3>
+              <h3 className="font-semibold text-foreground">2 Hours 8 Minutes</h3>
             </div>
-            <p className="text-sm text-gray-600">Total test time</p>
+            <p className="text-sm text-muted-foreground">Total test time</p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-purple-600" />
+              <div className="w-10 h-10 bg-purple-500/10 rounded-full flex items-center justify-center">
+                <BookOpen className="w-5 h-5 text-purple-600 dark:text-purple-400" />
               </div>
-              <h3 className="font-semibold text-gray-900">4 Modules</h3>
+              <h3 className="font-semibold text-foreground">4 Modules</h3>
             </div>
-            <p className="text-sm text-gray-600">2 Math, 2 Reading & Writing</p>
+            <p className="text-sm text-muted-foreground">2 Math, 2 Reading & Writing</p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+          <div className="bg-card rounded-xl p-6 shadow-sm border border-border">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-green-600" />
+              <div className="w-10 h-10 bg-green-500/10 rounded-full flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 text-green-600 dark:text-green-400" />
               </div>
-              <h3 className="font-semibold text-gray-900">Adaptive Testing</h3>
+              <h3 className="font-semibold text-foreground">Adaptive Testing</h3>
             </div>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-muted-foreground">
               Difficulty adjusts based on performance
             </p>
           </div>
         </div>
 
         {/* Start New Exam */}
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+        <div className="bg-card rounded-2xl p-8 shadow-sm border border-border mb-8">
+          <h2 className="text-2xl font-bold text-foreground mb-4">
             Start New Mock Exam
           </h2>
-          <p className="text-gray-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             This is a full-length SAT practice test. Make sure you have 2+ hours
             available and a quiet environment. The test includes 4 modules with
             strict time limits.
@@ -223,29 +223,29 @@ export default function MockExamPage() {
             onClick={createMockExam}
             disabled={isCreating}
             size="lg"
-            className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-lg px-8"
+            className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-lg px-8 text-white border-0"
           >
             {isCreating ? "Creating Exam..." : "Start Mock Exam"}
           </Button>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-8 flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-            <p className="text-red-800">{error}</p>
+          <div className="bg-red-500/10 border border-red-500/20 rounded-xl p-4 mb-8 flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
+            <p className="text-red-800 dark:text-red-300">{error}</p>
           </div>
         )}
 
         {/* Previous Exams */}
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
+          <h2 className="text-2xl font-bold text-foreground mb-4">
             Previous Exams
           </h2>
 
           {isLoading ? (
             <div className="space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
+                <div key={i} className="bg-card rounded-xl p-6 shadow-sm border border-border">
                   <div className="flex items-center justify-between">
                     <div className="flex-1 space-y-3">
                       <div className="flex items-center gap-3 mb-2">
@@ -268,12 +268,12 @@ export default function MockExamPage() {
               ))}
             </div>
           ) : exams.length === 0 ? (
-            <div className="bg-white rounded-xl p-12 text-center shadow-sm border border-gray-200">
-              <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <div className="bg-card rounded-xl p-12 text-center shadow-sm border border-border">
+              <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-foreground mb-2">
                 No exams yet
               </h3>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Start your first mock exam to see your progress here
               </p>
             </div>
@@ -282,17 +282,17 @@ export default function MockExamPage() {
               {exams.map((exam, index) => (
                 <div
                   key={exam.id}
-                  className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+                  className="bg-card rounded-xl p-6 shadow-sm border border-border hover:shadow-md transition-shadow"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="text-lg font-semibold text-foreground">
                           Mock Exam #{exams.length - index}
                         </h3>
                         {getStatusBadge(exam.status)}
                       </div>
-                      <p className="text-sm text-gray-600 mb-3">
+                      <p className="text-sm text-muted-foreground mb-3">
                         Started:{" "}
                         {exam.started_at
                           ? formatDate(exam.started_at)
@@ -306,24 +306,24 @@ export default function MockExamPage() {
                         exam.total_score != null && (
                           <div className="flex items-center gap-6">
                             <div>
-                              <p className="text-sm text-gray-600">
+                              <p className="text-sm text-muted-foreground">
                                 Total Score
                               </p>
-                              <p className="text-2xl font-bold text-gray-900">
+                              <p className="text-2xl font-bold text-foreground">
                                 {exam.total_score}
                               </p>
                             </div>
                             <div>
-                              <p className="text-sm text-gray-600">Math</p>
-                              <p className="text-xl font-semibold text-gray-900">
+                              <p className="text-sm text-muted-foreground">Math</p>
+                              <p className="text-xl font-semibold text-foreground">
                                 {exam.math_score ?? "N/A"}
                               </p>
                             </div>
                             <div>
-                              <p className="text-sm text-gray-600">
+                              <p className="text-sm text-muted-foreground">
                                 Reading & Writing
                               </p>
-                              <p className="text-xl font-semibold text-gray-900">
+                              <p className="text-xl font-semibold text-foreground">
                                 {exam.rw_score ?? "N/A"}
                               </p>
                             </div>
@@ -335,6 +335,7 @@ export default function MockExamPage() {
                       {exam.status === "completed" && (
                         <Button
                           variant="outline"
+                          className="border-border hover:bg-accent text-foreground"
                           onClick={() =>
                             router.push(`/mock-exam/${exam.id}/results`)
                           }
@@ -345,7 +346,7 @@ export default function MockExamPage() {
                       {exam.status === "in_progress" && (
                         <Button
                           onClick={() => handleResumeExam(exam.id)}
-                          className="bg-blue-600 hover:bg-blue-700"
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
                         >
                           Resume
                         </Button>

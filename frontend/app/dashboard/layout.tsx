@@ -229,12 +229,12 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-background">
       <div className="flex items-start gap-6">
         {/* Mobile Overlay */}
         {isMobile && isMobileMenuOpen && !isSidebarCollapsed && (
           <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
             onClick={() => setIsMobileMenuOpen(false)}
           />
         )}
@@ -242,7 +242,7 @@ export default function DashboardLayout({
         {/* Left Sidebar */}
         <aside
           key={`sidebar-${isMobile}-${isSidebarCollapsed}`}
-          className={`transition-all duration-300 sticky top-0 h-screen flex-shrink-0 bg-white shadow-sm ${
+          className={`transition-all duration-300 sticky top-0 h-screen flex-shrink-0 bg-card border-r border-border shadow-sm ${
             isSidebarCollapsed ? "w-16" : "w-56"
           } ${
             isMobile
@@ -267,7 +267,7 @@ export default function DashboardLayout({
               <div className="space-y-1">
                 {/* Dashboard Label */}
                 {!isSidebarCollapsed && (
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-4 mb-3">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-4 mb-3">
                     Dashboard
                   </p>
                 )}
@@ -300,8 +300,10 @@ export default function DashboardLayout({
                         {/* Collapsible Header */}
                         <button
                           onClick={() => setExpanded(!isExpanded)}
-                          className={`flex items-center rounded-xl transition-colors hover:bg-gray-100 text-gray-700 ${
-                            isActive ? "bg-purple-200 text-gray-900" : ""
+                          className={`flex items-center rounded-xl transition-colors ${
+                            isActive 
+                              ? "bg-primary/10 text-primary" 
+                              : "hover:bg-accent hover:text-accent-foreground text-muted-foreground"
                           } ${
                             isSidebarCollapsed
                               ? "justify-center p-3 mx-auto w-11"
@@ -338,8 +340,8 @@ export default function DashboardLayout({
                                   href={subItem.href}
                                   className={`flex items-center rounded-xl transition-colors ${
                                     isSubActive
-                                      ? "bg-purple-200 text-gray-900"
-                                      : "hover:bg-gray-100 text-gray-700"
+                                      ? "bg-primary/10 text-primary"
+                                      : "hover:bg-accent hover:text-accent-foreground text-muted-foreground"
                                   } gap-3 py-2 px-4 text-xs ${
                                     isMobile ? "py-3" : ""
                                   }`}
@@ -364,8 +366,8 @@ export default function DashboardLayout({
                       href={item.href}
                       className={`flex items-center rounded-xl transition-colors ${
                         isActive
-                          ? "bg-purple-200 text-gray-900"
-                          : "hover:bg-gray-100 text-gray-700"
+                          ? "bg-primary/10 text-primary"
+                          : "hover:bg-accent hover:text-accent-foreground text-muted-foreground"
                       } ${
                         isSidebarCollapsed
                           ? "justify-center p-3 mx-auto w-11"
@@ -392,10 +394,10 @@ export default function DashboardLayout({
                     href={item.href}
                     className={`flex items-center rounded-xl transition-colors ${
                       isActive
-                        ? "bg-purple-200 text-gray-900"
+                        ? "bg-primary/10 text-primary"
                         : item.name === "Mind Map"
-                        ? "hover:bg-gray-100 text-purple-500"
-                        : "hover:bg-gray-100 text-gray-700"
+                        ? "hover:bg-accent text-purple-500"
+                        : "hover:bg-accent hover:text-accent-foreground text-muted-foreground"
                     } ${
                       isSidebarCollapsed
                         ? "justify-center p-3 mx-auto w-11"
@@ -424,8 +426,8 @@ export default function DashboardLayout({
                     href={item.href}
                     className={`flex items-center rounded-xl transition-colors ${
                       isActive
-                        ? "bg-purple-200 text-gray-900"
-                        : "hover:bg-gray-100 text-gray-700"
+                        ? "bg-primary/10 text-primary"
+                        : "hover:bg-accent hover:text-accent-foreground text-muted-foreground"
                     } ${
                       isSidebarCollapsed
                         ? "justify-center p-3 mx-auto w-11"
@@ -448,7 +450,7 @@ export default function DashboardLayout({
                     <div className="flex items-center gap-2">
                       <Sun
                         className={`w-4 h-4 ${
-                          !isDarkMode ? "text-yellow-500" : "text-gray-400"
+                          !isDarkMode ? "text-yellow-500" : "text-muted-foreground"
                         }`}
                       />
                       <Switch
@@ -459,13 +461,13 @@ export default function DashboardLayout({
                       />
                       <Moon
                         className={`w-4 h-4 ${
-                          isDarkMode ? "text-blue-400" : "text-gray-400"
+                          isDarkMode ? "text-blue-400" : "text-muted-foreground"
                         }`}
                       />
                     </div>
                   </div>
                   {/* Divider after theme toggle */}
-                  <div className="border-t border-gray-200 mx-4 mb-4"></div>
+                  <div className="border-t border-border mx-4 mb-4"></div>
                 </>
               )}
 
@@ -480,8 +482,7 @@ export default function DashboardLayout({
               <div className="space-y-2 pb-2">
                 <Link href="/signup" className="block">
                   <Button
-                    className="w-full"
-                    style={{ backgroundColor: "#866ffe" }}
+                    className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                     size="sm"
                   >
                     {!isSidebarCollapsed && "Register"}
@@ -490,7 +491,7 @@ export default function DashboardLayout({
                 <Link href="/login" className="block">
                   <Button
                     variant="outline"
-                    className="w-full border-purple-200 hover:bg-purple-50"
+                    className="w-full border-primary/20 hover:bg-primary/5"
                     size="sm"
                   >
                     {!isSidebarCollapsed && "Log In"}
@@ -502,12 +503,12 @@ export default function DashboardLayout({
             {/* Toggle button aligned with menu items */}
             <button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className="absolute -right-9 top-6 w-6 h-6 bg-white border border-gray-200 rounded-full flex items-center justify-center hover:bg-gray-50 transition-colors shadow-sm z-10"
+              className="absolute -right-9 top-6 w-6 h-6 bg-card border border-border rounded-full flex items-center justify-center hover:bg-accent transition-colors shadow-sm z-10"
             >
               {isSidebarCollapsed ? (
-                <ChevronRight className="w-3 h-3 text-gray-600" />
+                <ChevronRight className="w-3 h-3 text-muted-foreground" />
               ) : (
-                <ChevronLeft className="w-3 h-3 text-gray-600" />
+                <ChevronLeft className="w-3 h-3 text-muted-foreground" />
               )}
             </button>
           </div>

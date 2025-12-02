@@ -537,7 +537,7 @@ async def get_exam_results(
             questions_response = (
                 db.table("mock_exam_questions")
                 .select(
-                    "*, questions(id, difficulty, question_type, correct_answer, "
+                    "*, questions(id, difficulty, question_type, correct_answer, answer_options, "
                     "topics(name, categories(name, section)))"
                 )
                 .eq("module_id", module["id"])
@@ -573,6 +573,58 @@ async def get_exam_results(
                 if is_correct is True:
                     category_stats[cat_key]["correct"] += 1
 
+                # Map UUIDs to labels for MC questions
+                user_answer = meq.get("user_answer")
+                correct_answer = question.get("correct_answer")
+
+                if question.get("question_type") == "mc" and question.get("answer_options"):
+                    options = question["answer_options"]
+                    # Normalize options to list of items
+                    if isinstance(options, dict):
+                        options_list = list(options.items()) # This might need adjustment based on actual dict structure
+                    elif isinstance(options, list):
+                        options_list = options
+                    else:
+                        options_list = []
+
+                    labels = ["A", "B", "C", "D", "E", "F"]
+                    
+                    # Helper to map ID to label
+                    def map_ids_to_labels(ids):
+                        if not ids: return ids
+                        mapped = []
+                        for ans_id in ids:
+                            # Try to find matching option
+                            found_label = None
+                            for idx, opt in enumerate(options_list):
+                                # Option structure can vary: {"id": ..., "content": ...} or [id, content]
+                                opt_id = None
+                                if isinstance(opt, dict):
+                                    opt_id = opt.get("id")
+                                elif isinstance(opt, list) and len(opt) > 0:
+                                    opt_id = opt[0]
+                                
+                                if str(opt_id) == str(ans_id):
+                                    if idx < len(labels):
+                                        found_label = labels[idx]
+                                    break
+                            
+                            if found_label:
+                                mapped.append(found_label)
+                            else:
+                                mapped.append(ans_id) # Fallback to original if not found
+                        return mapped
+
+                    if user_answer:
+                        user_answer = map_ids_to_labels(user_answer)
+                    
+                    # Correct answer might already be labels "A", "B", etc. or UUIDs. 
+                    # Usually correct_answer is stored as ["A"] for MC, but let's be safe.
+                    # If correct_answer looks like a UUID, map it. Otherwise assume it's a label.
+                    if correct_answer and len(correct_answer) > 0 and len(correct_answer[0]) > 5: # Simple heuristic for UUID
+                         correct_answer = map_ids_to_labels(correct_answer)
+
+
                 question_results.append(
                     QuestionResultDetail(
                         question_id=question["id"],
@@ -580,8 +632,8 @@ async def get_exam_results(
                         category_name=category["name"],
                         difficulty=question["difficulty"],
                         is_correct=is_correct,
-                        user_answer=meq.get("user_answer"),
-                        correct_answer=question["correct_answer"],
+                        user_answer=user_answer,
+                        correct_answer=correct_answer,
                         question_type=question["question_type"],
                     )
                 )

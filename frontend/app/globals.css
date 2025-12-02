@@ -211,3 +211,10 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
 }
+
+/* Ensure images (like graphs) are visible in dark mode */
+.dark .prose img {
+  background-color: white;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}

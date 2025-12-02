@@ -83,131 +83,147 @@ function ResultsContent() {
   const { exam, modules, category_performance, total_correct, total_questions, overall_percentage } = results;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-background p-8 flex flex-col">
+      <div className="max-w-6xl mx-auto w-full space-y-8">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Mock Exam Results</h1>
-          <p className="text-gray-600">
-            Completed on {exam.completed_at ? new Date(exam.completed_at).toLocaleDateString() : 'N/A'}
+        <div className="text-center space-y-2">
+          <h1 className="text-4xl font-bold text-foreground tracking-tight">Mock Exam Results</h1>
+          <p className="text-muted-foreground">
+            Completed on {exam.completed_at ? new Date(exam.completed_at).toLocaleDateString(undefined, { dateStyle: 'long' }) : 'N/A'}
           </p>
         </div>
 
         {/* Score Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Total Score */}
-          <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-8 text-white shadow-lg">
-            <h3 className="text-lg font-semibold mb-2 opacity-90">Total Score</h3>
-            <p className="text-5xl font-bold mb-2">{exam.total_score}</p>
-            <p className="text-sm opacity-75">out of 1600</p>
+          <div className="bg-card rounded-2xl p-8 border border-purple-500/20 shadow-sm bg-purple-500/5">
+            <h3 className="text-lg font-medium mb-1 text-purple-600 dark:text-purple-400">Total Score</h3>
+            <div className="flex items-baseline gap-2">
+              <span className="text-6xl font-bold tracking-tighter text-foreground">{exam.total_score}</span>
+              <span className="text-lg font-medium text-muted-foreground">/ 1600</span>
+            </div>
           </div>
 
           {/* Math Score */}
-          <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-8 text-white shadow-lg">
-            <h3 className="text-lg font-semibold mb-2 opacity-90">Math</h3>
-            <p className="text-5xl font-bold mb-2">{exam.math_score}</p>
-            <p className="text-sm opacity-75">out of 800</p>
+          <div className="bg-card rounded-2xl p-8 border border-blue-500/20 shadow-sm bg-blue-500/5">
+            <h3 className="text-lg font-medium mb-1 text-blue-600 dark:text-blue-400">Math</h3>
+            <div className="flex items-baseline gap-2">
+              <span className="text-5xl font-bold tracking-tighter text-foreground">{exam.math_score}</span>
+              <span className="text-lg font-medium text-muted-foreground">/ 800</span>
+            </div>
           </div>
 
           {/* Reading & Writing Score */}
-          <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-8 text-white shadow-lg">
-            <h3 className="text-lg font-semibold mb-2 opacity-90">Reading & Writing</h3>
-            <p className="text-5xl font-bold mb-2">{exam.rw_score}</p>
-            <p className="text-sm opacity-75">out of 800</p>
+          <div className="bg-card rounded-2xl p-8 border border-emerald-500/20 shadow-sm bg-emerald-500/5">
+            <h3 className="text-lg font-medium mb-1 text-emerald-600 dark:text-emerald-400">Reading & Writing</h3>
+            <div className="flex items-baseline gap-2">
+              <span className="text-5xl font-bold tracking-tighter text-foreground">{exam.rw_score}</span>
+              <span className="text-lg font-medium text-muted-foreground">/ 800</span>
+            </div>
           </div>
         </div>
 
         {/* Overall Performance */}
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Overall Performance</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <p className="text-sm text-gray-600 mb-2">Questions Answered</p>
-              <p className="text-3xl font-bold text-gray-900">
-                {total_correct} / {total_questions}
-              </p>
-              <p className="text-sm text-gray-500 mt-1">
-                {overall_percentage.toFixed(1)}% correct
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-600 mb-2">Correct Answers</p>
-              <div className="flex items-center gap-3">
-                <CheckCircle className="w-10 h-10 text-green-500" />
-                <p className="text-3xl font-bold text-gray-900">{total_correct}</p>
+        <div className="bg-card rounded-2xl p-8 shadow-sm border border-border">
+          <h2 className="text-2xl font-bold text-foreground mb-6">Overall Performance</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-muted-foreground">Accuracy</p>
+              <div className="flex items-baseline gap-2">
+                <span className="text-4xl font-bold text-foreground">{overall_percentage.toFixed(0)}%</span>
+                <span className="text-sm text-muted-foreground">correct</span>
+              </div>
+              <div className="w-full bg-muted rounded-full h-2 mt-2">
+                <div 
+                  className="bg-primary h-2 rounded-full transition-all duration-500" 
+                  style={{ width: `${overall_percentage}%` }}
+                />
               </div>
             </div>
-            <div>
-              <p className="text-sm text-gray-600 mb-2">Incorrect Answers</p>
-              <div className="flex items-center gap-3">
-                <XCircle className="w-10 h-10 text-red-500" />
-                <p className="text-3xl font-bold text-gray-900">
-                  {total_questions - total_correct}
-                </p>
+            
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-green-500/10 border border-green-500/20">
+              <div className="p-3 bg-green-500/20 rounded-full">
+                <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-foreground">{total_correct}</p>
+                <p className="text-sm font-medium text-green-600 dark:text-green-400">Correct Answers</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-destructive/10 border border-destructive/20">
+              <div className="p-3 bg-destructive/20 rounded-full">
+                <XCircle className="w-6 h-6 text-destructive" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-foreground">{total_questions - total_correct}</p>
+                <p className="text-sm font-medium text-destructive">Incorrect Answers</p>
               </div>
             </div>
           </div>
         </div>
 
         {/* Category Performance */}
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Performance by Category</h2>
-          <div className="space-y-4">
+        <div className="bg-card rounded-2xl p-8 shadow-sm border border-border">
+          <h2 className="text-2xl font-bold text-foreground mb-6">Performance by Category</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {category_performance.map((category) => (
               <div
                 key={`${category.category_name}_${category.section}`}
-                className="border border-gray-200 rounded-xl p-4"
+                className="p-5 rounded-xl border border-border bg-muted/30"
               >
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{category.category_name}</h3>
-                    <p className="text-sm text-gray-500">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="space-y-1">
+                    <h3 className="font-semibold text-foreground">{category.category_name}</h3>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                       {category.section === 'math' ? 'Math' : 'Reading & Writing'}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-2xl font-bold text-gray-900">
+                    <span className={`text-xl font-bold ${
+                      category.percentage >= 70 ? 'text-green-600 dark:text-green-400' :
+                      category.percentage >= 50 ? 'text-yellow-600 dark:text-yellow-400' :
+                      'text-destructive'
+                    }`}>
                       {category.percentage.toFixed(0)}%
-                    </p>
-                    <p className="text-sm text-gray-500">
-                      {category.correct_answers} / {category.total_questions}
-                    </p>
+                    </span>
                   </div>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
                   <div
-                    className={`h-3 rounded-full transition-all ${
-                      category.percentage >= 70
-                        ? 'bg-green-500'
-                        : category.percentage >= 50
-                        ? 'bg-yellow-500'
-                        : 'bg-red-500'
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      category.percentage >= 70 ? 'bg-green-500' :
+                      category.percentage >= 50 ? 'bg-yellow-500' :
+                      'bg-destructive'
                     }`}
                     style={{ width: `${category.percentage}%` }}
                   />
                 </div>
+                <p className="text-xs text-muted-foreground mt-2 text-right">
+                  {category.correct_answers} / {category.total_questions} questions
+                </p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Module Breakdown */}
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Module Breakdown</h2>
+        <div className="bg-card rounded-2xl p-8 shadow-sm border border-border">
+          <h2 className="text-2xl font-bold text-foreground mb-6">Module Breakdown</h2>
           <div className="space-y-4">
             {modules.map((module) => (
-              <div key={module.module_type} className="border border-gray-200 rounded-xl">
+              <div key={module.module_type} className="border border-border rounded-xl overflow-hidden">
                 <button
                   onClick={() =>
                     setExpandedModule(
                       expandedModule === module.module_type ? null : module.module_type
                     )
                   }
-                  className="w-full p-6 flex items-center justify-between hover:bg-gray-50 transition-colors rounded-xl"
+                  className="w-full p-5 flex items-center justify-between hover:bg-muted/50 transition-colors bg-card"
                 >
                   <div className="flex items-center gap-4">
-                    <div>
-                      <h3 className="font-semibold text-gray-900 text-left">
+                    <div className="text-left">
+                      <h3 className="font-semibold text-foreground">
                         {module.module_type === 'rw_module_1'
                           ? 'Reading and Writing - Module 1'
                           : module.module_type === 'rw_module_2'
@@ -218,71 +234,84 @@ function ResultsContent() {
                           ? 'Math - Module 2'
                           : module.module_type}
                       </h3>
-                      <p className="text-sm text-gray-500 whitespace-nowrap">
-                        {module.correct_count} / {module.total_questions} correct (
-                        {((module.correct_count / module.total_questions) * 100).toFixed(0)}
-                        %)
+                      <p className="text-sm text-muted-foreground mt-1">
+                        <span className="font-medium text-foreground">{module.correct_count}</span> of {module.total_questions} correct
                       </p>
                     </div>
                   </div>
-                  {expandedModule === module.module_type ? (
-                    <ChevronUp className="w-5 h-5 text-gray-400" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-gray-400" />
-                  )}
+                  <div className="flex items-center gap-4">
+                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                      (module.correct_count / module.total_questions) >= 0.7 
+                        ? 'bg-green-500/10 text-green-600 dark:text-green-400' 
+                        : 'bg-orange-500/10 text-orange-600 dark:text-orange-400'
+                    }`}>
+                      {((module.correct_count / module.total_questions) * 100).toFixed(0)}%
+                    </span>
+                    {expandedModule === module.module_type ? (
+                      <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                    )}
+                  </div>
                 </button>
 
                 {expandedModule === module.module_type && (
-                  <div className="px-6 pb-6 space-y-2">
+                  <div className="p-4 bg-muted/30 space-y-3 border-t border-border">
                     {module.questions.map((question, idx) => (
                       <div
                         key={question.question_id}
-                        className={`p-4 rounded-lg border-2 ${
+                        className={`p-4 rounded-xl border transition-colors ${
                           question.is_correct
-                            ? 'bg-green-50 border-green-200'
-                            : 'bg-red-50 border-red-200'
+                            ? 'bg-green-500/5 border-green-500/20'
+                            : 'bg-destructive/5 border-destructive/20'
                         }`}
                       >
-                        <div className="flex items-start">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              {question.is_correct ? (
-                                <CheckCircle className="w-5 h-5 text-green-600" />
-                              ) : (
-                                <XCircle className="w-5 h-5 text-red-600" />
-                              )}
-                              <span className="font-semibold text-gray-900">
+                        <div className="flex items-start gap-3">
+                          <div className={`mt-0.5 p-1 rounded-full ${
+                            question.is_correct 
+                              ? 'text-green-600 dark:text-green-400 bg-green-500/10' 
+                              : 'text-destructive bg-destructive/10'
+                          }`}>
+                            {question.is_correct ? (
+                              <CheckCircle className="w-4 h-4" />
+                            ) : (
+                              <XCircle className="w-4 h-4" />
+                            )}
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 mb-2">
+                              <span className="font-semibold text-foreground text-sm">
                                 Question {idx + 1}
                               </span>
-                              <span
-                                className={`px-2 py-1 rounded text-xs font-semibold ${
-                                  question.difficulty === 'E'
-                                    ? 'bg-emerald-100 text-emerald-700'
-                                    : question.difficulty === 'M'
-                                    ? 'bg-amber-100 text-amber-700'
-                                    : 'bg-rose-100 text-rose-700'
-                                }`}
-                              >
-                                {question.difficulty === 'E'
-                                  ? 'Easy'
+                              <span className={`px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wide ${
+                                question.difficulty === 'E'
+                                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                                   : question.difficulty === 'M'
-                                  ? 'Medium'
-                                  : 'Hard'}
+                                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
+                                  : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                              }`}>
+                                {question.difficulty === 'E' ? 'Easy' : question.difficulty === 'M' ? 'Medium' : 'Hard'}
+                              </span>
+                              <span className="text-xs text-muted-foreground ml-auto">
+                                {question.topic_name}
                               </span>
                             </div>
-                            <p className="text-sm text-gray-600 mb-2">
-                              {question.topic_name} • {question.category_name}
-                            </p>
+                            
                             {!question.is_correct && (
-                              <div className="text-sm">
-                                <p className="text-gray-700">
-                                  <span className="font-medium">Your answer:</span>{' '}
-                                  {question.user_answer?.join(', ') || 'No answer'}
-                                </p>
-                                <p className="text-gray-700">
-                                  <span className="font-medium">Correct answer:</span>{' '}
-                                  {question.correct_answer.join(', ')}
-                                </p>
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3 text-sm">
+                                <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                                  <p className="text-xs font-semibold text-destructive uppercase mb-1">Your Answer</p>
+                                  <p className="text-foreground font-medium font-mono">
+                                    {question.user_answer?.join(', ') || 'Skipped'}
+                                  </p>
+                                </div>
+                                <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                                  <p className="text-xs font-semibold text-green-600 dark:text-green-400 uppercase mb-1">Correct Answer</p>
+                                  <p className="text-foreground font-medium font-mono">
+                                    {question.correct_answer.join(', ')}
+                                  </p>
+                                </div>
                               </div>
                             )}
                           </div>
@@ -297,20 +326,21 @@ function ResultsContent() {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-4 justify-center">
+        <div className="flex gap-4 justify-center pt-8 pb-12">
           <Button
             variant="outline"
             size="lg"
             onClick={() => router.push('/dashboard/mock-exam')}
+            className="border-border text-foreground hover:bg-accent h-12 px-8"
           >
-            Back to Mock Exams
+            Back to Dashboard
           </Button>
           <Button
             size="lg"
             onClick={() => router.push('/dashboard/mock-exam')}
-            className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+            className="bg-[#866ffe] hover:bg-[#7a5ffe] text-white border-0 h-12 px-8 font-semibold shadow-lg shadow-primary/20"
           >
-            Take Another Exam
+            Start New Exam
           </Button>
         </div>
       </div>

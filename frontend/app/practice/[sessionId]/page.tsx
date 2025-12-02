@@ -76,22 +76,74 @@ function PracticeSessionContent() {
     }
   });
 
-  // Load session on mount
+  // Keyboard navigation
   useEffect(() => {
-    loadSession().then((firstUnansweredIndex) => {
-      if (firstUnansweredIndex !== undefined) {
-        setCurrentIndex(firstUnansweredIndex);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      const isInputFocused = document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA';
+      
+      // If typing in an input, ONLY handle Enter key (for submission), ignore everything else
+      if (isInputFocused && key !== 'enter') {
+        return;
       }
-    });
-  }, [loadSession, setCurrentIndex]);
 
-  // Clear AI feedback, mastery update, and reset timer when navigating
-  const handleNavigation = (navFn: () => void | boolean) => {
-    clearAiFeedback();
-    resetQuestionTimer();
-    setConfidenceScore(3); // Reset to default confidence
-    return navFn();
-  };
+      // Prevent default behavior for keys we handle (unless typing)
+      const isHandledKey = ['1', '2', '3', '4', 'a', 'b', 'c', 'd', 'Enter'].includes(event.key);
+      if (isHandledKey && !isInputFocused) {
+        event.preventDefault();
+      }
+
+      if (!currentQuestion || isSubmitting) return;
+
+      const isMultipleChoice = currentQuestion.question.question_type === 'mc';
+
+      // --- Handle Answer Selection (1, 2, 3, 4, A, B, C, D) ---
+      // Only if NOT typing in an input box
+      if (!isInputFocused && isMultipleChoice && !showFeedback) {
+        const options = Array.isArray(currentQuestion.question.answer_options)
+          ? currentQuestion.question.answer_options
+          : Object.entries(currentQuestion.question.answer_options);
+
+        let selectedOptionId: string | undefined;
+
+        // Map numerical keys to options
+        if (key >= '1' && key <= '4') { // Assuming max 4 options for now
+          const index = parseInt(key) - 1;
+          if (index < options.length) {
+            selectedOptionId = String((options[index] as any).id || (options[index] as any)[0]);
+          }
+        } else if (key >= 'a' && key <= 'd') { // Map alphabetical keys to options
+          const index = key.charCodeAt(0) - 'a'.charCodeAt(0);
+          if (index < options.length) {
+            selectedOptionId = String((options[index] as any).id || (options[index] as any)[0]);
+          }
+        }
+
+        if (selectedOptionId) {
+          handleAnswerChange(selectedOptionId);
+        }
+      }
+
+      // --- Handle Enter Key for Submit/Next ---
+      if (key === 'enter') {
+        // For Enter, we generally want to prevent default (form submission) and handle it manually
+        event.preventDefault();
+        
+        if (!showFeedback) { // Currently answering
+          if (currentAnswer?.userAnswer.length > 0 && !isSubmitting) {
+            handleSubmit();
+          }
+        } else { // Feedback is shown
+          handleNext();
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [currentQuestion, currentAnswer, showFeedback, isSubmitting, handleAnswerChange, handleSubmit, handleNext]);
 
   const handleAnswerChange = (value: string) => {
     if (!currentQuestion || showFeedback) return;

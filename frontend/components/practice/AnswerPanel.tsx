@@ -50,6 +50,7 @@ export function AnswerPanel({
       {question.question.question_type === "spr" && (
         <div className="space-y-6">
           <Input
+            key={question.question.id}
             id="answer-input"
             type="text"
             placeholder="Enter your answer..."

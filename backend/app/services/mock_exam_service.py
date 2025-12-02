@@ -96,6 +96,14 @@ class MockExamService:
             module_type: Type of module (math or rw)
             difficulty_level: Overall difficulty (easy, medium, hard) for adaptive testing
         """
+        # Check if questions already exist for this module to prevent duplicates
+        existing_count = self.db.table("mock_exam_questions").select(
+            "id", count="exact"
+        ).eq("module_id", module_id).execute().count
+
+        if existing_count and existing_count > 0:
+            return  # Questions already generated, skip
+
         # Determine section type
         section = "math" if "math" in module_type.value else "reading_writing"
 
@@ -573,17 +581,26 @@ class MockExamService:
         def normalize_answer(ans_list):
             if not ans_list:
                 return []
-            return [str(a).strip().lower() for a in ans_list]
+            # Ensure we are working with strings, handle non-iterable items gracefully
+            if isinstance(ans_list, str):
+                return [ans_list.strip().lower()]
+            try:
+                return [str(a).strip().lower() for a in ans_list]
+            except TypeError:
+                return []
 
         normalized_user = normalize_answer(user_answer)
         normalized_correct = normalize_answer(correct_answer)
         normalized_acceptable = normalize_answer(acceptable_answers) if acceptable_answers else []
 
-        is_correct = normalized_user == normalized_correct or (
-            normalized_acceptable
+        is_correct_bool = normalized_user == normalized_correct or (
+            bool(normalized_acceptable)
             and len(normalized_user) > 0
             and normalized_user[0] in normalized_acceptable
         )
+
+        # Explicitly cast to bool to avoid any ambiguity
+        is_correct = bool(is_correct_bool)
 
         # Update mock exam question
         update_data = {

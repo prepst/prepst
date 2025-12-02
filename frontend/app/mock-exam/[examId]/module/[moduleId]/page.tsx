@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AnswerPanel } from "@/components/practice/AnswerPanel";
 import { supabase } from "@/lib/supabase";
@@ -172,6 +173,7 @@ function ModuleContent() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
+            question_id: currentQuestion.question.id,
             user_answer: currentAnswer.userAnswer,
             status: "answered",
             is_marked_for_review: currentAnswer.isMarkedForReview,
@@ -393,12 +395,78 @@ function ModuleContent() {
     setIsDragging(false);
   };
 
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Prevent default browser behavior for keys we handle
+      const key = event.key.toLowerCase();
+      const isInputFocused = document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA';
+      const isMultipleChoice = currentQuestion?.question?.question_type === 'mc';
+
+      // If typing in an input, ONLY handle Enter key (for submission), ignore everything else
+      if (isInputFocused && key !== 'enter') {
+        return;
+      }
+
+      const isHandledKey = ['1', '2', '3', '4', 'a', 'b', 'c', 'd', 'Enter'].includes(event.key);
+      if (isHandledKey && !isInputFocused) {
+        event.preventDefault();
+      }
+
+      if (!currentQuestion || isSubmitting) return;
+
+      // --- Handle Answer Selection (1, 2, 3, 4, A, B, C, D) ---
+      // Only for MC questions and when NOT typing
+      if (isMultipleChoice && !isInputFocused) { 
+        const options = Array.isArray(currentQuestion.question.answer_options)
+          ? currentQuestion.question.answer_options
+          : Object.entries(currentQuestion.question.answer_options);
+
+        let selectedOptionId: string | undefined;
+
+        // Map numerical keys to options
+        if (key >= '1' && key <= '4') { // Assuming max 4 options for now
+          const index = parseInt(key) - 1;
+          if (index < options.length) {
+            selectedOptionId = String((options[index] as any).id || (options[index] as any)[0]);
+          }
+        } else if (key >= 'a' && key <= 'd') { // Map alphabetical keys to options
+          const index = key.charCodeAt(0) - 'a'.charCodeAt(0);
+          if (index < options.length) {
+            selectedOptionId = String((options[index] as any).id || (options[index] as any)[0]);
+          }
+        }
+
+        if (selectedOptionId) {
+          handleAnswerChange(selectedOptionId);
+        }
+      }
+
+      // --- Handle Enter Key for Next/Complete Module ---
+      if (key === 'enter') {
+        if (currentAnswer?.userAnswer.length > 0 && !isSubmitting) {
+          if (currentIndex < questions.length - 1) {
+            handleNext();
+          } else {
+            handleCompleteModule();
+          }
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [currentQuestion, currentAnswer, isSubmitting, handleAnswerChange, handleNext, handleCompleteModule, currentIndex, questions.length]);
+
+
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-gray-700 font-medium">Loading module...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+          <p className="text-muted-foreground font-medium">Loading module...</p>
         </div>
       </div>
     );
@@ -406,12 +474,14 @@ function ModuleContent() {
 
   if (error || !currentQuestion) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 p-4">
-        <div className="text-center bg-white p-8 rounded-2xl shadow-lg">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold mb-2">Oops!</h2>
-          <p className="text-gray-600 mb-6">{error || "Question not found"}</p>
-          <Button onClick={() => router.push("/dashboard/mock-exam")} size="lg">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <div className="text-center bg-card border border-border p-8 rounded-2xl shadow-lg max-w-md w-full">
+          <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <AlertCircle className="w-8 h-8 text-destructive" />
+          </div>
+          <h2 className="text-2xl font-bold mb-2 text-foreground">Oops!</h2>
+          <p className="text-muted-foreground mb-6">{error || "Question not found"}</p>
+          <Button onClick={() => router.push("/dashboard/mock-exam")} size="lg" variant="default">
             Back to Mock Exams
           </Button>
         </div>
@@ -435,44 +505,94 @@ function ModuleContent() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 flex flex-col overflow-hidden">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Header with Progress */}
-      <div className="bg-white/90 backdrop-blur-sm border-b px-8 py-4 flex-shrink-0">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setShowQuestionList(!showQuestionList)}
-              className="p-2 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors border border-gray-200"
-              title="View all questions"
+      <div className="relative z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/60">
+        <div className="flex items-center justify-between px-6 h-16">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <span className="font-bold text-primary">M</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold text-foreground leading-none">
+                  {getModuleTitle(moduleData?.module_type || "")}
+                </span>
+                <span className="text-[10px] text-muted-foreground font-medium mt-1">
+                  Mock Exam
+                </span>
+              </div>
+            </div>
+
+            <div className="h-6 w-px bg-border/60 hidden sm:block" />
+
+            <div className="flex items-center gap-2 hidden sm:flex">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowQuestionList(!showQuestionList)}
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                title="Question List"
+              >
+                <List className="w-4 h-4" />
+              </Button>
+              <Badge variant="secondary" className="font-mono font-medium bg-secondary/50 hover:bg-secondary/50">
+                <span className="text-foreground">{currentIndex + 1}</span>
+                <span className="text-muted-foreground mx-1">/</span>
+                <span className="text-muted-foreground">{questions.length}</span>
+              </Badge>
+              <span className="text-xs text-muted-foreground ml-2">
+                {answeredCount} answered
+              </span>
+            </div>
+          </div>
+
+          {/* Center: Timer (Absolute Center) */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+            <div
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-sm transition-all duration-300 ${
+                timeRemaining <= 300
+                  ? "bg-red-500/10 border-red-500/20 ring-1 ring-red-500/10"
+                  : timeRemaining <= 600
+                  ? "bg-orange-500/10 border-orange-500/20 ring-1 ring-orange-500/10"
+                  : "bg-blue-500/10 border-blue-500/20 ring-1 ring-blue-500/10"
+              }`}
             >
-              <List className="w-5 h-5 text-gray-600" />
-            </button>
-            <h1 className="text-xl font-bold text-gray-800">
-              {getModuleTitle(moduleData?.module_type || "")}
-            </h1>
-            <span className="text-sm text-gray-600 font-medium">
-              Question {currentIndex + 1} / {questions.length}
-            </span>
-            <span className="text-sm text-gray-500">
-              Answered: {answeredCount} / {questions.length}
-            </span>
+              <Clock
+                className={`w-3.5 h-3.5 ${
+                  timeRemaining <= 300
+                    ? "text-red-600 dark:text-red-400"
+                    : timeRemaining <= 600
+                    ? "text-orange-600 dark:text-orange-400"
+                    : "text-blue-600 dark:text-blue-400"
+                }`}
+              />
+              <span
+                className={`text-sm font-mono font-bold tabular-nums tracking-tight ${
+                  timeRemaining <= 300
+                    ? "text-red-700 dark:text-red-300"
+                    : timeRemaining <= 600
+                    ? "text-orange-700 dark:text-orange-300"
+                    : "text-blue-700 dark:text-blue-300"
+                }`}
+              >
+                {formatTime(timeRemaining)}
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Dev: Auto-fill all B answers */}
+            {/* Dev: Auto-fill all B answers - Hidden in production or styled minimally */}
             <Button
               onClick={() => {
                 const newAnswers: Record<string, AnswerState> = {};
                 for (const q of questions) {
-                  // Check if it's multiple choice or student produced response
                   if (q.question.question_type === 'spr') {
-                    // For free response, use "2"
                     newAnswers[q.question.id] = {
                       userAnswer: ["2"],
                       isMarkedForReview: false,
                     };
                   } else {
-                    // For multiple choice, get the second answer option (index 1 = "B")
                     const answerOptions = q.question.answer_options as any;
                     if (answerOptions && Array.isArray(answerOptions) && answerOptions.length > 1) {
                       const optionB = answerOptions[1];
@@ -489,54 +609,31 @@ function ModuleContent() {
                 }
                 setAnswers(newAnswers);
               }}
-              variant="outline"
+              variant="ghost"
               size="sm"
-              className="border-purple-300 text-purple-700 hover:bg-purple-50"
+              className="hidden lg:flex text-xs text-purple-600/50 hover:text-purple-600 hover:bg-purple-500/10"
             >
-              [DEV] Fill All B
+              Dev Fill
             </Button>
 
-            {/* Timer */}
-            <div
-              className={`flex items-center gap-2 px-4 py-2 rounded-full border-2 ${
-                timeRemaining <= 300
-                  ? "bg-red-50 border-red-300"
-                  : timeRemaining <= 600
-                  ? "bg-orange-50 border-orange-300"
-                  : "bg-blue-50 border-blue-300"
-              }`}
-            >
-              <Clock
-                className={`w-5 h-5 ${
-                  timeRemaining <= 300
-                    ? "text-red-600"
-                    : timeRemaining <= 600
-                    ? "text-orange-600"
-                    : "text-blue-600"
-                }`}
-              />
-              <span
-                className={`text-lg font-mono font-bold ${
-                  timeRemaining <= 300
-                    ? "text-red-700"
-                    : timeRemaining <= 600
-                    ? "text-orange-700"
-                    : "text-blue-700"
-                }`}
-              >
-                {formatTime(timeRemaining)}
-              </span>
-            </div>
-
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={() => router.push("/dashboard/mock-exam")}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-2"
             >
-              <X className="w-5 h-5 text-gray-600" />
-            </button>
+              <span className="hidden sm:inline text-xs font-medium">Exit</span>
+              <X className="w-4 h-4" />
+            </Button>
           </div>
         </div>
-        <Progress value={progress} className="h-2 bg-gray-200" />
+        {/* Progress Bar */}
+        <div className="absolute bottom-0 left-0 w-full h-[2px] bg-muted overflow-hidden">
+          <div 
+            className="h-full bg-primary transition-all duration-500 ease-out shadow-[0_0_10px_rgba(var(--primary),0.5)]"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
       </div>
 
       <div
@@ -547,20 +644,20 @@ function ModuleContent() {
       >
         {/* Question List Sidebar */}
         {showQuestionList && (
-          <div className="w-[480px] border-r bg-white/60 backdrop-blur-sm flex flex-col">
-            <div className="p-6 border-b bg-white/80">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-gray-800">Questions</h3>
-                <button
-                  onClick={() => setShowQuestionList(false)}
-                  className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                >
-                  <X className="w-4 h-4 text-gray-600" />
-                </button>
-              </div>
+          <div className="w-[400px] border-r border-border bg-background/95 backdrop-blur-xl flex flex-col h-full shadow-xl z-20">
+            <div className="p-4 border-b border-border flex items-center justify-between bg-background/50">
+              <h3 className="text-base font-semibold text-foreground">Question Navigator</h3>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowQuestionList(false)}
+                className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent"
+              >
+                <X className="w-4 h-4" />
+              </Button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
               {questions.map((question, index) => {
                 const answer = answers[question.question.id];
                 const isCurrent = index === currentIndex;
@@ -571,29 +668,35 @@ function ModuleContent() {
                   <button
                     key={question.question.id}
                     onClick={() => handleQuestionNavigation(index)}
-                    className={`w-full p-4 rounded-lg text-left transition-all border-2 ${
-                      isCurrent
-                        ? "border-blue-500 bg-blue-50"
+                    className={`
+                      group w-full p-3 rounded-xl text-left transition-all duration-200 border
+                      ${isCurrent
+                        ? "border-primary/50 bg-primary/5 ring-1 ring-primary/20 shadow-sm"
+                        : isMarked
+                        ? "border-orange-500/30 bg-orange-500/5"
                         : isAnswered
-                        ? "border-green-300 bg-green-50 hover:bg-green-100"
-                        : "border-gray-200 bg-white hover:bg-gray-50"
-                    }`}
+                        ? "border-border bg-muted/30 hover:bg-muted/50"
+                        : "border-transparent hover:bg-accent hover:border-border"
+                      }
+                    `}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span
-                          className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                            isCurrent
-                              ? "bg-blue-500 text-white"
+                          className={`
+                            flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-mono font-medium transition-colors
+                            ${isCurrent
+                              ? "bg-primary text-primary-foreground"
                               : isAnswered
-                              ? "bg-green-500 text-white"
-                              : "bg-gray-300 text-gray-700"
-                          }`}
+                              ? "bg-secondary text-secondary-foreground"
+                              : "bg-muted text-muted-foreground"
+                            }
+                          `}
                         >
                           {index + 1}
                         </span>
                         <div className="flex-1">
-                          <span className="text-sm font-medium text-gray-800 block">
+                          <span className={`text-sm font-medium ${isCurrent ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground'}`}>
                             Question {index + 1}
                           </span>
                         </div>
@@ -610,30 +713,29 @@ function ModuleContent() {
         )}
 
         {/* Question Content - Flexible width */}
-        <div className="flex-1 overflow-y-auto p-8 min-w-0">
-          <div className="max-w-3xl mx-auto">
-            {/* Question Header */}
-            <div className="flex items-center gap-3 mb-8">
-              <span
-                className={`px-4 py-1.5 rounded-full text-xs font-semibold ${
+        <div className="flex-1 overflow-y-auto p-8 lg:p-12 min-w-0">
+          <div className="max-w-3xl mx-auto space-y-8">
+            {/* Question Meta */}
+            <div className="flex items-center gap-4">
+              <Badge variant="outline" className="pl-2 pr-3 py-1 gap-2 border-border bg-card text-foreground font-medium">
+                <div className={`w-1.5 h-1.5 rounded-full ${
                   currentQuestion.question.difficulty === "E"
-                    ? "bg-emerald-100 text-emerald-700"
+                    ? "bg-emerald-500"
                     : currentQuestion.question.difficulty === "M"
-                    ? "bg-amber-100 text-amber-700"
-                    : "bg-rose-100 text-rose-700"
-                }`}
-              >
+                    ? "bg-amber-500"
+                    : "bg-rose-500"
+                }`} />
                 {currentQuestion.question.difficulty === "E"
                   ? "Easy"
                   : currentQuestion.question.difficulty === "M"
                   ? "Medium"
                   : "Hard"}
-              </span>
+              </Badge>
             </div>
 
             {/* Question Stem */}
             <div
-              className="text-lg max-w-none mb-8 text-gray-800 leading-relaxed font-semibold"
+              className="prose prose-xl dark:prose-invert max-w-none text-foreground font-medium leading-relaxed tracking-tight"
               dangerouslySetInnerHTML={{
                 __html: currentQuestion.question.stem,
               }}
@@ -641,20 +743,22 @@ function ModuleContent() {
 
             {/* Stimulus (Passage/Context) - Only for English questions */}
             {currentQuestion.question.stimulus && (
-              <div
-                className="text-base max-w-none mb-10 p-6 bg-slate-50 rounded-lg border border-slate-200 text-gray-700 leading-relaxed"
-                dangerouslySetInnerHTML={{
-                  __html: currentQuestion.question.stimulus,
-                }}
-              />
+              <div className="relative pl-6 border-l-4 border-primary/20">
+                <div
+                  className="prose prose-lg dark:prose-invert max-w-none text-muted-foreground leading-relaxed"
+                  dangerouslySetInnerHTML={{
+                    __html: currentQuestion.question.stimulus,
+                  }}
+                />
+              </div>
             )}
           </div>
         </div>
 
         {/* Draggable Divider */}
         <div
-          className={`w-1 bg-gray-300 hover:bg-blue-400 cursor-col-resize transition-colors ${
-            isDragging ? "bg-blue-500" : ""
+          className={`w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ${
+            isDragging ? "bg-primary" : ""
           }`}
           onMouseDown={handleMouseDown}
           style={{
@@ -665,12 +769,12 @@ function ModuleContent() {
 
         {/* Answer Panel - Dynamic width */}
         <div
-          className="border-l bg-white/60 backdrop-blur-sm flex flex-col"
+          className="border-l border-border bg-card/50 backdrop-blur-sm flex flex-col"
           style={{ width: `${dividerPosition}px` }}
         >
           {/* Transform mock exam data to match AnswerPanel expectations */}
           <AnswerPanel
-            key={`${currentQuestion.question.id}-${currentAnswer?.userAnswer.join(',') || 'empty'}`}
+            key={currentQuestion.question.id}
             question={
               {
                 session_question_id: currentQuestion.question.id,
@@ -703,20 +807,20 @@ function ModuleContent() {
           />
 
           {/* Action Buttons */}
-          <div className="p-6 border-t bg-white space-y-3">
+          <div className="p-6 border-t border-border bg-card/50 backdrop-blur-sm space-y-3">
             <div className="flex gap-2 mb-3">
               <Button
                 variant="outline"
                 onClick={toggleMarkForReview}
-                className={`flex-1 ${
+                className={`flex-1 border-border hover:bg-accent text-foreground ${
                   currentAnswer?.isMarkedForReview
-                    ? "bg-orange-50 border-orange-300 text-orange-700"
+                    ? "bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400"
                     : ""
                 }`}
               >
                 <Flag
                   className={`w-4 h-4 mr-2 ${
-                    currentAnswer?.isMarkedForReview ? "fill-orange-500" : ""
+                    currentAnswer?.isMarkedForReview ? "fill-orange-500 text-orange-500" : ""
                   }`}
                 />
                 {currentAnswer?.isMarkedForReview
@@ -730,7 +834,7 @@ function ModuleContent() {
                 variant="outline"
                 onClick={handlePrevious}
                 disabled={currentIndex === 0}
-                className="flex-1"
+                className="flex-1 border-border hover:bg-accent text-foreground"
               >
                 <ChevronLeft className="w-4 h-4 mr-1" />
                 Back
@@ -739,7 +843,7 @@ function ModuleContent() {
                 <Button
                   onClick={handleNext}
                   disabled={isSubmitting}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+                  className="flex-1 bg-[#866ffe] hover:bg-[#7a5ffe] text-white border-0"
                 >
                   Next
                   <ChevronRight className="w-4 h-4 ml-1" />
@@ -748,7 +852,7 @@ function ModuleContent() {
                 <Button
                   onClick={handleCompleteModule}
                   disabled={isSubmitting}
-                  className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white border-0"
                 >
                   Complete Module
                 </Button>

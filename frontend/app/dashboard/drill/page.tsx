@@ -24,9 +24,10 @@ export default function DrillPage() {
     useState<CategoriesAndTopicsResponse | null>(null);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
-  
+
   // Fetch recent drill sessions
-  const { data: completedSessions, isLoading: loadingSessions } = useCompletedSessions(5);
+  const { data: completedSessions, isLoading: loadingSessions } =
+    useCompletedSessions(5);
 
   const handleStartDrill = () => {
     // TODO: wire to backend create drill session
@@ -113,10 +114,95 @@ export default function DrillPage() {
             </Button>
           </div>
 
+          {/* Categories Selection */}
+          <section>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-foreground">
+                Select Categories
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {selectedTopics.length} selected
+              </p>
+            </div>
+
+            {loadingCategories ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="h-24 rounded-xl" />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {revisionTopics.map((topic) => (
+                  <div
+                    key={topic.id}
+                    className={`
+                      relative group cursor-pointer p-5 rounded-xl border-2 transition-all duration-200 ease-out
+                      ${
+                        selectedTopics.includes(topic.id)
+                          ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                          : "border-border bg-card hover:border-primary/50 hover:bg-accent/50"
+                      }
+                    `}
+                    onClick={() => handleTopicToggle(topic.id)}
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-semibold text-foreground pr-8 leading-tight">
+                        {topic.name}
+                      </h3>
+                      <div
+                        className={`
+                        w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors
+                        ${
+                          selectedTopics.includes(topic.id)
+                            ? "bg-primary border-primary"
+                            : "border-muted-foreground/30 group-hover:border-primary/50"
+                        }
+                      `}
+                      >
+                        {selectedTopics.includes(topic.id) && (
+                          <div className="w-2 h-2 bg-white rounded-full" />
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 mt-3">
+                      <div
+                        className={`
+                        h-1.5 flex-1 rounded-full overflow-hidden bg-muted
+                      `}
+                      >
+                        <div
+                          className={`h-full rounded-full ${
+                            topic.section === "math"
+                              ? "bg-amber-500"
+                              : "bg-rose-500"
+                          }`}
+                          style={{
+                            width: `${Math.min(
+                              100,
+                              (topic.questionsCount / 10) * 100
+                            )}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="text-xs text-muted-foreground font-medium whitespace-nowrap">
+                        {topic.questionsCount} Qs
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
           {loading ? (
             <div className="space-y-8">
               {Array.from({ length: 2 }).map((_, i) => (
-                <div key={i} className="bg-card rounded-3xl p-8 border border-border shadow-sm">
+                <div
+                  key={i}
+                  className="bg-card rounded-3xl p-8 border border-border shadow-sm"
+                >
                   <Skeleton className="h-8 w-48 mb-6" />
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {Array.from({ length: 4 }).map((_, j) => (
@@ -135,15 +221,20 @@ export default function DrillPage() {
                       <h3 className="text-xl font-bold text-foreground">
                         {categoryName}
                       </h3>
-                      <Badge variant="secondary" className="text-muted-foreground bg-muted font-medium">
-                        {category.section === 'math' ? 'Math' : 'Reading & Writing'}
+                      <Badge
+                        variant="secondary"
+                        className="text-muted-foreground bg-muted font-medium"
+                      >
+                        {category.section === "math"
+                          ? "Math"
+                          : "Reading & Writing"}
                       </Badge>
                     </div>
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                       {category.skills.map((skill) => (
-                        <div 
-                          key={skill.skill_id} 
+                        <div
+                          key={skill.skill_id}
                           className="bg-card rounded-2xl p-1 border border-border shadow-sm hover:shadow-md transition-shadow duration-300"
                         >
                           <SkillRadialChart
@@ -164,80 +255,17 @@ export default function DrillPage() {
             )
           )}
 
-          {/* Categories Selection */}
-          <section>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-foreground">Select Categories</h2>
-              <p className="text-sm text-muted-foreground">
-                {selectedTopics.length} selected
-              </p>
-            </div>
-            
-            {loadingCategories ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <Skeleton key={i} className="h-24 rounded-xl" />
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {revisionTopics.map((topic) => (
-                  <div
-                    key={topic.id}
-                    className={`
-                      relative group cursor-pointer p-5 rounded-xl border-2 transition-all duration-200 ease-out
-                      ${selectedTopics.includes(topic.id)
-                        ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                        : "border-border bg-card hover:border-primary/50 hover:bg-accent/50"
-                      }
-                    `}
-                    onClick={() => handleTopicToggle(topic.id)}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold text-foreground pr-8 leading-tight">
-                        {topic.name}
-                      </h3>
-                      <div className={`
-                        w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors
-                        ${selectedTopics.includes(topic.id)
-                          ? "bg-primary border-primary"
-                          : "border-muted-foreground/30 group-hover:border-primary/50"
-                        }
-                      `}>
-                        {selectedTopics.includes(topic.id) && (
-                          <div className="w-2 h-2 bg-white rounded-full" />
-                        )}
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-2 mt-3">
-                      <div className={`
-                        h-1.5 flex-1 rounded-full overflow-hidden bg-muted
-                      `}>
-                        <div
-                          className={`h-full rounded-full ${
-                            topic.section === "math" ? "bg-amber-500" : "bg-rose-500"
-                          }`}
-                          style={{ width: `${Math.min(100, (topic.questionsCount / 10) * 100)}%` }}
-                        />
-                      </div>
-                      <span className="text-xs text-muted-foreground font-medium whitespace-nowrap">
-                        {topic.questionsCount} Qs
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
           {/* Recent Drill Sessions */}
           <section className="bg-card rounded-3xl border border-border shadow-sm overflow-hidden">
             <div className="p-8 border-b border-border">
-              <h2 className="text-2xl font-bold text-foreground">Recent Activity</h2>
-              <p className="text-muted-foreground">Your latest practice performance</p>
+              <h2 className="text-2xl font-bold text-foreground">
+                Recent Activity
+              </h2>
+              <p className="text-muted-foreground">
+                Your latest practice performance
+              </p>
             </div>
-            
+
             <div className="divide-y divide-border">
               {loadingSessions ? (
                 <div className="p-8 space-y-4">
@@ -250,28 +278,49 @@ export default function DrillPage() {
                 </div>
               ) : (
                 completedSessions.map((session: any) => (
-                  <div key={session.id} className="p-6 flex items-center justify-between hover:bg-muted/30 transition-colors">
+                  <div
+                    key={session.id}
+                    className="p-6 flex items-center justify-between hover:bg-muted/30 transition-colors"
+                  >
                     <div className="space-y-1">
                       <h4 className="font-semibold text-foreground">
-                        {session.session_type === 'drill' ? 'Targeted Drill' : 
-                         session.session_type === 'revision' ? 'Revision Session' : 'Practice Session'}
+                        {session.session_type === "drill"
+                          ? "Targeted Drill"
+                          : session.session_type === "revision"
+                          ? "Revision Session"
+                          : "Practice Session"}
                       </h4>
                       <p className="text-sm text-muted-foreground flex items-center gap-2">
-                        <span>{formatDistanceToNow(new Date(session.created_at), { addSuffix: true })}</span>
+                        <span>
+                          {formatDistanceToNow(new Date(session.created_at), {
+                            addSuffix: true,
+                          })}
+                        </span>
                         <span className="w-1 h-1 bg-muted-foreground/30 rounded-full" />
                         <span>{session.total_questions} questions</span>
                       </p>
                     </div>
-                    
+
                     <div className="text-right">
-                      <div className={`text-xl font-bold ${
-                        (session.correct_count / session.total_questions) >= 0.8 ? 'text-green-600 dark:text-green-400' :
-                        (session.correct_count / session.total_questions) >= 0.6 ? 'text-blue-600 dark:text-blue-400' :
-                        'text-orange-600 dark:text-orange-400'
-                      }`}>
-                        {Math.round((session.correct_count / session.total_questions) * 100)}%
+                      <div
+                        className={`text-xl font-bold ${
+                          session.correct_count / session.total_questions >= 0.8
+                            ? "text-green-600 dark:text-green-400"
+                            : session.correct_count / session.total_questions >=
+                              0.6
+                            ? "text-blue-600 dark:text-blue-400"
+                            : "text-orange-600 dark:text-orange-400"
+                        }`}
+                      >
+                        {Math.round(
+                          (session.correct_count / session.total_questions) *
+                            100
+                        )}
+                        %
                       </div>
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Accuracy</p>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                        Accuracy
+                      </p>
                     </div>
                   </div>
                 ))

@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Clock,
 } from "lucide-react";
+import { PerformanceChart } from "@/components/dashboard/PerformanceChart";
 
 interface ProgressOverviewProps {
   studyPlan?: any;
@@ -60,7 +61,9 @@ export function ProgressOverview({
         <h2 className="text-2xl font-bold text-foreground">
           Your Progress Overview
         </h2>
-        <p className="text-muted-foreground">Track your journey to SAT success</p>
+        <p className="text-muted-foreground">
+          Track your journey to SAT success
+        </p>
       </div>
 
       {/* Main Progress Cards */}
@@ -79,11 +82,17 @@ export function ProgressOverview({
                 <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
                   {completedSessions}/{totalSessions}
                 </p>
-                <p className="text-xs text-purple-600/80 dark:text-purple-400/80">Sessions completed</p>
+                <p className="text-xs text-purple-600/80 dark:text-purple-400/80">
+                  Sessions completed
+                </p>
               </div>
             </div>
             <div className="mt-4">
-              <Progress value={completionRate} className="h-2 bg-purple-200 dark:bg-purple-900/30" indicatorClassName="bg-purple-500" />
+              <Progress
+                value={completionRate}
+                className="h-2 bg-purple-200 dark:bg-purple-900/30"
+                indicatorClassName="bg-purple-500"
+              />
               <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
                 {Math.round(completionRate)}% complete
               </p>
@@ -99,7 +108,9 @@ export function ProgressOverview({
                 <Target className="h-6 w-6 text-white" />
               </div>
               <div className="flex-1">
-                <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">Mock Exams</p>
+                <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                  Mock Exams
+                </p>
                 <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
                   {totalMockExams}
                 </p>
@@ -119,7 +130,9 @@ export function ProgressOverview({
                 <Calendar className="h-6 w-6 text-white" />
               </div>
               <div className="flex-1">
-                <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">Test Date</p>
+                <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">
+                  Test Date
+                </p>
                 <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">
                   {daysUntilTest > 0 ? daysUntilTest : "N/A"}
                 </p>
@@ -139,11 +152,15 @@ export function ProgressOverview({
                 <TrendingUp className="h-6 w-6 text-white" />
               </div>
               <div className="flex-1">
-                <p className="text-sm text-green-600 dark:text-green-400 font-medium">Overall</p>
+                <p className="text-sm text-green-600 dark:text-green-400 font-medium">
+                  Overall
+                </p>
                 <p className="text-2xl font-bold text-green-700 dark:text-green-300">
                   {Math.round(completionRate)}%
                 </p>
-                <p className="text-xs text-green-600/80 dark:text-green-400/80">Progress</p>
+                <p className="text-xs text-green-600/80 dark:text-green-400/80">
+                  Progress
+                </p>
               </div>
             </div>
           </CardContent>
@@ -167,7 +184,10 @@ export function ProgressOverview({
               {studyPlan?.study_plan?.sessions
                 ?.slice(0, 5)
                 .map((session: any, index: number) => (
-                  <div key={session.id || `session-${index}`} className="flex items-center gap-3">
+                  <div
+                    key={session.id || `session-${index}`}
+                    className="flex items-center gap-3"
+                  >
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center ${
                         session.status === "completed"
@@ -193,7 +213,14 @@ export function ProgressOverview({
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-medium text-card-foreground">
-                        {session.num_questions} questions
+                        {session.total_questions ||
+                          session.topics?.reduce(
+                            (sum: number, t: any) =>
+                              sum + (t.num_questions || 0),
+                            0
+                          ) ||
+                          0}{" "}
+                        questions
                       </p>
                       <p className="text-xs text-muted-foreground capitalize">
                         {session.status.replace("_", " ")}
@@ -212,57 +239,8 @@ export function ProgressOverview({
           </CardContent>
         </Card>
 
-        {/* Recent Mock Exam Scores */}
-        <Card className="border-border shadow-sm bg-card">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-card-foreground">
-              <div className="p-2 bg-blue-500/10 rounded-lg">
-                <Target className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-              </div>
-              Recent Mock Exam Scores
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {mockExamPerformance?.slice(0, 5).map((exam, index) => (
-                <div key={exam.id || `exam-${index}`} className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
-                    <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                      {index + 1}
-                    </span>
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium text-card-foreground">
-                      Mock Exam #{exam.id}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {new Date(exam.completed_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-lg font-bold text-blue-600 dark:text-blue-400">
-                      {exam.total_score}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {exam.math_score}M / {exam.rw_score}RW
-                    </p>
-                  </div>
-                </div>
-              ))}
-              {(!mockExamPerformance || mockExamPerformance.length === 0) && (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Target className="h-8 w-8 text-muted-foreground" />
-                  </div>
-                  <p className="text-muted-foreground">No mock exams taken yet</p>
-                  <p className="text-sm text-muted-foreground/80">
-                    Take your first mock exam to see scores here
-                  </p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+        {/* Mock Exam Performance Chart */}
+        <PerformanceChart />
       </div>
     </div>
   );

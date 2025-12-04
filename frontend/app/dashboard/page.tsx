@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useStudyPlan, useMockExamAnalytics } from "@/hooks/queries";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/lib/hooks/useProfile";
-import { PerformanceChart } from "@/components/dashboard/PerformanceChart";
 import { ProgressOverview } from "@/components/dashboard/ProgressOverview";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
@@ -126,11 +125,24 @@ export default function DashboardPage() {
           nextSessionRaw.session_name ||
           `Session ${nextSessionRaw.session_number}`,
         scheduled_date: nextSessionRaw.scheduled_date,
-        duration_minutes: nextSessionRaw.total_questions
-          ? Math.round(nextSessionRaw.total_questions * 2)
-          : 30, // Estimate 2 min per question
+        duration_minutes: (() => {
+          const qCount =
+            nextSessionRaw.total_questions ||
+            nextSessionRaw.topics?.reduce(
+              (sum: number, t: any) => sum + (t.num_questions || 0),
+              0
+            ) ||
+            0;
+          return qCount ? Math.round(qCount * 2) : 30;
+        })(),
         status: nextSessionRaw.status,
-        num_questions: nextSessionRaw.total_questions || 0,
+        num_questions:
+          nextSessionRaw.total_questions ||
+          nextSessionRaw.topics?.reduce(
+            (sum: number, t: any) => sum + (t.num_questions || 0),
+            0
+          ) ||
+          0,
       } as SessionForMissionCard)
     : undefined;
 
@@ -346,12 +358,6 @@ export default function DashboardPage() {
               mockExamPerformance={mockExamPerformance}
               mockExamData={mockExamData}
             />
-          </div>
-
-          {/* Detailed Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <PerformanceChart />
-            {/* Can add another chart here or keep it empty/full width */}
           </div>
         </div>
       </div>

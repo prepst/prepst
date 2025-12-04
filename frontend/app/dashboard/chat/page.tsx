@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChatContainerContent,
   ChatContainerRoot,
@@ -19,53 +18,62 @@ import {
   PromptInputActions,
   PromptInputTextarea,
 } from "@/components/ui/prompt-input";
-import { PromptSuggestion } from "@/components/ui/prompt-suggestion";
 import { Button } from "@/components/ui/button";
-import { MessageCircle, ArrowUp, Square, Brain } from "lucide-react";
+import {
+  MessageCircle,
+  ArrowUp,
+  Square,
+  Sparkles,
+  Zap,
+  BookOpen,
+  PenTool,
+} from "lucide-react";
 import { api } from "@/lib/api";
 import { ChatMessageAPI } from "@/lib/types";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const suggestionGroups = [
   {
     label: "Study Help",
-    highlight: "Help me",
+    icon: BookOpen,
+    color: "text-blue-500",
+    bg: "bg-blue-500/10",
     items: [
       "Help me understand this concept",
       "Help me solve this problem",
-      "Help me study for my exam",
-      "Help me create a study plan",
+      "Create a study plan for me",
     ],
   },
   {
     label: "Practice",
-    highlight: "Practice",
+    icon: Zap,
+    color: "text-amber-500",
+    bg: "bg-amber-500/10",
     items: [
-      "Practice math problems",
-      "Practice coding questions",
+      "Give me a math problem",
+      "Quiz me on history",
       "Practice vocabulary",
-      "Practice problem solving",
     ],
   },
   {
     label: "Explain",
-    highlight: "Explain",
+    icon: Sparkles,
+    color: "text-purple-500",
+    bg: "bg-purple-500/10",
     items: [
-      "Explain this topic in simple terms",
-      "Explain the steps to solve this",
-      "Explain the key concepts",
-      "Explain with examples",
+      "Explain like I'm 5",
+      "Summarize this topic",
+      "Key concepts explanation",
     ],
   },
   {
-    label: "Generate",
-    highlight: "Generate",
-    items: [
-      "Generate practice questions",
-      "Generate study notes",
-      "Generate flashcards",
-      "Generate a quiz",
-    ],
+    label: "Writing",
+    icon: PenTool,
+    color: "text-pink-500",
+    bg: "bg-pink-500/10",
+    items: ["Proofread my essay", "Generate an outline", "Brainstorm ideas"],
   },
 ];
 
@@ -77,26 +85,38 @@ interface ChatMessage {
 }
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<ChatMessage[]>([
-    {
-      id: 1,
-      content:
-        "Hi! I'm your AI assistant. I can help you with writing, coding, analysis, and more. What would you like to do?",
-      sender: "ai" as const,
-      timestamp: new Date().toISOString(),
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputMessage, setInputMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [showSuggestions, setShowSuggestions] = useState(true);
-  const [activeCategory, setActiveCategory] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const streamContentRef = useRef("");
+  const { isDarkMode } = useTheme();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Load messages from local storage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedMessages = localStorage.getItem("peppa-chat-messages");
+      if (savedMessages) {
+        try {
+          setMessages(JSON.parse(savedMessages));
+        } catch (e) {
+          console.error("Failed to parse chat messages", e);
+        }
+      }
+    }
+  }, []);
+
+  // Save messages to local storage whenever they change
+  useEffect(() => {
+    if (typeof window !== "undefined" && messages.length > 0) {
+      localStorage.setItem("peppa-chat-messages", JSON.stringify(messages));
+    }
+  }, [messages]);
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isStreaming) return;
 
-    // Generate unique IDs to prevent collisions
     const generateUniqueId = () => {
       if (typeof crypto !== "undefined" && crypto.randomUUID) {
         return crypto.randomUUID();
@@ -104,7 +124,6 @@ export default function ChatPage() {
       return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     };
 
-    // Add user message
     const userMessage: ChatMessage = {
       id: generateUniqueId(),
       content: inputMessage,
@@ -116,9 +135,7 @@ export default function ChatPage() {
     const currentInput = inputMessage;
     setInputMessage("");
     setIsLoading(true);
-    setShowSuggestions(false);
 
-    // Create AI message placeholder
     const newMessageId = generateUniqueId();
     setIsStreaming(true);
     streamContentRef.current = "";
@@ -134,26 +151,24 @@ export default function ChatPage() {
     ]);
 
     try {
-      // Convert messages to API format (excluding the empty AI message we just added)
       const conversationHistory: ChatMessageAPI[] = messages.map((msg) => ({
         role: msg.sender === "user" ? "user" : "assistant",
         content: msg.content,
         timestamp: msg.timestamp || new Date().toISOString(),
       }));
 
-      // Call OpenAI API with streaming
       await api.chatWithAI(
         {
           message: currentInput,
           conversation_history: conversationHistory,
         },
         (chunk: string) => {
-          // Update message content as chunks arrive
           streamContentRef.current += chunk;
+          const currentContent = streamContentRef.current;
           setMessages((prev) =>
             prev.map((msg) =>
               msg.id === newMessageId
-                ? { ...msg, content: streamContentRef.current }
+                ? { ...msg, content: currentContent }
                 : msg
             )
           );
@@ -162,8 +177,6 @@ export default function ChatPage() {
     } catch (error) {
       console.error("Chat error:", error);
       toast.error("Failed to get AI response. Please try again.");
-
-      // Update the message with error
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === newMessageId
@@ -184,180 +197,223 @@ export default function ChatPage() {
 
   const handleSuggestionClick = (suggestion: string) => {
     setInputMessage(suggestion);
-    setShowSuggestions(false);
-    setActiveCategory("");
+    // Optional: auto-send or just fill input
+    // handleSendMessage();
+    if (textareaRef.current) {
+      textareaRef.current.focus();
+    }
   };
 
   const handlePromptInputValueChange = (value: string) => {
     setInputMessage(value);
-    // Clear active category when typing something different
-    if (value.trim() === "") {
-      setActiveCategory("");
-    }
   };
 
-  // Get suggestions based on active category
-  const activeCategoryData = suggestionGroups.find(
-    (group) => group.label === activeCategory
-  );
-
-  // Determine which suggestions to show
-  const showCategorySuggestions = activeCategory !== "";
-
-  // Auto-scroll to bottom when messages change
   useEffect(() => {
-    const chatContainer = document.querySelector(".overflow-y-auto");
+    const chatContainer = document.querySelector(".chat-scroll-area");
     if (chatContainer) {
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
   }, [messages, isStreaming]);
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-          <MessageCircle className="w-8 h-8 text-purple-500" />
-          AI Study Assistant
-        </h1>
-        <p className="text-muted-foreground">
-          Get help with homework, explanations, and study guidance
-        </p>
+    <div className="relative flex h-[calc(100vh-4rem)] flex-col bg-background/50 overflow-hidden">
+      {/* Background Ambient Glow */}
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div className="absolute -top-[20%] -right-[10%] h-[500px] w-[500px] rounded-full bg-purple-500/10 blur-[100px]" />
+        <div className="absolute -bottom-[20%] -left-[10%] h-[500px] w-[500px] rounded-full bg-blue-500/10 blur-[100px]" />
       </div>
 
-      <Card className="h-[70vh] min-h-[500px] max-h-[800px] flex flex-col border-0 shadow-lg">
-        <CardContent className="flex-1 flex flex-col p-0 overflow-hidden h-full m-0">
-          {/* Messages Area */}
-          <ChatContainerRoot className="flex-1 overflow-y-auto max-h-[calc(70vh-120px)]">
-            <ChatContainerContent className="space-y-4 p-4">
-              {messages.map((message) => {
+      {/* Chat Header */}
+      <div className="relative z-10 flex items-center justify-between border-b border-border/40 bg-background/60 px-6 py-3 backdrop-blur-xl">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl">
+            <span className="text-xl font-bold text-foreground">P</span>
+          </div>
+          <div>
+            <h1 className="font-semibold text-foreground">Peppa AI</h1>
+            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+              </span>
+              Online & Ready
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Messages Area */}
+      <ChatContainerRoot className="chat-scroll-area relative z-10 flex-1 overflow-y-auto scroll-smooth pb-4">
+        <ChatContainerContent className="mx-auto w-full max-w-4xl px-4 py-8">
+          <AnimatePresence initial={false} mode="popLayout">
+            {messages.length === 0 ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="flex flex-col items-center justify-center space-y-8 py-12 text-center"
+              >
+                <div className="space-y-4">
+                  <h2 className="text-4xl font-bold tracking-tight sm:text-5xl bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent pb-2">
+                    How can I help you today?
+                  </h2>
+                  <p className="text-lg text-muted-foreground max-w-lg mx-auto">
+                    I can help you study, practice problems, explain complex
+                    topics, or just chat about your learning goals.
+                  </p>
+                </div>
+
+                <div className="grid w-full max-w-3xl grid-cols-1 gap-4 sm:grid-cols-2">
+                  {suggestionGroups.map((group, index) => (
+                    <motion.div
+                      key={group.label}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 p-6 text-left transition-all hover:border-purple-500/30 hover:shadow-lg hover:shadow-purple-500/5"
+                    >
+                      <div
+                        className={`mb-4 inline-flex rounded-lg p-2 ${group.bg} ${group.color}`}
+                      >
+                        <group.icon className="h-5 w-5" />
+                      </div>
+                      <h3 className="mb-2 font-semibold text-foreground">
+                        {group.label}
+                      </h3>
+                      <div className="space-y-2">
+                        {group.items.map((item) => (
+                          <button
+                            key={item}
+                            onClick={() => handleSuggestionClick(item)}
+                            className="block w-full rounded-md px-2 py-1.5 text-left text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                          >
+                            {item}
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            ) : (
+              messages.map((message) => {
                 const isAssistant = message.sender === "ai";
 
                 return (
-                  <Message
+                  <motion.div
                     key={message.id}
-                    className={
-                      message.sender === "user"
-                        ? "justify-end"
-                        : "justify-start"
-                    }
+                    initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className={`flex w-full ${
+                      isAssistant ? "justify-start" : "justify-end"
+                    } mb-6`}
                   >
-                    {isAssistant && (
-                      <MessageAvatar
-                        src="/avatars/ai.svg"
-                        alt="AI Assistant"
-                        fallback="AI"
-                      />
-                    )}
                     <div
-                      className={
-                        isAssistant
-                          ? "max-w-[85%] flex-1 sm:max-w-[75%]"
-                          : "max-w-fit"
-                      }
+                      className={`flex max-w-[85%] md:max-w-[75%] gap-4 ${
+                        isAssistant ? "flex-row" : "flex-row-reverse"
+                      }`}
                     >
-                      {isAssistant ? (
-                        <div className="text-foreground prose">
-                          <Markdown>{message.content}</Markdown>
-                        </div>
-                      ) : (
-                        <MessageContent className="bg-gray-100 text-black">
-                          {message.content}
-                        </MessageContent>
-                      )}
-                    </div>
-                  </Message>
-                );
-              })}
+                      {/* Avatar */}
+                      <div className="flex-shrink-0 pt-1">
+                        {isAssistant ? (
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg">
+                            <span className="text-sm font-bold text-foreground">
+                              P
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-gray-300 shadow-sm">
+                            <span className="text-xs font-bold">ME</span>
+                          </div>
+                        )}
+                      </div>
 
-              {isStreaming && (
-                <Message className="justify-start">
-                  <div className="max-w-[85%] flex-1 sm:max-w-[75%]">
-                    <div className="text-foreground prose">
-                      <div className="flex items-center gap-2">
-                        <Loader variant="typing" size="sm" />
+                      {/* Message Bubble */}
+                      <div
+                        className={`relative rounded-2xl px-5 py-3.5 shadow-sm ${
+                          isAssistant
+                            ? "bg-card border border-border/50 text-foreground"
+                            : "bg-transparent text-foreground"
+                        }`}
+                      >
+                        {isAssistant ? (
+                          <div className="prose prose-neutral dark:prose-invert max-w-none text-sm leading-relaxed">
+                            {message.content ? (
+                              <Markdown>{message.content}</Markdown>
+                            ) : (
+                              <Loader variant="typing" size="sm" className="opacity-50" />
+                            )}
+                          </div>
+                        ) : (
+                          <div className="text-sm leading-relaxed whitespace-pre-wrap">
+                            {message.content}
+                          </div>
+                        )}
                       </div>
                     </div>
-                  </div>
-                </Message>
-              )}
-              {/* Scroll anchor for auto-scrolling */}
-              <div id="scroll-anchor" />
-            </ChatContainerContent>
-          </ChatContainerRoot>
+                  </motion.div>
+                );
+              })
+            )}
+          </AnimatePresence>
 
-          {/* Input Area */}
-          <div className="border-t border-gray-100 px-4 py-3 space-y-4 flex-shrink-0 mt-auto">
+          {/* Anchor for scrolling */}
+          <div className="h-4" />
+        </ChatContainerContent>
+      </ChatContainerRoot>
+
+      {/* Input Area */}
+      <div className="relative z-20 px-4 pb-6 pt-2">
+        <div className="mx-auto w-full max-w-3xl">
+          <div className="relative rounded-[24px] bg-background/80 p-2 shadow-2xl backdrop-blur-xl border border-border/50 ring-1 ring-black/5 dark:ring-white/5 transition-all duration-200 focus-within:ring-2 focus-within:ring-purple-500/20 focus-within:border-purple-500/30">
             <PromptInput
               value={inputMessage}
               onValueChange={handlePromptInputValueChange}
               isLoading={isStreaming}
               onSubmit={handleSendMessage}
-              className="w-full"
+              className="border-none bg-transparent shadow-none p-0"
             >
-              <PromptInputTextarea placeholder="Ask me anything..." />
-              <PromptInputActions className="justify-end pt-2">
-                <PromptInputAction
-                  tooltip={isStreaming ? "Stop generation" : "Send message"}
-                >
-                  <Button
-                    variant="default"
-                    size="icon"
-                    className="h-8 w-8 rounded-full"
-                    onClick={handleSendMessage}
-                  >
-                    {isStreaming ? (
-                      <Square className="size-5 fill-current" />
-                    ) : (
-                      <ArrowUp className="size-5" />
-                    )}
-                  </Button>
-                </PromptInputAction>
-              </PromptInputActions>
-            </PromptInput>
-
-            {/* Suggestions under input */}
-            {showSuggestions && messages.length === 1 && (
-              <div className="space-y-3">
-                <div className="relative flex w-full flex-wrap items-stretch justify-start gap-2">
-                  {showCategorySuggestions ? (
-                    <div className="flex w-full flex-col space-y-1">
-                      {activeCategoryData?.items.map((suggestion) => (
-                        <PromptSuggestion
-                          key={suggestion}
-                          highlight={activeCategoryData.highlight}
-                          onClick={() => {
-                            setInputMessage(suggestion);
-                            setShowSuggestions(false);
-                            setActiveCategory("");
-                          }}
-                        >
-                          {suggestion}
-                        </PromptSuggestion>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="relative flex w-full flex-wrap items-stretch justify-start gap-2">
-                      {suggestionGroups.map((suggestion) => (
-                        <PromptSuggestion
-                          key={suggestion.label}
-                          onClick={() => {
-                            setActiveCategory(suggestion.label);
-                            setInputMessage(""); // Clear input when selecting a category
-                          }}
-                          className="capitalize"
-                        >
-                          <Brain className="mr-2 h-4 w-4" />
-                          {suggestion.label}
-                        </PromptSuggestion>
-                      ))}
-                    </div>
-                  )}
+              <PromptInputTextarea
+                ref={textareaRef}
+                placeholder="Ask me anything..."
+                className="min-h-[50px] px-4 py-3 text-base sm:text-sm focus-visible:ring-0 max-h-[200px]"
+              />
+              <div className="flex items-center justify-between px-2 pb-1">
+                <div className="flex items-center gap-1 text-xs text-muted-foreground px-2">
+                  <Sparkles className="w-3 h-3 text-purple-500" />
+                  <span>AI-Enhanced</span>
                 </div>
+                <PromptInputActions>
+                  <PromptInputAction
+                    tooltip={isStreaming ? "Stop generation" : "Send message"}
+                  >
+                    <Button
+                      size="icon"
+                      className={`h-9 w-9 rounded-full transition-all duration-200 ${
+                        inputMessage.trim() || isStreaming
+                          ? "bg-foreground text-background shadow-md hover:opacity-90 hover:scale-105"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                      onClick={handleSendMessage}
+                      disabled={!inputMessage.trim() && !isStreaming}
+                    >
+                      {isStreaming ? (
+                        <Square className="size-4 fill-current" />
+                      ) : (
+                        <ArrowUp className="size-5" />
+                      )}
+                    </Button>
+                  </PromptInputAction>
+                </PromptInputActions>
               </div>
-            )}
+            </PromptInput>
           </div>
-        </CardContent>
-      </Card>
+          <p className="mt-2 text-center text-xs text-muted-foreground/60">
+            AI can make mistakes. Check important info.
+          </p>
+        </div>
+      </div>
     </div>
   );
 }

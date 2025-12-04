@@ -101,12 +101,7 @@ export function TodoItem({ todo, onToggle }: TodoItemProps) {
       if (isMockTest) {
         // If it has a specific UUID (real mock exam), go to that, otherwise go to landing
         if (todo.id !== "mock-test" && todo.id !== "mock-test-2") {
-           // For real mock exams, we might want to view results if completed
-           if (status === "completed") {
-             router.push(`/mock-exam/${todo.id}/results`);
-             return;
-           }
-           // If in progress, resume
+           // Navigate to the mock exam page
            router.push(`/mock-exam/${todo.id}`);
            return;
         }

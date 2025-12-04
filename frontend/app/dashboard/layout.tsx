@@ -264,14 +264,23 @@ export default function DashboardLayout({
             {/* Toggle button aligned with menu items */}
             <button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className={`absolute -right-3 top-8 w-8 h-8 bg-background border border-border rounded-full flex items-center justify-center hover:bg-muted hover:text-primary transition-all duration-300 shadow-sm z-50 group ${
+              className={`absolute -right-3 top-8 w-8 h-8 bg-background rounded-full flex items-center justify-center hover:bg-muted transition-all duration-300 shadow-sm z-50 group ${
                 isMobile ? "hidden" : "flex"
               }`}
+              style={{
+                border: "1px solid #866ffe",
+              }}
             >
               {isSidebarCollapsed ? (
-                <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                <ChevronRight
+                  className="w-4 h-4 transition-colors"
+                  style={{ color: "#866ffe" }}
+                />
               ) : (
-                <ChevronLeft className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                <ChevronLeft
+                  className="w-4 h-4 transition-colors"
+                  style={{ color: "#866ffe" }}
+                />
               )}
             </button>
 
@@ -315,8 +324,8 @@ export default function DashboardLayout({
                         <button
                           onClick={() => setExpanded(!isExpanded)}
                           className={`w-full flex items-center rounded-2xl transition-all duration-200 group ${
-                            isActive 
-                              ? "bg-primary/10 text-primary font-semibold" 
+                            isActive
+                              ? "bg-primary/10 text-primary font-semibold"
                               : "hover:bg-muted/60 text-muted-foreground hover:text-foreground font-medium"
                           } ${
                             isSidebarCollapsed
@@ -327,7 +336,13 @@ export default function DashboardLayout({
                           }`}
                           title={isSidebarCollapsed ? item.name : undefined}
                         >
-                          <Icon className={`flex-shrink-0 transition-colors ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"} ${isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5"}`} />
+                          <Icon
+                            className={`flex-shrink-0 transition-colors ${
+                              isActive
+                                ? "text-primary"
+                                : "text-muted-foreground group-hover:text-foreground"
+                            } ${isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5"}`}
+                          />
                           {!isSidebarCollapsed && (
                             <>
                               <span className="whitespace-nowrap flex-1 text-left">
@@ -347,7 +362,7 @@ export default function DashboardLayout({
                           <div className="mt-1 space-y-1 relative">
                             {/* Vertical line for hierarchy */}
                             <div className="absolute left-[26px] top-0 bottom-2 w-px bg-border/60" />
-                            
+
                             {item.subItems.map((subItem) => {
                               const SubIcon = subItem.icon;
                               const isSubActive = pathname === subItem.href;
@@ -363,7 +378,13 @@ export default function DashboardLayout({
                                     isMobile ? "py-3" : ""
                                   }`}
                                 >
-                                  <span className={`w-1.5 h-1.5 rounded-full ${isSubActive ? "bg-primary" : "bg-muted-foreground/40"} flex-shrink-0`} />
+                                  <span
+                                    className={`w-1.5 h-1.5 rounded-full ${
+                                      isSubActive
+                                        ? "bg-primary"
+                                        : "bg-muted-foreground/40"
+                                    } flex-shrink-0`}
+                                  />
                                   <span className="whitespace-nowrap">
                                     {subItem.name}
                                   </span>
@@ -388,11 +409,19 @@ export default function DashboardLayout({
                       } ${
                         isSidebarCollapsed
                           ? "justify-center p-3 mx-auto w-12 h-12"
-                          : `gap-3 py-3 px-4 ${isMobile ? "py-4" : ""} text-[15px]`
+                          : `gap-3 py-3 px-4 ${
+                              isMobile ? "py-4" : ""
+                            } text-[15px]`
                       }`}
                       title={isSidebarCollapsed ? item.name : undefined}
                     >
-                      <Icon className={`flex-shrink-0 transition-colors ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"} ${isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5"}`} />
+                      <Icon
+                        className={`flex-shrink-0 transition-colors ${
+                          isActive
+                            ? "text-primary"
+                            : "text-muted-foreground group-hover:text-foreground"
+                        } ${isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5"}`}
+                      />
                       {!isSidebarCollapsed && (
                         <span className="whitespace-nowrap">{item.name}</span>
                       )}
@@ -405,7 +434,7 @@ export default function DashboardLayout({
               {mainNavItems.length > 0 && (
                 <div className="space-y-2">
                   {!isSidebarCollapsed && (
-                     <div className="h-px bg-border/50 mx-4 my-2" />
+                    <div className="h-px bg-border/50 mx-4 my-2" />
                   )}
                   {mainNavItems.map((item) => {
                     const Icon = item.icon;
@@ -423,11 +452,19 @@ export default function DashboardLayout({
                         } ${
                           isSidebarCollapsed
                             ? "justify-center p-3 mx-auto w-12 h-12"
-                            : `gap-3 py-3 px-4 ${isMobile ? "py-4" : ""} text-[15px]`
+                            : `gap-3 py-3 px-4 ${
+                                isMobile ? "py-4" : ""
+                              } text-[15px]`
                         }`}
                         title={isSidebarCollapsed ? item.name : undefined}
                       >
-                        <Icon className={`flex-shrink-0 transition-colors ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"} ${isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5"}`} />
+                        <Icon
+                          className={`flex-shrink-0 transition-colors ${
+                            isActive
+                              ? "text-primary"
+                              : "text-muted-foreground group-hover:text-foreground"
+                          } ${isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5"}`}
+                        />
                         {!isSidebarCollapsed && (
                           <span className="whitespace-nowrap">{item.name}</span>
                         )}
@@ -440,8 +477,10 @@ export default function DashboardLayout({
 
             {/* Account section */}
             <div className="space-y-3 pb-6">
-              {!isSidebarCollapsed && <div className="h-px bg-border/50 mx-4 mb-2" />}
-              
+              {!isSidebarCollapsed && (
+                <div className="h-px bg-border/50 mx-4 mb-2" />
+              )}
+
               {/* Account Menu Items */}
               {accountItems.map((item) => {
                 const Icon = item.icon;
@@ -457,43 +496,25 @@ export default function DashboardLayout({
                     } ${
                       isSidebarCollapsed
                         ? "justify-center p-3 mx-auto w-12 h-12"
-                        : `gap-3 py-3 px-4 ${isMobile ? "py-4" : ""} text-[15px]`
+                        : `gap-3 py-3 px-4 ${
+                            isMobile ? "py-4" : ""
+                          } text-[15px]`
                     }`}
                     title={isSidebarCollapsed ? item.name : undefined}
                   >
-                    <Icon className={`flex-shrink-0 transition-colors ${isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"} ${isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5"}`} />
+                    <Icon
+                      className={`flex-shrink-0 transition-colors ${
+                        isActive
+                          ? "text-primary"
+                          : "text-muted-foreground group-hover:text-foreground"
+                      } ${isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5"}`}
+                    />
                     {!isSidebarCollapsed && (
                       <span className="whitespace-nowrap">{item.name}</span>
                     )}
                   </Link>
                 );
               })}
-
-              {/* Theme Toggle */}
-              {!isSidebarCollapsed ? (
-                <div className="flex items-center justify-between px-4 py-2 bg-muted/30 rounded-2xl border border-border/50 mx-2">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-background flex items-center justify-center shadow-sm border border-border/50">
-                       {isDarkMode ? <Moon className="w-4 h-4 text-blue-400" /> : <Sun className="w-4 h-4 text-yellow-500" />}
-                    </div>
-                    <span className="text-sm font-medium text-muted-foreground">Theme</span>
-                  </div>
-                  <Switch
-                    checked={isDarkMode}
-                    onCheckedChange={(checked) =>
-                      setTheme(checked ? "dark" : "light")
-                    }
-                    className="data-[state=checked]:bg-primary"
-                  />
-                </div>
-              ) : (
-                <button 
-                  onClick={() => setTheme(isDarkMode ? "light" : "dark")}
-                  className="flex items-center justify-center p-3 mx-auto w-12 h-12 rounded-2xl hover:bg-muted/60 text-muted-foreground transition-all duration-200"
-                >
-                  {isDarkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
-                </button>
-              )}
 
               {/* Profile Section - Show for signed in users */}
               {user && (
@@ -508,19 +529,35 @@ export default function DashboardLayout({
               <div className="space-y-3 pb-6 px-2">
                 <Link href="/signup" className="block">
                   <Button
-                    className={`w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 rounded-xl ${isSidebarCollapsed ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center" : "h-11"}`}
+                    className={`w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 rounded-xl ${
+                      isSidebarCollapsed
+                        ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center"
+                        : "h-11"
+                    }`}
                     size="sm"
                   >
-                    {isSidebarCollapsed ? <UserPlus className="w-5 h-5" /> : "Get Started"}
+                    {isSidebarCollapsed ? (
+                      <UserPlus className="w-5 h-5" />
+                    ) : (
+                      "Get Started"
+                    )}
                   </Button>
                 </Link>
                 <Link href="/login" className="block">
                   <Button
                     variant="outline"
-                    className={`w-full border-border hover:bg-muted/50 rounded-xl ${isSidebarCollapsed ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center" : "h-11"}`}
+                    className={`w-full border-border hover:bg-muted/50 rounded-xl ${
+                      isSidebarCollapsed
+                        ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center"
+                        : "h-11"
+                    }`}
                     size="sm"
                   >
-                    {isSidebarCollapsed ? <LogIn className="w-5 h-5" /> : "Sign In"}
+                    {isSidebarCollapsed ? (
+                      <LogIn className="w-5 h-5" />
+                    ) : (
+                      "Sign In"
+                    )}
                   </Button>
                 </Link>
               </div>

@@ -1,40 +1,34 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { useStudyPlan, useMockExamAnalytics } from "@/hooks/queries";
 import { useAuth } from "@/contexts/AuthContext";
-import { MetricCard } from "@/components/dashboard/MetricCard";
 import { PerformanceChart } from "@/components/dashboard/PerformanceChart";
 import { ProgressOverview } from "@/components/dashboard/ProgressOverview";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
-import { api } from "@/lib/api";
-import { TodoItem } from "@/components/study-plan/todo-item";
-import Image from "next/image";
-import { TypingAnimation } from "@/components/ui/typing-animation";
 import {
-  Flame,
-  Clock,
-  Target,
-  Calendar,
-  BookOpen,
-  TrendingUp,
-  CheckCircle2,
   Play,
-  BarChart3,
-  Award,
-  Zap,
+  Target,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
-import { Skeleton } from "@/components/ui/skeleton";
+import DashboardStatsBento from "@/components/dashboard/DashboardStatsBento";
+import MissionCard from "@/components/dashboard/MissionCard";
+import QuickActionsGrid from "@/components/dashboard/QuickActionsGrid";
+import RecommendationCard from "@/components/dashboard/RecommendationCard";
+import { TimeSelectionModal } from "@/components/dashboard/TimeSelectionModal";
+import { motion } from "framer-motion";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function DashboardPage() {
   const router = useRouter();
   const { data: studyPlan, isLoading } = useStudyPlan();
   const { user } = useAuth();
   const [showTimeSelection, setShowTimeSelection] = useState(false);
+  const { isDarkMode } = useTheme();
 
   const getDisplayName = () => {
     if (user?.user_metadata?.name) {
@@ -103,342 +97,163 @@ export default function DashboardPage() {
     }
   };
 
-  const timeOptions = [
-    { label: "5 minutes", value: 5 },
-    { label: "15 minutes", value: 15 },
-    { label: "30 minutes", value: 30 },
-    { label: "1 hour", value: 60 },
-    { label: "2 hours", value: 120 },
-  ];
+  // Get next session
+  const nextSession = studyPlan?.study_plan?.sessions
+    ?.filter((s: any) => s.status !== "completed")
+    .sort(
+      (a: any, b: any) =>
+        new Date(a.scheduled_date).getTime() -
+        new Date(b.scheduled_date).getTime()
+    )[0];
+
+  // Mock stats (replace with real data calculations if available)
+  const streak = 3; // TODO: Fetch real streak
+  const studyTime = "4h 15m"; // TODO: Fetch real study time
+  const questionsDone = 42; // TODO: Fetch real questions done
+  const mockExamsCount = mockExamPerformance.length;
+
+  const heroBgClass = isDarkMode ? "bg-[#0F172A]" : "bg-gradient-to-br from-cyan-50 to-purple-50";
+  const heroTextColorClass = isDarkMode ? "text-white" : "text-foreground";
+  const heroBlursPrimary = isDarkMode ? "bg-purple-600/30" : "bg-purple-200/50";
+  const heroBlursSecondary = isDarkMode ? "bg-blue-600/30" : "bg-cyan-200/50";
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background/50">
       <div className="flex justify-center">
-        <div className="w-full max-w-7xl px-4 py-8">
-          <div className="space-y-8">
-            {/* Hero Section */}
-            <div
-              className="text-white p-8 md:p-12 border-0 rounded-3xl relative overflow-hidden"
-              style={{
-                backgroundColor: "#866EFF",
-                boxShadow: "0 20px 40px -12px rgba(134, 110, 255, 0.3)",
-              }}
-            >
-              {/* Background Pattern */}
-              <div className="absolute inset-0 opacity-10">
-                <div className="absolute top-0 right-0 w-96 h-96 bg-white rounded-full -translate-y-48 translate-x-48"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full translate-y-32 -translate-x-32"></div>
-              </div>
-
-              <div className="relative z-10">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                      <p className="text-sm opacity-90 font-medium">
-                        {user ? "Welcome back" : "Welcome to PrepSt"}
-                      </p>
-                    </div>
-                    {user ? (
-                      <>
-                        <TypingAnimation
-                          className="text-4xl md:text-6xl font-bold mb-4 leading-tight"
-                          typeSpeed={80}
-                          showCursor={false}
-                          as="h1"
-                        >
-                          {`Hello, ${getDisplayName().split(" ")[0]} 👋`}
-                        </TypingAnimation>
-                        <TypingAnimation
-                          className="text-lg md:text-2xl mb-8 opacity-90 font-light leading-normal"
-                          typeSpeed={50}
-                          delay={1500}
-                          showCursor={false}
-                          as="p"
-                        >
-                          Ready to crush your SAT goals? Let's get started!
-                        </TypingAnimation>
-                      </>
-                    ) : (
-                      <>
-                        <h1 className="text-4xl md:text-6xl font-bold mb-4 leading-tight">
-                          Master the SAT with AI
-                        </h1>
-                        <p className="text-lg md:text-2xl mb-8 opacity-90 font-light leading-normal">
-                          Practice smarter, track your progress, and achieve
-                          your target score.
-                        </p>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                {showTimeSelection ? (
-                  <div className="space-y-4">
-                    <p className="text-sm opacity-75 mb-4">
-                      Choose your practice duration:
-                    </p>
-                    <div className="flex flex-wrap gap-3">
-                      {timeOptions.map((option) => (
-                        <Button
-                          key={option.value}
-                          onClick={() => handleStartPractice(option.value)}
-                          className="bg-white hover:bg-gray-100 px-6 py-3 rounded-full text-sm font-medium transition-all hover:scale-105 shadow-lg"
-                          style={{ color: "#866ffe" }}
-                        >
-                          {option.label}
-                        </Button>
-                      ))}
-                    </div>
-                    <Button
-                      onClick={() => setShowTimeSelection(false)}
-                      variant="ghost"
-                      className="text-white hover:bg-white/20 mt-3"
-                    >
-                      Cancel
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex flex-wrap gap-4">
-                    {user ? (
-                      <>
-                        <Button
-                          onClick={() => setShowTimeSelection(true)}
-                          className="bg-white hover:bg-gray-100 px-8 py-4 rounded-full text-base font-medium transition-all hover:scale-105 shadow-lg"
-                          style={{ color: "#866ffe" }}
-                        >
-                          <Play className="w-4 h-4 mr-2" />
-                          Start Practice
-                        </Button>
-                        <Button
-                          onClick={() => router.push("/dashboard/mock-exam")}
-                          variant="ghost"
-                          className="text-white hover:bg-white/20 px-8 py-4 rounded-full text-base font-medium border border-white/20"
-                        >
-                          <Target className="w-4 h-4 mr-2" />
-                          Take Mock Exam
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <Link href="/signup">
-                          <Button
-                            className="bg-white hover:bg-gray-100 px-8 py-4 rounded-full text-base font-medium transition-all hover:scale-105 shadow-lg"
-                            style={{ color: "#866ffe" }}
-                          >
-                            Get Started Free
-                          </Button>
-                        </Link>
-                        <Link href="/login">
-                          <Button
-                            variant="ghost"
-                            className="text-white hover:bg-white/20 px-8 py-4 rounded-full text-base font-medium border border-white/20"
-                          >
-                            Sign In
-                          </Button>
-                        </Link>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
+        <div className="w-full max-w-7xl px-4 py-8 space-y-8">
+          
+          {/* Hero Section */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className={`relative overflow-hidden rounded-[2.5rem] ${heroBgClass} ${heroTextColorClass} shadow-2xl`}
+          >
+            {/* Abstract Background */}
+            <div className="absolute inset-0">
+               <div className={`absolute top-0 right-0 w-[600px] h-[600px] ${heroBlursPrimary} rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3`}></div>
+               <div className={`absolute bottom-0 left-0 w-[500px] h-[500px] ${heroBlursSecondary} rounded-full blur-[100px] translate-y-1/3 -translate-x-1/4`}></div>
             </div>
 
-            {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* Study Streak */}
-              <Card className="p-6 rounded-2xl border-0 bg-orange-500/10 shadow-none">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-orange-500 rounded-xl shadow-md">
-                    <Flame className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">
-                      Study Streak
-                    </p>
-                    <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">0 days</p>
-                    <p className="text-xs text-orange-600/80 dark:text-orange-400/80">Keep it up!</p>
-                  </div>
+            <div className="relative z-10 p-8 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10">
+              <div className="flex-1 space-y-6">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 dark:bg-black/10 backdrop-blur-md border border-white/10 dark:border-black/10">
+                  <Sparkles className="w-4 h-4 text-yellow-400" />
+                  <span className="text-sm font-medium">AI-Powered Learning</span>
                 </div>
-              </Card>
-
-              {/* Study Time Today */}
-              <Card className="p-6 rounded-2xl border-0 bg-purple-500/10 shadow-none">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-purple-500 rounded-xl shadow-md">
-                    <Clock className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">
-                      Today's Study
-                    </p>
-                    <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">0h 0m</p>
-                    <p className="text-xs text-purple-600/80 dark:text-purple-400/80">Goal: 2h 0m</p>
-                  </div>
+                
+                <div className="space-y-2">
+                  <h1 className="text-4xl md:text-6xl font-bold leading-tight">
+                    Hello, <span>{getDisplayName().split(" ")[0]}</span>
+                  </h1>
+                  <p className="text-xl text-gray-700 dark:text-gray-300 max-w-lg">
+                    Ready to crush your SAT goals? Let's get started! Your personalized study plan is optimized for maximum score improvement.
+                  </p>
                 </div>
-              </Card>
 
-              {/* Questions Completed */}
-              <Card className="p-6 rounded-2xl border-0 bg-green-500/10 shadow-none">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-green-500 rounded-xl shadow-md">
-                    <CheckCircle2 className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-green-600 dark:text-green-400 font-medium">
-                      Questions Done
-                    </p>
-                    <p className="text-2xl font-bold text-green-700 dark:text-green-300">0</p>
-                    <p className="text-xs text-green-600/80 dark:text-green-400/80">This week</p>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Mock Exams */}
-              <Card className="p-6 rounded-2xl border-0 bg-blue-500/10 shadow-none">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-blue-500 rounded-xl shadow-md">
-                    <Target className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
-                      Mock Exams
-                    </p>
-                    <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">0</p>
-                    <p className="text-xs text-blue-600/80 dark:text-blue-400/80">Completed</p>
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            {/* Main Content Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Next Session */}
-              <Card className="lg:col-span-2 p-8 rounded-2xl border-border shadow-sm bg-card">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-purple-500/10 rounded-lg">
-                    <BookOpen className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-card-foreground">
-                    Next Study Session
-                  </h3>
-                </div>
-                {isLoading ? (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3 mb-4">
-                      <Skeleton className="h-6 w-6 rounded" />
-                      <Skeleton className="h-6 w-48" />
-                    </div>
-                    <Skeleton className="h-4 w-2/3" />
-                    <Skeleton className="h-12 w-full rounded" />
-                  </div>
-                ) : studyPlan ? (
-                  <div>
-                    {(() => {
-                      const nextSession = studyPlan.study_plan.sessions
-                        .filter((s: any) => s.status !== "completed")
-                        .sort(
-                          (a: any, b: any) =>
-                            new Date(a.scheduled_date).getTime() -
-                            new Date(b.scheduled_date).getTime()
-                        )[0];
-
-                      return nextSession ? (
-                        <TodoItem todo={nextSession} onToggle={() => {}} />
-                      ) : (
-                        <div className="text-center py-8">
-                          <div className="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
-                          </div>
-                          <p className="text-lg font-medium text-card-foreground mb-2">
-                            All sessions completed!
-                          </p>
-                          <p className="text-muted-foreground">
-                            Great job! Check back tomorrow for new sessions.
-                          </p>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <BookOpen className="h-8 w-8 text-purple-600 dark:text-purple-400" />
-                    </div>
-                    <p className="text-lg font-medium text-card-foreground mb-2">
-                      No study plan found
-                    </p>
-                    <p className="text-muted-foreground mb-6">
-                      Create a personalized study plan to get started
-                    </p>
-                    <Button
-                      onClick={() => router.push("/onboard")}
-                      className="px-8 py-3 text-white rounded-xl font-medium transition-all hover:scale-105 shadow-lg"
-                      style={{ backgroundColor: "#866ffe" }}
-                    >
-                      Create Study Plan
-                    </Button>
-                  </div>
-                )}
-              </Card>
-
-              {/* Quick Actions */}
-              <Card className="p-6 rounded-2xl border-border shadow-sm bg-card">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-blue-500/10 rounded-lg">
-                    <Zap className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <h3 className="text-xl font-bold text-card-foreground">
-                    Quick Actions
-                  </h3>
-                </div>
-                <div className="space-y-3">
-                  <Button
-                    onClick={() => router.push("/dashboard/study-plan")}
-                    className="w-full justify-start text-white rounded-xl py-3"
-                    style={{ backgroundColor: "#866ffe" }}
+                <div className="flex flex-wrap gap-4 pt-2">
+                  <Button 
+                    onClick={() => setShowTimeSelection(true)}
+                    className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-lg font-bold transition-all hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.3)]"
                   >
-                    <Play className="w-4 h-4 mr-3" />
-                    Practice Questions
+                    <Play className="w-5 h-5 mr-2 fill-current" />
+                    Quick Start
                   </Button>
-                  <Button
+                  <Button 
                     onClick={() => router.push("/dashboard/mock-exam")}
                     variant="outline"
-                    className="w-full justify-start border-purple-500/20 text-purple-700 dark:text-purple-300 hover:bg-purple-500/10 rounded-xl py-3"
+                    className="border-border text-foreground hover:bg-accent rounded-full px-8 py-6 text-lg font-medium backdrop-blur-sm"
                   >
-                    <Target className="w-4 h-4 mr-3" />
-                    Take Mock Exam
-                  </Button>
-                  <Button
-                    onClick={() => router.push("/study-plan")}
-                    variant="outline"
-                    className="w-full justify-start border-border text-muted-foreground hover:bg-accent rounded-xl py-3"
-                  >
-                    <BarChart3 className="w-4 h-4 mr-3" />
-                    View Study Plan
-                  </Button>
-                  <Button
-                    onClick={() => router.push("/dashboard/progress")}
-                    variant="outline"
-                    className="w-full justify-start border-border text-muted-foreground hover:bg-accent rounded-xl py-3"
-                  >
-                    <TrendingUp className="w-4 h-4 mr-3" />
-                    View Progress
+                    <Target className="w-5 h-5 mr-2" />
+                    Mock Exam
                   </Button>
                 </div>
-              </Card>
+              </div>
+
+              {/* Hero Illustration / Stats or 3D Element placeholder */}
+              <div className="hidden lg:block relative w-80 h-80">
+                {/* Circle Progress Concept */}
+                <div className="absolute inset-0 rounded-full border-4 border-purple-300 dark:border-white/10 flex items-center justify-center animate-[spin_10s_linear_infinite]">
+                   <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-4 h-4 bg-purple-500 rounded-full shadow-[0_0_10px_rgba(168,85,247,0.8)]"></div>
+                </div>
+                <div className="absolute inset-8 rounded-full border-4 border-blue-300 dark:border-white/10 flex items-center justify-center animate-[spin_15s_linear_infinite_reverse]">
+                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-3 h-3 bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.8)]"></div>
+                </div>
+                
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                    <span className="text-5xl font-bold">1450</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-1">Target Score</span>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Stats Bento Grid */}
+          <DashboardStatsBento 
+            streak={streak} 
+            studyTime={studyTime} 
+            questionsDone={questionsDone} 
+            mockExams={mockExamsCount} 
+          />
+
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Mission Card (Next Session) */}
+            <div className="lg:col-span-2 space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                  <Target className="w-6 h-6 text-primary" />
+                  Current Objective
+                </h3>
+                <Button variant="ghost" className="text-muted-foreground hover:text-primary" onClick={() => router.push("/dashboard/study-plan")}>
+                  View All <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3 gap-6">
+                <div className="md:col-span-2 lg:col-span-1 xl:col-span-2">
+                    <MissionCard 
+                        session={nextSession} 
+                        isLoading={isLoading}
+                        onStart={() => router.push("/dashboard/study-plan")}
+                    />
+                </div>
+                <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
+                    <RecommendationCard 
+                        onStart={() => router.push("/dashboard/drill")} 
+                    />
+                </div>
+              </div>
             </div>
 
-            {/* Progress Overview */}
-            <ProgressOverview
+            {/* Sidebar Area */}
+            <div className="space-y-6">
+               <h3 className="text-xl font-bold text-foreground">Quick Actions</h3>
+               <QuickActionsGrid />
+               
+
+            </div>
+          </div>
+
+          {/* Analytics Section */}
+          <div className="pt-8">
+             <ProgressOverview
               studyPlan={studyPlan}
               mockExamPerformance={mockExamPerformance}
               mockExamData={mockExamData}
             />
-
-            {/* Performance Chart */}
-            <PerformanceChart />
           </div>
+
+          {/* Detailed Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+             <PerformanceChart />
+             {/* Can add another chart here or keep it empty/full width */}
+          </div>
+
+          <TimeSelectionModal 
+            isOpen={showTimeSelection} 
+            onClose={() => setShowTimeSelection(false)} 
+            onStartPractice={handleStartPractice} 
+          />
         </div>
       </div>
     </div>

@@ -12,6 +12,9 @@ import {
   TrendingUp,
   ArrowRight,
   Sparkles,
+  Target,
+  BarChart3,
+  ChevronDown
 } from "lucide-react";
 import {
   QuestionResult,
@@ -24,21 +27,18 @@ import {
 import { api } from "@/lib/api";
 import { AIFeedbackDisplay } from "@/components/practice/AIFeedbackDisplay";
 import { TopicMasteryRadialChart } from "@/components/charts/TopicMasteryRadialChart";
+import { motion, AnimatePresence } from "framer-motion";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 function SummaryContent() {
   const params = useParams();
   const router = useRouter();
-  // Debug logging first to understand the structure
-  console.log("Params:", params);
-  console.log("params.sessionId:", params.sessionId);
-  console.log("params.sessionId type:", typeof params.sessionId);
-
+  
   // Extract sessionId with proper handling
   let sessionId = "";
   if (typeof params.sessionId === "string") {
     sessionId = params.sessionId;
   } else if (params.sessionId && typeof params.sessionId === "object") {
-    // Handle object case - extract the actual ID value
     const obj = params.sessionId as any;
     if (obj.id && typeof obj.id === "string") {
       sessionId = obj.id;
@@ -47,36 +47,24 @@ function SummaryContent() {
     } else if (obj.value && typeof obj.value === "string") {
       sessionId = obj.value;
     } else {
-      console.error("Invalid sessionId object structure:", params.sessionId);
       sessionId = "";
     }
   }
 
-  console.log("SessionId extracted:", sessionId);
-  console.log("SessionId type:", typeof sessionId);
-
   // Validate sessionId format
-  const uuidRegex =
-    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!sessionId || !uuidRegex.test(sessionId)) {
-    console.error("Invalid sessionId format:", sessionId);
     sessionId = "";
   }
 
   const [results, setResults] = useState<QuestionResult[]>([]);
-  const [topicPerformance, setTopicPerformance] = useState<TopicPerformance[]>(
-    []
-  );
-  const [masteryImprovements, setMasteryImprovements] = useState<
-    TopicMasteryImprovement[]
-  >([]);
+  const [topicPerformance, setTopicPerformance] = useState<TopicPerformance[]>([]);
+  const [masteryImprovements, setMasteryImprovements] = useState<TopicMasteryImprovement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // AI Feedback state
-  const [sessionFeedback, setSessionFeedback] = useState<
-    Map<string, AIFeedbackContent>
-  >(new Map());
+  const [sessionFeedback, setSessionFeedback] = useState<Map<string, AIFeedbackContent>>(new Map());
   const [generatingFeedback, setGeneratingFeedback] = useState(false);
   const [expandedQuestion, setExpandedQuestion] = useState<string | null>(null);
 
@@ -85,9 +73,7 @@ function SummaryContent() {
       setIsLoading(true);
       setError(null);
 
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+      const { data: { session } } = await supabase.auth.getSession();
       if (!session?.access_token) throw new Error("Not authenticated");
 
       const response = await fetch(
@@ -110,34 +96,14 @@ function SummaryContent() {
       const questionResults: QuestionResult[] = data.questions.map(
         (q: SessionQuestion) => {
           const correctAnswer = q.question.correct_answer;
-          const correctAnswerArray = Array.isArray(correctAnswer)
-            ? correctAnswer
-            : [String(correctAnswer)];
-
-          // Normalize both arrays to strings for comparison
-          const normalizeArray = (arr: any[]) =>
-            arr.map((item) => String(item)).sort();
-
-          const userAnswerNormalized = q.user_answer
-            ? normalizeArray(q.user_answer)
-            : [];
+          const correctAnswerArray = Array.isArray(correctAnswer) ? correctAnswer : [String(correctAnswer)];
+          const normalizeArray = (arr: any[]) => arr.map((item) => String(item)).sort();
+          const userAnswerNormalized = q.user_answer ? normalizeArray(q.user_answer) : [];
           const correctAnswerNormalized = normalizeArray(correctAnswerArray);
 
-          const isCorrect =
-            q.user_answer && q.status === "answered"
-              ? JSON.stringify(userAnswerNormalized) ===
-                JSON.stringify(correctAnswerNormalized)
+          const isCorrect = q.user_answer && q.status === "answered"
+              ? JSON.stringify(userAnswerNormalized) === JSON.stringify(correctAnswerNormalized)
               : false;
-
-          // Debug logging
-          console.log(`Question ${q.question.id}:`, {
-            user_answer: q.user_answer,
-            correct_answer: correctAnswer,
-            user_normalized: userAnswerNormalized,
-            correct_normalized: correctAnswerNormalized,
-            is_correct: isCorrect,
-            status: q.status,
-          });
 
           return {
             question_id: q.question.id,
@@ -180,7 +146,6 @@ function SummaryContent() {
         setMasteryImprovements(improvements);
       } catch (err) {
         console.error("Failed to load mastery improvements:", err);
-        // Don't block the UI if mastery improvements fail to load
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load summary");
@@ -193,40 +158,16 @@ function SummaryContent() {
     loadSummary();
   }, [loadSummary]);
 
-  // Complete session and create performance snapshot on mount
+  // Complete session on mount
   useEffect(() => {
     const completeSessionOnMount = async () => {
       try {
-        console.log(
-          "Completing session with ID:",
-          sessionId,
-          "Type:",
-          typeof sessionId
-        );
-
-        if (!sessionId) {
-          console.error("No session ID available");
-          return;
-        }
-
-        // Additional validation to ensure sessionId is a clean string
-        if (typeof sessionId !== "string") {
-          console.error("Session ID is not a string:", sessionId);
-          return;
-        }
-
-        const result = await api.completeSession(sessionId);
-        if (result.snapshot_created) {
-          console.log("Performance snapshot created:", result);
-          console.log("Predicted SAT Math:", result.predicted_sat_math);
-          console.log("Predicted SAT R/W:", result.predicted_sat_rw);
-        }
+        if (!sessionId || typeof sessionId !== "string") return;
+        await api.completeSession(sessionId);
       } catch (err) {
         console.error("Failed to complete session:", err);
-        // Don't block the UI if completion fails
       }
     };
-
     completeSessionOnMount();
   }, [sessionId]);
 
@@ -247,10 +188,10 @@ function SummaryContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
-          <p className="text-gray-700 font-medium">Loading summary...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+          <p className="text-muted-foreground font-medium">Analyzing performance...</p>
         </div>
       </div>
     );
@@ -258,351 +199,253 @@ function SummaryContent() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 p-4">
-        <div className="text-center bg-white p-8 rounded-2xl shadow-lg">
-          <p className="text-gray-600 mb-6">{error}</p>
-          <Button
-            onClick={() => router.push("/dashboard/study-plan")}
-            size="lg"
-          >
-            Back to Study Plan
-          </Button>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="max-w-md w-full">
+          <CardContent className="pt-6 text-center">
+            <p className="text-muted-foreground mb-6">{error}</p>
+            <Button onClick={() => router.push("/dashboard/study-plan")}>
+              Back to Study Plan
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
-  // Calculate stats from mastery improvements data (which has correct data)
-  const totalAttempts = masteryImprovements.reduce(
-    (sum, improvement) => sum + improvement.total_attempts,
-    0
-  );
-  const totalCorrect = masteryImprovements.reduce(
-    (sum, improvement) => sum + improvement.correct_attempts,
-    0
-  );
+  // Calculate stats
+  const totalAttempts = masteryImprovements.reduce((sum, imp) => sum + imp.total_attempts, 0);
+  const totalCorrect = masteryImprovements.reduce((sum, imp) => sum + imp.correct_attempts, 0);
 
-  // Fallback to results if mastery improvements not available
-  const answeredQuestions =
-    masteryImprovements.length > 0
+  const answeredQuestions = masteryImprovements.length > 0
       ? totalAttempts
       : results.filter((r) => r.user_answer !== null).length;
-  const correctAnswers =
-    masteryImprovements.length > 0
+  const correctAnswers = masteryImprovements.length > 0
       ? totalCorrect
       : results.filter((r) => r.is_correct).length;
   const incorrectAnswers = answeredQuestions - correctAnswers;
-  const accuracy =
-    answeredQuestions > 0
+  const accuracy = answeredQuestions > 0
       ? Math.round((correctAnswers / answeredQuestions) * 100)
       : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 py-12 px-4">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-background py-12 px-4 sm:px-6">
+      <div className="max-w-5xl mx-auto space-y-8">
         {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-800 mb-3">
-            Session Complete!
-          </h1>
-          <p className="text-gray-600">
-            Great work! Here&apos;s how you performed.
-          </p>
-        </div>
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center space-y-2"
+        >
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">Session Complete</h1>
+          <p className="text-muted-foreground text-lg">Here's a breakdown of your performance</p>
+        </motion.div>
 
-        {/* Overall Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Accuracy */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-blue-100">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-blue-600" />
+        {/* Overall Stats Grid */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        >
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="p-3 rounded-full bg-blue-500/10 text-blue-500">
+                <TrendingUp className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Accuracy</p>
-                <p className="text-3xl font-bold text-blue-600">{accuracy}%</p>
+                <p className="text-sm font-medium text-muted-foreground">Accuracy</p>
+                <p className="text-3xl font-bold text-foreground">{accuracy}%</p>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          {/* Correct */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-green-100">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-green-600" />
-              </div>
-              <div>
-                <p className="text-sm text-gray-600">Correct</p>
-                <p className="text-3xl font-bold text-green-600">
-                  {correctAnswers}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Incorrect */}
-          <div className="bg-white rounded-2xl p-6 shadow-lg border-2 border-red-100">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                <XCircle className="w-6 h-6 text-red-600" />
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="p-3 rounded-full bg-green-500/10 text-green-500">
+                <CheckCircle className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-sm text-gray-600">Incorrect</p>
-                <p className="text-3xl font-bold text-red-600">
-                  {incorrectAnswers}
-                </p>
+                <p className="text-sm font-medium text-muted-foreground">Correct</p>
+                <p className="text-3xl font-bold text-foreground">{correctAnswers}</p>
               </div>
-            </div>
-          </div>
-        </div>
+            </CardContent>
+          </Card>
 
-        {/* Topic Mastery Improvements */}
-        {masteryImprovements.length > 0 && (
-          <div className="bg-white rounded-2xl p-8 shadow-lg mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">
-              Skill Mastery Growth
-            </h2>
-            <p className="text-gray-600 mb-6">
-              See how much you improved in each topic during this session
-            </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {masteryImprovements.map((improvement) => (
-                <TopicMasteryRadialChart
-                  key={improvement.topic_id}
-                  topicName={improvement.topic_name}
-                  currentMastery={improvement.current_percentage}
-                  masteryIncrease={improvement.mastery_increase}
-                  correctAttempts={improvement.correct_attempts}
-                  totalAttempts={improvement.total_attempts}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+          <Card className="bg-card/50 backdrop-blur-sm border-border/50">
+            <CardContent className="p-6 flex items-center gap-4">
+              <div className="p-3 rounded-full bg-red-500/10 text-red-500">
+                <XCircle className="w-6 h-6" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Incorrect</p>
+                <p className="text-3xl font-bold text-foreground">{incorrectAnswers}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-        {/* Topic Performance */}
-        <div className="bg-white rounded-2xl p-8 shadow-lg mb-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">
-            Performance by Topic
-          </h2>
-          <div className="space-y-4">
-            {masteryImprovements.length > 0
-              ? masteryImprovements.map((improvement) => {
-                  const accuracy =
-                    improvement.total_attempts > 0
-                      ? Math.round(
-                          (improvement.correct_attempts /
-                            improvement.total_attempts) *
-                            100
-                        )
-                      : 0;
+        {/* Charts & Details Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
+
+          {/* Topic Performance List */}
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="lg:col-span-2"
+          >
+            <Card className="border-border/50 bg-card h-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="w-5 h-5 text-primary" />
+                  Topic Breakdown
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {(masteryImprovements.length > 0 ? masteryImprovements : topicPerformance).map((item: any, i) => {
+                  const name = item.topic_name;
+                  const correct = item.correct_attempts ?? item.correct;
+                  const total = item.total_attempts ?? item.total;
+                  const acc = total > 0 ? Math.round((correct / total) * 100) : 0;
+                  
                   return (
-                    <div
-                      key={improvement.topic_id}
-                      className="border-b border-gray-200 pb-4 last:border-0"
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="font-semibold text-gray-800">
-                          {improvement.topic_name}
-                        </span>
-                        <span className="text-sm text-gray-600">
-                          {improvement.correct_attempts}/
-                          {improvement.total_attempts} correct
-                        </span>
+                    <div key={i} className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="font-medium text-foreground">{name}</span>
+                        <span className="text-muted-foreground">{correct}/{total} Correct</span>
                       </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3">
-                        <div
-                          className={`h-3 rounded-full transition-all ${
-                            accuracy >= 70
-                              ? "bg-green-500"
-                              : accuracy >= 50
-                              ? "bg-amber-500"
-                              : "bg-red-500"
+                      <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
+                        <motion.div 
+                          initial={{ width: 0 }}
+                          animate={{ width: `${acc}%` }}
+                          transition={{ duration: 1, ease: "easeOut" }}
+                          className={`h-full rounded-full ${
+                            acc >= 70 ? "bg-green-500" : acc >= 50 ? "bg-amber-500" : "bg-red-500"
                           }`}
-                          style={{ width: `${accuracy}%` }}
                         />
                       </div>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {accuracy}% accuracy
-                      </p>
                     </div>
                   );
-                })
-              : topicPerformance.map((topic) => (
-                  <div
-                    key={topic.topic_name}
-                    className="border-b border-gray-200 pb-4 last:border-0"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-semibold text-gray-800">
-                        {topic.topic_name}
-                      </span>
-                      <span className="text-sm text-gray-600">
-                        {topic.correct}/{topic.total} correct
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-3">
-                      <div
-                        className={`h-3 rounded-full transition-all ${
-                          topic.percentage >= 70
-                            ? "bg-green-500"
-                            : topic.percentage >= 50
-                            ? "bg-amber-500"
-                            : "bg-red-500"
-                        }`}
-                        style={{ width: `${topic.percentage}%` }}
-                      />
-                    </div>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {topic.percentage}% accuracy
-                    </p>
-                  </div>
-                ))}
-          </div>
+                })}
+              </CardContent>
+            </Card>
+          </motion.div>
         </div>
 
         {/* AI Feedback Section */}
-        <div className="bg-white rounded-2xl p-8 shadow-lg mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                AI-Powered Insights
-              </h2>
-              <p className="text-gray-600">
-                Get personalized explanations for each question
-              </p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <Card className="border-border/50 bg-card overflow-hidden">
+            <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/50">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                  <Sparkles className="w-6 h-6 text-purple-500" />
+                  AI Insights
+                </h2>
+                <p className="text-muted-foreground">Get personalized feedback on your answers</p>
+              </div>
+              <Button
+                onClick={generateAllFeedback}
+                disabled={generatingFeedback || sessionFeedback.size > 0}
+                className="bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-500/20"
+              >
+                {generatingFeedback ? "Analyzing..." : sessionFeedback.size > 0 ? "Feedback Ready" : "Generate Feedback"}
+              </Button>
             </div>
-            <Button
-              onClick={generateAllFeedback}
-              disabled={generatingFeedback || sessionFeedback.size > 0}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-            >
-              {generatingFeedback ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                  Generating Feedback...
-                </>
-              ) : sessionFeedback.size > 0 ? (
-                <>
-                  <CheckCircle className="w-4 h-4 mr-2" />
-                  Feedback Generated
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 mr-2" />
-                  Generate AI Feedback
-                </>
-              )}
-            </Button>
-          </div>
 
-          {sessionFeedback.size > 0 && (
-            <div className="space-y-4">
-              {results.map((result, index) => {
-                const feedback = sessionFeedback.get(result.question_id);
-                if (!feedback) return null;
+            <div className="p-6 bg-muted/30">
+              {sessionFeedback.size > 0 ? (
+                <div className="space-y-4">
+                  {results.map((result, index) => {
+                    const feedback = sessionFeedback.get(result.question_id);
+                    if (!feedback) return null;
+                    const isExpanded = expandedQuestion === result.question_id;
 
-                const isExpanded = expandedQuestion === result.question_id;
-
-                return (
-                  <div
-                    key={result.question_id}
-                    className="border-2 rounded-xl overflow-hidden transition-all"
-                    style={{
-                      borderColor: result.is_correct ? "#86efac" : "#fca5a5",
-                    }}
-                  >
-                    <button
-                      onClick={() =>
-                        setExpandedQuestion(
-                          isExpanded ? null : result.question_id
-                        )
-                      }
-                      className="w-full p-4 bg-gradient-to-r from-gray-50 to-white hover:from-gray-100 hover:to-gray-50 transition-colors text-left flex items-center justify-between"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            result.is_correct ? "bg-green-100" : "bg-red-100"
-                          }`}
-                        >
-                          {result.is_correct ? (
-                            <CheckCircle className="w-5 h-5 text-green-600" />
-                          ) : (
-                            <XCircle className="w-5 h-5 text-red-600" />
-                          )}
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-gray-800">
-                            Question {index + 1}: {result.topic_name}
-                          </h3>
-                          <p className="text-sm text-gray-600">
-                            {result.is_correct ? "Correct" : "Incorrect"}
-                          </p>
-                        </div>
-                      </div>
-                      <svg
-                        className={`w-5 h-5 text-gray-600 transition-transform ${
-                          isExpanded ? "rotate-180" : ""
+                    return (
+                      <div 
+                        key={result.question_id}
+                        className={`border rounded-xl overflow-hidden transition-all duration-200 bg-card ${
+                          isExpanded ? 'ring-2 ring-primary/20 border-primary/50' : 'border-border hover:border-border/80'
                         }`}
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
                       >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </button>
-
-                    {isExpanded && (
-                      <div className="p-4 bg-white">
-                        <AIFeedbackDisplay
-                          feedback={feedback}
-                          isCorrect={result.is_correct}
-                        />
+                        <button
+                          onClick={() => setExpandedQuestion(isExpanded ? null : result.question_id)}
+                          className="w-full p-4 flex items-center justify-between gap-4 text-left"
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+                              result.is_correct ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
+                            }`}>
+                              {result.is_correct ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+                            </div>
+                            <div>
+                              <p className="font-medium text-foreground">Question {index + 1}</p>
+                              <p className="text-sm text-muted-foreground">{result.topic_name}</p>
+                            </div>
+                          </div>
+                          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                        </button>
+                        
+                        <AnimatePresence>
+                          {isExpanded && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="border-t border-border/50"
+                            >
+                              <div className="p-4">
+                                <AIFeedbackDisplay feedback={feedback} isCorrect={result.is_correct} />
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
                       </div>
-                    )}
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Sparkles className="w-8 h-8 text-purple-500" />
                   </div>
-                );
-              })}
+                  <p className="text-muted-foreground">
+                    Tap "Generate Feedback" to unlock deep insights into your performance.
+                  </p>
+                </div>
+              )}
             </div>
-          )}
+          </Card>
+        </motion.div>
 
-          {sessionFeedback.size === 0 && !generatingFeedback && (
-            <div className="text-center py-8 text-gray-500">
-              <Sparkles className="w-12 h-12 mx-auto mb-3 text-purple-300" />
-              <p>
-                Click &quot;Generate AI Feedback&quot; to get personalized
-                insights for all questions
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Actions */}
-        <div className="flex gap-4 justify-center">
+        {/* Footer Actions */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="flex flex-col sm:flex-row gap-4 justify-center pt-8"
+        >
           <Button
             variant="outline"
             size="lg"
             onClick={() => router.push(`/practice/${sessionId}`)}
-            className="px-8"
+            className="min-w-[200px]"
           >
-            Review Session
+            Review Questions
           </Button>
           <Button
             size="lg"
             onClick={() => router.push("/dashboard/study-plan")}
-            className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 px-8"
+            className="min-w-[200px]"
           >
-            Back to Study Plan
+            Return to Dashboard
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

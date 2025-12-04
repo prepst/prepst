@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { useStudyPlan } from "@/hooks/queries";
+import { useMockExams } from "@/hooks/queries/useMockExams";
 import { getSessionStatus } from "@/lib/utils/session-utils";
 import type { PracticeSession } from "@/lib/types";
 import { useDeleteStudyPlan } from "@/hooks/mutations";
+import { isSameWeek } from "date-fns";
 import {
   Dialog,
   DialogContent,
@@ -48,7 +50,7 @@ function sortSessionsInSection(sessions: TodoSession[]): TodoSession[] {
 }
 
 // Helper function to categorize sessions into sections
-function categorizeSessions(sessions: PracticeSession[]): TodoSectionType[] {
+function categorizeSessions(sessions: PracticeSession[], mockExams: any[] = []): TodoSectionType[] {
   // Convert all sessions to TodoSession with priority
   const allSessions: TodoSession[] = sessions.map((session) => {
     const status = getSessionStatus(session);
@@ -75,8 +77,32 @@ function categorizeSessions(sessions: PracticeSession[]): TodoSectionType[] {
     allSessions.slice(firstHalfCount)
   );
 
-  // Create mock test sessions
-  const mockSession: TodoSession = {
+  // Process Mock Exams for "This Week"
+  const now = new Date();
+  const thisWeekMockExams = mockExams.filter(exam => {
+      const examDate = exam.started_at ? new Date(exam.started_at) : new Date(exam.created_at);
+      return isSameWeek(examDate, now);
+  });
+
+  const thisWeekMockTodos: TodoSession[] = thisWeekMockExams.map(exam => ({
+     id: exam.id,
+     study_plan_id: sessions[0]?.study_plan_id || "mock", 
+     scheduled_date: exam.created_at,
+     session_number: 0,
+     status: exam.status === "completed" ? "completed" : exam.status === "in_progress" ? "in-progress" : "upcoming",
+     started_at: exam.started_at,
+     completed_at: exam.completed_at,
+     created_at: exam.created_at,
+     updated_at: exam.updated_at,
+     topics: [],
+     total_questions: exam.total_questions || 98,
+     completed_questions: exam.completed_questions || 0,
+     score: exam.total_score,
+     examType: "mock-exam"
+  }));
+
+  // Create default mock test session placeholder
+  const defaultMockSession: TodoSession = {
     id: "mock-test",
     study_plan_id: sessions[0]?.study_plan_id || "",
     scheduled_date: new Date().toISOString(),
@@ -89,7 +115,14 @@ function categorizeSessions(sessions: PracticeSession[]): TodoSectionType[] {
     topics: [],
     total_questions: 98,
     completed_questions: 0,
+    examType: "mock-exam"
   };
+
+  // If we have real mocks this week, use them. Otherwise use default placeholder.
+  // We also append the default placeholder if all current mocks are completed, 
+  // encouraging another one (optional, but sticking to "show what I did" logic + "what to do")
+  // For now, let's just show the list if not empty, else the placeholder.
+  const mock1Todos = thisWeekMockTodos.length > 0 ? thisWeekMockTodos : [defaultMockSession];
 
   return [
     {
@@ -102,7 +135,7 @@ function categorizeSessions(sessions: PracticeSession[]): TodoSectionType[] {
       id: "mock-1",
       title: "Mock Test",
       icon: "🎯",
-      todos: [mockSession],
+      todos: mock1Todos,
     },
     {
       id: "next-week",
@@ -114,7 +147,7 @@ function categorizeSessions(sessions: PracticeSession[]): TodoSectionType[] {
       id: "mock-2",
       title: "Mock Test",
       icon: "🎯",
-      todos: [{ ...mockSession, id: "mock-test-2" }],
+      todos: [{ ...defaultMockSession, id: "mock-test-2" }],
     },
   ];
 }
@@ -122,6 +155,7 @@ function categorizeSessions(sessions: PracticeSession[]): TodoSectionType[] {
 function StudyPlanContent() {
   const router = useRouter();
   const { data: studyPlan, isLoading, error, refetch } = useStudyPlan();
+  const { data: mockExamsData } = useMockExams();
   
   // ALL HOOKS MUST BE CALLED BEFORE ANY EARLY RETURNS
   const deleteStudyPlanMutation = useDeleteStudyPlan();
@@ -138,9 +172,9 @@ function StudyPlanContent() {
   // to preserve manual drag-and-drop ordering
   useEffect(() => {
     if (studyPlan?.study_plan?.sessions) {
-      setSections(categorizeSessions(studyPlan.study_plan.sessions));
+      setSections(categorizeSessions(studyPlan.study_plan.sessions, mockExamsData?.exams));
     }
-  }, [studyPlan?.study_plan?.id, studyPlan?.study_plan?.sessions?.length]);
+  }, [studyPlan?.study_plan?.id, studyPlan?.study_plan?.sessions?.length, mockExamsData?.exams]);
 
   if (isLoading) {
     return (

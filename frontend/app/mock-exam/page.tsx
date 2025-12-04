@@ -6,9 +6,10 @@ import { Button } from '@/components/ui/button';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { supabase } from '@/lib/supabase';
 import { config } from '@/lib/config';
-import { Clock, BookOpen, TrendingUp, AlertCircle } from 'lucide-react';
+import { Clock, BookOpen, TrendingUp, AlertCircle, Play, ChevronRight, CheckCircle, XCircle } from 'lucide-react';
 import { components } from '@/lib/types/api.generated';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 
 type MockExam = components['schemas']['MockExamListItem'];
 
@@ -99,136 +100,148 @@ function MockExamContent() {
   };
 
   const getStatusBadge = (status: string) => {
-    const styles = {
-      not_started: 'bg-gray-100 text-gray-700',
-      in_progress: 'bg-blue-100 text-blue-700',
-      completed: 'bg-green-100 text-green-700',
-      abandoned: 'bg-red-100 text-red-700',
+    const config = {
+      not_started: { 
+        label: 'Not Started', 
+        className: 'bg-muted text-muted-foreground border-muted-foreground/20' 
+      },
+      in_progress: { 
+        label: 'In Progress', 
+        className: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800' 
+      },
+      completed: { 
+        label: 'Completed', 
+        className: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800' 
+      },
+      abandoned: { 
+        label: 'Abandoned', 
+        className: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800' 
+      },
     };
 
-    const labels = {
-      not_started: 'Not Started',
-      in_progress: 'In Progress',
-      completed: 'Completed',
-      abandoned: 'Abandoned',
-    };
+    const style = config[status as keyof typeof config] || config.not_started;
 
     return (
-      <span
-        className={`px-3 py-1 rounded-full text-xs font-semibold ${
-          styles[status as keyof typeof styles] || styles.not_started
-        }`}
-      >
-        {labels[status as keyof typeof labels] || status}
-      </span>
+      <Badge variant="outline" className={`${style.className} font-medium`}>
+        {style.label}
+      </Badge>
     );
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 p-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-background py-12 px-6">
+      <div className="max-w-7xl mx-auto space-y-12">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Mock SAT Exam</h1>
-          <p className="text-gray-600">
-            Take a full-length practice test that mimics the real SAT experience
+        <div className="space-y-4">
+          <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Mock SAT Exam</h1>
+          <p className="text-lg text-muted-foreground max-w-2xl">
+            Take a full-length practice test that mimics the real SAT experience. 
+            Challenge yourself under timed conditions to assess your readiness.
           </p>
         </div>
 
         {/* Info Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                <Clock className="w-5 h-5 text-blue-600" />
-              </div>
-              <h3 className="font-semibold text-gray-900">2 Hours 8 Minutes</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="group bg-card rounded-3xl p-8 shadow-sm border border-border hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
+            <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <Clock className="w-7 h-7 text-blue-600 dark:text-blue-400" />
             </div>
-            <p className="text-sm text-gray-600">Total test time</p>
+            <h3 className="text-xl font-bold text-foreground mb-2">2 Hours 14 Minutes</h3>
+            <p className="text-muted-foreground leading-relaxed">
+              Full length simulation including timed breaks, matching the official test duration.
+            </p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-purple-600" />
-              </div>
-              <h3 className="font-semibold text-gray-900">4 Modules</h3>
+          <div className="group bg-card rounded-3xl p-8 shadow-sm border border-border hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
+            <div className="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <BookOpen className="w-7 h-7 text-purple-600 dark:text-purple-400" />
             </div>
-            <p className="text-sm text-gray-600">2 Math, 2 Reading & Writing</p>
+            <h3 className="text-xl font-bold text-foreground mb-2">4 Modules</h3>
+            <p className="text-muted-foreground leading-relaxed">
+              2 Reading & Writing modules and 2 Math modules covering all key topics.
+            </p>
           </div>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-green-600" />
-              </div>
-              <h3 className="font-semibold text-gray-900">Adaptive Testing</h3>
+          <div className="group bg-card rounded-3xl p-8 shadow-sm border border-border hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
+            <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <TrendingUp className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
             </div>
-            <p className="text-sm text-gray-600">Difficulty adjusts based on performance</p>
+            <h3 className="text-xl font-bold text-foreground mb-2">Adaptive Testing</h3>
+            <p className="text-muted-foreground leading-relaxed">
+               Module 2 difficulty adapts based on your performance in Module 1, just like the real SAT.
+            </p>
           </div>
         </div>
 
         {/* Start New Exam */}
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-200 mb-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Start New Mock Exam</h2>
-          <p className="text-gray-600 mb-6">
-            This is a full-length SAT practice test. Make sure you have 2+ hours available
-            and a quiet environment. The test includes 4 modules with strict time limits.
-          </p>
-          <Button
-            onClick={createMockExam}
-            disabled={isCreating}
-            size="lg"
-            className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-lg px-8"
-          >
-            {isCreating ? 'Creating Exam...' : 'Start Mock Exam'}
-          </Button>
+        <div className="relative overflow-hidden bg-card rounded-[2.5rem] p-8 md:p-12 shadow-lg border border-border/50">
+          <div className="absolute top-0 right-0 -mt-20 -mr-20 w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
+          
+          <div className="relative z-10 max-w-2xl">
+            <h2 className="text-3xl font-bold text-foreground mb-4">Ready to start?</h2>
+            <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+              Ensure you have at least 2 hours and 14 minutes available in a quiet environment. 
+              Once started, the timer cannot be paused.
+            </p>
+            
+            <div className="flex flex-wrap gap-4">
+              <Button
+                onClick={createMockExam}
+                disabled={isCreating}
+                size="lg"
+                className="h-14 px-8 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
+              >
+                {isCreating ? (
+                  <>Creating Exam...</>
+                ) : (
+                  <>
+                    <Play className="w-5 h-5 mr-2 fill-current" />
+                    Start Mock Exam
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-8 flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-            <p className="text-red-800">{error}</p>
+          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center gap-3 text-red-600 dark:text-red-400">
+            <AlertCircle className="w-5 h-5 flex-shrink-0" />
+            <p className="font-medium">{error}</p>
           </div>
         )}
 
         {/* Previous Exams */}
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Previous Exams</h2>
+        <div className="space-y-6">
+          <h2 className="text-2xl font-bold text-foreground">Previous Exams</h2>
 
           {isLoading ? (
             <div className="space-y-4">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1 space-y-3">
-                      <div className="flex items-center gap-3">
-                        <Skeleton className="h-6 w-40" />
-                        <Skeleton className="h-6 w-24 rounded-full" />
-                      </div>
-                      <Skeleton className="h-4 w-64" />
-                      <div className="flex gap-6">
-                        <Skeleton className="h-6 w-24" />
-                        <Skeleton className="h-6 w-16" />
-                        <Skeleton className="h-6 w-28" />
-                      </div>
+                <div key={i} className="bg-card rounded-2xl p-6 border border-border">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 w-full">
+                       <Skeleton className="w-12 h-12 rounded-xl" />
+                       <div className="space-y-2 flex-1">
+                          <Skeleton className="h-5 w-48" />
+                          <Skeleton className="h-4 w-32" />
+                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Skeleton className="h-9 w-28" />
-                      <Skeleton className="h-9 w-28" />
-                    </div>
+                    <Skeleton className="h-10 w-28 rounded-lg" />
                   </div>
                 </div>
               ))}
             </div>
           ) : exams.length === 0 ? (
-            <div className="bg-white rounded-xl p-12 text-center shadow-sm border border-gray-200">
-              <BookOpen className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                No exams yet
+            <div className="bg-muted/20 rounded-3xl border-2 border-dashed border-border p-16 text-center">
+              <div className="w-20 h-20 bg-background rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <BookOpen className="w-10 h-10 text-muted-foreground" />
+              </div>
+              <h3 className="text-xl font-bold text-foreground mb-2">
+                No exams taken yet
               </h3>
-              <p className="text-gray-600">
-                Start your first mock exam to see your progress here
+              <p className="text-muted-foreground max-w-sm mx-auto">
+                Your exam history will appear here once you complete your first mock test.
               </p>
             </div>
           ) : (
@@ -236,62 +249,85 @@ function MockExamContent() {
               {exams.map((exam) => (
                 <div
                   key={exam.id}
-                  className="bg-white rounded-xl p-6 shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+                  className="group bg-card rounded-2xl p-6 border border-border shadow-sm hover:shadow-md transition-all duration-200 hover:scale-[1.01] cursor-pointer"
+                  onClick={() => {
+                    if (exam.status === 'completed') router.push(`/mock-exam/${exam.id}/results`);
+                    if (exam.status === 'in_progress') router.push(`/mock-exam/${exam.id}`);
+                  }}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">
-                          Mock Exam
-                        </h3>
-                        {getStatusBadge(exam.status)}
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex items-start gap-5">
+                      {/* Status Icon */}
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0
+                        ${exam.status === 'completed' ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 
+                          exam.status === 'in_progress' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' : 
+                          'bg-gray-500/10 text-gray-500'}
+                      `}>
+                         {exam.status === 'completed' ? <CheckCircle className="w-6 h-6" /> :
+                          exam.status === 'in_progress' ? <Play className="w-6 h-6 fill-current" /> :
+                          <AlertCircle className="w-6 h-6" />}
                       </div>
-                      <p className="text-sm text-gray-600 mb-3">
-                        Started: {exam.started_at ? formatDate(exam.started_at) : 'Not started'}
-                        {exam.completed_at && ` • Completed: ${formatDate(exam.completed_at)}`}
-                      </p>
 
-                      {exam.status === 'completed' && exam.total_score && (
-                        <div className="flex items-center gap-6">
-                          <div>
-                            <p className="text-sm text-gray-600">Total Score</p>
-                            <p className="text-2xl font-bold text-gray-900">
-                              {exam.total_score}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-600">Math</p>
-                            <p className="text-xl font-semibold text-gray-900">
-                              {exam.math_score}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-sm text-gray-600">Reading & Writing</p>
-                            <p className="text-xl font-semibold text-gray-900">
-                              {exam.rw_score}
-                            </p>
-                          </div>
+                      <div>
+                        <div className="flex items-center gap-3 mb-1">
+                          <h3 className="text-lg font-bold text-foreground">
+                            Mock Exam
+                          </h3>
+                          {getStatusBadge(exam.status)}
                         </div>
-                      )}
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Started {exam.started_at ? formatDate(exam.started_at) : 'Unknown date'}
+                          {exam.completed_at && ` • Finished ${formatDate(exam.completed_at)}`}
+                        </p>
+
+                        {exam.status === 'completed' && exam.total_score && (
+                          <div className="flex flex-wrap items-center gap-x-8 gap-y-2 mt-2">
+                            <div>
+                              <span className="text-xs uppercase tracking-wider font-bold text-muted-foreground block">Total Score</span>
+                              <span className="text-2xl font-black text-foreground">{exam.total_score}</span>
+                            </div>
+                            <div className="h-8 w-px bg-border hidden sm:block" />
+                            <div className="flex gap-6">
+                              <div>
+                                <span className="text-xs font-medium text-muted-foreground block">Math</span>
+                                <span className="text-lg font-bold text-foreground">{exam.math_score}</span>
+                              </div>
+                              <div>
+                                <span className="text-xs font-medium text-muted-foreground block">Reading & Writing</span>
+                                <span className="text-lg font-bold text-foreground">{exam.rw_score}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex items-center justify-end gap-3 mt-4 md:mt-0">
                       {exam.status === 'completed' && (
                         <Button
                           variant="outline"
-                          onClick={() => router.push(`/mock-exam/${exam.id}/results`)}
+                          className="rounded-xl"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/mock-exam/${exam.id}/results`);
+                          }}
                         >
                           View Results
                         </Button>
                       )}
                       {exam.status === 'in_progress' && (
                         <Button
-                          onClick={() => router.push(`/mock-exam/${exam.id}`)}
-                          className="bg-blue-600 hover:bg-blue-700"
+                          className="rounded-xl"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push(`/mock-exam/${exam.id}`);
+                          }}
                         >
-                          Resume
+                          Resume Exam
+                          <ChevronRight className="w-4 h-4 ml-2" />
                         </Button>
                       )}
+                      <ChevronRight className="w-5 h-5 text-muted-foreground/50 hidden md:block group-hover:text-foreground transition-colors" />
                     </div>
                   </div>
                 </div>

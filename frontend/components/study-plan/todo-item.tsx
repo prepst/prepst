@@ -89,7 +89,7 @@ export function TodoItem({ todo, onToggle }: TodoItemProps) {
   const status = getSessionStatus(todo);
   const progress = getSessionProgress(todo);
   const { emoji, className } = getSessionStyle(todo);
-  const isMockTest = todo.id === "mock-test" || todo.id === "mock-test-2";
+  const isMockTest = todo.examType === "mock-exam" || todo.id === "mock-test" || todo.id === "mock-test-2";
   const sessionName = isMockTest ? "Full-Length Mock Test" : (generateSessionName(todo) || `Session ${todo.session_number || 1}`);
   const timeEstimate = isMockTest ? "~2 hr 14 min" : formatTimeEstimate(estimateSessionTime(todo) || 30);
 
@@ -98,11 +98,25 @@ export function TodoItem({ todo, onToggle }: TodoItemProps) {
   const handleClick = () => {
     if (status !== "completed") {
       // Check if this is a mock test session
-      if (todo.id === "mock-test" || todo.id === "mock-test-2") {
+      if (isMockTest) {
+        // If it has a specific UUID (real mock exam), go to that, otherwise go to landing
+        if (todo.id !== "mock-test" && todo.id !== "mock-test-2") {
+           // For real mock exams, we might want to view results if completed
+           if (status === "completed") {
+             router.push(`/mock-exam/${todo.id}/results`);
+             return;
+           }
+           // If in progress, resume
+           router.push(`/mock-exam/${todo.id}`);
+           return;
+        }
         router.push("/mock-exam");
       } else {
         router.push(`/practice/${todo.id}`);
       }
+    } else if (isMockTest && todo.score !== undefined) {
+        // Allow clicking completed mock exams to view results
+        router.push(`/mock-exam/${todo.id}/results`);
     }
   };
 
@@ -127,9 +141,9 @@ export function TodoItem({ todo, onToggle }: TodoItemProps) {
     <div
       className={`group relative mb-3 rounded-2xl border border-border bg-card p-5 transition-all duration-300 
         ${isMockTest ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-800/30" : "hover:shadow-md hover:scale-[1.01] hover:border-primary/20"}
-        ${completed ? "opacity-60 grayscale-[0.5]" : "cursor-pointer"}
+        ${completed && !isMockTest ? "opacity-60 grayscale-[0.5]" : "cursor-pointer"}
       `}
-      onClick={!completed ? handleClick : undefined}
+      onClick={handleClick}
     >
       <div className="flex items-start gap-4">
         {/* Icon */}
@@ -140,9 +154,18 @@ export function TodoItem({ todo, onToggle }: TodoItemProps) {
         {/* Content */}
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1">
-             <h3 className={`text-base font-bold text-foreground truncate pr-2 ${completed ? "line-through decoration-2 decoration-muted-foreground/50" : ""}`}>
-                {sessionName}
-             </h3>
+             <div className="flex flex-col">
+                <h3 className={`text-base font-bold text-foreground truncate pr-2 ${completed && !isMockTest ? "line-through decoration-2 decoration-muted-foreground/50" : ""}`}>
+                    {sessionName}
+                </h3>
+                {todo.score !== undefined && (
+                   <div className="mt-1">
+                     <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-100 border-0">
+                        Score: {todo.score}
+                     </Badge>
+                   </div>
+                )}
+             </div>
              {getPriorityBadge()}
           </div>
 
@@ -181,7 +204,7 @@ export function TodoItem({ todo, onToggle }: TodoItemProps) {
                   </span>
                </div>
                
-               {!completed && (
+               {(!completed || isMockTest) && (
                  <ChevronRight className="w-4 h-4 text-muted-foreground/50 group-hover:text-primary transition-colors group-hover:translate-x-0.5" />
                )}
             </div>

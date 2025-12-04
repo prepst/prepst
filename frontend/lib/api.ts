@@ -769,6 +769,20 @@ export const api = {
     return response.json();
   },
 
+  async getMockExams(): Promise<{ exams: any[] }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${config.apiUrl}/api/mock-exams/`, {
+      headers,
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || "Failed to fetch mock exams");
+    }
+
+    return response.json();
+  },
+
   async getMockExamAnalytics(): Promise<MockExamAnalytics> {
     const headers = await getAuthHeaders();
     const response = await fetch(

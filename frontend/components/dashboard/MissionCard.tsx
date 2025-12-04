@@ -117,11 +117,6 @@ export default function MissionCard({ session, isLoading, onStart }: MissionCard
                     </div>
                 </div>
             </div>
-            
-            {/* Progress Bar at bottom */}
-            <div className="absolute bottom-0 left-0 w-full h-1 bg-muted">
-                <div className="h-full bg-gradient-to-r from-purple-500 to-blue-500 w-[0%]" />
-            </div>
         </motion.div>
     );
 }

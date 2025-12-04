@@ -99,7 +99,8 @@ const StatCard = ({ item }: StatCardProps) => {
         >
             <motion.div
                 className={`
-                    group relative flex flex-col justify-between h-full rounded-2xl p-6
+                    group relative flex flex-col justify-between h-full w-full rounded-2xl p-5
+                    aspect-[1/1]
                     bg-gradient-to-br ${theme.bg}
                     border ${theme.border}
                     backdrop-blur-sm
@@ -121,45 +122,45 @@ const StatCard = ({ item }: StatCardProps) => {
                     <div className={`absolute -bottom-10 -left-10 w-32 h-32 bg-${item.color}-500 rounded-full blur-3xl`}></div>
                 </div>
 
-                <div className="relative z-10 flex items-start justify-between mb-4">
-                    <div className={`p-3 rounded-xl ${theme.iconBg} shadow-lg text-white transform transition-transform group-hover:rotate-6`}>
-                        <item.icon className="w-6 h-6" />
+                <div className="relative z-10 flex items-start justify-between mb-3">
+                    <div className={`p-2.5 rounded-xl ${theme.iconBg} shadow-lg text-white transform transition-transform group-hover:rotate-6`}>
+                        <item.icon className="w-5 h-5" />
                     </div>
                     {item.progress !== undefined && (
-                         <div className="relative w-12 h-12 flex items-center justify-center">
+                         <div className="relative w-10 h-10 flex items-center justify-center">
                             <svg className="transform -rotate-90 w-full h-full">
                                 <circle
-                                    cx="24"
-                                    cy="24"
-                                    r="20"
+                                    cx="20"
+                                    cy="20"
+                                    r="16"
                                     stroke="currentColor"
-                                    strokeWidth="4"
+                                    strokeWidth="3"
                                     fill="transparent"
                                     className={`${theme.text} opacity-20`}
                                 />
                                 <circle
-                                    cx="24"
-                                    cy="24"
-                                    r="20"
+                                    cx="20"
+                                    cy="20"
+                                    r="16"
                                     stroke="currentColor"
-                                    strokeWidth="4"
+                                    strokeWidth="3"
                                     fill="transparent"
-                                    strokeDasharray={2 * Math.PI * 20}
-                                    strokeDashoffset={2 * Math.PI * 20 * (1 - item.progress / 100)}
+                                    strokeDasharray={2 * Math.PI * 16}
+                                    strokeDashoffset={2 * Math.PI * 16 * (1 - item.progress / 100)}
                                     className={theme.text}
                                 />
                             </svg>
-                            <span className={`absolute text-[10px] font-bold ${theme.text}`}>{Math.round(item.progress)}%</span>
+                            <span className={`absolute text-[9px] font-bold ${theme.text}`}>{Math.round(item.progress)}%</span>
                         </div>
                     )}
                 </div>
 
                 <div className="relative z-10">
-                    <h3 className={`text-sm font-medium ${theme.text} mb-1`}>{item.label}</h3>
-                    <div className="flex items-baseline gap-2">
-                        <span className="text-3xl font-bold text-foreground">{item.value}</span>
+                    <h3 className={`text-xs font-medium ${theme.text} mb-0.5`}>{item.label}</h3>
+                    <div className="flex items-baseline gap-1.5">
+                        <span className="text-2xl font-bold text-foreground">{item.value}</span>
                     </div>
-                     <p className={`text-xs mt-1 opacity-80 ${theme.text}`}>{item.subValue}</p>
+                     <p className={`text-[11px] mt-0.5 opacity-80 ${theme.text}`}>{item.subValue}</p>
                 </div>
             </motion.div>
         </motion.div>
@@ -233,7 +234,7 @@ export default function DashboardStatsBento({
     ];
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
             {stats.map((item) => (
                 <StatCard key={item.id} item={item} />
             ))}

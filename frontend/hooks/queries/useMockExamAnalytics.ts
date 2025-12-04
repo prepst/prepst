@@ -16,7 +16,7 @@ import { queryKeys } from "@/lib/query-keys";
 export function useMockExamAnalytics() {
   return useQuery({
     queryKey: queryKeys.adminAnalytics.mockExamAnalytics(),
-    queryFn: () => api.getMockExamPerformance(10),
+    queryFn: () => api.getMockExamAnalytics(),
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
   });

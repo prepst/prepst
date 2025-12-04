@@ -6,7 +6,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { config } from "@/lib/config";
-import { ClipboardList, TrendingUp, Clock, CheckCircle } from "lucide-react";
+import { ClipboardList, TrendingUp, Clock, CheckCircle2 } from "lucide-react";
 
 function DiagnosticTestLandingContent() {
   const router = useRouter();
@@ -48,123 +48,103 @@ function DiagnosticTestLandingContent() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 flex items-center justify-center p-6">
-      <div className="max-w-3xl w-full bg-white rounded-3xl shadow-xl p-10">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full mb-4">
-            <ClipboardList className="w-10 h-10 text-blue-600" />
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="max-w-3xl w-full bg-card rounded-[2rem] shadow-2xl border border-border/40 p-10 md:p-16 relative overflow-hidden">
+        {/* Background Accents */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+
+        <div className="relative z-10">
+          {/* Header */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-primary/10 rounded-[2rem] mb-6 rotate-3 hover:rotate-0 transition-transform duration-300">
+              <ClipboardList className="w-12 h-12 text-primary" />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4 tracking-tight">
+              Diagnostic Test
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+              Establish your baseline mastery across all SAT topics to unlock your personalized learning path.
+            </p>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-3">
-            Diagnostic Test
-          </h1>
-          <p className="text-lg text-gray-600">
-            Establish your baseline mastery across all SAT topics
-          </p>
-        </div>
 
-        {/* What to Expect */}
-        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            What to Expect
-          </h2>
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <ClipboardList className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+          {/* Features Grid */}
+          <div className="grid md:grid-cols-2 gap-4 mb-12">
+            <div className="bg-accent/30 p-6 rounded-2xl border border-border/50 flex items-start gap-4 hover:bg-accent/50 transition-colors">
+              <div className="p-2.5 bg-background rounded-xl shadow-sm">
+                <ClipboardList className="w-5 h-5 text-primary" />
+              </div>
               <div>
-                <p className="font-medium text-gray-900">40 Questions Total</p>
-                <p className="text-sm text-gray-600">
-                  20 Math and 20 Reading & Writing questions
+                <h3 className="font-semibold text-foreground mb-1">40 Questions</h3>
+                <p className="text-sm text-muted-foreground">
+                  Comprehensive coverage of Math and Reading & Writing.
                 </p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <Clock className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+
+            <div className="bg-accent/30 p-6 rounded-2xl border border-border/50 flex items-start gap-4 hover:bg-accent/50 transition-colors">
+              <div className="p-2.5 bg-background rounded-xl shadow-sm">
+                <Clock className="w-5 h-5 text-blue-500" />
+              </div>
               <div>
-                <p className="font-medium text-gray-900">No Time Limit</p>
-                <p className="text-sm text-gray-600">
-                  Take your time and answer thoughtfully
+                <h3 className="font-semibold text-foreground mb-1">No Time Limit</h3>
+                <p className="text-sm text-muted-foreground">
+                  Take your time to answer thoughtfully and accurately.
                 </p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <TrendingUp className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+
+            <div className="bg-accent/30 p-6 rounded-2xl border border-border/50 flex items-start gap-4 hover:bg-accent/50 transition-colors">
+              <div className="p-2.5 bg-background rounded-xl shadow-sm">
+                <TrendingUp className="w-5 h-5 text-green-500" />
+              </div>
               <div>
-                <p className="font-medium text-gray-900">
-                  Establishes Baseline Mastery
-                </p>
-                <p className="text-sm text-gray-600">
-                  Your results determine initial mastery levels for personalized
-                  study plans
+                <h3 className="font-semibold text-foreground mb-1">Baseline Mastery</h3>
+                <p className="text-sm text-muted-foreground">
+                  Determines your starting level for adaptive practice.
                 </p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
+
+            <div className="bg-accent/30 p-6 rounded-2xl border border-border/50 flex items-start gap-4 hover:bg-accent/50 transition-colors">
+              <div className="p-2.5 bg-background rounded-xl shadow-sm">
+                <CheckCircle2 className="w-5 h-5 text-orange-500" />
+              </div>
               <div>
-                <p className="font-medium text-gray-900">
-                  Adaptive Learning Starts Here
-                </p>
-                <p className="text-sm text-gray-600">
-                  Your performance helps us identify which topics need more
-                  attention
+                <h3 className="font-semibold text-foreground mb-1">Smart Calibration</h3>
+                <p className="text-sm text-muted-foreground">
+                  Identifies your strengths and areas for improvement.
                 </p>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Instructions */}
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            Instructions
-          </h2>
-          <ul className="space-y-2 text-gray-700">
-            <li className="flex items-start gap-2">
-              <span className="text-blue-600 font-bold">•</span>
-              <span>
-                Answer all questions to the best of your ability
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-600 font-bold">•</span>
-              <span>
-                You can navigate between questions and mark them for review
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-600 font-bold">•</span>
-              <span>
-                Your answers are saved automatically as you progress
-              </span>
-            </li>
-            <li className="flex items-start gap-2">
-              <span className="text-blue-600 font-bold">•</span>
-              <span>
-                Results will show your mastery level for each topic
-              </span>
-            </li>
-          </ul>
-        </div>
-
-        {/* CTA */}
-        <div className="flex gap-4">
-          <Button
-            onClick={handleCreateTest}
-            disabled={isCreating}
-            size="lg"
-            className="flex-1 text-lg h-14"
-          >
-            {isCreating ? "Creating..." : "Start Diagnostic Test"}
-          </Button>
-          <Button
-            onClick={() => router.push("/dashboard")}
-            variant="outline"
-            size="lg"
-            className="flex-1 text-lg h-14"
-          >
-            Back to Dashboard
-          </Button>
+          {/* CTA */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              onClick={handleCreateTest}
+              disabled={isCreating}
+              size="lg"
+              className="h-14 px-8 text-lg font-semibold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:-translate-y-0.5"
+            >
+              {isCreating ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                  Creating Test...
+                </>
+              ) : (
+                "Start Diagnostic"
+              )}
+            </Button>
+            <Button
+              onClick={() => router.push("/dashboard")}
+              variant="outline"
+              size="lg"
+              className="h-14 px-8 text-lg border-2 hover:bg-accent text-muted-foreground hover:text-foreground"
+            >
+              Back to Dashboard
+            </Button>
+          </div>
         </div>
       </div>
     </div>

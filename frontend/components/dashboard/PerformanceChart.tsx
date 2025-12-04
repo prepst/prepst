@@ -49,7 +49,10 @@ export function PerformanceChart() {
     return data.recent_exams.map((exam) => {
       const date = new Date(exam.completed_at);
       return {
-        date: date.toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+        date: date.toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+        }),
         math: exam.math_score || 0,
         rw: exam.rw_score || 0,
       };
@@ -61,7 +64,8 @@ export function PerformanceChart() {
     if (chartData.length < 2) return null;
 
     const firstTotal = chartData[0].math + chartData[0].rw;
-    const lastTotal = chartData[chartData.length - 1].math + chartData[chartData.length - 1].rw;
+    const lastTotal =
+      chartData[chartData.length - 1].math + chartData[chartData.length - 1].rw;
     const percentChange = ((lastTotal - firstTotal) / firstTotal) * 100;
 
     return {
@@ -71,9 +75,7 @@ export function PerformanceChart() {
   }, [chartData]);
 
   return (
-    <Card 
-      className="p-8 rounded-2xl border-border shadow-sm bg-card"
-    >
+    <Card className="p-8 rounded-2xl border-border shadow-sm bg-card">
       <CardHeader>
         <div className="flex items-center gap-3 mb-2">
           <div className="p-2 bg-green-500/10 rounded-lg">
@@ -98,8 +100,12 @@ export function PerformanceChart() {
           </div>
         ) : chartData.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground">
-            <p className="text-lg font-medium mb-2">No mock exams completed yet</p>
-            <p className="text-sm">Complete a mock exam to see your performance here</p>
+            <p className="text-lg font-medium mb-2">
+              No mock exams completed yet
+            </p>
+            <p className="text-sm">
+              Complete a mock exam to see your performance here
+            </p>
           </div>
         ) : (
           <ChartContainer config={chartConfig}>
@@ -123,26 +129,38 @@ export function PerformanceChart() {
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                domain={['dataMin', 700]}
+                domain={["dataMin", 700]}
                 tick={{ fill: "hsl(var(--muted-foreground))" }}
               />
-              <Legend 
+              <Legend
                 formatter={(value) => {
-                  return <span className="text-foreground">{chartConfig[value as keyof typeof chartConfig]?.label || value}</span>;
+                  return (
+                    <span className="text-foreground">
+                      {chartConfig[value as keyof typeof chartConfig]?.label ||
+                        value}
+                    </span>
+                  );
                 }}
               />
-              <ChartTooltip
-                cursor={false}
-                content={<ChartTooltipContent />}
-              />
+              <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
               <Line
                 dataKey="math"
                 type="monotone"
                 stroke="var(--color-math)"
                 strokeWidth={2}
                 strokeOpacity={0.6}
-                dot={{ fill: "var(--color-math)", stroke: "var(--color-math)", r: 4, fillOpacity: 0.2, strokeOpacity: 0.4 }}
-                label={{ position: "top", fill: "var(--color-math)", fontSize: 12 }}
+                dot={{
+                  fill: "var(--color-math)",
+                  stroke: "var(--color-math)",
+                  r: 4,
+                  fillOpacity: 0.2,
+                  strokeOpacity: 0.4,
+                }}
+                label={{
+                  position: "top",
+                  fill: "var(--color-math)",
+                  fontSize: 12,
+                }}
               />
               <Line
                 dataKey="rw"
@@ -150,8 +168,18 @@ export function PerformanceChart() {
                 stroke="var(--color-rw)"
                 strokeWidth={2}
                 strokeOpacity={0.6}
-                dot={{ fill: "var(--color-rw)", stroke: "var(--color-rw)", r: 4, fillOpacity: 0.2, strokeOpacity: 0.4 }}
-                label={{ position: "top", fill: "var(--color-rw)", fontSize: 12 }}
+                dot={{
+                  fill: "var(--color-rw)",
+                  stroke: "var(--color-rw)",
+                  r: 4,
+                  fillOpacity: 0.2,
+                  strokeOpacity: 0.4,
+                }}
+                label={{
+                  position: "top",
+                  fill: "var(--color-rw)",
+                  fontSize: 12,
+                }}
               />
             </LineChart>
           </ChartContainer>
@@ -163,12 +191,18 @@ export function PerformanceChart() {
             <div className="grid gap-2">
               {trend && (
                 <div className="flex items-center gap-2 leading-none font-medium text-foreground">
-                  {trend.direction === "up" ? "Trending up" : "Trending down"} by {trend.percentage.toFixed(1)}%{" "}
-                  <TrendingUp className={`h-4 w-4 ${trend.direction === "down" ? "rotate-180" : ""}`} />
+                  {trend.direction === "up" ? "Trending up" : "Trending down"}{" "}
+                  by {trend.percentage.toFixed(1)}%{" "}
+                  <TrendingUp
+                    className={`h-4 w-4 ${
+                      trend.direction === "down" ? "rotate-180" : ""
+                    }`}
+                  />
                 </div>
               )}
               <div className="text-muted-foreground flex items-center gap-2 leading-none">
-                Based on {chartData.length} completed mock exam{chartData.length !== 1 ? "s" : ""}
+                Based on {chartData.length} completed mock exam
+                {chartData.length !== 1 ? "s" : ""}
               </div>
             </div>
           </div>

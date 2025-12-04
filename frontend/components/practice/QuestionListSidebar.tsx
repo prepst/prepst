@@ -1,4 +1,4 @@
-import { X, Check } from 'lucide-react';
+import { X, Check, Flag } from 'lucide-react';
 import type { SessionQuestion, AnswerState } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -42,6 +42,7 @@ export function QuestionListSidebar({
           const isAnswered = answer?.status === 'answered';
           const isCorrect = answer?.isCorrect === true;
           const isWrong = answer?.isCorrect === false;
+          const isMarked = answer?.isMarkedForReview;
 
           return (
             <button
@@ -51,6 +52,8 @@ export function QuestionListSidebar({
                 group w-full p-3 rounded-xl text-left transition-all duration-200 border
                 ${isCurrent 
                   ? 'border-primary/50 bg-primary/5 ring-1 ring-primary/20 shadow-sm' 
+                  : isMarked
+                  ? 'border-orange-500/30 bg-orange-500/5'
                   : isCorrect
                   ? 'border-green-500/20 bg-green-500/5 hover:bg-green-500/10'
                   : isWrong
@@ -67,10 +70,8 @@ export function QuestionListSidebar({
                     flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-mono font-medium transition-colors
                     ${isCurrent
                       ? 'bg-primary text-primary-foreground'
-                      : isCorrect
-                      ? 'bg-green-500/20 text-green-600 dark:text-green-400'
-                      : isWrong
-                      ? 'bg-destructive/20 text-destructive'
+                      : isAnswered
+                      ? 'bg-secondary text-secondary-foreground'
                       : 'bg-muted text-muted-foreground group-hover:bg-muted/80'
                     }
                   `}>
@@ -101,7 +102,8 @@ export function QuestionListSidebar({
                 </div>
 
                 {/* Status Indicator */}
-                <div className="shrink-0">
+                <div className="shrink-0 flex items-center gap-1">
+                   {isMarked && <Flag className="w-4 h-4 text-orange-500 fill-orange-500" />}
                   {isCorrect && <Check className="w-4 h-4 text-green-500" />}
                   {isWrong && <X className="w-4 h-4 text-destructive" />}
                   {isCurrent && !isAnswered && (

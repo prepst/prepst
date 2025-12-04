@@ -1,9 +1,10 @@
 "use client";
 
-import { 
+import {
   useStudyPlan,
   useGrowthCurve,
   useSkillHeatmap,
+  useMockExamAnalytics,
 } from "@/hooks/queries";
 import { LineChart } from "@/components/charts/LineChart";
 import { RadarChart } from "@/components/charts/RadarChart";
@@ -18,17 +19,18 @@ export default function ProgressPage() {
   const { data: studyPlan, isLoading: studyPlanLoading } = useStudyPlan();
   const growthCurveQuery = useGrowthCurve(undefined, 30);
   const heatmapQuery = useSkillHeatmap();
+  const {
+    data: mockExamData,
+    isLoading: mockExamLoading,
+    isError: mockExamError,
+  } = useMockExamAnalytics();
 
   // Derive data from queries
   const growthData = growthCurveQuery.data?.data || [];
   const heatmap = heatmapQuery.data?.heatmap || {};
-  
+
   // Combined loading state
   const chartsLoading = growthCurveQuery.isLoading || heatmapQuery.isLoading;
-  
-  // Mock exam and predictive data (TODO: create hooks for these)
-  const mockExamData = null;
-  const predictiveData = null;
 
   if (studyPlanLoading) {
     return (
@@ -45,7 +47,10 @@ export default function ProgressPage() {
                 <Skeleton className="h-6 w-96" />
               </div>
               {/* MagicBento Grid Skeleton */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 p-3" style={{ fontSize: 'clamp(1rem, 0.9rem + 0.5vw, 1.5rem)' }}>
+              <div
+                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 p-3"
+                style={{ fontSize: "clamp(1rem, 0.9rem + 0.5vw, 1.5rem)" }}
+              >
                 <Skeleton className="h-[200px] rounded-[20px]" />
                 <Skeleton className="h-[200px] rounded-[20px]" />
                 <Skeleton className="h-[200px] rounded-[20px] lg:col-span-2 lg:row-span-2 lg:h-[412px]" />
@@ -289,10 +294,29 @@ export default function ProgressPage() {
                   Mock Exam Performance
                 </h2>
                 <div className="bg-card border border-border rounded-2xl p-8">
-                  {mockExamData && (mockExamData as any).recent_exams?.length > 0 ? (
+                  {mockExamLoading ? (
+                    <div className="space-y-4">
+                      <Skeleton className="h-8 w-40" />
+                      <Skeleton className="h-72 w-full rounded-xl" />
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {Array.from({ length: 4 }).map((_, idx) => (
+                          <Skeleton key={idx} className="h-24 rounded-lg" />
+                        ))}
+                      </div>
+                    </div>
+                  ) : mockExamError ? (
+                    <div className="flex flex-col items-center justify-center h-80 text-muted-foreground">
+                      <h3 className="text-lg font-medium text-foreground mb-2">
+                        Unable to load mock exam data
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Please try again in a moment.
+                      </p>
+                    </div>
+                  ) : mockExamData && mockExamData.recent_exams?.length > 0 ? (
                     <div>
                       <LineChart
-                        data={(mockExamData as any).recent_exams.map((exam: any) => ({
+                        data={mockExamData.recent_exams.map((exam) => ({
                           ...exam,
                           date: new Date(exam.completed_at).toLocaleDateString(
                             "en-US",
@@ -317,28 +341,36 @@ export default function ProgressPage() {
                       {/* Mock Exam Summary Stats */}
                       <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="bg-muted/50 rounded-lg p-4 text-center">
-                          <p className="text-sm text-muted-foreground">Total Exams</p>
+                          <p className="text-sm text-muted-foreground">
+                            Total Exams
+                          </p>
                           <p className="text-2xl font-bold text-foreground">
-                            {(mockExamData as any).total_exams}
+                            {mockExamData.total_exams}
                           </p>
                         </div>
                         <div className="bg-muted/50 rounded-lg p-4 text-center">
-                          <p className="text-sm text-muted-foreground">Average Score</p>
+                          <p className="text-sm text-muted-foreground">
+                            Average Score
+                          </p>
                           <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                            {Math.round((mockExamData as any).avg_total_score)}
+                            {Math.round(mockExamData.avg_total_score)}
                           </p>
                         </div>
                         <div className="bg-muted/50 rounded-lg p-4 text-center">
-                          <p className="text-sm text-muted-foreground">Improvement</p>
+                          <p className="text-sm text-muted-foreground">
+                            Improvement
+                          </p>
                           <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                            {(mockExamData as any).improvement_velocity > 0 ? "+" : ""}
-                            {Math.round((mockExamData as any).improvement_velocity)} pts
+                            {mockExamData.improvement_velocity > 0 ? "+" : ""}
+                            {Math.round(mockExamData.improvement_velocity)} pts
                           </p>
                         </div>
                         <div className="bg-muted/50 rounded-lg p-4 text-center">
-                          <p className="text-sm text-muted-foreground">Readiness</p>
+                          <p className="text-sm text-muted-foreground">
+                            Readiness
+                          </p>
                           <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                            {(mockExamData as any).readiness_score}/100
+                            {mockExamData.readiness_score}/100
                           </p>
                         </div>
                       </div>

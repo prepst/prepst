@@ -4,12 +4,11 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStudyPlan, useMockExamAnalytics } from "@/hooks/queries";
 import { useAuth } from "@/contexts/AuthContext";
-import { PerformanceChart } from "@/components/dashboard/PerformanceChart";
+import { useProfile } from "@/lib/hooks/useProfile";
 import { ProgressOverview } from "@/components/dashboard/ProgressOverview";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { Play, Target, Sparkles, ArrowRight, Clock, X } from "lucide-react";
-import DashboardStatsBento from "@/components/dashboard/DashboardStatsBento";
 import MissionCard from "@/components/dashboard/MissionCard";
 import QuickActionsGrid from "@/components/dashboard/QuickActionsGrid";
 import RecommendationCard from "@/components/dashboard/RecommendationCard";
@@ -28,6 +27,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { data: studyPlan, isLoading } = useStudyPlan();
   const { user } = useAuth();
+  const { profileData } = useProfile();
   const [showTimeSelection, setShowTimeSelection] = useState(false);
   const { isDarkMode } = useTheme();
 
@@ -125,11 +125,24 @@ export default function DashboardPage() {
           nextSessionRaw.session_name ||
           `Session ${nextSessionRaw.session_number}`,
         scheduled_date: nextSessionRaw.scheduled_date,
-        duration_minutes: nextSessionRaw.total_questions
-          ? Math.round(nextSessionRaw.total_questions * 2)
-          : 30, // Estimate 2 min per question
+        duration_minutes: (() => {
+          const qCount =
+            nextSessionRaw.total_questions ||
+            nextSessionRaw.topics?.reduce(
+              (sum: number, t: any) => sum + (t.num_questions || 0),
+              0
+            ) ||
+            0;
+          return qCount ? Math.round(qCount * 2) : 30;
+        })(),
         status: nextSessionRaw.status,
-        num_questions: nextSessionRaw.total_questions || 0,
+        num_questions:
+          nextSessionRaw.total_questions ||
+          nextSessionRaw.topics?.reduce(
+            (sum: number, t: any) => sum + (t.num_questions || 0),
+            0
+          ) ||
+          0,
       } as SessionForMissionCard)
     : undefined;
 
@@ -139,12 +152,10 @@ export default function DashboardPage() {
   const questionsDone = 42; // TODO: Fetch real questions done
   const mockExamsCount = mockExamPerformance.length;
 
-  const heroBgClass = isDarkMode
-    ? "bg-[#0F172A]"
-    : "bg-gradient-to-br from-cyan-50 to-purple-50";
+  const heroBgClass = isDarkMode ? "bg-[#0F172A]" : "bg-[#fec76f]";
   const heroTextColorClass = isDarkMode ? "text-white" : "text-foreground";
-  const heroBlursPrimary = isDarkMode ? "bg-purple-600/30" : "bg-purple-200/50";
-  const heroBlursSecondary = isDarkMode ? "bg-blue-600/30" : "bg-cyan-200/50";
+  const heroBlursPrimary = isDarkMode ? "bg-purple-600/30" : "bg-orange-200/50";
+  const heroBlursSecondary = isDarkMode ? "bg-blue-600/30" : "bg-orange-200/50";
 
   return (
     <div className="min-h-screen bg-background/50">
@@ -285,7 +296,13 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span className="text-5xl font-bold">1450</span>
+                  <span className="text-5xl font-bold">
+                    {profileData?.stats?.target_math_score &&
+                    profileData?.stats?.target_rw_score
+                      ? profileData.stats.target_math_score +
+                        profileData.stats.target_rw_score
+                      : "---"}
+                  </span>
                   <span className="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-1">
                     Target Score
                   </span>
@@ -294,16 +311,13 @@ export default function DashboardPage() {
             </div>
           </motion.div>
 
-          {/* Stats Bento Grid */}
-          <DashboardStatsBento
-            streak={streak}
-            studyTime={studyTime}
-            questionsDone={questionsDone}
-            mockExams={mockExamsCount}
-          />
+          {/* Quick Actions Grid */}
+          <div className="mb-8">
+            <QuickActionsGrid />
+          </div>
 
           {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Mission Card (Next Session) */}
             <div className="lg:col-span-2 space-y-6">
               <div className="flex items-center justify-between">
@@ -335,14 +349,6 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-
-            {/* Sidebar Area */}
-            <div className="space-y-6">
-              <h3 className="text-xl font-bold text-foreground">
-                Quick Actions
-              </h3>
-              <QuickActionsGrid />
-            </div>
           </div>
 
           {/* Analytics Section */}
@@ -352,12 +358,6 @@ export default function DashboardPage() {
               mockExamPerformance={mockExamPerformance}
               mockExamData={mockExamData}
             />
-          </div>
-
-          {/* Detailed Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <PerformanceChart />
-            {/* Can add another chart here or keep it empty/full width */}
           </div>
         </div>
       </div>

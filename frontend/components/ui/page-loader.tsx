@@ -6,10 +6,10 @@ interface PageLoaderProps {
 
 export function PageLoader({ message = 'Loading...' }: PageLoaderProps) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
-      <div className="text-center">
-        <LoadingSpinner size="xl" className="mx-auto mb-4" />
-        <p className="text-gray-700 font-medium">{message}</p>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center bg-card/50 backdrop-blur-xl p-10 rounded-3xl border border-border/50 shadow-2xl animate-in fade-in zoom-in-95 duration-500">
+        <LoadingSpinner size="xl" className="mx-auto mb-6 text-primary" />
+        <p className="text-muted-foreground font-medium text-lg animate-pulse">{message}</p>
       </div>
     </div>
   );

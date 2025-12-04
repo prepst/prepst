@@ -51,9 +51,11 @@ export default function MockProgressPage() {
           {/* Mock Exam Performance */}
           <section className="bg-card rounded-3xl p-8 border border-border shadow-sm">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-2xl font-bold text-foreground">Performance Trend</h2>
+              <h2 className="text-2xl font-bold text-foreground">
+                Performance Trend
+              </h2>
             </div>
-            
+
             {mockExamData && mockExamData.recent_exams.length > 0 ? (
               <div className="space-y-10">
                 <div className="h-[400px] w-full">
@@ -84,48 +86,53 @@ export default function MockProgressPage() {
                 {/* Mock Exam Summary Stats */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   <div className="bg-muted/30 rounded-2xl p-6 hover:bg-muted/50 transition-colors border border-transparent hover:border-border group">
-                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Total Exams</p>
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                      Total Exams
+                    </p>
                     <p className="text-3xl font-black text-foreground group-hover:scale-105 transition-transform origin-left">
-                      {mockExamData.total_count}
+                      {mockExamData.total_exams}
                     </p>
                   </div>
-                  
+
                   <div className="bg-muted/30 rounded-2xl p-6 hover:bg-muted/50 transition-colors border border-transparent hover:border-border group">
-                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Average Score</p>
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                      Average Score
+                    </p>
                     <p className="text-3xl font-black text-blue-600 dark:text-blue-400 group-hover:scale-105 transition-transform origin-left">
-                      {mockExamData.recent_exams.length > 0
-                        ? Math.round(
-                            mockExamData.recent_exams.reduce(
-                              (sum, exam) => sum + exam.total_score,
-                              0
-                            ) / mockExamData.recent_exams.length
-                          )
-                        : 0}
+                      {Math.round(
+                        mockExamData.avg_total_score ??
+                          (mockExamData.recent_exams.length > 0
+                            ? mockExamData.recent_exams.reduce(
+                                (sum, exam) => sum + exam.total_score,
+                                0
+                              ) / mockExamData.recent_exams.length
+                            : 0)
+                      )}
                     </p>
                   </div>
-                  
+
                   <div className="bg-muted/30 rounded-2xl p-6 hover:bg-muted/50 transition-colors border border-transparent hover:border-border group">
-                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Improvement</p>
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                      Improvement
+                    </p>
                     <p className="text-3xl font-black text-green-600 dark:text-green-400 group-hover:scale-105 transition-transform origin-left">
-                      {mockExamData.recent_exams.length >= 2
-                        ? (() => {
-                            const scores = mockExamData.recent_exams.map(
-                              (e) => e.total_score
-                            );
-                            const improvement =
-                              scores[scores.length - 1] - scores[0];
-                            return improvement > 0 ? `+${Math.round(improvement)}` : Math.round(improvement);
-                          })()
-                        : "—"}
-                      <span className="text-lg font-medium text-muted-foreground ml-1">pts</span>
+                      {mockExamData.improvement_velocity > 0 ? "+" : ""}
+                      {Math.round(mockExamData.improvement_velocity)}
+                      <span className="text-lg font-medium text-muted-foreground ml-1">
+                        pts
+                      </span>
                     </p>
                   </div>
-                  
+
                   <div className="bg-muted/30 rounded-2xl p-6 hover:bg-muted/50 transition-colors border border-transparent hover:border-border group">
-                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Latest Score</p>
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">
+                      Latest Score
+                    </p>
                     <p className="text-3xl font-black text-purple-600 dark:text-purple-400 group-hover:scale-105 transition-transform origin-left">
                       {mockExamData.recent_exams.length > 0
-                        ? mockExamData.recent_exams[mockExamData.recent_exams.length - 1].total_score
+                        ? mockExamData.recent_exams[
+                            mockExamData.recent_exams.length - 1
+                          ].total_score
                         : "—"}
                     </p>
                   </div>
@@ -153,7 +160,8 @@ export default function MockProgressPage() {
                     No Data Available
                   </h3>
                   <p className="text-muted-foreground mb-6 leading-relaxed">
-                    Complete your first mock exam to unlock detailed performance analytics and trend tracking.
+                    Complete your first mock exam to unlock detailed performance
+                    analytics and trend tracking.
                   </p>
                 </div>
               </div>

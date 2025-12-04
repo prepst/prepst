@@ -172,8 +172,8 @@ export default function DashboardLayout({
         },
       ],
     },
-    { name: "Manim", href: "/dashboard/manim", icon: Video },
-    { name: "Notebook", href: "/dashboard/notebook", icon: Notebook },
+    // { name: "Manim", href: "/dashboard/manim", icon: Video },
+    // { name: "Notebook", href: "/dashboard/notebook", icon: Notebook },
   ];
 
   // Add admin analytics link if user is admin
@@ -232,7 +232,7 @@ export default function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="flex items-start gap-6">
+      <div className="flex items-start gap-4 lg:gap-5">
         {/* Mobile Overlay */}
         {isMobile && isMobileMenuOpen && !isSidebarCollapsed && (
           <div
@@ -568,7 +568,9 @@ export default function DashboardLayout({
         {/* Main Content Area */}
         <main
           className={`flex-1 min-w-0 overflow-x-hidden ${
-            isMobile ? "pt-4 px-4" : "pt-6 px-6"
+            isMobile
+              ? "pt-4 px-4"
+              : "pt-6 px-6 lg:max-w-5xl xl:max-w-6xl mx-auto w-full"
           }`}
         >
           {children}
@@ -576,7 +578,7 @@ export default function DashboardLayout({
 
         {/* Right Statistics Panel - COMMENTED OUT */}
 
-        <div className="hidden lg:block pl-3 pr-4 pt-6">
+        <div className="hidden lg:block pl-3 pr-0 pt-6">
           <StatisticsPanel
             userName={getDisplayName()}
             progressPercentage={32}

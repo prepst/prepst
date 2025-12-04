@@ -99,7 +99,7 @@ export function StatisticsPanel({
   const realProgressPercentage = calculateProgressPercentage();
 
   // Get real mock exams count from analytics
-  const mockExamsCount = mockExamAnalytics?.total_count || 0;
+  const mockExamsCount = mockExamAnalytics?.total_exams || 0;
 
   // Calculate questions done per week
   // Use total_questions_answered from profile stats and estimate weekly average

@@ -27,6 +27,7 @@ import {
   Zap,
   BookOpen,
   PenTool,
+  Trash2,
 } from "lucide-react";
 import { api } from "@/lib/api";
 import { ChatMessageAPI } from "@/lib/types";
@@ -36,44 +37,20 @@ import { useTheme } from "@/contexts/ThemeContext";
 
 const suggestionGroups = [
   {
-    label: "Study Help",
-    icon: BookOpen,
-    color: "text-blue-500",
-    bg: "bg-blue-500/10",
+    label: "Work on math",
     items: [
-      "Help me understand this concept",
-      "Help me solve this problem",
-      "Create a study plan for me",
+      "Walk me through a SAT math question",
+      "Create 5 algebra practice problems",
+      "Explain this math concept step by step",
     ],
   },
   {
-    label: "Practice",
-    icon: Zap,
-    color: "text-amber-500",
-    bg: "bg-amber-500/10",
+    label: "Improve English",
     items: [
-      "Give me a math problem",
-      "Quiz me on history",
-      "Practice vocabulary",
+      "Help me outline an essay",
+      "Quiz me on reading comprehension",
+      "Give me vocabulary practice",
     ],
-  },
-  {
-    label: "Explain",
-    icon: Sparkles,
-    color: "text-purple-500",
-    bg: "bg-purple-500/10",
-    items: [
-      "Explain like I'm 5",
-      "Summarize this topic",
-      "Key concepts explanation",
-    ],
-  },
-  {
-    label: "Writing",
-    icon: PenTool,
-    color: "text-pink-500",
-    bg: "bg-pink-500/10",
-    items: ["Proofread my essay", "Generate an outline", "Brainstorm ideas"],
   },
 ];
 
@@ -109,8 +86,12 @@ export default function ChatPage() {
 
   // Save messages to local storage whenever they change
   useEffect(() => {
-    if (typeof window !== "undefined" && messages.length > 0) {
+    if (typeof window === "undefined") return;
+
+    if (messages.length > 0) {
       localStorage.setItem("peppa-chat-messages", JSON.stringify(messages));
+    } else {
+      localStorage.removeItem("peppa-chat-messages");
     }
   }, [messages]);
 
@@ -208,6 +189,14 @@ export default function ChatPage() {
     setInputMessage(value);
   };
 
+  const handleClearChat = () => {
+    setMessages([]);
+    setInputMessage("");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("peppa-chat-messages");
+    }
+  };
+
   useEffect(() => {
     const chatContainer = document.querySelector(".chat-scroll-area");
     if (chatContainer) {
@@ -216,7 +205,7 @@ export default function ChatPage() {
   }, [messages, isStreaming]);
 
   return (
-    <div className="relative flex h-[calc(100vh-4rem)] flex-col bg-background/50 overflow-hidden">
+    <div className="relative flex min-h-screen flex-col bg-background/50 overflow-x-hidden">
       {/* Background Ambient Glow */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <div className="absolute -top-[20%] -right-[10%] h-[500px] w-[500px] rounded-full bg-purple-500/10 blur-[100px]" />
@@ -240,10 +229,22 @@ export default function ChatPage() {
             </p>
           </div>
         </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="gap-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            onClick={handleClearChat}
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete chat
+          </Button>
+        </div>
       </div>
 
       {/* Messages Area */}
-      <ChatContainerRoot className="chat-scroll-area relative z-10 flex-1 overflow-y-auto scroll-smooth pb-4">
+      <ChatContainerRoot className="chat-scroll-area relative z-10 flex-1 max-h-[calc(100vh-200px)] overflow-y-auto scroll-smooth pb-4">
         <ChatContainerContent className="mx-auto w-full max-w-4xl px-4 py-8">
           <AnimatePresence initial={false} mode="popLayout">
             {messages.length === 0 ? (
@@ -270,22 +271,17 @@ export default function ChatPage() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
-                      className="group relative overflow-hidden rounded-2xl border border-border/50 bg-card/50 p-6 text-left transition-all hover:border-purple-500/30 hover:shadow-lg hover:shadow-purple-500/5"
+                      className="group relative overflow-hidden rounded-xl border border-border/60 bg-card/80 p-4 text-left transition-all hover:border-foreground/15 hover:shadow-md hover:shadow-foreground/5"
                     >
-                      <div
-                        className={`mb-4 inline-flex rounded-lg p-2 ${group.bg} ${group.color}`}
-                      >
-                        <group.icon className="h-5 w-5" />
-                      </div>
-                      <h3 className="mb-2 font-semibold text-foreground">
+                      <h3 className="mb-2 text-base font-semibold text-foreground">
                         {group.label}
                       </h3>
-                      <div className="space-y-2">
+                      <div className="space-y-1">
                         {group.items.map((item) => (
                           <button
                             key={item}
                             onClick={() => handleSuggestionClick(item)}
-                            className="block w-full rounded-md px-2 py-1.5 text-left text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                            className="block w-full rounded-md px-2 py-1 text-left text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
                           >
                             {item}
                           </button>
@@ -368,7 +364,7 @@ export default function ChatPage() {
       </ChatContainerRoot>
 
       {/* Input Area */}
-      <div className="relative z-20 px-4 pb-6 pt-2">
+      <div className="sticky bottom-0 left-0 right-0 z-20 px-4 pb-6 pt-2 bg-background/90 backdrop-blur-xl border-t border-border/40">
         <div className="mx-auto w-full max-w-3xl">
           <div className="relative rounded-[24px] bg-background/80 p-2 shadow-2xl backdrop-blur-xl border border-border/50 ring-1 ring-black/5 dark:ring-white/5 transition-all duration-200 focus-within:ring-2 focus-within:ring-purple-500/20 focus-within:border-purple-500/30">
             <PromptInput

@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Trash2, Calendar } from "lucide-react";
 import {
   TodoSection as TodoSectionType,
   TodoSession,
@@ -144,44 +144,31 @@ function StudyPlanContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen p-6">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-8">
-            <Skeleton className="h-8 w-48 mb-4" />
-            <div className="flex items-center gap-4">
-              <Skeleton className="h-9 w-24" />
-              <Skeleton className="h-9 w-28" />
-              <Skeleton className="h-9 w-20" />
-              <div className="ml-auto flex items-center gap-2">
-                <Skeleton className="h-9 w-28" />
-                <Skeleton className="h-9 w-28" />
-              </div>
-            </div>
+      <div className="min-h-screen bg-background py-12 px-6">
+        <div className="mx-auto max-w-7xl space-y-12">
+          <div className="space-y-4">
+            <Skeleton className="h-12 w-64 rounded-xl" />
+            <Skeleton className="h-6 w-96 rounded-lg" />
+          </div>
+          
+          <div className="flex items-center gap-4">
+             <Skeleton className="h-10 w-24 rounded-lg" />
+             <Skeleton className="h-10 w-24 rounded-lg" />
           </div>
 
-          {/* Sections skeletons */}
-          <div className="space-y-6">
-            {Array.from({ length: 3 }).map((_, i) => (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="bg-card rounded-xl p-6 shadow-sm border border-border"
+                className="bg-card rounded-3xl p-8 shadow-sm border border-border space-y-6"
               >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-3">
-                    <Skeleton className="h-6 w-6 rounded-full" />
-                    <Skeleton className="h-6 w-40" />
-                  </div>
-                  <Skeleton className="h-6 w-20" />
+                <div className="flex items-center gap-4">
+                  <Skeleton className="h-12 w-12 rounded-2xl" />
+                  <Skeleton className="h-8 w-40 rounded-lg" />
                 </div>
-                <div className="space-y-3">
-                  {Array.from({ length: 4 }).map((_, j) => (
-                    <div key={j} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <Skeleton className="h-5 w-5 rounded" />
-                        <Skeleton className="h-5 w-64" />
-                      </div>
-                      <Skeleton className="h-8 w-24" />
-                    </div>
+                <div className="space-y-4">
+                  {Array.from({ length: 3 }).map((_, j) => (
+                    <Skeleton key={j} className="h-20 w-full rounded-2xl" />
                   ))}
                 </div>
               </div>
@@ -194,40 +181,26 @@ function StudyPlanContent() {
 
   if (error || !studyPlan) {
     return (
-      <div className="min-h-screen p-6">
-        <div className="mx-auto max-w-7xl">
-          <div className="min-h-[60vh] flex items-center justify-center">
-            <div className="max-w-md text-center space-y-4">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-500/10 rounded-full mb-2">
-                <svg
-                  className="w-8 h-8 text-purple-600 dark:text-purple-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
-                  />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-semibold text-foreground">
-                No Study Plan Yet
-              </h2>
-              <p className="text-muted-foreground">
-                Create a personalized study plan tailored to your SAT goals and
-                timeline.
-              </p>
-              <Button
-                onClick={() => router.push("/onboard")}
-                size="lg"
-                className="mt-4"
-              >
-                Create Study Plan
-              </Button>
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="w-full max-w-2xl text-center">
+          <div className="bg-card border border-border rounded-[2.5rem] p-12 shadow-xl">
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-primary/10 rounded-3xl mb-8">
+              <Calendar className="w-10 h-10 text-primary" />
             </div>
+            <h2 className="text-4xl font-extrabold tracking-tight text-foreground mb-4">
+              No Study Plan Yet
+            </h2>
+            <p className="text-lg text-muted-foreground mb-8 max-w-md mx-auto leading-relaxed">
+              Create a personalized study plan tailored to your SAT goals and
+              timeline to start your journey.
+            </p>
+            <Button
+              onClick={() => router.push("/onboard")}
+              size="lg"
+              className="h-12 px-8 text-base rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
+            >
+              Create Study Plan
+            </Button>
           </div>
         </div>
       </div>
@@ -268,128 +241,113 @@ function StudyPlanContent() {
   };
 
   return (
-    <>
-      <div className="flex justify-center">
-        <div className="w-full max-w-4xl px-4">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="mb-6 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <h1 className="text-foreground text-2xl font-bold">
-                  SAT Study Plan
-                </h1>
-              </div>
-
-              {/* <div className="flex items-center gap-4">
-                <div className="relative">
-                  <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
-                  <Input
-                    placeholder="Search sessions..."
-                    className="bg-background border-border w-64 pl-10"
-                  />
-                </div>
-              </div> */}
-            </div>
-
-            <div className="mb-6">
-              <p className="text-muted-foreground mb-4">
-                Your personalized SAT prep sessions •{" "}
-                {study_plan.sessions.length} total sessions
-              </p>
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2">
-                  <Button
-                    className="rounded-lg"
-                    size="sm"
-                    variant={activeFilter === "all" ? "default" : "outline"}
-                    onClick={() => setActiveFilter("all")}
-                  >
-                    View all
-                  </Button>
-                  <Button
-                    variant={
-                      activeFilter === "completed" ? "default" : "outline"
-                    }
-                    className="rounded-lg"
-                    size="sm"
-                    onClick={() => setActiveFilter("completed")}
-                  >
-                    Completed
-                  </Button>
-                </div>
-                <div className="ml-auto flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => router.push("/onboard")}
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    New Plan
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => setShowDeleteConfirm(true)}
-                  >
-                    Delete Plan
-                  </Button>
-                </div>
-              </div>
-            </div>
+    <div className="min-h-screen bg-background py-12 px-6">
+      <div className="mx-auto max-w-7xl">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+              SAT Study Plan
+            </h1>
+            <p className="text-lg text-muted-foreground">
+              Your personalized roadmap • {study_plan.sessions.length} sessions total
+            </p>
           </div>
 
-          {/* Todo Sections */}
-          {study_plan.sessions.length === 0 ? (
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">📚</div>
-              <h3 className="text-xl font-semibold mb-2 text-foreground">
-                No Practice Sessions
-              </h3>
-              <p className="text-muted-foreground mb-6">
-                Create your study plan to get started with personalized SAT
-                prep.
-              </p>
-              <Button onClick={() => router.push("/onboard")} size="lg">
-                <Plus className="w-4 h-4 mr-2" />
-                Create Study Plan
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="flex items-center bg-muted/30 p-1 rounded-xl border border-border/50">
+              <Button
+                className="rounded-lg shadow-none"
+                size="sm"
+                variant={activeFilter === "all" ? "default" : "ghost"}
+                onClick={() => setActiveFilter("all")}
+              >
+                All
+              </Button>
+              <Button
+                variant={activeFilter === "completed" ? "default" : "ghost"}
+                className="rounded-lg shadow-none"
+                size="sm"
+                onClick={() => setActiveFilter("completed")}
+              >
+                Completed
               </Button>
             </div>
-          ) : (
-            <div className="space-y-6">
-              {sections
-                .filter((section) => {
-                  // "completed" filter shows only completed sessions
-                  // "all" shows everything
-                  return true;
-                })
-                .map((section) => (
-                  <TodoSection
-                    key={section.id}
-                    section={section}
-                    onToggleTodo={handleToggleTodo}
-                    isDraggedOver={false}
-                  />
-                ))}
-            </div>
-          )}
+            
+            <div className="h-8 w-px bg-border/50 mx-2 hidden md:block" />
+
+            <Button
+              variant="outline"
+              className="rounded-xl border-border/60 hover:bg-muted/50"
+              onClick={() => router.push("/onboard")}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              New Plan
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-xl text-destructive hover:text-destructive hover:bg-destructive/10"
+              onClick={() => setShowDeleteConfirm(true)}
+            >
+              <Trash2 className="w-5 h-5" />
+            </Button>
+          </div>
         </div>
+
+        {/* Content */}
+        {study_plan.sessions.length === 0 ? (
+           <div className="bg-card border-2 border-dashed border-border rounded-[2.5rem] p-12 text-center">
+             <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-3xl mb-6">
+                <span className="text-4xl">📚</span>
+             </div>
+             <h3 className="text-2xl font-bold text-foreground mb-2">
+               No Practice Sessions
+             </h3>
+             <p className="text-muted-foreground mb-8 max-w-sm mx-auto">
+               It looks like your plan is empty. Create a new study plan to generate your personalized schedule.
+             </p>
+             <Button onClick={() => router.push("/onboard")} size="lg" className="rounded-xl">
+               <Plus className="w-4 h-4 mr-2" />
+               Create Study Plan
+             </Button>
+           </div>
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            {sections
+              .filter((section) => {
+                // "completed" filter shows only completed sessions
+                // "all" shows everything
+                return true;
+              })
+              .map((section) => (
+                <TodoSection
+                  key={section.id}
+                  section={section}
+                  onToggleTodo={handleToggleTodo}
+                  isDraggedOver={false}
+                />
+              ))}
+          </div>
+        )}
       </div>
 
       <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-md rounded-3xl border-border">
           <DialogHeader>
-            <DialogTitle>Delete Study Plan?</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-2xl font-bold">Delete Study Plan?</DialogTitle>
+            <DialogDescription className="text-base pt-2">
               This will permanently delete your study plan and all{" "}
-              {study_plan.sessions.length} practice sessions. This action cannot
-              be undone.
+              <span className="font-bold text-foreground">{study_plan.sessions.length} practice sessions</span>. 
+              This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button
               variant="outline"
               onClick={() => setShowDeleteConfirm(false)}
               disabled={isDeleting}
+              className="rounded-xl"
             >
               Cancel
             </Button>
@@ -397,13 +355,14 @@ function StudyPlanContent() {
               variant="destructive"
               onClick={handleDeletePlan}
               disabled={isDeleting}
+              className="rounded-xl"
             >
               {isDeleting ? "Deleting..." : "Delete Plan"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }
 

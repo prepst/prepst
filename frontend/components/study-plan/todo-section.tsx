@@ -23,28 +23,39 @@ export function TodoSection({
     id: section.id,
   });
 
-  const isMockSection = section.id === "mock-1" || section.id === "mock-2";
+  const isMockSection = section.id.startsWith("mock");
   
   return (
     <div
       ref={setNodeRef}
-      className={`rounded-xl border transition-colors ${
-        isMockSection 
-          ? "bg-blue-100 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800/50" 
-          : "bg-card border-border"
-      } ${isDraggedOver ? "border-primary bg-accent/50" : ""}`}
-      style={{ boxShadow: "5px 4px 30px 3px rgba(128, 128, 128, 0.2)" }}
+      className={`rounded-3xl border transition-all duration-300 group
+        ${isMockSection 
+          ? "bg-blue-50/50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800/30" 
+          : "bg-card border-border shadow-sm hover:shadow-md"
+        } 
+        ${isDraggedOver ? "ring-2 ring-primary ring-offset-2 bg-accent/50" : ""}
+      `}
     >
-      <div className="border-border flex items-center gap-2 border-b px-4 py-3">
-        <span className="text-xl">{section.icon}</span>
-        <h2 className="text-foreground text-sm font-semibold">
-          {section.title}
-        </h2>
-        <span className="text-muted-foreground ml-auto text-xs">
-          {section.todos.length}
-        </span>
+      {/* Header */}
+      <div className="p-6 border-b border-border/40 flex items-center gap-4">
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl transition-transform group-hover:scale-105
+          ${isMockSection ? "bg-blue-500/10 text-blue-600" : "bg-primary/10 text-primary"}
+        `}>
+          {section.icon}
+        </div>
+        
+        <div className="flex-1">
+          <h2 className="text-xl font-bold text-foreground tracking-tight">
+            {section.title}
+          </h2>
+          <p className="text-sm text-muted-foreground font-medium">
+            {section.todos.length} {section.todos.length === 1 ? "session" : "sessions"}
+          </p>
+        </div>
       </div>
-      <div className="p-2">
+
+      {/* Content */}
+      <div className="p-6 space-y-4">
         <SortableContext
           items={section.todos.map((todo) => todo.id)}
           strategy={verticalListSortingStrategy}
@@ -57,16 +68,23 @@ export function TodoSection({
             />
           ))}
         </SortableContext>
+        
         {section.todos.length === 0 && (
-          <div className="text-muted-foreground py-8 text-center text-sm">
+          <div className="bg-muted/20 rounded-2xl border-2 border-dashed border-border/50 py-8 px-4 text-center">
             {section.id.startsWith("mock") ? (
-              <div className="space-y-2">
-                <div className="text-4xl">🎯</div>
-                <div className="font-medium">Mock Test Coming Soon</div>
-                <div className="text-xs">Complete your practice sessions to unlock</div>
+              <div className="space-y-3">
+                <div className="w-12 h-12 bg-background rounded-xl flex items-center justify-center text-2xl mx-auto shadow-sm">
+                  🎯
+                </div>
+                <div>
+                   <div className="font-bold text-foreground">Mock Test Coming Soon</div>
+                   <div className="text-xs text-muted-foreground mt-1">Complete practice sessions to unlock</div>
+                </div>
               </div>
             ) : (
-              "No sessions in this section"
+              <div className="text-muted-foreground text-sm font-medium">
+                No sessions in this section
+              </div>
             )}
           </div>
         )}

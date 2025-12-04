@@ -18,6 +18,7 @@ import Image from "next/image";
 import { useProfile } from "@/hooks/queries";
 import { useStudyPlan } from "@/hooks/useStudyPlan";
 import { api } from "@/lib/api";
+import DashboardStatsBento from "@/components/dashboard/DashboardStatsBento";
 import {
   Clock,
   Target,
@@ -58,7 +59,7 @@ export function StatisticsPanel({
   const [studyStats, setStudyStats] = useState<StudyStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { data: profileData } = useProfile();
-  const { studyPlan } = useStudyPlan();
+  const { studyPlan, isLoading: isLoadingStudyPlan } = useStudyPlan();
 
   // Helper functions for profile display
   const getDisplayName = () => {
@@ -95,6 +96,12 @@ export function StatisticsPanel({
   };
 
   const realProgressPercentage = calculateProgressPercentage();
+
+  const mockExamsCount =
+    studyPlan?.study_plan?.sessions?.filter(
+      (s: any) =>
+        s.session_type === "mock-exam" || s.session_type === "mock_exam"
+    ).length || 0;
 
   useEffect(() => {
     const loadStudyStats = async () => {
@@ -163,7 +170,7 @@ export function StatisticsPanel({
   }
 
   return (
-    <div className="w-64 md:w-72 xl:w-80 p-4 md:p-5 flex-shrink-0 bg-card rounded-3xl shadow-sm border border-border">
+    <div className="w-full max-w-full p-4 md:p-5 bg-card rounded-3xl shadow-sm border border-border">
       <h2 className="text-3xl font-bold mb-8 text-card-foreground">
         Study Statistics
       </h2>
@@ -185,7 +192,18 @@ export function StatisticsPanel({
               </div>
             </div>
             <Badge className="absolute -top-2 -right-2 bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-1 text-sm font-bold rounded-full shadow-md">
-              {realProgressPercentage}%
+              {isLoadingStudyPlan ? (
+                <span
+                  className="inline-flex items-center justify-center"
+                  aria-label="Loading progress"
+                >
+                  <span className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
+                </span>
+              ) : !studyPlan ? (
+                "0%"
+              ) : (
+                `${realProgressPercentage}%`
+              )}
             </Badge>
           </div>
         </div>
@@ -205,61 +223,16 @@ export function StatisticsPanel({
           <h3 className="text-lg font-bold text-foreground mb-4">
             This Week's Activity
           </h3>
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <Card className="p-4 bg-blue-500/10 border-blue-500/20 shadow-none">
-              <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                <div>
-                  <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
-                    Study Time
-                  </p>
-                  <p className="text-lg font-bold text-blue-700 dark:text-blue-300">
-                    {Math.floor(studyStats.totalStudyTime / 60)}h{" "}
-                    {studyStats.totalStudyTime % 60}m
-                  </p>
-                </div>
-              </div>
-            </Card>
-            <Card className="p-4 bg-green-500/10 border-green-500/20 shadow-none">
-              <div className="flex items-center gap-3">
-                <Zap className="w-5 h-5 text-green-600 dark:text-green-400" />
-                <div>
-                  <p className="text-sm text-green-600 dark:text-green-400 font-medium">
-                    Current Streak
-                  </p>
-                  <p className="text-lg font-bold text-green-700 dark:text-green-300">
-                    {studyStats.currentStreak} days
-                  </p>
-                </div>
-              </div>
-            </Card>
-            <Card className="p-4 bg-purple-500/10 border-purple-500/20 shadow-none">
-              <div className="flex items-center gap-3">
-                <BookOpen className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-                <div>
-                  <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">
-                    Sessions
-                  </p>
-                  <p className="text-lg font-bold text-purple-700 dark:text-purple-300">
-                    {studyStats.sessionsCompleted}
-                  </p>
-                </div>
-              </div>
-            </Card>
-            <Card className="p-4 bg-orange-500/10 border-orange-500/20 shadow-none">
-              <div className="flex items-center gap-3">
-                <TrendingUp className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                <div>
-                  <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">
-                    Avg Score
-                  </p>
-                  <p className="text-lg font-bold text-orange-700 dark:text-orange-300">
-                    {studyStats.averageScore}%
-                  </p>
-                </div>
-              </div>
-            </Card>
-          </div>
+          <DashboardStatsBento
+            streak={studyStats.currentStreak}
+            studyTime={`${Math.floor(studyStats.totalStudyTime / 60)}h ${
+              studyStats.totalStudyTime % 60
+            }m`}
+            questionsDone={studyStats.sessionsCompleted}
+            mockExams={mockExamsCount}
+            studyTimeGoal="2h 0m"
+            questionsGoal={50}
+          />
 
           {/* Weekly Activity Chart */}
           <div className="mb-4">

@@ -349,19 +349,31 @@ function StudyPlanContent() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
             {sections
-              .filter((section) => {
-                // "completed" filter shows only completed sessions
-                // "all" shows everything
-                return true;
+              .map((section) => {
+                // Filter todos based on activeFilter
+                const filteredTodos =
+                  activeFilter === "completed"
+                    ? section.todos.filter((todo) => {
+                        const status = getSessionStatus(todo);
+                        return status === "completed";
+                      })
+                    : section.todos;
+
+                // Only show section if it has todos after filtering
+                if (filteredTodos.length === 0 && activeFilter === "completed") {
+                  return null;
+                }
+
+                return (
+                  <TodoSection
+                    key={section.id}
+                    section={{ ...section, todos: filteredTodos }}
+                    onToggleTodo={handleToggleTodo}
+                    isDraggedOver={false}
+                  />
+                );
               })
-              .map((section) => (
-                <TodoSection
-                  key={section.id}
-                  section={section}
-                  onToggleTodo={handleToggleTodo}
-                  isDraggedOver={false}
-                />
-              ))}
+              .filter(Boolean)}
           </div>
         )}
       </div>

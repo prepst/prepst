@@ -4,29 +4,38 @@ import { useState, useRef, useEffect } from "react";
 import { useProfile } from "@/hooks/queries";
 import { useUpdateProfile, useUploadProfilePhoto } from "@/hooks/mutations";
 import type { components } from "@/lib/types/api.generated";
-
-type UserProfileUpdate = components["schemas"]["UserProfileUpdate"];
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Camera, Edit2, Save, X, Target } from "lucide-react";
+import { Camera, Edit2, Save, X, Target, Mail, Phone, School, GraduationCap, BookOpen, Trophy, Clock, Zap, Calendar } from "lucide-react";
 import {
   ALLOWED_IMAGE_TYPES,
   MAX_IMAGE_SIZE_MB,
   GRADE_LEVELS,
 } from "@/lib/constants";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { PageLoader } from "@/components/ui/page-loader";
+import { motion } from "framer-motion";
+
+type UserProfileUpdate = components["schemas"]["UserProfileUpdate"];
 
 export default function ProfilePage() {
   const { user } = useAuth();
   const { data: profileData, isLoading, error } = useProfile();
   const updateProfileMutation = useUpdateProfile();
   const uploadPhotoMutation = useUploadProfilePhoto();
+  const router = useRouter();
 
-  // Helper functions for profile display
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedProfile, setEditedProfile] = useState<UserProfileUpdate>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  // Helper functions
   const getDisplayName = () => {
     if (!profileData) return "";
     const profile = profileData.profile;
@@ -45,15 +54,6 @@ export default function ProfilePage() {
     return displayName[0].toUpperCase();
   };
 
-  const [isEditing, setIsEditing] = useState(false);
-  const [editedProfile, setEditedProfile] = useState<UserProfileUpdate>({});
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [uploadingPhoto, setUploadingPhoto] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const router = useRouter();
-
   useEffect(() => {
     if (isEditing) {
       setErrorMessage(null);
@@ -63,11 +63,9 @@ export default function ProfilePage() {
 
   const handleEditToggle = () => {
     if (isEditing) {
-      // Cancel editing
       setEditedProfile({});
       setIsEditing(false);
     } else if (profileData?.profile) {
-      // Start editing with current profile data
       setEditedProfile({
         name: (profileData.profile as any).name ?? "",
         bio: profileData.profile.bio ?? "",
@@ -92,14 +90,12 @@ export default function ProfilePage() {
         setIsSaving(false);
       },
       onError: (err: any) => {
-        // Parse field-specific errors from the API response
         if (err.message && err.message.includes("phone_number")) {
           setFieldErrors({ phone_number: "Invalid phone number length" });
         } else if (err.message && err.message.includes("parent_email")) {
           setFieldErrors({ parent_email: "Invalid email address" });
         }
         
-        // Handle parsing errors for field validation
         if (err.message) {
           try {
             const errorData = JSON.parse(err.message);
@@ -126,13 +122,11 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file size (max 5MB)
     if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
       setErrorMessage(`File size must be less than ${MAX_IMAGE_SIZE_MB}MB`);
       return;
     }
 
-    // Validate file type
     if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
       setErrorMessage("Only JPEG, PNG, and WebP images are allowed");
       return;
@@ -142,9 +136,7 @@ export default function ProfilePage() {
     setErrorMessage(null);
     
     uploadPhotoMutation.mutate(file, {
-      onSuccess: () => {
-        setUploadingPhoto(false);
-      },
+      onSuccess: () => setUploadingPhoto(false),
       onError: (err) => {
         console.error("Failed to upload photo:", err);
         setErrorMessage("Failed to upload photo");
@@ -153,526 +145,424 @@ export default function ProfilePage() {
     });
   };
 
-  if (isLoading) {
+  if (isLoading) return <PageLoader message="Loading profile..." />;
+
+  if (error || !profileData?.profile) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading profile...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center p-8 bg-card border border-border rounded-2xl shadow-lg">
+          <h2 className="text-2xl font-bold mb-2">Unable to load profile</h2>
+          <p className="text-muted-foreground mb-6">
+            {error instanceof Error ? error.message : "Profile not found"}
+          </p>
+          <Button onClick={() => window.location.reload()}>Retry</Button>
         </div>
       </div>
     );
   }
 
-  if (error) {
-    const errorMessage = error instanceof Error ? error.message : "Failed to load profile";
-    return (
-      <div className="py-12">
-        <div className="max-w-md mx-auto text-center">
-          <h2 className="text-2xl font-semibold mb-4">Error</h2>
-          <p className="text-gray-600">{errorMessage}</p>
-        </div>
-      </div>
-    );
-  }
-
-  const { profile } = profileData || {};
-  if (!profile) {
-    return (
-      <div className="py-12">
-        <div className="max-w-md mx-auto text-center">
-          <h2 className="text-2xl font-semibold mb-4">Profile Not Found</h2>
-          <p className="text-gray-600">Unable to load profile information.</p>
-        </div>
-      </div>
-    );
-  }
+  const { profile } = profileData;
+  const stats = profileData.stats;
 
   return (
-    <div className="flex justify-center">
-      <div className="w-full max-w-4xl px-4 py-8">
-        <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
-            <p className="text-muted-foreground">
-              Manage your personal information
-            </p>
-          </div>
+    <div className="min-h-screen bg-background p-6 lg:p-10 overflow-x-hidden">
+      <div className="max-w-6xl mx-auto space-y-8">
+        
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-1"
+          >
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">Profile & Settings</h1>
+            <p className="text-muted-foreground text-lg">Manage your personal information and track your progress.</p>
+          </motion.div>
 
-          {errorMessage && (
-            <div
-              className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-              role="alert"
-            >
-              <strong className="font-bold">Error:</strong>
-              <span className="block sm:inline"> {errorMessage}</span>
-              <span
-                className="absolute top-0 bottom-0 right-0 px-4 py-3"
-                onClick={() => setErrorMessage(null)}
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="flex gap-3"
+          >
+            {isEditing ? (
+              <>
+                <Button 
+                  variant="outline" 
+                  onClick={handleEditToggle}
+                  disabled={uploadingPhoto}
+                  className="border-border/50 hover:bg-accent/50"
+                >
+                  <X className="mr-2 h-4 w-4" />
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleSaveProfile}
+                  disabled={uploadingPhoto || isSaving}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25"
+                >
+                  {isSaving ? (
+                    <div className="h-4 w-4 animate-spin border-2 border-current border-t-transparent rounded-full mr-2" />
+                  ) : (
+                    <Save className="mr-2 h-4 w-4" />
+                  )}
+                  Save Changes
+                </Button>
+              </>
+            ) : (
+              <Button 
+                onClick={handleEditToggle}
+                variant="outline"
+                className="border-border/50 hover:bg-accent/50 shadow-sm"
               >
-                <X className="h-6 w-6 text-red-500" />
-              </span>
-            </div>
-          )}
+                <Edit2 className="mr-2 h-4 w-4" />
+                Edit Profile
+              </Button>
+            )}
+          </motion.div>
+        </div>
 
-          <Card>
-            <CardHeader className="border-b">
-              <div className="flex justify-between items-center">
-                <CardTitle>Profile Information</CardTitle>
-                {isEditing ? (
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      onClick={handleSaveProfile}
-                      disabled={uploadingPhoto || isSaving}
-                    >
-                      {isSaving ? (
-                        <div className="h-4 w-4 animate-spin border-2 border-current border-t-transparent rounded-full mr-2" />
-                      ) : (
-                        <Save className="mr-2 h-4 w-4" />
-                      )}
-                      Save Changes
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleEditToggle}
-                      disabled={uploadingPhoto}
-                    >
-                      <X className="mr-2 h-4 w-4" />
-                      Cancel
-                    </Button>
-                  </div>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleEditToggle}
-                  >
-                    <Edit2 className="mr-2 h-4 w-4" />
-                    Edit Profile
-                  </Button>
-                )}
-              </div>
-            </CardHeader>
-            <CardContent className="pt-6">
-              <div className="flex flex-col md:flex-row gap-8">
-                <div className="space-y-4 w-full md:w-1/3">
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <div className="h-32 w-32 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-2xl font-medium">
-                        {profile.profile_photo_url ? (
-                          <img
-                            src={profile.profile_photo_url}
-                            alt="Profile"
-                            className="h-full w-full rounded-full object-cover"
-                          />
-                        ) : (
-                          getInitials()
-                        )}
-                      </div>
-                      {isEditing && (
-                        <>
-                          <Button
-                            variant="secondary"
-                            size="icon"
-                            className="absolute -bottom-2 -right-2 rounded-full w-8 h-8"
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={uploadingPhoto}
-                          >
-                            {uploadingPhoto ? (
-                              <div className="h-4 w-4 animate-spin border-2 border-current border-t-transparent rounded-full" />
-                            ) : (
-                              <Camera className="h-4 w-4" />
-                            )}
-                          </Button>
-                          <input
-                            ref={fileInputRef}
-                            type="file"
-                            accept="image/*"
-                            onChange={handlePhotoUpload}
-                            className="hidden"
-                          />
-                        </>
-                      )}
-                    </div>
-                    <div className="space-y-1">
-                      <h2 className="text-xl font-bold leading-tight tracking-tight">
-                        {getDisplayName()}
-                      </h2>
-                      <p className="text-sm text-muted-foreground truncate">
-                        {profile.email}
-                      </p>
-                      {(profile.grade_level || profile.school_name) && (
-                        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                          {profile.grade_level && (
-                            <span>Grade {profile.grade_level}</span>
-                          )}
-                          {profile.school_name && (
-                            <>
-                              {profile.grade_level && <span>•</span>}
-                              <span>{profile.school_name}</span>
-                            </>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+        {errorMessage && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-xl flex items-center justify-between"
+          >
+            <span className="font-medium">{errorMessage}</span>
+            <button onClick={() => setErrorMessage(null)}>
+              <X className="h-5 w-5 opacity-70 hover:opacity-100" />
+            </button>
+          </motion.div>
+        )}
 
-                <div className="flex-1 space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Name</Label>
-                    {isEditing ? (
-                      <Input
-                        id="name"
-                        value={(editedProfile as any).name ?? ""}
-                        onChange={(e) =>
-                          setEditedProfile({
-                            ...editedProfile,
-                            name: e.target.value,
-                          } as any)
-                        }
-                        placeholder="Your full name"
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Left Column: Profile Card & Quick Stats */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="space-y-6"
+          >
+            {/* Profile Identity Card */}
+            <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-3xl p-8 shadow-xl flex flex-col items-center text-center relative overflow-hidden">
+              {/* Abstract Background Blob */}
+              <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-primary/10 to-transparent opacity-50" />
+              
+              <div className="relative z-10 mb-6">
+                <div className="w-32 h-32 rounded-full p-1 bg-gradient-to-br from-primary to-purple-500 shadow-lg shadow-primary/20">
+                  <div className="w-full h-full rounded-full bg-background overflow-hidden flex items-center justify-center relative group">
+                    {profile.profile_photo_url ? (
+                      <img
+                        src={profile.profile_photo_url}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
                       />
                     ) : (
-                      <div className="text-sm py-2 px-3 border rounded-md bg-muted/50">
-                        {(profile as any).name || "Not set"}
+                      <span className="text-4xl font-bold text-primary">{getInitials()}</span>
+                    )}
+                    
+                    {isEditing && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button
+                          variant="secondary"
+                          size="icon"
+                          className="rounded-full w-10 h-10"
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <Camera className="h-5 w-5" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                />
+              </div>
+
+              <div className="relative z-10 space-y-2 mb-6">
+                <h2 className="text-2xl font-bold text-foreground">{getDisplayName()}</h2>
+                <p className="text-muted-foreground flex items-center justify-center gap-2">
+                  <Mail className="w-4 h-4" />
+                  {profile.email}
+                </p>
+              </div>
+
+              {/* Quick Info Badges */}
+              <div className="flex flex-wrap justify-center gap-2 w-full">
+                {(profile.grade_level) && (
+                  <div className="px-3 py-1 rounded-full bg-secondary/50 border border-border/50 text-sm font-medium flex items-center gap-2">
+                    <GraduationCap className="w-3.5 h-3.5 text-primary" />
+                    Grade {profile.grade_level}
+                  </div>
+                )}
+                {(profile.school_name) && (
+                  <div className="px-3 py-1 rounded-full bg-secondary/50 border border-border/50 text-sm font-medium flex items-center gap-2 max-w-[200px] truncate">
+                    <School className="w-3.5 h-3.5 text-blue-500" />
+                    {profile.school_name}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Quick Actions Card */}
+            <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-3xl p-6 shadow-lg">
+              <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Zap className="w-5 h-5 text-yellow-500" />
+                Quick Actions
+              </h3>
+              <div className="space-y-3">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start h-12 text-base font-medium border-border/50 hover:bg-accent/50"
+                  onClick={() => router.push("/diagnostic-test")}
+                >
+                  <Target className="w-5 h-5 mr-3 text-primary" />
+                  Start Diagnostic Test
+                </Button>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start h-12 text-base font-medium border-border/50 hover:bg-accent/50"
+                  onClick={() => router.push("/dashboard/study-plan")}
+                >
+                  <Calendar className="w-5 h-5 mr-3 text-blue-500" />
+                  View Study Plan
+                </Button>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Middle/Right: Forms & Stats */}
+          <div className="lg:col-span-2 space-y-8">
+            
+            {/* Progress Stats (Bento Grid) */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-foreground">
+                 <Trophy className="w-5 h-5 text-yellow-500" />
+                 Performance Overview
+               </h3>
+               
+               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {/* Math Stat */}
+                  <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-5 flex flex-col gap-2 shadow-sm hover:bg-accent/5 transition-colors">
+                     <span className="text-sm text-muted-foreground">Math Score</span>
+                     <div className="flex items-baseline gap-1">
+                        <span className="text-2xl font-bold text-foreground">{stats?.current_math_score || 0}</span>
+                        <span className="text-xs text-muted-foreground">/ 800</span>
+                     </div>
+                     <div className="w-full bg-secondary/50 h-1.5 rounded-full mt-1 overflow-hidden">
+                        <div className="bg-blue-500 h-full rounded-full" style={{ width: `${Math.min(100, ((stats?.current_math_score || 0)/800)*100)}%` }} />
+                     </div>
+                     {stats?.improvement_math && (
+                       <span className="text-xs text-green-500 font-medium">+{stats.improvement_math}% growth</span>
+                     )}
+                  </div>
+
+                  {/* RW Stat */}
+                  <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-5 flex flex-col gap-2 shadow-sm hover:bg-accent/5 transition-colors">
+                     <span className="text-sm text-muted-foreground">R&W Score</span>
+                     <div className="flex items-baseline gap-1">
+                        <span className="text-2xl font-bold text-foreground">{stats?.current_rw_score || 0}</span>
+                        <span className="text-xs text-muted-foreground">/ 800</span>
+                     </div>
+                     <div className="w-full bg-secondary/50 h-1.5 rounded-full mt-1 overflow-hidden">
+                        <div className="bg-green-500 h-full rounded-full" style={{ width: `${Math.min(100, ((stats?.current_rw_score || 0)/800)*100)}%` }} />
+                     </div>
+                     {stats?.improvement_rw && (
+                       <span className="text-xs text-green-500 font-medium">+{stats.improvement_rw}% growth</span>
+                     )}
+                  </div>
+
+                  {/* Study Time */}
+                  <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-5 flex flex-col gap-2 shadow-sm hover:bg-accent/5 transition-colors">
+                     <span className="text-sm text-muted-foreground">Hours Studied</span>
+                     <div className="flex items-center gap-2">
+                        <Clock className="w-5 h-5 text-purple-500" />
+                        <span className="text-2xl font-bold text-foreground">
+                          {stats?.total_study_hours ? stats.total_study_hours.toFixed(1) : "0.0"}
+                        </span>
+                     </div>
+                     <span className="text-xs text-muted-foreground">{stats?.total_practice_sessions || 0} sessions completed</span>
+                  </div>
+
+                  {/* Streak */}
+                  <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-5 flex flex-col gap-2 shadow-sm hover:bg-accent/5 transition-colors">
+                     <span className="text-sm text-muted-foreground">Day Streak</span>
+                     <div className="flex items-center gap-2">
+                        <Zap className="w-5 h-5 text-orange-500" />
+                        <span className="text-2xl font-bold text-foreground">{profileData?.streak?.current_streak || 0}</span>
+                     </div>
+                     <span className="text-xs text-muted-foreground">Best: {profileData?.streak?.longest_streak || 0} days</span>
+                  </div>
+               </div>
+            </motion.div>
+
+            {/* Edit Profile Form */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-3xl p-8 shadow-xl"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-primary" />
+                  Personal Details
+                </h3>
+              </div>
+
+              <div className="space-y-6">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div className="space-y-2">
+                       <Label htmlFor="name" className="text-sm font-medium text-muted-foreground">Full Name</Label>
+                       {isEditing ? (
+                         <Input
+                           id="name"
+                           value={(editedProfile as any).name ?? ""}
+                           onChange={(e) => setEditedProfile({ ...editedProfile, name: e.target.value } as any)}
+                           placeholder="Your full name"
+                           className="h-12 bg-background/50 border-border/60 focus:ring-primary/20"
+                         />
+                       ) : (
+                         <div className="h-12 flex items-center px-4 rounded-lg bg-secondary/20 border border-border/20 text-foreground">
+                           {getDisplayName() || "Not set"}
+                         </div>
+                       )}
+                     </div>
+                     
+                     <div className="space-y-2">
+                       <Label htmlFor="grade-level" className="text-sm font-medium text-muted-foreground">Grade Level</Label>
+                       {isEditing ? (
+                         <select
+                           id="grade-level"
+                           value={editedProfile.grade_level ?? ""}
+                           onChange={(e) => setEditedProfile({ ...editedProfile, grade_level: e.target.value })}
+                           className="flex h-12 w-full rounded-lg border border-border/60 bg-background/50 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+                         >
+                           <option value="">Select grade</option>
+                           {GRADE_LEVELS.map((level) => (
+                             <option key={level.value} value={level.value}>{level.label}</option>
+                           ))}
+                         </select>
+                       ) : (
+                         <div className="h-12 flex items-center px-4 rounded-lg bg-secondary/20 border border-border/20 text-foreground">
+                           {profile.grade_level ? `Grade ${profile.grade_level}` : "Not set"}
+                         </div>
+                       )}
+                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="school" className="text-sm font-medium text-muted-foreground">School Name</Label>
+                    {isEditing ? (
+                      <Input
+                        id="school"
+                        value={editedProfile.school_name ?? ""}
+                        onChange={(e) => setEditedProfile({ ...editedProfile, school_name: e.target.value })}
+                        placeholder="Enter your school name"
+                        className="h-12 bg-background/50 border-border/60 focus:ring-primary/20"
+                      />
+                    ) : (
+                      <div className="h-12 flex items-center px-4 rounded-lg bg-secondary/20 border border-border/20 text-foreground">
+                        {profile.school_name || "Not set"}
                       </div>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="grade-level">Grade Level</Label>
-                      {isEditing ? (
-                        <select
-                          id="grade-level"
-                          value={editedProfile.grade_level ?? ""}
-                          onChange={(e) =>
-                            setEditedProfile({
-                              ...editedProfile,
-                              grade_level: e.target.value,
-                            })
-                          }
-                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          <option value="">Select grade</option>
-                          {GRADE_LEVELS.map((level) => (
-                            <option key={level.value} value={level.value}>
-                              {level.label}
-                            </option>
-                          ))}
-                        </select>
-                      ) : (
-                        <div className="text-sm py-2 px-3 border rounded-md bg-muted/50">
-                          {profile.grade_level
-                            ? `Grade ${profile.grade_level}`
-                            : "Not set"}
-                        </div>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="school">School</Label>
-                      {isEditing ? (
-                        <Input
-                          id="school"
-                          value={editedProfile.school_name ?? ""}
-                          onChange={(e) =>
-                            setEditedProfile({
-                              ...editedProfile,
-                              school_name: e.target.value,
-                            })
-                          }
-                          placeholder="School name"
-                        />
-                      ) : (
-                        <div className="text-sm py-2 px-3 border rounded-md bg-muted/50">
-                          {profile.school_name || "Not set"}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
                   <div className="space-y-2">
-                    <Label htmlFor="study_goal">Study Goal</Label>
+                    <Label htmlFor="study_goal" className="text-sm font-medium text-muted-foreground">Study Goals</Label>
                     {isEditing ? (
                       <textarea
                         id="study_goal"
                         value={editedProfile.study_goal ?? ""}
-                        onChange={(e) =>
-                          setEditedProfile({
-                            ...editedProfile,
-                            study_goal: e.target.value,
-                          })
-                        }
-                        placeholder="What are your study goals?"
-                        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        rows={3}
+                        onChange={(e) => setEditedProfile({ ...editedProfile, study_goal: e.target.value })}
+                        placeholder="What score are you aiming for? Which colleges are you targeting?"
+                        className="flex min-h-[100px] w-full rounded-lg border border-border/60 bg-background/50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
                       />
                     ) : (
-                      <div className="text-sm py-2 px-3 border rounded-md bg-muted/50 min-h-[80px]">
-                        {profile.study_goal || "No study goal set"}
+                      <div className="min-h-[100px] p-4 rounded-lg bg-secondary/20 border border-border/20 text-foreground">
+                        {profile.study_goal || "No goals set yet."}
                       </div>
                     )}
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="bio">Bio</Label>
+                    <Label htmlFor="bio" className="text-sm font-medium text-muted-foreground">Bio</Label>
                     {isEditing ? (
                       <textarea
                         id="bio"
                         value={editedProfile.bio ?? ""}
-                        onChange={(e) =>
-                          setEditedProfile({
-                            ...editedProfile,
-                            bio: e.target.value,
-                          })
-                        }
-                        placeholder="Tell us about yourself..."
-                        className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        rows={3}
+                        onChange={(e) => setEditedProfile({ ...editedProfile, bio: e.target.value })}
+                        placeholder="Tell us a bit about yourself..."
+                        className="flex min-h-[100px] w-full rounded-lg border border-border/60 bg-background/50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
                       />
                     ) : (
-                      <div className="text-sm py-2 px-3 border rounded-md bg-muted/50 min-h-[80px]">
-                        {profile.bio || "No bio provided"}
+                      <div className="min-h-[100px] p-4 rounded-lg bg-secondary/20 border border-border/20 text-foreground">
+                        {profile.bio || "No bio provided."}
                       </div>
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="phone_number">Phone Number</Label>
-                      {isEditing ? (
-                        <>
-                          <Input
-                            id="phone_number"
-                            type="tel"
-                            value={editedProfile.phone_number ?? ""}
-                            onChange={(e) =>
-                              setEditedProfile({
-                                ...editedProfile,
-                                phone_number: e.target.value,
-                              })
-                            }
-                            placeholder="(123) 456-7890"
-                            className={
-                              fieldErrors.phone_number ? "border-red-500" : ""
-                            }
-                          />
-                          {fieldErrors.phone_number && (
-                            <p className="text-red-500 text-xs italic">
-                              {fieldErrors.phone_number}
-                            </p>
-                          )}
-                        </>
-                      ) : (
-                        <div className="text-sm py-2 px-3 border rounded-md bg-muted/50">
-                          {profile.phone_number || "Not provided"}
-                        </div>
-                      )}
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="parent_email">
-                        Parent/Guardian Email
-                      </Label>
-                      {isEditing ? (
-                        <>
-                          <Input
-                            id="parent_email"
-                            type="email"
-                            value={editedProfile.parent_email ?? ""}
-                            onChange={(e) =>
-                              setEditedProfile({
-                                ...editedProfile,
-                                parent_email: e.target.value,
-                              })
-                            }
-                            placeholder="parent@example.com"
-                            className={
-                              fieldErrors.parent_email ? "border-red-500" : ""
-                            }
-                          />
-                          {fieldErrors.parent_email && (
-                            <p className="text-red-500 text-xs italic">
-                              {fieldErrors.parent_email}
-                            </p>
-                          )}
-                        </>
-                      ) : (
-                        <div className="text-sm py-2 px-3 border rounded-md bg-muted/50">
-                          {profile.parent_email || "Not provided"}
-                        </div>
-                      )}
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                     <div className="space-y-2">
+                       <Label htmlFor="phone" className="text-sm font-medium text-muted-foreground">Phone Number</Label>
+                       {isEditing ? (
+                         <>
+                            <Input
+                              id="phone"
+                              type="tel"
+                              value={editedProfile.phone_number ?? ""}
+                              onChange={(e) => setEditedProfile({ ...editedProfile, phone_number: e.target.value })}
+                              placeholder="(123) 456-7890"
+                              className={`h-12 bg-background/50 border-border/60 focus:ring-primary/20 ${fieldErrors.phone_number ? 'border-destructive' : ''}`}
+                            />
+                            {fieldErrors.phone_number && <p className="text-xs text-destructive">{fieldErrors.phone_number}</p>}
+                         </>
+                       ) : (
+                         <div className="h-12 flex items-center px-4 rounded-lg bg-secondary/20 border border-border/20 text-foreground">
+                           <Phone className="w-4 h-4 mr-3 text-muted-foreground" />
+                           {profile.phone_number || "Not set"}
+                         </div>
+                       )}
+                     </div>
+
+                     <div className="space-y-2">
+                       <Label htmlFor="parent_email" className="text-sm font-medium text-muted-foreground">Parent Email</Label>
+                       {isEditing ? (
+                         <>
+                            <Input
+                              id="parent_email"
+                              type="email"
+                              value={editedProfile.parent_email ?? ""}
+                              onChange={(e) => setEditedProfile({ ...editedProfile, parent_email: e.target.value })}
+                              placeholder="parent@example.com"
+                              className={`h-12 bg-background/50 border-border/60 focus:ring-primary/20 ${fieldErrors.parent_email ? 'border-destructive' : ''}`}
+                            />
+                            {fieldErrors.parent_email && <p className="text-xs text-destructive">{fieldErrors.parent_email}</p>}
+                         </>
+                       ) : (
+                         <div className="h-12 flex items-center px-4 rounded-lg bg-secondary/20 border border-border/20 text-foreground">
+                           <Mail className="w-4 h-4 mr-3 text-muted-foreground" />
+                           {profile.parent_email || "Not set"}
+                         </div>
+                       )}
+                     </div>
                   </div>
+
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </motion.div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Diagnostic Test</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Target className="h-5 w-5 text-blue-600" />
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900 mb-2">
-                    Take a Diagnostic Test
-                  </h4>
-                  <p className="text-sm text-gray-600 mb-4">
-                    Assess your current mastery levels and identify knowledge
-                    gaps to get a more personalized study plan.
-                  </p>
-                  <Button
-                    onClick={() => router.push("/diagnostic-test")}
-                    className="bg-black hover:bg-gray-800"
-                  >
-                    <Target className="w-4 h-4 mr-2" />
-                    Start Diagnostic Test
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Progress Overview</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Math Progress */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-medium">Math</h3>
-                  <span className="text-sm text-muted-foreground">
-                    {profileData?.stats?.improvement_math
-                      ? `+${profileData.stats.improvement_math}%`
-                      : "No data"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="text-2xl font-bold">
-                    {profileData?.stats?.current_math_score || 0}
-                  </div>
-                  <div className="text-muted-foreground">Current</div>
-                  <div className="mx-2">→</div>
-                  <div className="text-2xl font-bold text-primary">
-                    {profileData?.stats?.target_math_score || 800}
-                  </div>
-                  <div className="text-muted-foreground">Target</div>
-                </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-blue-500 to-purple-500"
-                    style={{
-                      width: `${Math.min(
-                        100,
-                        ((profileData?.stats?.current_math_score || 0) /
-                          (profileData?.stats?.target_math_score || 800)) *
-                          100
-                      )}%`,
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Reading & Writing Progress */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <h3 className="font-medium">Reading & Writing</h3>
-                  <span className="text-sm text-muted-foreground">
-                    {profileData?.stats?.improvement_rw
-                      ? `+${profileData.stats.improvement_rw}%`
-                      : "No data"}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="text-2xl font-bold">
-                    {profileData?.stats?.current_rw_score || 0}
-                  </div>
-                  <div className="text-muted-foreground">Current</div>
-                  <div className="mx-2">→</div>
-                  <div className="text-2xl font-bold text-primary">
-                    {profileData?.stats?.target_rw_score || 800}
-                  </div>
-                  <div className="text-muted-foreground">Target</div>
-                </div>
-                <div className="h-2 bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-green-500 to-teal-500"
-                    style={{
-                      width: `${Math.min(
-                        100,
-                        ((profileData?.stats?.current_rw_score || 0) /
-                          (profileData?.stats?.target_rw_score || 800)) *
-                          100
-                      )}%`,
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Stats Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4">
-                {/* Streak */}
-                <div className="border rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold">
-                    {profileData?.streak?.current_streak || 0}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Day Streak
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Best: {profileData?.streak?.longest_streak || 0} days
-                  </div>
-                </div>
-
-                {/* Hours Studied */}
-                <div className="border rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold">
-                    {profileData?.stats?.total_study_hours
-                      ? profileData.stats.total_study_hours.toFixed(1)
-                      : "0.0"}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Hours Studied
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {profileData?.stats?.total_practice_sessions || 0} sessions
-                  </div>
-                </div>
-
-                {/* Accuracy */}
-                <div className="border rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold">
-                    {profileData?.stats?.accuracy_percentage || 0}%
-                  </div>
-                  <div className="text-sm text-muted-foreground">Accuracy</div>
-                  <div className="text-xs text-muted-foreground">
-                    {profileData?.stats?.total_correct_answers || 0}/
-                    {profileData?.stats?.total_questions_answered || 0} correct
-                  </div>
-                </div>
-
-                {/* Days to Test */}
-                <div className="border rounded-lg p-4 text-center">
-                  <div className="text-2xl font-bold">
-                    {profileData?.stats?.days_until_test || "N/A"}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    Days to Test
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          </div>
         </div>
       </div>
     </div>

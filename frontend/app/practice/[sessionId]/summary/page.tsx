@@ -36,19 +36,50 @@ function SummaryContent() {
   
   // Extract sessionId with proper handling
   let sessionId = "";
-  if (typeof params.sessionId === "string") {
-    sessionId = params.sessionId;
-  } else if (params.sessionId && typeof params.sessionId === "object") {
-    const obj = params.sessionId as any;
-    if (obj.id && typeof obj.id === "string") {
-      sessionId = obj.id;
-    } else if (obj.sessionId && typeof obj.sessionId === "string") {
-      sessionId = obj.sessionId;
-    } else if (obj.value && typeof obj.value === "string") {
-      sessionId = obj.value;
+  const rawValue = params.sessionId;
+  
+  if (typeof rawValue === "string") {
+    const trimmed = rawValue.trim();
+    // Check if it's a JSON string
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+      try {
+        const parsed = JSON.parse(trimmed);
+        sessionId = parsed.id || parsed.sessionId || parsed.value || "";
+      } catch {
+        // If JSON parsing fails, extract UUID with regex
+        const uuidMatch = trimmed.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+        sessionId = uuidMatch ? uuidMatch[0] : "";
+      }
     } else {
-      sessionId = "";
+      sessionId = trimmed;
     }
+  } else if (Array.isArray(rawValue)) {
+    sessionId = rawValue[0] || "";
+  } else if (rawValue && typeof rawValue === "object") {
+    const obj = rawValue as any;
+    sessionId = obj.id || obj.sessionId || obj.value || "";
+  }
+  
+  // Final cleanup: ensure it's a clean UUID string
+  if (sessionId && typeof sessionId === "string") {
+    sessionId = sessionId.trim().replace(/^["']|["']$/g, "");
+    // If still looks like JSON after cleanup, parse again
+    if (sessionId.startsWith("{") || sessionId.startsWith("[")) {
+      try {
+        const parsed = JSON.parse(sessionId);
+        sessionId = parsed.id || parsed.sessionId || parsed.value || "";
+      } catch {
+        const uuidMatch = sessionId.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+        sessionId = uuidMatch ? uuidMatch[0] : "";
+      }
+    }
+  } else {
+    sessionId = "";
+  }
+  
+  // Debug: log if extraction failed
+  if (!sessionId) {
+    console.error("Failed to extract sessionId. Raw value:", rawValue, "Type:", typeof rawValue);
   }
 
   // Validate sessionId format
@@ -162,8 +193,58 @@ function SummaryContent() {
   useEffect(() => {
     const completeSessionOnMount = async () => {
       try {
-        if (!sessionId || typeof sessionId !== "string") return;
-        await api.completeSession(sessionId);
+        // Ensure sessionId is a valid string UUID
+        if (!sessionId || typeof sessionId !== "string") {
+          console.error("Invalid sessionId:", sessionId, typeof sessionId);
+          return;
+        }
+        
+        // Double-check it's not an object that got stringified
+        if (sessionId.startsWith("{") || sessionId.startsWith("[")) {
+          console.error("sessionId appears to be a stringified object:", sessionId);
+          // Try to extract UUID from the stringified object
+          try {
+            const parsed = JSON.parse(sessionId);
+            const extractedId = parsed.id || parsed.sessionId || parsed.value;
+            if (extractedId && typeof extractedId === "string") {
+              await api.completeSession(extractedId);
+              return;
+            }
+          } catch {
+            // Try regex extraction
+            const uuidMatch = sessionId.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+            if (uuidMatch) {
+              await api.completeSession(uuidMatch[0]);
+              return;
+            }
+          }
+          console.error("Could not extract valid UUID from:", sessionId);
+          return;
+        }
+        
+        // Final validation and extraction - ensure we have a clean UUID
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        
+        // If sessionId doesn't match UUID format, try to extract it
+        let finalSessionId = sessionId;
+        if (!uuidRegex.test(finalSessionId)) {
+          // Try to extract UUID from the string (handles stringified objects)
+          const uuidMatch = finalSessionId.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+          if (uuidMatch) {
+            finalSessionId = uuidMatch[0];
+          } else {
+            console.error("sessionId is not a valid UUID and could not extract one:", sessionId);
+            return;
+          }
+        }
+        
+        // Double-check it's a valid UUID before calling API
+        if (!uuidRegex.test(finalSessionId)) {
+          console.error("Final sessionId validation failed:", finalSessionId);
+          return;
+        }
+        
+        await api.completeSession(finalSessionId);
       } catch (err) {
         console.error("Failed to complete session:", err);
       }

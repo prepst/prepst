@@ -82,7 +82,7 @@ export default function MissionCard({ session, isLoading, onStart }: MissionCard
             <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl group-hover:bg-blue-500/20 transition-colors duration-500" />
 
             <div className="relative p-8 md:p-10 flex flex-col h-full justify-center">
-                <div className="flex flex-col md:flex-row gap-8 items-start md:items-center justify-between">
+                <div className="flex flex-col gap-8">
                     <div className="space-y-4 flex-1">
                         <div className="flex items-center gap-3">
                             <span className="inline-flex items-center gap-1.5 rounded-full bg-purple-500/10 px-3 py-1 text-xs font-medium text-purple-600 dark:text-purple-400 ring-1 ring-inset ring-purple-500/20">
@@ -108,12 +108,12 @@ export default function MissionCard({ session, isLoading, onStart }: MissionCard
                         </div>
                     </div>
 
-                    <div className="w-full md:w-auto">
+                    <div className="w-full">
                         <Button 
                             onClick={onStart}
-                            className="w-full md:w-auto relative group/btn bg-foreground text-background hover:bg-foreground/90 px-8 py-8 rounded-2xl text-xl font-bold overflow-hidden transition-all hover:scale-105 shadow-xl"
+                            className="w-full relative group/btn bg-foreground text-background hover:bg-foreground/90 px-8 py-8 rounded-2xl text-xl font-bold overflow-hidden transition-all hover:scale-105 shadow-xl"
                         >
-                            <span className="relative z-10 flex items-center gap-3">
+                            <span className="relative z-10 flex items-center gap-3 justify-center">
                                 Start Mission
                                 <Play className="w-6 h-6 fill-current" />
                             </span>

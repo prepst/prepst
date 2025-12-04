@@ -4,12 +4,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStudyPlan, useMockExamAnalytics } from "@/hooks/queries";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/lib/hooks/useProfile";
 import { PerformanceChart } from "@/components/dashboard/PerformanceChart";
 import { ProgressOverview } from "@/components/dashboard/ProgressOverview";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { Play, Target, Sparkles, ArrowRight, Clock, X } from "lucide-react";
-import DashboardStatsBento from "@/components/dashboard/DashboardStatsBento";
 import MissionCard from "@/components/dashboard/MissionCard";
 import QuickActionsGrid from "@/components/dashboard/QuickActionsGrid";
 import RecommendationCard from "@/components/dashboard/RecommendationCard";
@@ -28,6 +28,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { data: studyPlan, isLoading } = useStudyPlan();
   const { user } = useAuth();
+  const { profileData } = useProfile();
   const [showTimeSelection, setShowTimeSelection] = useState(false);
   const { isDarkMode } = useTheme();
 
@@ -283,7 +284,13 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span className="text-5xl font-bold">1450</span>
+                  <span className="text-5xl font-bold">
+                    {profileData?.stats?.target_math_score &&
+                    profileData?.stats?.target_rw_score
+                      ? profileData.stats.target_math_score +
+                        profileData.stats.target_rw_score
+                      : "---"}
+                  </span>
                   <span className="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-1">
                     Target Score
                   </span>
@@ -292,16 +299,13 @@ export default function DashboardPage() {
             </div>
           </motion.div>
 
-          {/* Stats Bento Grid */}
-          <DashboardStatsBento
-            streak={streak}
-            studyTime={studyTime}
-            questionsDone={questionsDone}
-            mockExams={mockExamsCount}
-          />
+          {/* Quick Actions Grid */}
+          <div className="mb-8">
+            <QuickActionsGrid />
+          </div>
 
           {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Mission Card (Next Session) */}
             <div className="lg:col-span-2 space-y-6">
               <div className="flex items-center justify-between">
@@ -332,14 +336,6 @@ export default function DashboardPage() {
                   />
                 </div>
               </div>
-            </div>
-
-            {/* Sidebar Area */}
-            <div className="space-y-6">
-              <h3 className="text-xl font-bold text-foreground">
-                Quick Actions
-              </h3>
-              <QuickActionsGrid />
             </div>
           </div>
 

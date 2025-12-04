@@ -23,15 +23,28 @@ import {
 } from "lucide-react";
 import type { SessionQuestion, AnswerState } from "@/lib/types";
 
-type DiagnosticQuestionWithDetails = components["schemas"]["DiagnosticTestQuestionWithDetails"];
+type DiagnosticQuestionWithDetails = Omit<
+  components["schemas"]["DiagnosticTestQuestionWithDetails"],
+  "question" | "topic"
+> & {
+  question: components["schemas"]["Question"];
+  topic: components["schemas"]["Topic"];
+};
 type DiagnosticTest = components["schemas"]["DiagnosticTest"];
+type DiagnosticTestResponse = {
+  test: DiagnosticTest;
+  questions: DiagnosticQuestionWithDetails[];
+  total_questions?: number;
+};
 
 function DiagnosticTestContent() {
   const params = useParams();
   const router = useRouter();
   const testId = params.testId as string;
 
-  const [questions, setQuestions] = useState<DiagnosticQuestionWithDetails[]>([]);
+  const [questions, setQuestions] = useState<DiagnosticQuestionWithDetails[]>(
+    []
+  );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, AnswerState>>({});
   const [isLoading, setIsLoading] = useState(true);
@@ -49,7 +62,7 @@ function DiagnosticTestContent() {
   const currentQuestion = questions[currentIndex];
 
   // Transform diagnostic question to match SessionQuestion structure for shared components
-  const transformedQuestions: SessionQuestion[] = questions.map(q => ({
+  const transformedQuestions: SessionQuestion[] = questions.map((q) => ({
     session_question_id: q.diagnostic_question_id,
     question: q.question,
     topic: q.topic,
@@ -65,10 +78,10 @@ function DiagnosticTestContent() {
     : null;
 
   // Mark for review is stored in the custom field of AnswerState in our local state
-  // We need to extend AnswerState interface locally if we want to use it strictly, 
+  // We need to extend AnswerState interface locally if we want to use it strictly,
   // but we are casting for components anyway.
   // Let's look at how we store it.
-  
+
   const loadTest = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -101,12 +114,15 @@ function DiagnosticTestContent() {
 
       if (!response.ok) throw new Error("Failed to load diagnostic test");
 
-      const data = await response.json();
+      const data: DiagnosticTestResponse = await response.json();
       setTestData(data.test);
       setQuestions(data.questions);
 
       // Initialize answers from saved state
-      const initialAnswers: Record<string, AnswerState & { isMarkedForReview?: boolean }> = {};
+      const initialAnswers: Record<
+        string,
+        AnswerState & { isMarkedForReview?: boolean }
+      > = {};
       data.questions.forEach((q: DiagnosticQuestionWithDetails) => {
         if (q.user_answer && q.user_answer.length > 0) {
           initialAnswers[q.question.id] = {
@@ -118,7 +134,9 @@ function DiagnosticTestContent() {
       });
       setAnswers(initialAnswers);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load diagnostic test");
+      setError(
+        err instanceof Error ? err.message : "Failed to load diagnostic test"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -161,7 +179,9 @@ function DiagnosticTestContent() {
   const submitAnswer = useCallback(async () => {
     if (!currentQuestion) return;
 
-    const answer = answers[currentQuestion.question.id] as (AnswerState & { isMarkedForReview?: boolean });
+    const answer = answers[currentQuestion.question.id] as AnswerState & {
+      isMarkedForReview?: boolean;
+    };
     if (!answer) return;
 
     try {
@@ -256,9 +276,11 @@ function DiagnosticTestContent() {
 
       // Navigate to results, preserve returnToOnboarding parameter
       const urlParams = new URLSearchParams(window.location.search);
-      const returnToOnboarding = urlParams.get('returnToOnboarding');
-      if (returnToOnboarding === 'true') {
-        router.push(`/diagnostic-test/${testId}/results?returnToOnboarding=true`);
+      const returnToOnboarding = urlParams.get("returnToOnboarding");
+      if (returnToOnboarding === "true") {
+        router.push(
+          `/diagnostic-test/${testId}/results?returnToOnboarding=true`
+        );
       } else {
         router.push(`/diagnostic-test/${testId}/results`);
       }
@@ -387,7 +409,7 @@ function DiagnosticTestContent() {
     handleNext,
     handleCompleteTest,
     currentIndex,
-    questions.length
+    questions.length,
   ]);
 
   if (isLoading) {
@@ -414,7 +436,8 @@ function DiagnosticTestContent() {
   const sidebarAnswers = answers as Record<string, AnswerState>;
 
   // Check if current question is marked for review
-  const isCurrentMarked = (answers[currentQuestion.question.id] as any)?.isMarkedForReview;
+  const isCurrentMarked = (answers[currentQuestion.question.id] as any)
+    ?.isMarkedForReview;
 
   return (
     <div
@@ -459,7 +482,9 @@ function DiagnosticTestContent() {
               >
                 <span className="text-foreground">{currentIndex + 1}</span>
                 <span className="text-muted-foreground mx-1">/</span>
-                <span className="text-muted-foreground">{questions.length}</span>
+                <span className="text-muted-foreground">
+                  {questions.length}
+                </span>
               </Badge>
               <span className="text-xs text-muted-foreground ml-2">
                 {answeredCount} answered
@@ -479,12 +504,14 @@ function DiagnosticTestContent() {
             </Button>
           </div>
         </div>
-        
+
         {/* Progress Bar */}
         <div className="absolute bottom-0 left-0 w-full h-[2px] bg-muted overflow-hidden">
           <div
             className="h-full bg-primary transition-all duration-500 ease-out shadow-[0_0_10px_rgba(var(--primary),0.5)]"
-            style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+            style={{
+              width: `${((currentIndex + 1) / questions.length) * 100}%`,
+            }}
           />
         </div>
       </div>
@@ -503,7 +530,7 @@ function DiagnosticTestContent() {
 
         {/* Question Panel */}
         <div className="flex-1 flex flex-col min-w-0">
-           <QuestionPanel question={currentTransformedQuestion} />
+          <QuestionPanel question={currentTransformedQuestion} />
         </div>
 
         {/* Draggable Divider */}
@@ -550,9 +577,7 @@ function DiagnosticTestContent() {
                     isCurrentMarked ? "fill-orange-500 text-orange-500" : ""
                   }`}
                 />
-                {isCurrentMarked
-                  ? "Marked"
-                  : "Mark for Review"}
+                {isCurrentMarked ? "Marked" : "Mark for Review"}
               </Button>
             </div>
 

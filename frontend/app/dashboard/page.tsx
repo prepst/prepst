@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useStudyPlan, useMockExamAnalytics } from "@/hooks/queries";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/lib/hooks/useProfile";
+import { PerformanceChart } from "@/components/dashboard/PerformanceChart";
 import { ProgressOverview } from "@/components/dashboard/ProgressOverview";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
@@ -358,6 +359,12 @@ export default function DashboardPage() {
               mockExamPerformance={mockExamPerformance}
               mockExamData={mockExamData}
             />
+          </div>
+
+          {/* Detailed Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <PerformanceChart />
+            {/* Can add another chart here or keep it empty/full width */}
           </div>
         </div>
       </div>

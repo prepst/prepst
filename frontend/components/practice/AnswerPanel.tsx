@@ -152,7 +152,7 @@ export function AnswerPanel({
                           : "border-border bg-muted text-muted-foreground group-hover:bg-background"
                       }
                     `}>
-                      {isSelected ? <Check className="w-4 h-4" /> : label}
+                      {label}
                     </div>
 
                     {/* Answer Content */}

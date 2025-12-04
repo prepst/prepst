@@ -139,12 +139,10 @@ export default function DashboardPage() {
   const questionsDone = 42; // TODO: Fetch real questions done
   const mockExamsCount = mockExamPerformance.length;
 
-  const heroBgClass = isDarkMode
-    ? "bg-[#0F172A]"
-    : "bg-gradient-to-br from-cyan-50 to-purple-50";
+  const heroBgClass = isDarkMode ? "bg-[#0F172A]" : "bg-[#fec76f]";
   const heroTextColorClass = isDarkMode ? "text-white" : "text-foreground";
-  const heroBlursPrimary = isDarkMode ? "bg-purple-600/30" : "bg-purple-200/50";
-  const heroBlursSecondary = isDarkMode ? "bg-blue-600/30" : "bg-cyan-200/50";
+  const heroBlursPrimary = isDarkMode ? "bg-purple-600/30" : "bg-orange-200/50";
+  const heroBlursSecondary = isDarkMode ? "bg-blue-600/30" : "bg-orange-200/50";
 
   return (
     <div className="min-h-screen bg-background/50">

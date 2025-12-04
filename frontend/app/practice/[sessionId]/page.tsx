@@ -75,6 +75,17 @@ function PracticeSessionContent() {
     }
   });
 
+  // Load session data when component mounts
+  useEffect(() => {
+    if (sessionId) {
+      loadSession().then((firstUnansweredIndex) => {
+        if (firstUnansweredIndex >= 0) {
+          setCurrentIndex(firstUnansweredIndex);
+        }
+      });
+    }
+  }, [sessionId, loadSession, setCurrentIndex]);
+
   // Handler functions (defined before useEffect that uses them)
   const handleAnswerChange = (value: string) => {
     if (!currentQuestion || showFeedback) return;

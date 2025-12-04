@@ -6,17 +6,23 @@ import { useStudyPlan, useMockExamAnalytics } from "@/hooks/queries";
 import { useAuth } from "@/contexts/AuthContext";
 import { PerformanceChart } from "@/components/dashboard/PerformanceChart";
 import { ProgressOverview } from "@/components/dashboard/ProgressOverview";
-import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
-import { Play, Target, Sparkles, ArrowRight } from "lucide-react";
+import { Play, Target, Sparkles, ArrowRight, Clock, X } from "lucide-react";
 import DashboardStatsBento from "@/components/dashboard/DashboardStatsBento";
 import MissionCard from "@/components/dashboard/MissionCard";
 import QuickActionsGrid from "@/components/dashboard/QuickActionsGrid";
 import RecommendationCard from "@/components/dashboard/RecommendationCard";
-import { TimeSelectionModal } from "@/components/dashboard/TimeSelectionModal";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/contexts/ThemeContext";
+
+const timeOptions = [
+  { label: "5 min", value: 5 },
+  { label: "15 min", value: 15 },
+  { label: "30 min", value: 30 },
+  { label: "1 hour", value: 60 },
+  { label: "2 hours", value: 120 },
+];
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -160,43 +166,112 @@ export default function DashboardPage() {
               ></div>
             </div>
 
-            <div className="relative z-10 p-8 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10">
+            <div className="relative z-10 p-8 md:p-16 flex flex-col md:flex-row items-center justify-between gap-10 min-h-[320px]">
               <div className="flex-1 space-y-6">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 dark:bg-black/10 backdrop-blur-md border border-white/10 dark:border-black/10">
-                  <Sparkles className="w-4 h-4 text-yellow-400" />
-                  <span className="text-sm font-medium">
-                    AI-Powered Learning
-                  </span>
-                </div>
+                <AnimatePresence mode="wait">
+                  {!showTimeSelection ? (
+                    <motion.div
+                      key="hero-content"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      className="space-y-6"
+                    >
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 dark:bg-black/10 backdrop-blur-md border border-white/10 dark:border-black/10">
+                        <Sparkles className="w-4 h-4 text-yellow-400" />
+                        <span className="text-sm font-medium">
+                          AI-Powered Learning
+                        </span>
+                      </div>
 
-                <div className="space-y-2">
-                  <h1 className="text-4xl md:text-6xl font-bold leading-tight">
-                    Hello, <span>{getDisplayName().split(" ")[0]}</span>
-                  </h1>
-                  <p className="text-xl text-gray-700 dark:text-gray-300 max-w-lg">
-                    Ready to crush your SAT goals? Let's get started! Your
-                    personalized study plan is optimized for maximum score
-                    improvement.
-                  </p>
-                </div>
+                      <div className="space-y-2">
+                        <h1 className="text-4xl md:text-6xl font-bold leading-tight">
+                          Hello, <span>{getDisplayName().split(" ")[0]}</span>
+                        </h1>
+                        <p className="text-xl text-gray-700 dark:text-gray-300 max-w-lg">
+                          Ready to crush your SAT goals? Let's get started! Your
+                          personalized study plan is optimized for maximum score
+                          improvement.
+                        </p>
+                      </div>
 
-                <div className="flex flex-wrap gap-4 pt-2">
-                  <Button
-                    onClick={() => setShowTimeSelection(true)}
-                    className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-lg font-bold transition-all hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-                  >
-                    <Play className="w-5 h-5 mr-2 fill-current" />
-                    Quick Start
-                  </Button>
-                  <Button
-                    onClick={() => router.push("/dashboard/mock-exam")}
-                    variant="outline"
-                    className="border-border text-foreground hover:bg-accent rounded-full px-8 py-6 text-lg font-medium backdrop-blur-sm"
-                  >
-                    <Target className="w-5 h-5 mr-2" />
-                    Mock Exam
-                  </Button>
-                </div>
+                      <div className="flex flex-wrap gap-4 pt-2">
+                        <Button
+                          onClick={() => setShowTimeSelection(true)}
+                          className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-8 py-6 text-lg font-bold transition-all hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.3)]"
+                        >
+                          <Play className="w-5 h-5 mr-2 fill-current" />
+                          Quick Start
+                        </Button>
+                        <Button
+                          onClick={() => router.push("/dashboard/mock-exam")}
+                          variant="outline"
+                          className="border-border text-foreground hover:bg-accent rounded-full px-8 py-6 text-lg font-medium backdrop-blur-sm"
+                        >
+                          <Target className="w-5 h-5 mr-2" />
+                          Mock Exam
+                        </Button>
+                      </div>
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="time-selection"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      className="space-y-6"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 dark:bg-black/10 backdrop-blur-md border border-white/10 dark:border-black/10">
+                          <Clock className="w-4 h-4 text-blue-400" />
+                          <span className="text-sm font-medium">
+                            Choose Duration
+                          </span>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setShowTimeSelection(false)}
+                          className="rounded-full hover:bg-white/10 text-foreground/80"
+                        >
+                          <X className="w-5 h-5" />
+                        </Button>
+                      </div>
+
+                      <div className="space-y-2">
+                        <h2 className="text-3xl font-bold">
+                          How much time do you have?
+                        </h2>
+                        <p className="text-gray-700 dark:text-gray-300 max-w-md">
+                          We'll generate a custom practice session that fits
+                          perfectly into your schedule.
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2 max-w-lg">
+                        {timeOptions.map((option) => (
+                          <Button
+                            key={option.value}
+                            onClick={() => handleStartPractice(option.value)}
+                            variant="outline"
+                            className="h-auto py-4 flex flex-col gap-1 border-border/50 bg-white/5 hover:bg-primary hover:text-primary-foreground hover:border-primary backdrop-blur-sm transition-all duration-200 group"
+                          >
+                            <span className="text-lg font-bold">
+                              {option.label}
+                            </span>
+                            <span className="text-xs opacity-70 group-hover:opacity-100 font-normal">
+                              ~
+                              {Math.floor(
+                                option.value * (option.value <= 30 ? 2 : 1.5)
+                              )}{" "}
+                              questions
+                            </span>
+                          </Button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
               {/* Hero Illustration / Stats or 3D Element placeholder */}
@@ -284,12 +359,6 @@ export default function DashboardPage() {
             <PerformanceChart />
             {/* Can add another chart here or keep it empty/full width */}
           </div>
-
-          <TimeSelectionModal
-            isOpen={showTimeSelection}
-            onClose={() => setShowTimeSelection(false)}
-            onStartPractice={handleStartPractice}
-          />
         </div>
       </div>
     </div>

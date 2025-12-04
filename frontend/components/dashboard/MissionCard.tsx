@@ -46,9 +46,14 @@ export default function MissionCard({ session, isLoading, onStart }: MissionCard
                 className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-green-500/10 via-green-500/5 to-transparent border border-green-500/20 p-8 text-center"
             >
                 <div className="flex flex-col items-center justify-center h-full min-h-[250px] gap-4">
-                    <div className="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center mb-2 animate-bounce">
+                    <motion.div 
+                        initial={{ y: 0 }}
+                        animate={{ y: [0, -20, 0] }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                        className="w-20 h-20 rounded-full bg-green-500/10 flex items-center justify-center mb-2"
+                    >
                         <Trophy className="w-10 h-10 text-green-600 dark:text-green-400" />
-                    </div>
+                    </motion.div>
                     <h3 className="text-2xl font-bold text-foreground">All Missions Complete!</h3>
                     <p className="text-muted-foreground max-w-md mx-auto">
                         You've crushed all your scheduled sessions. Take a break or start a custom practice to keep the streak going.

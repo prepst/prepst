@@ -167,7 +167,7 @@ export function ProgressOverview({
               {studyPlan?.study_plan?.sessions
                 ?.slice(0, 5)
                 .map((session: any, index: number) => (
-                  <div key={session.id} className="flex items-center gap-3">
+                  <div key={session.id || `session-${index}`} className="flex items-center gap-3">
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center ${
                         session.status === "completed"
@@ -225,7 +225,7 @@ export function ProgressOverview({
           <CardContent>
             <div className="space-y-4">
               {mockExamPerformance?.slice(0, 5).map((exam, index) => (
-                <div key={exam.id} className="flex items-center gap-3">
+                <div key={exam.id || `exam-${index}`} className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-full bg-blue-500/10 flex items-center justify-center">
                     <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
                       {index + 1}

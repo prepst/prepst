@@ -342,7 +342,11 @@ export default function ChatPage() {
                             {message.content ? (
                               <Markdown>{message.content}</Markdown>
                             ) : (
-                              <Loader variant="typing" size="sm" className="opacity-50" />
+                              <Loader
+                                variant="typing"
+                                size="sm"
+                                className="opacity-50"
+                              />
                             )}
                           </div>
                         ) : (

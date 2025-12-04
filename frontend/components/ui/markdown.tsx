@@ -4,6 +4,8 @@ import { memo, useId, useMemo } from "react"
 import ReactMarkdown, { Components } from "react-markdown"
 import remarkBreaks from "remark-breaks"
 import remarkGfm from "remark-gfm"
+import remarkMath from "remark-math"
+import rehypeKatex from "rehype-katex"
 import { CodeBlock, CodeBlockCode } from "./code-block"
 
 export type MarkdownProps = {
@@ -57,6 +59,13 @@ const INITIAL_COMPONENTS: Partial<Components> = {
   },
 }
 
+// Utility to preprocess LaTeX delimiters for remark-math compatibility
+const preprocessLaTeX = (content: string) => {
+  const blockReplaced = content.replace(/\\\[([\s\S]*?)\\\]/g, (_, equation) => `$$${equation}$$`)
+  const inlineReplaced = blockReplaced.replace(/\\\(([\s\S]*?)\\\)/g, (_, equation) => `$${equation}$`)
+  return inlineReplaced
+}
+
 const MemoizedMarkdownBlock = memo(
   function MarkdownBlock({
     content,
@@ -65,12 +74,15 @@ const MemoizedMarkdownBlock = memo(
     content: string
     components?: Partial<Components>
   }) {
+    const processedContent = useMemo(() => preprocessLaTeX(content), [content])
+    
     return (
       <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkBreaks]}
+        remarkPlugins={[remarkGfm, remarkBreaks, remarkMath]}
+        rehypePlugins={[rehypeKatex]}
         components={components}
       >
-        {content}
+        {processedContent}
       </ReactMarkdown>
     )
   },

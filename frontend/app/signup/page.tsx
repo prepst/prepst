@@ -29,7 +29,7 @@ export default function SignupPage() {
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
       <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
       
-      <div className="w-full max-w-md relative z-10">
+      <div className="w-full max-w-5xl relative z-10">
         <SignupForm />
       </div>
     </div>

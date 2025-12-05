@@ -24,6 +24,7 @@ import {
   UserPlus,
   LogIn,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { StatisticsPanel } from "@/components/dashboard/StatisticsPanel";
 import { ProfileDropdown } from "@/components/dashboard/ProfileDropdown";
 import { useState, useEffect } from "react";
@@ -230,6 +231,15 @@ export default function DashboardLayout({
     return "";
   };
 
+  const targetSidebarWidth = isMobile
+    ? isSidebarCollapsed
+      ? 0
+      : 280
+    : isSidebarCollapsed
+    ? 80
+    : 280;
+  const navIconSize = isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5";
+
   return (
     <div className="min-h-screen bg-background">
       <div className="flex items-start gap-4 lg:gap-5">
@@ -242,19 +252,20 @@ export default function DashboardLayout({
         )}
 
         {/* Left Sidebar */}
-        <aside
-          key={`sidebar-${isMobile}-${isSidebarCollapsed}`}
-          className={`transition-all duration-300 ease-in-out sticky top-0 h-screen flex-shrink-0 bg-card border-r border-border z-30 ${
-            isSidebarCollapsed ? "w-[80px]" : "w-[280px]"
-          } ${
+        <motion.aside
+          animate={{ width: targetSidebarWidth }}
+          initial={false}
+          transition={{ duration: 0.25, ease: "easeInOut" }}
+          className={`sticky top-0 h-screen flex-shrink-0 bg-card border-r border-border z-30 will-change-[width] ${
             isMobile
               ? isSidebarCollapsed
-                ? "w-0 overflow-hidden border-none" // Hide completely on mobile when collapsed
-                : `fixed left-0 z-50 w-[280px] shadow-2xl ${
+                ? "overflow-hidden border-none"
+                : `fixed left-0 z-50 shadow-2xl ${
                     isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
                   }`
               : ""
           }`}
+          style={{ width: targetSidebarWidth }}
         >
           <div
             className={`flex flex-col h-full ${
@@ -289,11 +300,13 @@ export default function DashboardLayout({
               {/* Dashboard Section */}
               <div className="space-y-2">
                 {/* Dashboard Label */}
-                {!isSidebarCollapsed && (
-                  <p className="text-xs font-bold text-muted-foreground/70 uppercase tracking-widest px-4 mb-4">
-                    Dashboard
-                  </p>
-                )}
+                <p
+                  className={`text-xs font-bold text-muted-foreground/70 uppercase tracking-widest px-4 mb-4 transition-opacity duration-200 ${
+                    isSidebarCollapsed ? "opacity-0 invisible" : "opacity-100"
+                  }`}
+                >
+                  Dashboard
+                </p>
 
                 {/* Dashboard Items */}
                 {dashboardItems.map((item) => {
@@ -341,7 +354,7 @@ export default function DashboardLayout({
                               isActive
                                 ? "text-primary"
                                 : "text-muted-foreground group-hover:text-foreground"
-                            } ${isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5"}`}
+                            } ${navIconSize}`}
                           />
                           {!isSidebarCollapsed && (
                             <>
@@ -420,7 +433,7 @@ export default function DashboardLayout({
                           isActive
                             ? "text-primary"
                             : "text-muted-foreground group-hover:text-foreground"
-                        } ${isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5"}`}
+                        } ${navIconSize}`}
                       />
                       {!isSidebarCollapsed && (
                         <span className="whitespace-nowrap">{item.name}</span>
@@ -463,7 +476,7 @@ export default function DashboardLayout({
                             isActive
                               ? "text-primary"
                               : "text-muted-foreground group-hover:text-foreground"
-                          } ${isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5"}`}
+                          } ${navIconSize}`}
                         />
                         {!isSidebarCollapsed && (
                           <span className="whitespace-nowrap">{item.name}</span>
@@ -507,7 +520,7 @@ export default function DashboardLayout({
                         isActive
                           ? "text-primary"
                           : "text-muted-foreground group-hover:text-foreground"
-                      } ${isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5"}`}
+                      } ${navIconSize}`}
                     />
                     {!isSidebarCollapsed && (
                       <span className="whitespace-nowrap">{item.name}</span>
@@ -563,7 +576,7 @@ export default function DashboardLayout({
               </div>
             )}
           </div>
-        </aside>
+        </motion.aside>
 
         {/* Main Content Area */}
         <main

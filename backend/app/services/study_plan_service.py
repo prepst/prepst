@@ -760,7 +760,7 @@ class StudyPlanService:
         Create sessions for one section with spaced repetition.
 
         Each topic is divided evenly across all sessions for better retention.
-        Sessions are capped at 10 questions max.
+        Sessions are capped at 25 questions max.
 
         Args:
             topic_distribution: {topic_id: num_questions}
@@ -771,7 +771,7 @@ class StudyPlanService:
         Returns:
             List of sessions, each session is a list of topic allocations
         """
-        MAX_QUESTIONS = 10
+        MAX_QUESTIONS = 25
 
         if not topic_distribution:
             return []

@@ -1,4 +1,30 @@
-<!-- ff28ee49-9568-434b-9c1b-7777542be564 99280db7-d2b0-4b4c-99ee-49d384e7c0fc -->
+---
+name: Personal User Analytics Enhancement
+overview: ""
+todos:
+  - id: d2e178b2-2434-46aa-9fd6-dad5714bd86d
+    content: Add 6 new analytics cards to /dashboard/analytics/page.tsx with personal error patterns, cognitive efficiency, confidence calibration, activity timeline, weak topics, and velocity summary
+    status: pending
+  - id: b8983868-c236-45c5-b6be-94b4a8d30b14
+    content: Create reusable LineChart component using Recharts
+    status: pending
+  - id: 1fc81321-7c0d-4478-b070-fcc14fa85866
+    content: Create reusable BarChart component using Recharts
+    status: pending
+  - id: ef41a221-9087-4a27-9dc0-74d41332e144
+    content: Create reusable AreaChart component using Recharts
+    status: pending
+  - id: 4ecf2cac-7f1a-40aa-a861-1a895133eccb
+    content: Add SAT score growth curve chart to progress page replacing placeholder
+    status: pending
+  - id: f44f3c91-19c2-4f18-b108-3675a8eaa19e
+    content: Add mastery progress charts (by category and over time) to progress page
+    status: pending
+  - id: 82b5f715-585d-40c0-a9fc-5ae4766d74e1
+    content: Add actionable insights section to analytics page based on user's patterns
+    status: pending
+---
+
 # Personal User Analytics Enhancement
 
 ## Current State
@@ -241,13 +267,3 @@ Already installed:
 4. Verify all data is personal (no other users' data visible)
 5. Test expandable sections on analytics page
 6. Test chart tooltips and interactions
-
-### To-dos
-
-- [ ] Add 6 new analytics cards to /dashboard/analytics/page.tsx with personal error patterns, cognitive efficiency, confidence calibration, activity timeline, weak topics, and velocity summary
-- [ ] Create reusable LineChart component using Recharts
-- [ ] Create reusable BarChart component using Recharts
-- [ ] Create reusable AreaChart component using Recharts
-- [ ] Add SAT score growth curve chart to progress page replacing placeholder
-- [ ] Add mastery progress charts (by category and over time) to progress page
-- [ ] Add actionable insights section to analytics page based on user's patterns

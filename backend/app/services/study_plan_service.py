@@ -289,7 +289,7 @@ class StudyPlanService:
         Generate next 2-week batch of sessions focusing on top priority topics.
 
         Number of sessions determined by weekly_study_hours.
-        Each session has ~25 questions.
+        Each session has ~10 questions.
 
         Args:
             study_plan_id: Study plan ID
@@ -298,7 +298,7 @@ class StudyPlanService:
         Returns:
             Dictionary with batch info and created sessions
         """
-        QUESTIONS_PER_SESSION = 25
+        QUESTIONS_PER_SESSION = 10
 
         # Get study plan
         plan_response = self.db.table("study_plans").select("*").eq(

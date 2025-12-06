@@ -3,17 +3,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
-import type { CategoryHeatmap, CategoriesAndTopicsResponse } from "@/lib/types";
-import { SkillRadialChart } from "@/components/charts/SkillRadialChart";
+import type { CategoriesAndTopicsResponse } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useCompletedSessions } from "@/hooks/queries";
@@ -22,8 +14,6 @@ import { toast } from "sonner";
 
 export default function DrillPage() {
   const router = useRouter();
-  const [heatmap, setHeatmap] = useState<Record<string, CategoryHeatmap>>({});
-  const [loading, setLoading] = useState(true);
   const [categories, setCategories] =
     useState<CategoriesAndTopicsResponse | null>(null);
   const [loadingCategories, setLoadingCategories] = useState(true);
@@ -62,50 +52,49 @@ export default function DrillPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        setLoading(true);
         setLoadingCategories(true);
-        const [response, categoriesData] = await Promise.all([
-          api.getSkillHeatmap(),
-          api.getCategoriesAndTopics(),
-        ]);
-        setHeatmap(response.heatmap);
+        const categoriesData = await api.getCategoriesAndTopics();
         setCategories(categoriesData);
       } catch (err) {
-        console.error("Failed to load skill heatmap:", err);
+        console.error("Failed to load categories and topics:", err);
       } finally {
-        setLoading(false);
         setLoadingCategories(false);
       }
     };
     load();
   }, []);
 
-  const revisionTopics = categories
-    ? [
-        ...(Array.isArray(categories.math)
-          ? categories.math.flatMap((category: any) =>
-              (category.topics || []).map((topic: any) => ({
+  // Group topics by section and category
+  const topicsBySection = categories
+    ? {
+        math: Array.isArray(categories.math)
+          ? categories.math.map((category: any) => ({
+              categoryId: category.id,
+              categoryName: category.name,
+              section: "math",
+              topics: (category.topics || []).map((topic: any) => ({
                 id: topic.id,
                 name: topic.name,
                 categoryName: category.name,
                 section: "math",
-                questionsCount: 3, // 3 questions per topic
-              }))
-            )
-          : []),
-        ...(Array.isArray(categories.reading_writing)
-          ? categories.reading_writing.flatMap((category: any) =>
-              (category.topics || []).map((topic: any) => ({
+              })),
+            }))
+          : [],
+        reading_writing: Array.isArray(categories.reading_writing)
+          ? categories.reading_writing.map((category: any) => ({
+              categoryId: category.id,
+              categoryName: category.name,
+              section: "reading_writing",
+              topics: (category.topics || []).map((topic: any) => ({
                 id: topic.id,
                 name: topic.name,
                 categoryName: category.name,
                 section: "reading_writing",
-                questionsCount: 3, // 3 questions per topic
-              }))
-            )
-          : []),
-      ]
-    : [];
+              })),
+            }))
+          : [],
+      }
+    : { math: [], reading_writing: [] };
 
   const handleTopicToggle = (topicId: string) => {
     setSelectedTopics((prev) => {
@@ -157,73 +146,123 @@ export default function DrillPage() {
             </div>
 
             {loadingCategories ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <Skeleton key={i} className="h-24 rounded-xl" />
-                ))}
+              <div className="space-y-8">
+                <Skeleton className="h-48 rounded-xl" />
+                <Skeleton className="h-48 rounded-xl" />
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {revisionTopics.map((topic) => (
-                  <div
-                    key={topic.id}
-                    className={`
-                      relative group cursor-pointer p-5 rounded-xl border-2 transition-all duration-200 ease-out
-                      ${
-                        selectedTopics.includes(topic.id)
-                          ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                          : "border-border bg-card hover:border-primary/50 hover:bg-accent/50"
-                      }
-                    `}
-                    onClick={() => handleTopicToggle(topic.id)}
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="pr-8">
-                        <h3 className="font-semibold text-foreground leading-tight">
-                          {topic.name}
-                        </h3>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {topic.categoryName}
-                        </p>
-                      </div>
-                      <Checkbox
-                        checked={selectedTopics.includes(topic.id)}
-                        onCheckedChange={() => handleTopicToggle(topic.id)}
-                        className="w-5 h-5"
-                      />
+              <div className="space-y-8">
+                {/* Math Section */}
+                {topicsBySection.math.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-xl font-bold text-foreground">Math</h3>
+                      <Badge variant="secondary" className="text-muted-foreground bg-muted font-medium">
+                        {topicsBySection.math.reduce((acc, cat) => acc + cat.topics.length, 0)} topics
+                      </Badge>
                     </div>
 
-                    <div className="flex items-center gap-2 mt-3">
-                      <div
-                        className={`
-                        h-1.5 flex-1 rounded-full overflow-hidden bg-muted
-                      `}
-                      >
-                        <div
-                          className={`h-full rounded-full ${
-                            topic.section === "math"
-                              ? "bg-amber-500"
-                              : "bg-rose-500"
-                          }`}
-                          style={{
-                            width: `${Math.min(
-                              100,
-                              (topic.questionsCount / 10) * 100
-                            )}%`,
-                          }}
-                        />
+                    {topicsBySection.math.map((category) => (
+                      <div key={category.categoryId} className="space-y-3">
+                        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                          {category.categoryName}
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {category.topics.map((topic) => (
+                            <div
+                              key={topic.id}
+                              className={`
+                                relative group cursor-pointer p-5 pb-0 rounded-xl border-2 transition-all duration-200 ease-out overflow-hidden
+                                ${
+                                  selectedTopics.includes(topic.id)
+                                    ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                                    : "border-border bg-card hover:border-primary/50 hover:bg-accent/50"
+                                }
+                              `}
+                              onClick={() => handleTopicToggle(topic.id)}
+                            >
+                              <div className="flex justify-between items-start mb-5 px-0">
+                                <div className="pr-8">
+                                  <h3 className="font-semibold text-foreground leading-tight">
+                                    {topic.name}
+                                  </h3>
+                                </div>
+                                <Checkbox
+                                  checked={selectedTopics.includes(topic.id)}
+                                  onCheckedChange={() => handleTopicToggle(topic.id)}
+                                  className="w-5 h-5"
+                                />
+                              </div>
+
+                              <div className="absolute bottom-0 left-0 right-0 h-1.5">
+                                <div className="h-full w-full bg-amber-500" />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <span className="text-xs text-muted-foreground font-medium whitespace-nowrap">
-                        {topic.questionsCount} Qs
-                      </span>
-                    </div>
+                    ))}
                   </div>
-                ))}
+                )}
+
+                {/* Reading & Writing Section */}
+                {topicsBySection.reading_writing.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-xl font-bold text-foreground">Reading & Writing</h3>
+                      <Badge variant="secondary" className="text-muted-foreground bg-muted font-medium">
+                        {topicsBySection.reading_writing.reduce((acc, cat) => acc + cat.topics.length, 0)} topics
+                      </Badge>
+                    </div>
+
+                    {topicsBySection.reading_writing.map((category) => (
+                      <div key={category.categoryId} className="space-y-3">
+                        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                          {category.categoryName}
+                        </h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {category.topics.map((topic) => (
+                            <div
+                              key={topic.id}
+                              className={`
+                                relative group cursor-pointer p-5 pb-0 rounded-xl border-2 transition-all duration-200 ease-out overflow-hidden h-24
+                                ${
+                                  selectedTopics.includes(topic.id)
+                                    ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                                    : "border-border bg-card hover:border-primary/50 hover:bg-accent/50"
+                                }
+                              `}
+                              onClick={() => handleTopicToggle(topic.id)}
+                            >
+                              <div className="flex justify-between items-start mb-5 px-0">
+                                <div className="pr-8">
+                                  <h3 className="font-semibold text-foreground leading-tight">
+                                    {topic.name}
+                                  </h3>
+                                </div>
+                                <Checkbox
+                                  checked={selectedTopics.includes(topic.id)}
+                                  onCheckedChange={() => handleTopicToggle(topic.id)}
+                                  className="w-5 h-5"
+                                />
+                              </div>
+
+                              <div className="absolute bottom-0 left-0 right-0 h-1.5">
+                                <div className="h-full w-full bg-rose-500" />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </section>
 
-          {loading ? (
+          {/* Commented out - replaced with better topic selection cards above */}
+          {/* {loading ? (
             <div className="space-y-8">
               {Array.from({ length: 2 }).map((_, i) => (
                 <div
@@ -280,7 +319,7 @@ export default function DrillPage() {
                 ))}
               </div>
             )
-          )}
+          )} */}
 
           {/* Recent Drill Sessions */}
           <section className="bg-card rounded-3xl border border-border shadow-sm overflow-hidden">

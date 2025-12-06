@@ -383,14 +383,12 @@ export const api = {
   },
 
   async createDrillSession(
-    skillId: string,
-    numQuestions: number = 10
+    topicIds: string[],
+    questionsPerTopic: number = 3
   ): Promise<{
     success: boolean;
     session_id: string;
-    skill_name: string;
-    category: string;
-    section: string;
+    topic_names: string[];
     num_questions: number;
     session: any;
   }> {
@@ -401,8 +399,8 @@ export const api = {
         method: "POST",
         headers,
         body: JSON.stringify({
-          skill_id: skillId,
-          num_questions: numQuestions,
+          topic_ids: topicIds,
+          questions_per_topic: questionsPerTopic,
         }),
       }
     );

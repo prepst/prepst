@@ -32,8 +32,8 @@ class SubmitAnswerRequest(BaseModel):
 
 
 class CreateDrillSessionRequest(BaseModel):
-    skill_id: str
-    num_questions: int = 10  # Default to 10 questions for drill
+    topic_ids: List[str]  # List of topic IDs to create drill from (max 5)
+    questions_per_topic: int = 3  # Questions per topic (default 3)
 
 
 @router.get("/{session_id}/questions", response_model=SessionQuestionsResponse)
@@ -626,38 +626,51 @@ async def create_drill_session(
     db: Client = Depends(get_authenticated_client)
 ):
     """
-    Create a drill practice session focused on a specific skill/topic.
-    
+    Create a drill practice session from multiple topics.
+
     Args:
-        request: Drill session creation data (skill_id, num_questions)
+        request: Drill session creation data (topic_ids, questions_per_topic)
         user_id: User ID from authentication token
         db: Database client
-        
+
     Returns:
         Created drill session with questions
     """
     try:
+        # Validate max 5 topics
+        if len(request.topic_ids) > 5:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Maximum 5 topics allowed per drill session"
+            )
+
+        if len(request.topic_ids) == 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="At least 1 topic required"
+            )
+
         # Get user's study plan
         study_plan_response = db.table("study_plans").select("id").eq("user_id", user_id).execute()
-        
+
         if not study_plan_response.data:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="No study plan found. Please create a study plan first."
             )
-        
+
         study_plan_id = study_plan_response.data[0]["id"]
-        
-        # Get skill/topic information
-        skill_response = db.table("topics").select("id, name, category_id, categories(name, section)").eq("id", request.skill_id).execute()
-        
-        if not skill_response.data:
+
+        # Get topics information
+        topics_response = db.table("topics").select("id, name, category_id, categories(name, section)").in_("id", request.topic_ids).execute()
+
+        if not topics_response.data or len(topics_response.data) != len(request.topic_ids):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="Skill not found"
+                detail="One or more topics not found"
             )
-        
-        skill = skill_response.data[0]
+
+        topics = topics_response.data
         
         # Create drill session record
         from datetime import date
@@ -712,54 +725,79 @@ async def create_drill_session(
             )
         
         session_id = session_response.data[0]["id"]
-        
-        # Get questions for this skill/topic
-        questions_response = db.table("questions").select("*").eq(
-            "topic_id", request.skill_id
-        ).eq("is_active", True).limit(request.num_questions * 2).execute()
-        
-        available_questions = questions_response.data
-        
-        if not available_questions:
+
+        # Get questions for all topics
+        questions_response = db.table("questions").select("*").in_(
+            "topic_id", request.topic_ids
+        ).eq("is_active", True).execute()
+
+        all_questions = questions_response.data
+
+        if not all_questions:
             # Clean up the session if no questions found
             db.table("practice_sessions").delete().eq("id", session_id).execute()
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="No questions available for this skill"
+                detail="No questions available for the selected topics"
             )
-        
-        # Select random questions for the drill
-        num_questions = min(request.num_questions, len(available_questions))
-        selected_questions = random.sample(available_questions, num_questions)
-        
+
+        # Group questions by topic
+        questions_by_topic = {}
+        for question in all_questions:
+            topic_id = question["topic_id"]
+            if topic_id not in questions_by_topic:
+                questions_by_topic[topic_id] = []
+            questions_by_topic[topic_id].append(question)
+
+        # Select questions_per_topic from each topic
+        selected_questions = []
+        for topic_id in request.topic_ids:
+            topic_questions = questions_by_topic.get(topic_id, [])
+            if topic_questions:
+                # Take up to questions_per_topic random questions from this topic
+                num_to_select = min(request.questions_per_topic, len(topic_questions))
+                selected_questions.extend(random.sample(topic_questions, num_to_select))
+
+        if not selected_questions:
+            # Clean up the session if no questions selected
+            db.table("practice_sessions").delete().eq("id", session_id).execute()
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No questions available for the selected topics"
+            )
+
+        # Shuffle to mix topics
+        random.shuffle(selected_questions)
+
         # Assign questions to session
         session_questions = []
         for i, question in enumerate(selected_questions):
             session_questions.append({
                 "session_id": session_id,
                 "question_id": question["id"],
-                "topic_id": request.skill_id,  # Add required topic_id field
+                "topic_id": question["topic_id"],
                 "display_order": i + 1,
-                "status": "not_started",  # Use valid status value
+                "status": "not_started",
                 "created_at": "now()"
             })
-        
+
         # Insert session questions
         if session_questions:
             db.table("session_questions").insert(session_questions).execute()
-        
+
         # Get the session with questions for response
         session_with_questions = db.table("practice_sessions").select(
             "*, session_questions(question_id, display_order, questions(*))"
         ).eq("id", session_id).execute()
-        
+
+        # Get topic names for response
+        topic_names = [topic["name"] for topic in topics]
+
         return {
             "success": True,
             "session_id": session_id,
-            "skill_name": skill["name"],
-            "category": skill["categories"]["name"],
-            "section": skill["categories"]["section"],
-            "num_questions": num_questions,
+            "topic_names": topic_names,
+            "num_questions": len(selected_questions),
             "session": session_with_questions.data[0]
         }
         

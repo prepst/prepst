@@ -78,7 +78,7 @@ export function SkillRadialChart({
     }
 
     try {
-      const drillSession = await api.createDrillSession(skillId, 10);
+      const drillSession = await api.createDrillSession([skillId], 10);
       // Navigate to practice session
       window.location.href = `/practice/${drillSession.session_id}`;
     } catch (error) {

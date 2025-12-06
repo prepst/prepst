@@ -417,10 +417,10 @@ export interface paths {
         put?: never;
         /**
          * Create Drill Session
-         * @description Create a drill practice session focused on a specific skill/topic.
+         * @description Create a drill practice session from multiple topics.
          *
          *     Args:
-         *         request: Drill session creation data (skill_id, num_questions)
+         *         request: Drill session creation data (topic_ids, questions_per_topic)
          *         user_id: User ID from authentication token
          *         db: Database client
          *
@@ -2093,13 +2093,13 @@ export interface components {
         CreateDiagnosticTestRequest: Record<string, never>;
         /** CreateDrillSessionRequest */
         CreateDrillSessionRequest: {
-            /** Skill Id */
-            skill_id: string;
+            /** Topic Ids */
+            topic_ids: string[];
             /**
-             * Num Questions
-             * @default 10
+             * Questions Per Topic
+             * @default 3
              */
-            num_questions: number;
+            questions_per_topic: number;
         };
         /** CreateMockExamRequest */
         CreateMockExamRequest: {

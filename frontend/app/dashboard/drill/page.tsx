@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import type { CategoryHeatmap, CategoriesAndTopicsResponse } from "@/lib/types";
 import { SkillRadialChart } from "@/components/charts/SkillRadialChart";
@@ -14,24 +15,48 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useCompletedSessions } from "@/hooks/queries";
 import { formatDistanceToNow } from "date-fns";
+import { toast } from "sonner";
 
 export default function DrillPage() {
+  const router = useRouter();
   const [heatmap, setHeatmap] = useState<Record<string, CategoryHeatmap>>({});
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] =
     useState<CategoriesAndTopicsResponse | null>(null);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
+  const [isCreatingSession, setIsCreatingSession] = useState(false);
 
   // Fetch recent drill sessions
   const { data: completedSessions, isLoading: loadingSessions } =
     useCompletedSessions(5);
 
-  const handleStartDrill = () => {
-    // TODO: wire to backend create drill session
-    console.log("Starting drill with topics:", selectedTopics);
+  const handleStartDrill = async () => {
+    if (selectedTopics.length === 0) {
+      toast.error("Please select at least one topic");
+      return;
+    }
+
+    if (selectedTopics.length > 5) {
+      toast.error("Maximum 5 topics allowed");
+      return;
+    }
+
+    try {
+      setIsCreatingSession(true);
+      const drillSession = await api.createDrillSession(selectedTopics, 3);
+      toast.success(`Drill session created with ${drillSession.num_questions} questions`);
+      router.push(`/practice/${drillSession.session_id}`);
+    } catch (error) {
+      console.error("Failed to create drill session:", error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to create drill session";
+      toast.error(errorMessage);
+    } finally {
+      setIsCreatingSession(false);
+    }
   };
 
   useEffect(() => {
@@ -58,36 +83,42 @@ export default function DrillPage() {
   const revisionTopics = categories
     ? [
         ...(Array.isArray(categories.math)
-          ? categories.math.map((category: any) => ({
-              id: category.id,
-              name: category.name,
-              difficulty: "Medium",
-              lastReviewed: "Never",
-              masteryLevel: 0,
-              questionsCount: category.topics?.length || 0,
-              section: "math",
-            }))
+          ? categories.math.flatMap((category: any) =>
+              (category.topics || []).map((topic: any) => ({
+                id: topic.id,
+                name: topic.name,
+                categoryName: category.name,
+                section: "math",
+                questionsCount: 3, // 3 questions per topic
+              }))
+            )
           : []),
         ...(Array.isArray(categories.reading_writing)
-          ? categories.reading_writing.map((category: any) => ({
-              id: category.id,
-              name: category.name,
-              difficulty: "Medium",
-              lastReviewed: "Never",
-              masteryLevel: 0,
-              questionsCount: category.topics?.length || 0,
-              section: "reading_writing",
-            }))
+          ? categories.reading_writing.flatMap((category: any) =>
+              (category.topics || []).map((topic: any) => ({
+                id: topic.id,
+                name: topic.name,
+                categoryName: category.name,
+                section: "reading_writing",
+                questionsCount: 3, // 3 questions per topic
+              }))
+            )
           : []),
       ]
     : [];
 
   const handleTopicToggle = (topicId: string) => {
-    setSelectedTopics((prev) =>
-      prev.includes(topicId)
-        ? prev.filter((id) => id !== topicId)
-        : [...prev, topicId]
-    );
+    setSelectedTopics((prev) => {
+      if (prev.includes(topicId)) {
+        return prev.filter((id) => id !== topicId);
+      } else {
+        if (prev.length >= 5) {
+          toast.error("Maximum 5 topics allowed");
+          return prev;
+        }
+        return [...prev, topicId];
+      }
+    });
   };
 
   return (
@@ -106,22 +137,22 @@ export default function DrillPage() {
             </div>
             <Button
               onClick={handleStartDrill}
-              disabled={selectedTopics.length === 0}
+              disabled={selectedTopics.length === 0 || isCreatingSession}
               size="lg"
               className="bg-[#866ffe] hover:bg-[#7a5ffe] text-white font-semibold shadow-lg shadow-primary/25 h-12 px-8 transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
             >
-              Start Practice Drill
+              {isCreatingSession ? "Creating..." : "Start Practice Drill"}
             </Button>
           </div>
 
-          {/* Categories Selection */}
+          {/* Topics Selection */}
           <section>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-bold text-foreground">
-                Select Categories
+                Select Topics
               </h2>
               <p className="text-sm text-muted-foreground">
-                {selectedTopics.length} selected
+                {selectedTopics.length} selected (max 5)
               </p>
             </div>
 
@@ -147,23 +178,19 @@ export default function DrillPage() {
                     onClick={() => handleTopicToggle(topic.id)}
                   >
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold text-foreground pr-8 leading-tight">
-                        {topic.name}
-                      </h3>
-                      <div
-                        className={`
-                        w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors
-                        ${
-                          selectedTopics.includes(topic.id)
-                            ? "bg-primary border-primary"
-                            : "border-muted-foreground/30 group-hover:border-primary/50"
-                        }
-                      `}
-                      >
-                        {selectedTopics.includes(topic.id) && (
-                          <div className="w-2 h-2 bg-white rounded-full" />
-                        )}
+                      <div className="pr-8">
+                        <h3 className="font-semibold text-foreground leading-tight">
+                          {topic.name}
+                        </h3>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {topic.categoryName}
+                        </p>
                       </div>
+                      <Checkbox
+                        checked={selectedTopics.includes(topic.id)}
+                        onCheckedChange={() => handleTopicToggle(topic.id)}
+                        className="w-5 h-5"
+                      />
                     </div>
 
                     <div className="flex items-center gap-2 mt-3">

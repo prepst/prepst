@@ -2,32 +2,15 @@
 
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
-import { SkillProgressList } from "./SkillProgressList";
 import { Badge } from "@/components/ui/badge";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-} from "recharts";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { useProfile, useMockExamAnalytics } from "@/hooks/queries";
+import { useProfile, useMockExamAnalytics, useStudyTime } from "@/hooks/queries";
 import { useStudyPlan } from "@/hooks/useStudyPlan";
-import { api } from "@/lib/api";
 import DashboardStatsBento from "@/components/dashboard/DashboardStatsBento";
 import {
-  Clock,
   Target,
-  TrendingUp,
-  BookOpen,
-  Calendar as CalendarIcon,
   Award,
-  Zap,
-  CheckCircle,
 } from "lucide-react";
 
 interface StatisticsPanelProps {
@@ -46,7 +29,6 @@ interface StudyStats {
   longestStreak: number;
   averageScore: number;
   improvementRate: number;
-  weeklyActivity: Array<{ day: string; minutes: number; score?: number }>;
   topSkills: Array<{ name: string; mastery: number; color: string }>;
 }
 
@@ -61,6 +43,7 @@ export function StatisticsPanel({
   const { data: profileData } = useProfile();
   const { studyPlan, isLoading: isLoadingStudyPlan } = useStudyPlan();
   const { data: mockExamAnalytics } = useMockExamAnalytics();
+  const { data: studyTimeData } = useStudyTime(7);
 
   // Helper functions for profile display
   const getDisplayName = () => {
@@ -138,23 +121,14 @@ export function StatisticsPanel({
       try {
         setIsLoading(true);
 
-        // Mock data for now - replace with real API calls
+        // Use real study time data, fall back to mock for other stats
         const mockStats: StudyStats = {
-          totalStudyTime: 1240, // minutes
-          sessionsCompleted: 23,
+          totalStudyTime: studyTimeData?.total_minutes || 0,
+          sessionsCompleted: studyTimeData?.sessions_count || 0,
           currentStreak: 7,
           longestStreak: 12,
           averageScore: 78,
           improvementRate: 12,
-          weeklyActivity: [
-            { day: "Mon", minutes: 45, score: 82 },
-            { day: "Tue", minutes: 60, score: 85 },
-            { day: "Wed", minutes: 30, score: 78 },
-            { day: "Thu", minutes: 90, score: 88 },
-            { day: "Fri", minutes: 75, score: 91 },
-            { day: "Sat", minutes: 120, score: 89 },
-            { day: "Sun", minutes: 0, score: 0 },
-          ],
           topSkills: [
             { name: "Algebra", mastery: 85, color: "bg-blue-500" },
             {
@@ -177,7 +151,7 @@ export function StatisticsPanel({
     };
 
     loadStudyStats();
-  }, []);
+  }, [studyTimeData]);
 
   if (isLoading) {
     return (
@@ -265,35 +239,6 @@ export function StatisticsPanel({
             studyTimeGoal="2h 0m"
             questionsGoal={50}
           />
-
-          {/* Weekly Activity Chart */}
-          <div className="mb-4">
-            <h4 className="text-sm font-semibold text-muted-foreground mb-3">
-              Daily Study Time
-            </h4>
-            <ResponsiveContainer width="100%" height={120}>
-              <BarChart data={studyStats.weeklyActivity}>
-                <XAxis
-                  dataKey="day"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{
-                    fill: "currentColor",
-                    className: "text-muted-foreground fill-current",
-                  }}
-                />
-                <YAxis hide />
-                <Bar
-                  dataKey="minutes"
-                  fill="var(--color-primary)"
-                  className="fill-primary"
-                  radius={[4, 4, 0, 0]}
-                  maxBarSize={30}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
         </div>
       )}
 

@@ -17,6 +17,7 @@ export { useErrorPatternAnalytics } from './useErrorPatternAnalytics';
 export { useCognitiveEfficiencyAnalytics } from './useCognitiveEfficiencyAnalytics';
 export { useConfidenceTiming } from './useConfidenceTiming';
 export { useLearningVelocity } from './useLearningVelocity';
+export { useStudyTime } from './useStudyTime';
 
 // Profile
 export { useProfile } from './useProfile';

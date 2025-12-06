@@ -44,6 +44,14 @@ class LearningEventsResponse(BaseModel):
     total_count: int
 
 
+class StudyTimeResponse(BaseModel):
+    """Response model for study time"""
+    total_minutes: int
+    sessions_count: int
+    mock_modules_count: int
+    days_back: int
+
+
 @router.get("/users/me/growth-curve", response_model=GrowthCurveResponse)
 async def get_user_growth_curve(
     skill_id: Optional[str] = Query(None, description="Optional skill ID to track"),
@@ -920,12 +928,162 @@ async def get_user_mock_exam_performance(
             "recent_exams": recent_exams,
             "total_count": len(recent_exams)
         }
-        
+
     except Exception as e:
         print(f"Error getting mock exam performance: {e}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve mock exam performance: {str(e)}"
+        )
+
+
+@router.get("/users/me/study-time", response_model=StudyTimeResponse)
+async def get_user_study_time(
+    days_back: int = Query(7, description="Number of days to look back", ge=1, le=90),
+    user_id: str = Depends(get_current_user),
+    db: Client = Depends(get_authenticated_client)
+):
+    """
+    Get user's total study time from practice sessions and mock exams.
+
+    Calculates study time by summing the duration of:
+    - Completed practice sessions (completed_at - started_at)
+    - Completed mock exam modules (completed_at - started_at)
+
+    Args:
+        days_back: Number of days to look back (default 7)
+        user_id: Authenticated user ID
+        db: Database client
+
+    Returns:
+        total_minutes: Total study time in minutes
+        sessions_count: Number of completed practice sessions
+        mock_modules_count: Number of completed mock exam modules
+    """
+    try:
+        from datetime import datetime, timezone, timedelta
+        import re
+
+        # Calculate cutoff date
+        cutoff_date = (datetime.now(timezone.utc) - timedelta(days=days_back)).isoformat()
+
+        total_minutes = 0
+        sessions_count = 0
+
+        # Get user's study plan IDs
+        study_plans_result = db.table("study_plans").select("id").eq("user_id", user_id).execute()
+        user_study_plan_ids = {sp["id"] for sp in study_plans_result.data}
+
+        # Get completed practice sessions
+        if user_study_plan_ids:
+            sessions_result = db.table("practice_sessions").select(
+                "id, started_at, completed_at, study_plan_id"
+            ).eq("status", "completed").gte("completed_at", cutoff_date).execute()
+
+            # Filter sessions by user's study plans
+            for session in sessions_result.data:
+                if session.get("study_plan_id") not in user_study_plan_ids:
+                    continue
+
+                started = session.get("started_at")
+                completed = session.get("completed_at")
+
+                if started and completed:
+                    try:
+                        start_dt = datetime.fromisoformat(started.replace('Z', '+00:00'))
+                        complete_dt = datetime.fromisoformat(completed.replace('Z', '+00:00'))
+                        duration_minutes = (complete_dt - start_dt).total_seconds() / 60
+
+                        # Sanity check: ignore sessions longer than 4 hours (likely data error)
+                        if 0 < duration_minutes <= 240:
+                            total_minutes += duration_minutes
+                            sessions_count += 1
+                    except Exception:
+                        continue
+                else:
+                    # Fallback: If we have completed_at but no started_at, use actual time_spent_seconds from questions
+                    if completed and not started:
+                        # Get actual time spent from questions
+                        questions_result = db.table("session_questions").select(
+                            "time_spent_seconds"
+                        ).eq("session_id", session.get("id")).execute()
+
+                        if questions_result.data:
+                            # Sum up actual time spent on all questions
+                            total_seconds = sum(
+                                q.get("time_spent_seconds", 0)
+                                for q in questions_result.data
+                                if q.get("time_spent_seconds") is not None
+                            )
+
+                            if total_seconds > 0:
+                                actual_minutes = total_seconds / 60
+                                total_minutes += actual_minutes
+                                sessions_count += 1
+                            else:
+                                # If no time_spent_seconds data, estimate based on question count
+                                question_count = len(questions_result.data)
+                                estimated_minutes = question_count * 2  # 2 min per question estimate
+                                total_minutes += estimated_minutes
+                                sessions_count += 1
+
+        # Get completed mock exams
+        # Note: We query all completed exams then filter by user_id due to a potential RLS issue
+        all_completed_exams = db.table("mock_exams").select(
+            "id, user_id, status, started_at, completed_at"
+        ).eq("status", "completed").execute()
+
+        # Filter to current user's completed exams
+        user_completed_exams = [e for e in all_completed_exams.data if e.get('user_id') == user_id]
+
+        # Apply date filter manually
+        filtered_exams = []
+        for exam in user_completed_exams:
+            if exam.get('completed_at'):
+                try:
+                    complete_dt = datetime.fromisoformat(exam['completed_at'].replace('Z', '+00:00'))
+                    cutoff_dt = datetime.fromisoformat(cutoff_date.replace('Z', '+00:00'))
+                    if complete_dt >= cutoff_dt:
+                        filtered_exams.append(exam)
+                except Exception:
+                    pass
+
+        # Count mock exam time
+        mock_exams_count = 0
+        for exam in filtered_exams:
+            # Try to calculate from timestamps first
+            started = exam.get("started_at")
+            completed = exam.get("completed_at")
+
+            if started and completed:
+                try:
+                    # Fix malformed microseconds (e.g., .0955 -> .095500)
+                    import re
+                    started = re.sub(r'\.(\d{1,5})(\+|Z)', lambda m: f'.{m.group(1).ljust(6, "0")}{m.group(2)}', started)
+                    completed = re.sub(r'\.(\d{1,5})(\+|Z)', lambda m: f'.{m.group(1).ljust(6, "0")}{m.group(2)}', completed)
+
+                    start_dt = datetime.fromisoformat(started.replace('Z', '+00:00'))
+                    complete_dt = datetime.fromisoformat(completed.replace('Z', '+00:00'))
+                    duration_minutes = (complete_dt - start_dt).total_seconds() / 60
+
+                    # Sanity check for mock exams (max 4 hours)
+                    if 0 < duration_minutes <= 240:
+                        total_minutes += duration_minutes
+                        mock_exams_count += 1
+                except Exception:
+                    pass
+
+        return {
+            "total_minutes": round(total_minutes),
+            "sessions_count": sessions_count,
+            "mock_modules_count": mock_exams_count,
+            "days_back": days_back
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve study time: {str(e)}"
         )
 
 

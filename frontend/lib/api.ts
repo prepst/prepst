@@ -810,6 +810,25 @@ export const api = {
     return response.json();
   },
 
+  async getStudyTime(daysBack: number = 7): Promise<{
+    total_minutes: number;
+    sessions_count: number;
+    mock_modules_count: number;
+    days_back: number;
+  }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${config.apiUrl}/api/analytics/users/me/study-time?days_back=${daysBack}`,
+      { headers }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch study time");
+    }
+
+    return response.json();
+  },
+
   async getMockExamPerformance(limit: number = 10): Promise<{
     recent_exams: Array<{
       exam_type: string;

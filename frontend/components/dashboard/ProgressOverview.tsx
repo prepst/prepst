@@ -10,7 +10,6 @@ import {
   CheckCircle2,
   Clock,
 } from "lucide-react";
-import { PerformanceChart } from "@/components/dashboard/PerformanceChart";
 
 interface ProgressOverviewProps {
   studyPlan?: any;
@@ -167,9 +166,8 @@ export function ProgressOverview({
         </Card>
       </div>
 
-      {/* Detailed Progress Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Study Plan Timeline */}
+      {/* Study Plan Timeline */}
+      <div className="grid grid-cols-1 gap-6">
         <Card className="border-border shadow-sm bg-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-card-foreground">
@@ -238,9 +236,6 @@ export function ProgressOverview({
             </div>
           </CardContent>
         </Card>
-
-        {/* Mock Exam Performance Chart */}
-        <PerformanceChart />
       </div>
     </div>
   );

@@ -122,24 +122,24 @@ function QuickPracticeCompleteContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 p-4">
-      <div className="max-w-2xl mx-auto">
-        <Card className="p-8 text-center">
+    <div className="min-h-screen bg-background p-4 flex items-center justify-center">
+      <div className="w-full max-w-2xl mx-auto">
+        <Card className="p-8 text-center bg-card border-border shadow-lg">
           <div className="mb-8">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl">🎉</span>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-3xl font-bold text-foreground mb-2">
               Practice Complete!
             </h1>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Great job! You've finished your quick practice session.
             </p>
           </div>
 
           {/* Results Display */}
-          <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-lg p-6 mb-8 border-2 border-purple-200">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="bg-muted/30 rounded-lg p-6 mb-8 border border-border">
+            <h2 className="text-lg font-semibold text-foreground mb-4">
               Your Results
             </h2>
 
@@ -148,15 +148,15 @@ function QuickPracticeCompleteContent() {
               <div
                 className={`text-6xl font-bold mb-2 ${
                   percentage >= 70
-                    ? "text-green-600"
+                    ? "text-green-600 dark:text-green-500"
                     : percentage >= 50
-                    ? "text-yellow-600"
-                    : "text-red-600"
+                    ? "text-yellow-600 dark:text-yellow-500"
+                    : "text-red-600 dark:text-red-500"
                 }`}
               >
                 {percentage}%
               </div>
-              <div className="text-gray-600">
+              <div className="text-muted-foreground">
                 {correctAnswers} of {totalAnswered} correct
               </div>
             </div>
@@ -164,20 +164,20 @@ function QuickPracticeCompleteContent() {
             {/* Performance Indicator */}
             <div className="text-center mb-4">
               {percentage >= 90 && (
-                <div className="text-green-600 font-semibold">
+                <div className="text-green-600 dark:text-green-500 font-semibold">
                   🌟 Excellent Work!
                 </div>
               )}
               {percentage >= 70 && percentage < 90 && (
-                <div className="text-blue-600 font-semibold">👍 Good Job!</div>
+                <div className="text-blue-600 dark:text-blue-500 font-semibold">👍 Good Job!</div>
               )}
               {percentage >= 50 && percentage < 70 && (
-                <div className="text-yellow-600 font-semibold">
+                <div className="text-yellow-600 dark:text-yellow-500 font-semibold">
                   📚 Keep Practicing!
                 </div>
               )}
               {percentage < 50 && (
-                <div className="text-red-600 font-semibold">
+                <div className="text-red-600 dark:text-red-500 font-semibold">
                   💪 You Can Do Better!
                 </div>
               )}
@@ -186,14 +186,14 @@ function QuickPracticeCompleteContent() {
             {/* Session Details */}
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="text-gray-600">Questions:</span>
-                <span className="font-medium ml-2">
+                <span className="text-muted-foreground">Questions:</span>
+                <span className="font-medium ml-2 text-foreground">
                   {session.questions.length}
                 </span>
               </div>
               <div>
-                <span className="text-gray-600">Time Limit:</span>
-                <span className="font-medium ml-2">
+                <span className="text-muted-foreground">Time Limit:</span>
+                <span className="font-medium ml-2 text-foreground">
                   {Math.floor(session.timeLimit / 60)} minutes
                 </span>
               </div>
@@ -203,7 +203,7 @@ function QuickPracticeCompleteContent() {
           <div className="space-y-3">
             <Button
               onClick={handleStartNewPractice}
-              className="w-full bg-purple-600 hover:bg-purple-700 py-3"
+              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3"
             >
               Start Another Practice
             </Button>

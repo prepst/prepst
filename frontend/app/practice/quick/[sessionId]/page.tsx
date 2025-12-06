@@ -15,6 +15,7 @@ import { useTimer } from "@/hooks/useTimer";
 import { SessionQuestion, AnswerState } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { config } from "@/lib/config";
 
 interface PracticeQuestion {
   id: string;
@@ -190,6 +191,7 @@ function QuickPracticeContent() {
 
   const handleNext = () => {
     setShowFeedback(false);
+    setAiFeedback(null);
     setConfidenceScore(3);
 
     if (currentIndex < (session?.questions.length || 0) - 1) {
@@ -211,6 +213,7 @@ function QuickPracticeContent() {
 
   const handlePrevious = () => {
     setShowFeedback(false);
+    setAiFeedback(null);
     setConfidenceScore(3);
 
     if (currentIndex > 0) {
@@ -227,8 +230,111 @@ function QuickPracticeContent() {
     }
   };
 
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      const isInputFocused =
+        document.activeElement?.tagName === "INPUT" ||
+        document.activeElement?.tagName === "TEXTAREA";
+
+      // If typing in an input, ONLY handle Enter key (for submission), ignore everything else
+      if (isInputFocused && key !== "enter") {
+        return;
+      }
+
+      // Prevent default behavior for keys we handle (unless typing)
+      const isHandledKey = [
+        "1",
+        "2",
+        "3",
+        "4",
+        "a",
+        "b",
+        "c",
+        "d",
+        "Enter",
+      ].includes(event.key);
+      if (isHandledKey && !isInputFocused) {
+        event.preventDefault();
+      }
+
+      if (!currentQuestion) return;
+
+      const isMultipleChoice = currentQuestion.question_type === "mc";
+
+      // --- Handle Answer Selection (1, 2, 3, 4, A, B, C, D) ---
+      // Only if NOT typing in an input box
+      if (!isInputFocused && isMultipleChoice && !showFeedback) {
+        const answerOptions = currentQuestion.answer_options;
+        const options = Array.isArray(answerOptions)
+          ? answerOptions
+          : answerOptions
+          ? Object.entries(answerOptions)
+          : [];
+
+        let selectedOptionId: string | undefined;
+
+        // Map numerical keys to options
+        if (key >= "1" && key <= "4") {
+          // Assuming max 4 options for now
+          const index = parseInt(key) - 1;
+          if (index < options.length) {
+            selectedOptionId = String(
+              (options[index] as any).id || (options[index] as any)[0]
+            );
+          }
+        } else if (key >= "a" && key <= "d") {
+          // Map alphabetical keys to options
+          const index = key.charCodeAt(0) - "a".charCodeAt(0);
+          if (index < options.length) {
+            selectedOptionId = String(
+              (options[index] as any).id || (options[index] as any)[0]
+            );
+          }
+        }
+
+        if (selectedOptionId) {
+          handleAnswerChange(selectedOptionId);
+        }
+      }
+
+      // --- Handle Enter Key for Submit/Next ---
+      if (key === "enter") {
+        // For Enter, we generally want to prevent default (form submission) and handle it manually
+        event.preventDefault();
+
+        if (!showFeedback) {
+          // Currently answering
+          if (
+            currentAnswer?.userAnswer &&
+            currentAnswer.userAnswer.length > 0
+          ) {
+            handleSubmit();
+          }
+        } else {
+          // Feedback is shown
+          handleNext();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [
+    currentQuestion,
+    currentAnswer,
+    showFeedback,
+    // We need to be careful with dependencies here. 
+    // Since these functions and values change on every render/state update,
+    // the effect will re-run often. This is generally okay for key listeners.
+  ]);
+
   const handleQuestionNavigation = (questionIndex: number) => {
     setShowFeedback(false);
+    setAiFeedback(null);
     setConfidenceScore(3);
     setCurrentIndex(questionIndex);
     setShowQuestionList(false);
@@ -292,7 +398,7 @@ function QuickPracticeContent() {
         JSON.stringify(correctAnswer.sort());
 
       // Call AI feedback API
-      const response = await fetch("/api/ai-feedback", {
+      const response = await fetch(`${config.apiUrl}/api/ai-feedback/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -389,7 +495,7 @@ function QuickPracticeContent() {
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 flex flex-col overflow-hidden">
+    <div className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Header with Progress */}
       <PracticeHeader
         currentIndex={currentIndex}
@@ -446,8 +552,8 @@ function QuickPracticeContent() {
 
         {/* Draggable Divider */}
         <div
-          className={`w-1 bg-gray-300 hover:bg-blue-400 cursor-col-resize transition-colors ${
-            isDragging ? "bg-blue-500" : ""
+          className={`w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ${
+            isDragging ? "bg-primary" : ""
           }`}
           onMouseDown={handleMouseDown}
           style={{
@@ -458,7 +564,7 @@ function QuickPracticeContent() {
 
         {/* Right Panel - Answer Choices & Feedback - Dynamic width */}
         <div
-          className="border-l bg-white/60 backdrop-blur-sm flex flex-col"
+          className="border-l border-border bg-card/50 backdrop-blur-sm flex flex-col"
           style={{ width: `${dividerPosition}px` }}
         >
           <AnswerPanel

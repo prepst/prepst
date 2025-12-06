@@ -109,6 +109,7 @@ function PracticeSessionContent() {
   };
 
   const handleNext = () => {
+    clearAiFeedback();
     const isLastQuestion = navHandleNext();
     if (isLastQuestion) {
       router.push(`/practice/${sessionId}/summary`);
@@ -225,6 +226,7 @@ function PracticeSessionContent() {
   };
 
   const handlePrevious = () => {
+    clearAiFeedback();
     navHandlePrevious();
   };
 

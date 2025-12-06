@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { components } from "@/lib/types/api.generated";
@@ -17,109 +18,114 @@ export type ProfileResponse = components["schemas"]["ProfileResponse"];
 // Use ProfileResponse as ProfileData since it matches the API response
 export type ProfileData = ProfileResponse;
 
+// Helper to get initial profile data from auth user
+function getInitialProfileData(user: any): ProfileData | null {
+  if (!user) return null;
+
+  const now = new Date().toISOString();
+  const email = user.email || "";
+  const fullName =
+    user.user_metadata?.full_name || email.split("@")[0] || "User";
+
+  const initialProfile: UserProfile = {
+    id: user.id,
+    email: email,
+    name: user.user_metadata?.name || fullName,
+    profile_photo_url: user.user_metadata?.avatar_url || null,
+    created_at: now,
+    updated_at: now,
+    bio: null,
+    study_goal: null,
+    grade_level: null,
+    school_name: null,
+    phone_number: null,
+    parent_email: null,
+    timezone: "America/New_York",
+    onboarding_completed: false,
+    role: "user",
+  } as any;
+
+  const initialPreferences: UserPreferences = {
+    id: "",
+    user_id: user.id,
+    theme: "light",
+    font_size: "normal",
+    reduce_animations: false,
+    preferred_study_time: "evening",
+    session_length_preference: 30,
+    learning_style: "balanced",
+    difficulty_adaptation: "balanced",
+    email_notifications: {},
+    push_notifications: {},
+    profile_visibility: "private",
+    show_on_leaderboard: false,
+    created_at: now,
+    updated_at: now,
+  };
+
+  return {
+    profile: initialProfile,
+    preferences: initialPreferences,
+    streak: {
+      id: "",
+      user_id: user.id,
+      current_streak: 0,
+      longest_streak: 0,
+      last_study_date: now,
+      streak_frozen_until: null,
+      total_study_days: 0,
+      created_at: now,
+      updated_at: now,
+    },
+    stats: {
+      total_practice_sessions: 0,
+      total_questions_answered: 0,
+      total_correct_answers: 0,
+      accuracy_percentage: 0,
+      total_study_hours: 0,
+      average_session_duration: 0,
+      total_subjects_studied: 0,
+      total_quizzes_taken: 0,
+      total_flashcards_studied: 0,
+      total_notes_taken: 0,
+      improvement_math: 0,
+      improvement_ebrw: 0,
+      improvement_rw: 0,
+    },
+    recent_achievements: [],
+  };
+}
+
 export function useProfile() {
   const { user } = useAuth();
-  const [profileData, setProfileData] = useState<ProfileData | null>(() => {
-    // Initialize with user data from auth if available
-    if (!user) return null;
+  const queryClient = useQueryClient();
 
-    const now = new Date().toISOString();
-    const email = user.email || "";
-    const fullName =
-      user.user_metadata?.full_name || email.split("@")[0] || "User";
-
-    const initialProfile: UserProfile = {
-      id: user.id,
-      email: email,
-      name: user.user_metadata?.name || fullName,
-      profile_photo_url: user.user_metadata?.avatar_url || null,
-      created_at: now,
-      updated_at: now,
-      bio: null,
-      study_goal: null,
-      grade_level: null,
-      school_name: null,
-      phone_number: null,
-      parent_email: null,
-      timezone: "America/New_York",
-      onboarding_completed: false,
-      role: "user",
-    } as any;
-
-    const initialPreferences: UserPreferences = {
-      id: "", // Will be set by the server
-      user_id: user.id,
-      theme: "light",
-      font_size: "normal",
-      reduce_animations: false,
-      preferred_study_time: "evening",
-      session_length_preference: 30,
-      learning_style: "balanced",
-      difficulty_adaptation: "balanced",
-      email_notifications: {},
-      push_notifications: {},
-      profile_visibility: "private",
-      show_on_leaderboard: false,
-      created_at: now,
-      updated_at: now,
-    };
-
-    return {
-      profile: initialProfile,
-      preferences: initialPreferences,
-      streak: {
-        id: "", // Will be set by the server
-        user_id: user.id,
-        current_streak: 0,
-        longest_streak: 0,
-        last_study_date: now,
-        streak_frozen_until: null,
-        total_study_days: 0,
-        created_at: now,
-        updated_at: now,
-      },
-      stats: {
-        total_practice_sessions: 0,
-        total_questions_answered: 0,
-        total_correct_answers: 0,
-        accuracy_percentage: 0,
-        total_study_hours: 0,
-        average_session_duration: 0,
-        total_subjects_studied: 0,
-        total_quizzes_taken: 0,
-        total_flashcards_studied: 0,
-        total_notes_taken: 0,
-        improvement_math: 0,
-        improvement_ebrw: 0,
-        improvement_rw: 0,
-      },
-      recent_achievements: [],
-    };
-  });
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchProfile = useCallback(async () => {
-    if (!user) {
-      setProfileData(null);
-      setIsLoading(false);
-      return;
-    }
-
+  // Load cached profile from localStorage for instant display
+  const getCachedProfile = (): ProfileData | null => {
+    if (typeof window === 'undefined') return null;
     try {
-      setIsLoading(true);
-      setError(null);
-
-      const response = await api.get("/api/profile");
-      setProfileData(response);
-    } catch (err: any) {
-      console.error("Error fetching profile:", err);
-      setError(err.message || "Failed to load profile");
-    } finally {
-      setIsLoading(false);
+      const cached = localStorage.getItem('user-profile');
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
     }
-  }, [user]);
+  };
+
+  const { data: profileData, isLoading, error, refetch } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      const response = await api.get("/api/profile");
+      // Cache to localStorage for future page loads
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('user-profile', JSON.stringify(response));
+      }
+      return response;
+    },
+    enabled: !!user,
+    initialData: getCachedProfile() || getInitialProfileData(user),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes (garbage collection time)
+  });
 
   const updateProfile = useCallback(async (updates: UserProfileUpdate) => {
     try {
@@ -136,8 +142,8 @@ export function useProfile() {
       };
 
       // Optimistically update the UI first
-      setProfileData((prev) => {
-        if (!prev) return null;
+      queryClient.setQueryData(['profile', user?.id], (prev: ProfileData | undefined) => {
+        if (!prev) return prev;
         return {
           ...prev,
           profile: {
@@ -158,7 +164,7 @@ export function useProfile() {
       console.error("Error updating profile:", err);
       throw err;
     }
-  }, []);
+  }, [queryClient, user?.id]);
 
   const updatePreferences = useCallback(
     async (updates: UserPreferencesUpdate) => {
@@ -166,12 +172,13 @@ export function useProfile() {
         const response = await api.patch("/api/preferences", updates);
 
         // Update local state
-        if (profileData) {
-          setProfileData({
-            ...profileData,
+        queryClient.setQueryData(['profile', user?.id], (prev: ProfileData | undefined) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
             preferences: response,
-          });
-        }
+          };
+        });
 
         // Apply theme if changed
         if (
@@ -187,7 +194,7 @@ export function useProfile() {
         throw err;
       }
     },
-    [profileData]
+    [queryClient, user?.id]
   );
 
   const uploadProfilePhoto = useCallback(
@@ -200,15 +207,16 @@ export function useProfile() {
         const response = await api.post("/api/profile/photo", formData);
 
         // Update local state with new photo URL
-        if (profileData) {
-          setProfileData({
-            ...profileData,
+        queryClient.setQueryData(['profile', user?.id], (prev: ProfileData | undefined) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
             profile: {
-              ...profileData.profile,
+              ...prev.profile,
               profile_photo_url: response.profile_photo_url,
             },
-          });
-        }
+          };
+        });
 
         return response.profile_photo_url;
       } catch (err: any) {
@@ -216,7 +224,7 @@ export function useProfile() {
         throw err;
       }
     },
-    [profileData]
+    [queryClient, user?.id]
   );
 
   const deleteProfilePhoto = useCallback(async () => {
@@ -224,20 +232,21 @@ export function useProfile() {
       await api.delete("/api/profile/photo");
 
       // Update local state
-      if (profileData) {
-        setProfileData({
-          ...profileData,
+      queryClient.setQueryData(['profile', user?.id], (prev: ProfileData | undefined) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
           profile: {
-            ...profileData.profile,
+            ...prev.profile,
             profile_photo_url: undefined,
           },
-        });
-      }
+        };
+      });
     } catch (err: any) {
       console.error("Error deleting profile photo:", err);
       throw err;
     }
-  }, [profileData]);
+  }, [queryClient, user?.id]);
 
   const freezeStreak = useCallback(
     async (days: number) => {
@@ -245,7 +254,7 @@ export function useProfile() {
         const response = await api.post("/api/streak/freeze", { days });
 
         // Refetch profile to get updated streak
-        await fetchProfile();
+        await refetch();
 
         return response.data;
       } catch (err: any) {
@@ -253,7 +262,7 @@ export function useProfile() {
         throw err;
       }
     },
-    [fetchProfile]
+    [refetch]
   );
 
   const unfreezeStreak = useCallback(async () => {
@@ -261,14 +270,14 @@ export function useProfile() {
       const response = await api.post("/api/streak/unfreeze");
 
       // Refetch profile to get updated streak
-      await fetchProfile();
+      await refetch();
 
       return response;
     } catch (err: any) {
       console.error("Error unfreezing streak:", err);
       throw err;
     }
-  }, [fetchProfile]);
+  }, [refetch]);
 
   const getDisplayName = useCallback(() => {
     if (!profileData) return "";
@@ -316,15 +325,11 @@ export function useProfile() {
     return displayName[0].toUpperCase();
   }, [getDisplayName]);
 
-  useEffect(() => {
-    fetchProfile();
-  }, [fetchProfile]);
-
   return {
     profileData,
     isLoading,
-    error,
-    refetch: fetchProfile,
+    error: error ? String(error) : null,
+    refetch,
     updateProfile,
     updatePreferences,
     uploadProfilePhoto,

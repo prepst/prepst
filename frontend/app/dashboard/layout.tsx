@@ -36,6 +36,8 @@ import { useProfile } from "@/hooks/queries";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
+import { useQueryClient } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import type { PracticeSession } from "@/lib/types";
 
 export default function DashboardLayout({
@@ -60,6 +62,28 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const { user } = useAuth();
   const { data: profileData, isLoading } = useProfile();
+  const queryClient = useQueryClient();
+
+  // Prefetch critical data in parallel for faster navigation
+  useEffect(() => {
+    if (!user) return;
+
+    // Prefetch profile and study plan in parallel
+    Promise.all([
+      queryClient.prefetchQuery({
+        queryKey: ['profile', user.id],
+        queryFn: () => api.get("/api/profile"),
+        staleTime: 5 * 60 * 1000, // 5 minutes
+      }),
+      queryClient.prefetchQuery({
+        queryKey: ['studyPlan'],
+        queryFn: () => api.getStudyPlan(),
+        staleTime: 5 * 60 * 1000,
+      }),
+    ]).catch(err => {
+      console.error('Prefetch error:', err);
+    });
+  }, [user, queryClient]);
 
   // Persist sidebar collapsed state to localStorage
   useEffect(() => {

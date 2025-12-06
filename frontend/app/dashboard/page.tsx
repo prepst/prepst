@@ -296,12 +296,26 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                  <span className="text-5xl font-bold">
+                  <span className="text-5xl font-bold relative">
                     {profileData?.stats?.target_math_score &&
-                    profileData?.stats?.target_rw_score
-                      ? profileData.stats.target_math_score +
-                        profileData.stats.target_rw_score
-                      : "---"}
+                    profileData?.stats?.target_rw_score ? (
+                      profileData.stats.target_math_score +
+                      profileData.stats.target_rw_score
+                    ) : studyPlan?.study_plan?.target_math_score &&
+                      studyPlan?.study_plan?.target_rw_score ? (
+                      studyPlan.study_plan.target_math_score +
+                      studyPlan.study_plan.target_rw_score
+                    ) : (
+                      <span
+                        className="select-none bg-gradient-to-r from-gray-400/50 via-gray-300/50 to-gray-400/50 dark:from-gray-500/50 dark:via-gray-400/50 dark:to-gray-500/50 bg-clip-text text-transparent"
+                        style={{
+                          backgroundSize: '200% 100%',
+                          animation: 'shimmer 2s ease-in-out infinite'
+                        }}
+                      >
+                        1600
+                      </span>
+                    )}
                   </span>
                   <span className="text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-1">
                     Target Score

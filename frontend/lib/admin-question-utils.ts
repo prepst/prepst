@@ -30,5 +30,6 @@ export function transformToSessionQuestion(adminQuestion: any): SessionQuestion 
     },
     status: adminQuestion.status || "not_started",
     display_order: adminQuestion.display_order || 1,
+    is_saved: adminQuestion.is_saved || false,
   };
 }

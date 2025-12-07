@@ -69,6 +69,7 @@ function DiagnosticTestContent() {
     status: q.status as any,
     display_order: q.display_order,
     user_answer: q.user_answer,
+    is_saved: false,
   }));
 
   const currentTransformedQuestion = transformedQuestions[currentIndex];

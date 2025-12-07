@@ -14,6 +14,8 @@ import { QuestionListSidebar } from "@/components/practice/QuestionListSidebar";
 import { usePracticeSession } from "@/hooks/usePracticeSession";
 import { useTimer } from "@/hooks/useTimer";
 import { useQuestionNavigation } from "@/hooks/useQuestionNavigation";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
 import "./practice-session.css";
 
 function PracticeSessionContent() {
@@ -64,16 +66,9 @@ function PracticeSessionContent() {
   const [dragStartX, setDragStartX] = useState(0);
   const [dragStartPosition, setDragStartPosition] = useState(480);
 
-  // Saved questions (local persistence)
-  const [savedQuestionIds, setSavedQuestionIds] = useState<Set<string>>(() => {
-    try {
-      const raw = localStorage.getItem("saved-questions");
-      const arr = raw ? (JSON.parse(raw) as string[]) : [];
-      return new Set(arr);
-    } catch {
-      return new Set();
-    }
-  });
+  // Track which session questions are saved
+  const [savedSessionQuestions, setSavedSessionQuestions] = useState<Map<string, boolean>>(new Map());
+  const [savingQuestionId, setSavingQuestionId] = useState<string | null>(null);
 
   // Load session data when component mounts
   useEffect(() => {
@@ -85,6 +80,17 @@ function PracticeSessionContent() {
       });
     }
   }, [sessionId, loadSession, setCurrentIndex]);
+
+  // Initialize saved state when questions load
+  useEffect(() => {
+    if (questions && questions.length > 0) {
+      const savedMap = new Map<string, boolean>();
+      questions.forEach(q => {
+        savedMap.set(q.session_question_id, q.is_saved || false);
+      });
+      setSavedSessionQuestions(savedMap);
+    }
+  }, [questions]);
 
   // Handler functions (defined before useEffect that uses them)
   const handleAnswerChange = (value: string) => {
@@ -259,20 +265,33 @@ function PracticeSessionContent() {
     }
   };
 
-  const handleSaveQuestion = () => {
+  const handleSaveQuestion = async () => {
     if (!currentQuestion) return;
-    const qid = currentQuestion.question.id;
-    setSavedQuestionIds((prev) => {
-      const next = new Set(prev);
-      next.add(qid);
-      try {
-        localStorage.setItem(
-          "saved-questions",
-          JSON.stringify(Array.from(next))
-        );
-      } catch {}
-      return next;
-    });
+
+    const sessionQuestionId = currentQuestion.session_question_id;
+
+    // Prevent double-clicking
+    if (savingQuestionId === sessionQuestionId) return;
+
+    setSavingQuestionId(sessionQuestionId);
+
+    try {
+      const result = await api.toggleSaveQuestion(sessionQuestionId);
+
+      // Update local state
+      setSavedSessionQuestions(prev => {
+        const newMap = new Map(prev);
+        newMap.set(sessionQuestionId, result.is_saved);
+        return newMap;
+      });
+
+      toast.success(result.is_saved ? "Question saved for review" : "Question removed from saved");
+    } catch (error) {
+      console.error("Failed to toggle save status:", error);
+      toast.error("Failed to save question. Please try again.");
+    } finally {
+      setSavingQuestionId(null);
+    }
   };
 
   // Draggable divider handlers
@@ -453,7 +472,7 @@ function PracticeSessionContent() {
             onGetFeedback={handleGetAiFeedback}
             onGetSimilarQuestion={handleGetSimilarQuestion}
             onSaveQuestion={handleSaveQuestion}
-            isQuestionSaved={savedQuestionIds.has(currentQuestion.question.id)}
+            isQuestionSaved={savedSessionQuestions.get(currentQuestion.session_question_id) || false}
             onConfidenceSelect={handleConfidenceSelected}
             defaultConfidence={confidenceScore}
           />

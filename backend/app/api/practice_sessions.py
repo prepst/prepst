@@ -65,7 +65,7 @@ async def get_session_questions(
 
         # Fetch all questions for the session
         questions_response = db.table("session_questions").select(
-            "id, session_id, question_id, topic_id, display_order, status, user_answer, "
+            "id, session_id, question_id, topic_id, display_order, status, user_answer, is_saved, "
             "questions(id, stimulus, stem, difficulty, question_type, answer_options, correct_answer), "
             "topics(id, name, category_id, weight_in_category)"
         ).eq("session_id", session_id).order("display_order").execute()
@@ -78,7 +78,8 @@ async def get_session_questions(
                 "topic": sq["topics"],
                 "status": sq["status"],
                 "display_order": sq["display_order"],
-                "user_answer": sq.get("user_answer")
+                "user_answer": sq.get("user_answer"),
+                "is_saved": sq.get("is_saved", False)
             })
 
         return {
@@ -943,54 +944,75 @@ async def get_wrong_answers(
         List of questions answered incorrectly with session context
     """
     try:
-        # Get wrong answers with question details and session info
+        # Get the user's study plans (there might be multiple)
+        study_plan_response = db.table("study_plans").select("id").eq("user_id", user_id).order("created_at", desc=True).execute()
+        if not study_plan_response.data:
+            return []
+
+        # Use all study plans for this user (in case they have multiple)
+        study_plan_ids = [sp["id"] for sp in study_plan_response.data]
+
+        # Get sessions that belong to these study plans
+        sessions_response = db.table("practice_sessions").select("id").in_("study_plan_id", study_plan_ids).execute()
+        if not sessions_response.data:
+            return []
+
+        user_session_ids = [s["id"] for s in sessions_response.data]
+
+        # Get wrong answers from session_questions for user's sessions only
         wrong_answers_response = db.table("session_questions").select(
-            """
-            id,
-            session_id,
-            question_id,
-            topic_id,
-            user_answer,
-            answered_at,
-            confidence_score,
-            time_spent_seconds,
-            questions(
-                id,
-                stem,
-                difficulty,
-                question_type,
-                answer_options,
-                correct_answer,
-                acceptable_answers,
-                rationale,
-                topic_id
-            ),
-            topics(
-                id,
-                name,
-                categories(name, section)
-            ),
-            practice_sessions(
-                id,
-                created_at,
-                study_plans(name)
-            )
-            """
-        ).eq("is_correct", False).order("answered_at", desc=True).limit(limit).execute()
-        
-        # Process wrong answers
-        
+            "*"
+        ).in_("session_id", user_session_ids).eq("is_correct", False).order("answered_at", desc=True).limit(limit).execute()
+
         if not wrong_answers_response.data:
             return []
+
+        # Get unique IDs for batch fetching
+        question_ids = list(set(sq["question_id"] for sq in wrong_answers_response.data if sq.get("question_id")))
+        topic_ids = list(set(sq["topic_id"] for sq in wrong_answers_response.data if sq.get("topic_id")))
+        session_ids = list(set(sq["session_id"] for sq in wrong_answers_response.data if sq.get("session_id")))
+
+        # Batch fetch related data
+        questions_map = {}
+        topics_map = {}
+        sessions_map = {}
+
+        # Fetch questions
+        if question_ids:
+            questions_response = db.table("questions").select("*").in_("id", question_ids).execute()
+            questions_map = {q["id"]: q for q in questions_response.data} if questions_response.data else {}
+
+        # Fetch topics with categories
+        if topic_ids:
+            topics_response = db.table("topics").select("*, categories(name, section)").in_("id", topic_ids).execute()
+            if topics_response.data:
+                for topic in topics_response.data:
+                    topics_map[topic["id"]] = {
+                        "id": topic["id"],
+                        "name": topic.get("name"),
+                        "category_name": topic.get("categories", {}).get("name") if topic.get("categories") else None,
+                        "section": topic.get("categories", {}).get("section") if topic.get("categories") else None
+                    }
+
+        # Fetch sessions (without study_plans join since it doesn't have a name column)
+        if session_ids:
+            sessions_response = db.table("practice_sessions").select("*").in_("id", session_ids).execute()
+            if sessions_response.data:
+                for session in sessions_response.data:
+                    sessions_map[session["id"]] = {
+                        "id": session["id"],
+                        "created_at": session.get("created_at"),
+                        "study_plan_name": None  # study_plans table doesn't have a name column
+                    }
         
         # Format the response
         wrong_answers = []
         for sq in wrong_answers_response.data:
-            question = sq.get("questions", {})
-            topic = sq.get("topics", {})
-            session = sq.get("practice_sessions", {})
-            study_plan = session.get("study_plans", {}) if session else {}
-            
+            # Get related data from maps
+            question = questions_map.get(sq["question_id"], {})
+            topic = topics_map.get(sq["topic_id"], {})
+            session = sessions_map.get(sq["session_id"], {})
+
             wrong_answer = {
                 "session_question_id": sq["id"],
                 "session_id": sq["session_id"],
@@ -1009,18 +1031,17 @@ async def get_wrong_answers(
                     "correct_answer": question.get("correct_answer"),
                     "acceptable_answers": question.get("acceptable_answers"),
                     "rationale": question.get("rationale")
-                },
+                } if question else None,
                 "topic": {
                     "id": topic.get("id"),
                     "name": topic.get("name"),
-                    "category": topic.get("categories", {}).get("name"),
-                    "section": topic.get("categories", {}).get("section")
-                },
+                    "category": topic.get("category_name"),
+                    "section": topic.get("section")
+                } if topic else None,
                 "session": {
                     "id": session.get("id"),
-                    "created_at": session.get("created_at"),
-                    "study_plan_name": study_plan.get("name")
-                }
+                    "created_at": session.get("created_at")
+                } if session else None
             }
             wrong_answers.append(wrong_answer)
         
@@ -1032,6 +1053,214 @@ async def get_wrong_answers(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve wrong answers: {str(e)}"
+        )
+
+
+@router.get("/saved-questions", response_model=List[Dict[str, Any]])
+async def get_saved_questions(
+    limit: int = Query(50, description="Maximum number of saved questions to return", ge=1, le=100),
+    user_id: str = Depends(get_current_user),
+    db: Client = Depends(get_authenticated_client)
+):
+    """
+    Get questions that the user has saved/bookmarked for review.
+
+    Args:
+        limit: Maximum number of saved questions to return
+        user_id: User ID from authentication token
+        db: Database client
+
+    Returns:
+        List of saved questions with session context
+    """
+    try:
+        # Get ALL the user's study plans (user can have multiple)
+        study_plan_response = db.table("study_plans").select("id").eq("user_id", user_id).order("created_at", desc=True).execute()
+        if not study_plan_response.data:
+            return []
+
+        # Use all study plans for this user
+        study_plan_ids = [sp["id"] for sp in study_plan_response.data]
+
+        # Get sessions that belong to ALL these study plans
+        sessions_response = db.table("practice_sessions").select("id").in_("study_plan_id", study_plan_ids).execute()
+        if not sessions_response.data:
+            return []
+
+        user_session_ids = [s["id"] for s in sessions_response.data]
+
+        # Get saved questions from session_questions for user's sessions only
+        saved_questions_response = db.table("session_questions").select(
+            "*"
+        ).in_("session_id", user_session_ids).eq("is_saved", True).order("created_at", desc=True).limit(limit).execute()
+
+        if not saved_questions_response.data:
+            return []
+
+        # Get unique IDs for batch fetching
+        question_ids = list(set(sq["question_id"] for sq in saved_questions_response.data if sq.get("question_id")))
+        topic_ids = list(set(sq["topic_id"] for sq in saved_questions_response.data if sq.get("topic_id")))
+        session_ids = list(set(sq["session_id"] for sq in saved_questions_response.data if sq.get("session_id")))
+
+        # Batch fetch related data
+        questions_map = {}
+        topics_map = {}
+        sessions_map = {}
+
+        # Fetch questions
+        if question_ids:
+            questions_response = db.table("questions").select("*").in_("id", question_ids).execute()
+            questions_map = {q["id"]: q for q in questions_response.data} if questions_response.data else {}
+
+        # Fetch topics with categories
+        if topic_ids:
+            topics_response = db.table("topics").select("*, categories(name, section)").in_("id", topic_ids).execute()
+            if topics_response.data:
+                for topic in topics_response.data:
+                    topics_map[topic["id"]] = {
+                        "id": topic["id"],
+                        "name": topic.get("name"),
+                        "category_name": topic.get("categories", {}).get("name") if topic.get("categories") else None,
+                        "section": topic.get("categories", {}).get("section") if topic.get("categories") else None
+                    }
+
+        # Fetch sessions (without study_plans join since it doesn't have a name column)
+        if session_ids:
+            sessions_response = db.table("practice_sessions").select("*").in_("id", session_ids).execute()
+            if sessions_response.data:
+                for session in sessions_response.data:
+                    sessions_map[session["id"]] = {
+                        "id": session["id"],
+                        "created_at": session.get("created_at"),
+                        "study_plan_name": None  # study_plans table doesn't have a name column
+                    }
+
+        # Format the response
+        saved_questions = []
+        for sq in saved_questions_response.data:
+            # Get related data from maps
+            question = questions_map.get(sq["question_id"], {})
+            topic = topics_map.get(sq["topic_id"], {})
+            session = sessions_map.get(sq["session_id"], {})
+
+            saved_question = {
+                "session_question_id": sq["id"],
+                "session_id": sq["session_id"],
+                "question_id": sq["question_id"],
+                "topic_id": sq["topic_id"],
+                "is_correct": sq.get("is_correct"),
+                "user_answer": sq.get("user_answer"),
+                "answered_at": sq.get("answered_at"),
+                "saved_at": sq.get("updated_at") or sq.get("created_at"),  # When it was saved (fallback to created_at)
+                "confidence_score": sq.get("confidence_score"),
+                "time_spent_seconds": sq.get("time_spent_seconds"),
+                "question": {
+                    "id": question.get("id"),
+                    "stem": question.get("stem"),
+                    "difficulty": question.get("difficulty"),
+                    "question_type": question.get("question_type"),
+                    "answer_options": question.get("answer_options"),
+                    "correct_answer": question.get("correct_answer"),
+                    "acceptable_answers": question.get("acceptable_answers"),
+                    "rationale": question.get("rationale")
+                } if question else None,
+                "topic": {
+                    "id": topic.get("id"),
+                    "name": topic.get("name"),
+                    "category": topic.get("category_name"),
+                    "section": topic.get("section")
+                } if topic else None,
+                "session": {
+                    "id": session.get("id"),
+                    "created_at": session.get("created_at")
+                } if session else None
+            }
+            saved_questions.append(saved_question)
+
+        return saved_questions
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve saved questions: {str(e)}"
+        )
+
+
+@router.post("/questions/{session_question_id}/toggle-save")
+async def toggle_save_question(
+    session_question_id: str,
+    user_id: str = Depends(get_current_user),
+    db: Client = Depends(get_authenticated_client)
+):
+    """
+    Toggle the saved status of a question for later review.
+
+    Args:
+        session_question_id: The session_question ID to toggle
+        user_id: User ID from authentication token
+        db: Database client
+
+    Returns:
+        Updated saved status
+    """
+    try:
+        # First check if the session_question exists
+        sq_response = db.table("session_questions").select(
+            "*, practice_sessions!inner(study_plan_id)"
+        ).eq("id", session_question_id).execute()
+
+        if not sq_response.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Session question not found"
+            )
+
+        session_question = sq_response.data[0]
+        session = session_question.get("practice_sessions")
+
+        if not session:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Session not found for this question"
+            )
+
+        # Check if the study plan belongs to the user
+        study_plan_id = session.get("study_plan_id")
+        study_plan_response = db.table("study_plans").select("user_id").eq("id", study_plan_id).single().execute()
+
+        if not study_plan_response.data or study_plan_response.data.get("user_id") != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to save this question"
+            )
+
+        # Toggle is_saved status
+        current_saved_status = session_question.get("is_saved", False)
+        new_saved_status = not current_saved_status
+
+        # Update the saved status (without updated_at since column doesn't exist)
+        update_response = db.table("session_questions").update({
+            "is_saved": new_saved_status
+        }).eq("id", session_question_id).execute()
+
+        if not update_response.data:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to update saved status"
+            )
+
+        return {
+            "success": True,
+            "is_saved": new_saved_status,
+            "message": "Question saved for review" if new_saved_status else "Question removed from saved items"
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to toggle save status: {str(e)}"
         )
 
 

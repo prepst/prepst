@@ -491,6 +491,62 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/practice-sessions/saved-questions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Saved Questions
+         * @description Get questions that the user has saved/bookmarked for review.
+         *
+         *     Args:
+         *         limit: Maximum number of saved questions to return
+         *         user_id: User ID from authentication token
+         *         db: Database client
+         *
+         *     Returns:
+         *         List of saved questions with session context
+         */
+        get: operations["get_saved_questions_api_practice_sessions_saved_questions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/practice-sessions/questions/{session_question_id}/toggle-save": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Toggle Save Question
+         * @description Toggle the saved status of a question for later review.
+         *
+         *     Args:
+         *         session_question_id: The session_question ID to toggle
+         *         user_id: User ID from authentication token
+         *         db: Database client
+         *
+         *     Returns:
+         *         Updated saved status
+         */
+        post: operations["toggle_save_question_api_practice_sessions_questions__session_question_id__toggle_save_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/practice-sessions/completed": {
         parameters: {
             query?: never;
@@ -2066,7 +2122,7 @@ export interface components {
             /** Updated At */
             updated_at: string;
             /** Topics */
-            topics: Record<string, never>[];
+            topics: components["schemas"]["TopicSimple"][];
         };
         /** ChatMessage */
         ChatMessage: {
@@ -2619,6 +2675,11 @@ export interface components {
             started_at?: string | null;
             /** Answered At */
             answered_at?: string | null;
+            /**
+             * Is Saved
+             * @default false
+             */
+            is_saved: boolean;
         };
         /**
          * SessionQuestionsResponse
@@ -2900,6 +2961,24 @@ export interface components {
             questions_answered: number;
             /** Correct Answers */
             correct_answers: number;
+        };
+        /**
+         * TopicSimple
+         * @description Simplified topic model for API responses
+         */
+        TopicSimple: {
+            /** Id */
+            id: string;
+            /** Name */
+            name: string;
+            /** Category Id */
+            category_id: string;
+            /** Weight In Category */
+            weight_in_category: number;
+            /** Created At */
+            created_at?: string | null;
+            /** Updated At */
+            updated_at?: string | null;
         };
         /**
          * UserAchievement
@@ -3757,6 +3836,69 @@ export interface operations {
                 };
                 content: {
                     "application/json": Record<string, never>[];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_saved_questions_api_practice_sessions_saved_questions_get: {
+        parameters: {
+            query?: {
+                /** @description Maximum number of saved questions to return */
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>[];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    toggle_save_question_api_practice_sessions_questions__session_question_id__toggle_save_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                session_question_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */

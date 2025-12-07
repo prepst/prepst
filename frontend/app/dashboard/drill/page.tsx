@@ -68,11 +68,11 @@ export default function DrillPage() {
   const topicsBySection = categories
     ? {
         math: Array.isArray(categories.math)
-          ? categories.math.map((category: any) => ({
+          ? categories.math.map((category) => ({
               categoryId: category.id,
               categoryName: category.name,
               section: "math",
-              topics: (category.topics || []).map((topic: any) => ({
+              topics: (category.topics || []).map((topic) => ({
                 id: topic.id,
                 name: topic.name,
                 categoryName: category.name,
@@ -81,11 +81,11 @@ export default function DrillPage() {
             }))
           : [],
         reading_writing: Array.isArray(categories.reading_writing)
-          ? categories.reading_writing.map((category: any) => ({
+          ? categories.reading_writing.map((category) => ({
               categoryId: category.id,
               categoryName: category.name,
               section: "reading_writing",
-              topics: (category.topics || []).map((topic: any) => ({
+              topics: (category.topics || []).map((topic) => ({
                 id: topic.id,
                 name: topic.name,
                 categoryName: category.name,

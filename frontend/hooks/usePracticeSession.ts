@@ -230,6 +230,7 @@ export function usePracticeSession(sessionId: string) {
           },
           status: "not_started",
           display_order: result.display_order,
+          is_saved: false,
         };
 
         // Add the new question to the end of the questions array

@@ -68,15 +68,17 @@ export const queryKeys = {
   // Practice Sessions
   practice: {
     all: ['practice'] as const,
-    session: (id: string) => 
+    session: (id: string) =>
       [...queryKeys.practice.all, 'session', id] as const,
-    completed: (limit: number = 20) => 
+    completed: (limit: number = 20) =>
       [...queryKeys.practice.all, 'completed', { limit }] as const,
-    wrongAnswers: (limit: number = 50) => 
+    wrongAnswers: (limit: number = 50) =>
       [...queryKeys.practice.all, 'wrongAnswers', { limit }] as const,
-    masteryImprovements: (sessionId: string) => 
+    savedQuestions: (limit: number = 50) =>
+      [...queryKeys.practice.all, 'savedQuestions', { limit }] as const,
+    masteryImprovements: (sessionId: string) =>
       [...queryKeys.practice.all, 'masteryImprovements', sessionId] as const,
-    feedback: (sessionId: string, questionId: string) => 
+    feedback: (sessionId: string, questionId: string) =>
       [...queryKeys.practice.all, 'feedback', sessionId, questionId] as const,
   },
 

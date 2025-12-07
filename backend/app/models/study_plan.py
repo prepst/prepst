@@ -125,6 +125,7 @@ class SessionQuestion(BaseModel):
     user_answer: Optional[List[str]] = None
     started_at: Optional[datetime] = None
     answered_at: Optional[datetime] = None
+    is_saved: bool = False
 
 
 class SessionQuestionsResponse(BaseModel):
@@ -134,6 +135,15 @@ class SessionQuestionsResponse(BaseModel):
     total_questions: int
 
 
+class TopicSimple(BaseModel):
+    """Simplified topic model for API responses"""
+    id: str
+    name: str
+    category_id: str
+    weight_in_category: float
+    created_at: Optional[str] = None
+    updated_at: Optional[str] = None
+
 class CategoryWithTopics(BaseModel):
     """Category with its topics"""
     id: str
@@ -142,7 +152,7 @@ class CategoryWithTopics(BaseModel):
     weight_in_section: float
     created_at: str
     updated_at: str
-    topics: List[Dict[str, Any]]
+    topics: List[TopicSimple]
 
 class CategoriesAndTopicsResponse(BaseModel):
     """Response model for categories and topics"""

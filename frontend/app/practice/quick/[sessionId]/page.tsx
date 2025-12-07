@@ -124,6 +124,7 @@ function QuickPracticeContent() {
       },
       status: answers[index]?.status || "not_started",
       display_order: index + 1,
+      is_saved: false,
     })) || [];
 
   const answersRecord: Record<string, AnswerState> = {};

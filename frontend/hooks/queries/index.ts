@@ -24,6 +24,7 @@ export { useProfile } from './useProfile';
 
 // Practice Sessions
 export { useWrongAnswers } from './useWrongAnswers';
+export { useSavedQuestions } from './useSavedQuestions';
 export { useCompletedSessions } from './useCompletedSessions';
 
 // Mock Exams

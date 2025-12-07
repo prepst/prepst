@@ -1061,6 +1061,51 @@ export const api = {
     return response.json();
   },
 
+  async getSavedQuestions(
+    limit: number = 50
+  ): Promise<import("./types").SavedQuestion[]> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${config.apiUrl}/api/practice-sessions/saved-questions?limit=${limit}`,
+      {
+        method: "GET",
+        headers,
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      const errorMessage =
+        typeof error.detail === "string"
+          ? error.detail
+          : error.message ||
+            JSON.stringify(error.detail) ||
+            "Failed to fetch saved questions";
+      throw new Error(errorMessage);
+    }
+
+    return response.json();
+  },
+
+  async toggleSaveQuestion(
+    sessionQuestionId: string
+  ): Promise<{ success: boolean; is_saved: boolean; message: string }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${config.apiUrl}/api/practice-sessions/questions/${sessionQuestionId}/toggle-save`,
+      {
+        method: "POST",
+        headers,
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to toggle save status");
+    }
+
+    return response.json();
+  },
+
   async getCompletedSessions(
     limit: number = 20
   ): Promise<import("./types").PracticeSession[]> {

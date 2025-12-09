@@ -1,4 +1,4 @@
-import { Clock, List, X, Pause, Play, RotateCcw } from "lucide-react";
+import { Clock, List, X, Pause, Play, RotateCcw, Flame, Trophy } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { TimerConfig } from "./TimerModal";
 import type { TimerMode } from "@/hooks/useTimer";
+import { cn } from "@/lib/utils";
 
 interface PracticeHeaderProps {
   currentIndex: number;
@@ -18,6 +19,9 @@ interface PracticeHeaderProps {
   isRunning: boolean;
   formatTime: (seconds: number) => string;
   onToggleQuestionList: () => void;
+  // Gamification Props
+  streak?: number;
+  score?: number;
   // Timer State Props
   showTimerModal?: boolean; // Optional now if we use internal state, but better controlled
   onToggleTimerModal: (open: boolean) => void; // Changed signature to match onOpenChange
@@ -48,6 +52,8 @@ export function PracticeHeader({
   isRunning,
   formatTime,
   onToggleQuestionList,
+  streak = 0,
+  score = 0,
 
   // Timer props
   showTimerModal,
@@ -205,6 +211,25 @@ export function PracticeHeader({
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
+          {/* Gamification Stats */}
+          <div className="hidden md:flex items-center gap-3 mr-2">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20">
+              <Flame className={cn("w-4 h-4 text-orange-500", streak > 0 && "fill-orange-500 animate-pulse")} />
+              <span className="text-sm font-bold text-orange-600 dark:text-orange-400 tabular-nums">
+                {streak}
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/20">
+              <Trophy className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />
+              <span className="text-sm font-bold text-yellow-700 dark:text-yellow-400 tabular-nums">
+                {score}
+              </span>
+            </div>
+          </div>
+          
+          <div className="h-6 w-px bg-border/60 hidden md:block" />
+
           <Button
             variant="ghost"
             size="icon"

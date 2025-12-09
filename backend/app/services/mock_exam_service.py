@@ -522,6 +522,133 @@ class MockExamService:
         scaled = round(scaled / 10) * 10
         return int(min(800, max(200, scaled)))
 
+    async def submit_answers_batch(
+        self,
+        module_id: str,
+        answers: List[Dict],  # List of {question_id, user_answer, status, is_marked_for_review}
+        user_id: str,
+    ) -> Tuple[List[Dict], int, int]:
+        """
+        Submit multiple answers efficiently.
+
+        Args:
+            module_id: Module ID
+            answers: List of answer dictionaries
+            user_id: User ID submitting answers
+
+        Returns:
+            Tuple of (results list, successful count, failed count)
+        """
+        # Verify module belongs to user
+        module_response = (
+            self.db.table("mock_exam_modules")
+            .select("*, mock_exams!inner(user_id)")
+            .eq("id", module_id)
+            .execute()
+        )
+
+        if not module_response.data:
+            raise ValueError("Module not found")
+
+        if module_response.data[0]["mock_exams"]["user_id"] != user_id:
+            raise PermissionError("Module does not belong to user")
+
+        if not answers:
+            return [], 0, 0
+
+        question_ids = [a["question_id"] for a in answers]
+
+        # Bulk fetch mock exam questions and actual questions
+        # Note: 'in_' expects a list of strings
+        meq_response = (
+            self.db.table("mock_exam_questions")
+            .select("id, question_id, questions(correct_answer, acceptable_answers)")
+            .eq("module_id", module_id)
+            .in_("question_id", question_ids)
+            .execute()
+        )
+
+        meq_map = {item["question_id"]: item for item in meq_response.data}
+        
+        updates = []
+        results = []
+        successful = 0
+        failed = 0
+        
+        # Helper for normalization
+        def normalize_answer(ans_list):
+            if not ans_list:
+                return []
+            if isinstance(ans_list, str):
+                return [ans_list.strip().lower()]
+            try:
+                return [str(a).strip().lower() for a in ans_list]
+            except TypeError:
+                return []
+
+        for ans in answers:
+            qid = ans["question_id"]
+            if qid not in meq_map:
+                results.append({
+                    "question_id": qid,
+                    "success": False,
+                    "error": "Question not found in module"
+                })
+                failed += 1
+                continue
+
+            meq = meq_map[qid]
+            question = meq["questions"]
+            
+            # Check correctness
+            correct_answer = question.get("correct_answer", [])
+            acceptable_answers = question.get("acceptable_answers", [])
+            user_answer = ans["user_answer"]
+
+            normalized_user = normalize_answer(user_answer)
+            normalized_correct = normalize_answer(correct_answer)
+            normalized_acceptable = normalize_answer(acceptable_answers) if acceptable_answers else []
+
+            is_correct_bool = normalized_user == normalized_correct or (
+                bool(normalized_acceptable)
+                and len(normalized_user) > 0
+                and normalized_user[0] in normalized_acceptable
+            )
+            is_correct = bool(is_correct_bool)
+
+            # Prepare update payload
+            updates.append({
+                "id": meq["id"], # Primary key for upsert
+                "status": ans["status"],
+                "user_answer": user_answer,
+                "is_correct": is_correct,
+                "is_marked_for_review": ans.get("is_marked_for_review", False),
+                "answered_at": datetime.utcnow().isoformat(),
+            })
+            
+            results.append({
+                "question_id": qid,
+                "success": True,
+                "is_correct": is_correct
+            })
+            successful += 1
+
+        # Perform bulk update
+        if updates:
+            try:
+                self.db.table("mock_exam_questions").upsert(updates).execute()
+            except Exception as e:
+                # Log the detailed error for debugging
+                print(f"[BATCH SUBMIT ERROR] Bulk upsert failed: {str(e)}")
+                if hasattr(e, 'details'):
+                    print(f"[BATCH SUBMIT ERROR] Details: {e.details}")
+                if hasattr(e, 'hint'):
+                    print(f"[BATCH SUBMIT ERROR] Hint: {e.hint}")
+                # Re-raise so the API returns 500
+                raise e
+
+        return results, successful, failed
+
     async def submit_answer(
         self,
         module_id: str,

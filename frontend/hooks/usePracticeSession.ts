@@ -108,59 +108,74 @@ export function usePracticeSession(sessionId: string) {
       confidenceScore: number,
       timeSpentSeconds: number
     ) => {
-      try {
-        setIsSubmitting(true);
-
-        const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        if (!session?.access_token) throw new Error("Not authenticated");
-
-        const response = await fetch(
-          `${config.apiUrl}/api/practice-sessions/${sessionId}/questions/${questionId}`,
-          {
-            method: "PATCH",
-            headers: {
-              Authorization: `Bearer ${session.access_token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              user_answer: userAnswer,
-              status: "answered",
-              confidence_score: confidenceScore,
-              time_spent_seconds: timeSpentSeconds,
-            }),
-          }
-        );
-
-        if (!response.ok) {
-          throw new Error("Failed to submit answer");
-        }
-
-        const result: SubmitAnswerResponse = await response.json();
-
-        setAnswers((prev) => ({
-          ...prev,
-          [questionId]: {
-            userAnswer,
-            isCorrect: result.is_correct,
-            status: "answered",
-            confidenceScore,
-            timeSpentSeconds,
-          },
-        }));
-
-        return result.is_correct;
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to submit answer"
-        );
+      // Find the question to get the correct answer for optimistic update
+      const question = questions.find((q) => q.question.id === questionId);
+      if (!question) {
+        console.error("Question not found for grading");
         return false;
-      } finally {
-        setIsSubmitting(false);
       }
+
+      // 1. Optimistic Grading (Client-side)
+      const correctAnswer = question.question.correct_answer;
+      const correctAnswerArray = Array.isArray(correctAnswer)
+        ? correctAnswer
+        : [String(correctAnswer)];
+      
+      // Basic grading logic: strict equality of sorted arrays
+      // Note: This logic must match the backend's grading logic
+      const isCorrect = 
+        JSON.stringify(userAnswer.sort()) === 
+        JSON.stringify(correctAnswerArray.map(String).sort());
+
+      // 2. Optimistic UI Update
+      setAnswers((prev) => ({
+        ...prev,
+        [questionId]: {
+          userAnswer,
+          isCorrect: isCorrect,
+          status: "answered",
+          confidenceScore,
+          timeSpentSeconds,
+        },
+      }));
+
+      // 3. Background API Sync (Fire-and-forget pattern)
+      const syncWithBackend = async () => {
+        try {
+          const {
+            data: { session },
+          } = await supabase.auth.getSession();
+          if (!session?.access_token) return; // Should handle this better in real app
+
+          await fetch(
+            `${config.apiUrl}/api/practice-sessions/${sessionId}/questions/${questionId}`,
+            {
+              method: "PATCH",
+              headers: {
+                Authorization: `Bearer ${session.access_token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                user_answer: userAnswer,
+                status: "answered",
+                confidence_score: confidenceScore,
+                time_spent_seconds: timeSpentSeconds,
+              }),
+            }
+          );
+        } catch (err) {
+          console.error("Background sync failed:", err);
+          // Ideally, we'd add a "retry" flag or "sync error" state here
+          // but for now, we just log it since the user has already moved on.
+        }
+      };
+
+      syncWithBackend();
+
+      // Return immediately so UI transitions
+      return isCorrect;
     },
-    [sessionId]
+    [sessionId, questions] // Added questions dependency
   );
 
   const handleGetFeedback = useCallback(

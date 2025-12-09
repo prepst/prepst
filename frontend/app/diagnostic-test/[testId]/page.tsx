@@ -185,34 +185,39 @@ function DiagnosticTestContent() {
     };
     if (!answer) return;
 
-    try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!session?.access_token) throw new Error("Not authenticated");
+    // Fire-and-forget - do not block UI
+    const submitInBackground = async () => {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!session?.access_token) return;
 
-      await fetch(
-        `${config.apiUrl}/api/diagnostic-test/${testId}/questions/${currentQuestion.question.id}`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            user_answer: answer.userAnswer,
-            status: "answered",
-            is_marked_for_review: answer.isMarkedForReview,
-          }),
-        }
-      );
-    } catch (err) {
-      console.error("Failed to submit answer:", err);
-    }
+        await fetch(
+          `${config.apiUrl}/api/diagnostic-test/${testId}/questions/${currentQuestion.question.id}`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              user_answer: answer.userAnswer,
+              status: "answered",
+              is_marked_for_review: answer.isMarkedForReview,
+            }),
+          }
+        );
+      } catch (err) {
+        console.error("Failed to submit answer in background:", err);
+      }
+    };
+
+    submitInBackground();
   }, [testId, currentQuestion, answers]);
 
   const handleNext = async () => {
-    await submitAnswer();
+    submitAnswer(); // No await - fire and forget
 
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
@@ -220,7 +225,7 @@ function DiagnosticTestContent() {
   };
 
   const handlePrevious = async () => {
-    await submitAnswer();
+    submitAnswer(); // No await - fire and forget
 
     if (currentIndex > 0) {
       setCurrentIndex(currentIndex - 1);
@@ -228,7 +233,7 @@ function DiagnosticTestContent() {
   };
 
   const handleQuestionNavigation = async (index: number) => {
-    await submitAnswer();
+    submitAnswer(); // No await - fire and forget
     setCurrentIndex(index);
     setShowQuestionList(false);
   };

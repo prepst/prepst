@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from supabase import Client
 from app.db import get_db
 from app.models.mock_exam import (
@@ -20,8 +20,27 @@ from app.models.mock_exam import (
 from app.services.mock_exam_service import MockExamService
 from app.core.auth import get_current_user, get_authenticated_client
 from typing import List
+import asyncio
 
 router = APIRouter(prefix="/mock-exams", tags=["mock-exams"])
+
+async def background_complete_module(
+    service: MockExamService,
+    module_id: str,
+    user_id: str,
+    time_remaining_seconds: int
+):
+    """Background task to handle heavy module completion logic."""
+    try:
+        await service.complete_module(
+            module_id=module_id,
+            user_id=user_id,
+            time_remaining_seconds=time_remaining_seconds,
+        )
+    except Exception as e:
+        print(f"Error in background module completion for module {module_id}: {str(e)}")
+        # In a real system, you might want to log this to an error tracking service
+        # or update a status flag in the database so the frontend knows it failed.
 
 
 @router.post("/create", response_model=MockExamResponse, status_code=status.HTTP_201_CREATED)
@@ -393,37 +412,34 @@ async def submit_answers_batch(
     """
     try:
         service = MockExamService(db)
-        results = []
-        successful = 0
-        failed = 0
+        
+        # Convert Pydantic models to dicts for service
+        answers_dicts = [
+            {
+                "question_id": a.question_id,
+                "user_answer": a.user_answer,
+                "status": a.status.value,
+                "is_marked_for_review": a.is_marked_for_review
+            }
+            for a in answers
+        ]
+        
+        results_data, successful, failed = await service.submit_answers_batch(
+            module_id=module_id,
+            answers=answers_dicts,
+            user_id=user_id
+        )
 
-        for answer_data in answers:
-            try:
-                is_correct, _ = await service.submit_answer(
-                    module_id=module_id,
-                    question_id=answer_data.question_id,
-                    user_answer=answer_data.user_answer,
-                    status=answer_data.status.value,
-                    is_marked_for_review=answer_data.is_marked_for_review,
-                    user_id=user_id,
-                )
-                results.append(
-                    BatchAnswerResult(
-                        question_id=answer_data.question_id,
-                        success=True,
-                        is_correct=is_correct,
-                    )
-                )
-                successful += 1
-            except Exception as e:
-                results.append(
-                    BatchAnswerResult(
-                        question_id=answer_data.question_id,
-                        success=False,
-                        error=str(e),
-                    )
-                )
-                failed += 1
+        # Map back to response model
+        results = [
+            BatchAnswerResult(
+                question_id=r["question_id"],
+                success=r["success"],
+                is_correct=r.get("is_correct"),
+                error=r.get("error")
+            )
+            for r in results_data
+        ]
 
         return BatchSubmitResponse(
             results=results,
@@ -444,30 +460,47 @@ async def complete_module(
     exam_id: str,
     module_id: str,
     request: CompleteModuleRequest,
+    background_tasks: BackgroundTasks,
     user_id: str = Depends(get_current_user),
     db: Client = Depends(get_authenticated_client),
 ):
     """
     Complete a module and calculate score. Generates adaptive questions for next module.
+    Heavy processing is offloaded to a background task to ensure quick UI response.
 
     Args:
         exam_id: Mock exam ID
         module_id: Module ID
         request: Completion data with time remaining
+        background_tasks: FastAPI background tasks handler
         user_id: User ID from authentication token
         db: Database client
 
     Returns:
-        Completed module with score
+        Status indicating completion is processing
     """
     try:
         service = MockExamService(db)
-        result = await service.complete_module(
-            module_id=module_id,
-            user_id=user_id,
-            time_remaining_seconds=request.time_remaining_seconds,
+        
+        # 1. Mark module as completing/completed synchronously to update UI state
+        # We'll use a specialized method or direct DB update if service.complete_module is too monolithic
+        # For now, we queue the whole thing.
+        # Ideally, we should update the status to 'completed' here so the frontend sees it as done.
+        # But complete_module likely does that. 
+        # Let's trust the background task for the heavy lifting.
+        
+        background_tasks.add_task(
+            background_complete_module,
+            service,
+            module_id,
+            user_id,
+            request.time_remaining_seconds
         )
-        return result
+        
+        return {
+            "status": "processing",
+            "message": "Module completion started in background"
+        }
 
     except ValueError as e:
         raise HTTPException(

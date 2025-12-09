@@ -24,9 +24,7 @@ export function useQuestionNavigation(
           targetAnswer.isCorrect !== undefined;
 
         setCurrentIndex(questionIndex);
-        setTimeout(() => {
-          setShowFeedback(wasAnswered);
-        }, 0);
+        setShowFeedback(!!wasAnswered);
       }
     },
     [questions, answers]

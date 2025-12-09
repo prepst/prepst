@@ -49,6 +49,8 @@ function ModuleContent() {
   const [moduleData, setModuleData] = useState<ModuleData | null>(null);
   const [showQuestionList, setShowQuestionList] = useState(false);
 
+  const [isCompleting, setIsCompleting] = useState(false);
+
   // Timer state
   const [timeRemaining, setTimeRemaining] = useState(32 * 60); // 32 minutes in seconds
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -156,39 +158,44 @@ function ModuleContent() {
   const submitAnswer = useCallback(async () => {
     if (!currentAnswer || !currentQuestion) return;
 
-    try {
-      setIsSubmitting(true);
+    // Fire-and-forget submission - don't block UI or set loading state
+    const submitInBackground = async () => {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!session?.access_token) return;
 
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!session?.access_token) throw new Error("Not authenticated");
+        await fetch(
+          `${config.apiUrl}/api/mock-exams/${examId}/modules/${moduleId}/questions/${currentQuestion.question.id}`,
+          {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${session.access_token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              question_id: currentQuestion.question.id,
+              user_answer: currentAnswer.userAnswer,
+              status: "answered",
+              is_marked_for_review: currentAnswer.isMarkedForReview,
+            }),
+          }
+        );
+      } catch (err) {
+        console.error("Background submission failed:", err);
+        // Silent failure is acceptable here as we re-submit all answers 
+        // in batch at the end of the module as a failsafe
+      }
+    };
 
-      await fetch(
-        `${config.apiUrl}/api/mock-exams/${examId}/modules/${moduleId}/questions/${currentQuestion.question.id}`,
-        {
-          method: "PATCH",
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            question_id: currentQuestion.question.id,
-            user_answer: currentAnswer.userAnswer,
-            status: "answered",
-            is_marked_for_review: currentAnswer.isMarkedForReview,
-          }),
-        }
-      );
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to submit answer");
-    } finally {
-      setIsSubmitting(false);
-    }
+    submitInBackground();
   }, [currentAnswer, currentQuestion, examId, moduleId]);
 
   const handleCompleteModule = useCallback(async () => {
     try {
+      if (isCompleting) return;
+      setIsCompleting(true);
       setIsTimerRunning(false);
 
       const {
@@ -304,8 +311,9 @@ function ModuleContent() {
       setError(
         err instanceof Error ? err.message : "Failed to complete module"
       );
+      setIsCompleting(false);
     }
-  }, [examId, moduleId, questions, answers, timeRemaining, moduleData, router]);
+  }, [examId, moduleId, questions, answers, timeRemaining, moduleData, router, isCompleting]);
 
   const handleNext = async () => {
     // Submit current answer if there is one
@@ -900,7 +908,6 @@ function ModuleContent() {
               {currentIndex < questions.length - 1 ? (
                 <Button
                   onClick={handleNext}
-                  disabled={isSubmitting}
                   className="flex-1 bg-[#866ffe] hover:bg-[#7a5ffe] text-white border-0"
                 >
                   Next
@@ -909,10 +916,17 @@ function ModuleContent() {
               ) : (
                 <Button
                   onClick={handleCompleteModule}
-                  disabled={isSubmitting}
+                  disabled={isCompleting}
                   className="flex-1 bg-green-600 hover:bg-green-700 text-white border-0"
                 >
-                  Complete Module
+                  {isCompleting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
+                      Processing...
+                    </>
+                  ) : (
+                    "Complete Module"
+                  )}
                 </Button>
               )}
             </div>

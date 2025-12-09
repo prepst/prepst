@@ -510,6 +510,8 @@ async def get_session_mastery_improvements(
     - mastery_before, mastery_after
     - mastery_increase (absolute percentage points)
     - current_percentage (0-100)
+    - total_attempts: number of questions in this session for this topic
+    - correct_attempts: number of correct answers in this session for this topic
     """
     try:
         # Verify session belongs to user
@@ -537,33 +539,39 @@ async def get_session_mastery_improvements(
             "created_at", desc=True
         ).limit(1).execute()
         
-        # Get unique topics from this session
-        session_topics_response = db.table("session_questions").select(
-            "topic_id, topics(name)"
+        # Get session questions for stats
+        session_questions_response = db.table("session_questions").select(
+            "topic_id, is_correct, topics(name)"
         ).eq("session_id", session_id).execute()
         
-        if not session_topics_response.data:
+        if not session_questions_response.data:
             return []
-        
-        # Deduplicate topics - get unique topic_ids
+            
+        # Aggregate stats per topic for this session
+        session_stats = {}
         unique_topics = {}
-        for sq in session_topics_response.data:
-            topic_id = sq["topic_id"]
-            if topic_id not in unique_topics:
-                unique_topics[topic_id] = sq["topics"]["name"]
         
-        # Get current mastery for all unique topics in this session
+        for sq in session_questions_response.data:
+            topic_id = sq["topic_id"]
+            if topic_id not in session_stats:
+                session_stats[topic_id] = {
+                    "total": 0,
+                    "correct": 0
+                }
+                unique_topics[topic_id] = sq["topics"]["name"]
+            
+            session_stats[topic_id]["total"] += 1
+            if sq.get("is_correct"):
+                session_stats[topic_id]["correct"] += 1
+        
+        # Get current mastery for all unique topics
         topic_ids = list(unique_topics.keys())
         current_mastery_response = db.table("user_skill_mastery").select(
-            "skill_id, mastery_probability, total_attempts, correct_attempts"
+            "skill_id, mastery_probability"
         ).eq("user_id", user_id).in_("skill_id", topic_ids).execute()
         
         current_mastery_map = {
-            record["skill_id"]: {
-                "mastery": float(record["mastery_probability"]),
-                "total_attempts": record["total_attempts"],
-                "correct_attempts": record["correct_attempts"]
-            }
+            record["skill_id"]: float(record["mastery_probability"])
             for record in current_mastery_response.data
         }
         
@@ -577,33 +585,33 @@ async def get_session_mastery_improvements(
                     for skill_id, mastery in skills_snapshot.items()
                 }
         
-        # Calculate improvements
+        # Calculate improvements and format response
         improvements = []
         for topic_id, topic_name in unique_topics.items():
             
+            # Skip if we don't have current mastery data (shouldn't happen if BKT is working)
             if topic_id not in current_mastery_map:
                 continue
                 
-            current_data = current_mastery_map[topic_id]
-            current_mastery = current_data["mastery"]
+            current_mastery = current_mastery_map[topic_id]
             previous_mastery = previous_mastery_map.get(topic_id, 0.0)
             
             # Calculate absolute increase in percentage points
             mastery_increase = (current_mastery - previous_mastery) * 100
             current_percentage = current_mastery * 100
             
-            # Only include topics with some mastery
-            if current_percentage > 0:
-                improvements.append({
-                    "topic_id": topic_id,
-                    "topic_name": topic_name,
-                    "mastery_before": previous_mastery,
-                    "mastery_after": current_mastery,
-                    "mastery_increase": round(mastery_increase, 1),
-                    "current_percentage": round(current_percentage, 1),
-                    "total_attempts": current_data["total_attempts"],
-                    "correct_attempts": current_data["correct_attempts"]
-                })
+            stats = session_stats[topic_id]
+            
+            improvements.append({
+                "topic_id": topic_id,
+                "topic_name": topic_name,
+                "mastery_before": previous_mastery,
+                "mastery_after": current_mastery,
+                "mastery_increase": round(mastery_increase, 1),
+                "current_percentage": round(current_percentage, 1),
+                "total_attempts": stats["total"],
+                "correct_attempts": stats["correct"]
+            })
         
         # Sort by mastery increase descending
         improvements.sort(key=lambda x: x["mastery_increase"], reverse=True)
@@ -793,10 +801,13 @@ async def create_drill_session(
 
         # Get topic names for response
         topic_names = [topic["name"] for topic in topics]
+        
+        # Ensure session_id is a string
+        session_id_str = str(session_id)
 
         return {
             "success": True,
-            "session_id": session_id,
+            "session_id": session_id_str,
             "topic_names": topic_names,
             "num_questions": len(selected_questions),
             "session": session_with_questions.data[0]

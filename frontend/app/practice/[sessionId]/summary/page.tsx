@@ -39,16 +39,38 @@ function SummaryContent() {
   const rawValue = params.sessionId;
   
   if (typeof rawValue === "string") {
-    const trimmed = rawValue.trim();
-    // Check if it's a JSON string
+    let trimmed = rawValue.trim();
+    // Handle URL encoded values first
+    if (trimmed.includes("%")) {
+      try {
+        trimmed = decodeURIComponent(trimmed);
+      } catch {
+        // ignore decode errors
+      }
+    }
+
+    // Check if it looks like a JSON object (starts with {)
     if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
       try {
+        // Attempt standard JSON parse
         const parsed = JSON.parse(trimmed);
         sessionId = parsed.id || parsed.sessionId || parsed.value || "";
       } catch {
-        // If JSON parsing fails, extract UUID with regex
+        // If JSON parsing fails (e.g. single quotes), try to extract UUID with regex
+        // Matches standard UUID format: 8-4-4-4-12 hex digits
         const uuidMatch = trimmed.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
-        sessionId = uuidMatch ? uuidMatch[0] : "";
+        if (uuidMatch) {
+          sessionId = uuidMatch[0];
+        } else {
+            // Fallback: try to parse single-quoted JSON by replacing ' with "
+            try {
+                const fixedJson = trimmed.replace(/'/g, '"');
+                const parsed = JSON.parse(fixedJson);
+                sessionId = parsed.id || parsed.sessionId || parsed.value || "";
+            } catch {
+                // Give up on parsing
+            }
+        }
       }
     } else {
       sessionId = trimmed;

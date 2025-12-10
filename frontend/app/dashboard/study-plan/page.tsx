@@ -27,6 +27,7 @@ import {
 } from "@/components/study-plan/types";
 import { TodoSection } from "@/components/study-plan/todo-section";
 import { Skeleton } from "@/components/ui/skeleton";
+import { FeedbackButton } from "@/components/FeedbackButton";
 
 // Helper function to sort sessions within a section
 function sortSessionsInSection(sessions: TodoSession[]): TodoSession[] {
@@ -50,7 +51,10 @@ function sortSessionsInSection(sessions: TodoSession[]): TodoSession[] {
 }
 
 // Helper function to categorize sessions into sections
-function categorizeSessions(sessions: PracticeSession[], mockExams: any[] = []): TodoSectionType[] {
+function categorizeSessions(
+  sessions: PracticeSession[],
+  mockExams: any[] = []
+): TodoSectionType[] {
   // Convert all sessions to TodoSession with priority
   const allSessions: TodoSession[] = sessions.map((session) => {
     const status = getSessionStatus(session);
@@ -79,26 +83,33 @@ function categorizeSessions(sessions: PracticeSession[], mockExams: any[] = []):
 
   // Process Mock Exams for "This Week"
   const now = new Date();
-  const thisWeekMockExams = mockExams.filter(exam => {
-      const examDate = exam.started_at ? new Date(exam.started_at) : new Date(exam.created_at);
-      return isSameWeek(examDate, now);
+  const thisWeekMockExams = mockExams.filter((exam) => {
+    const examDate = exam.started_at
+      ? new Date(exam.started_at)
+      : new Date(exam.created_at);
+    return isSameWeek(examDate, now);
   });
 
-  const thisWeekMockTodos: TodoSession[] = thisWeekMockExams.map(exam => ({
-     id: exam.id,
-     study_plan_id: sessions[0]?.study_plan_id || "mock", 
-     scheduled_date: exam.created_at,
-     session_number: 0,
-     status: exam.status === "completed" ? "completed" : exam.status === "in_progress" ? "in-progress" : "upcoming",
-     started_at: exam.started_at,
-     completed_at: exam.completed_at,
-     created_at: exam.created_at,
-     updated_at: exam.updated_at,
-     topics: [],
-     total_questions: exam.total_questions || 98,
-     completed_questions: exam.completed_questions || 0,
-     score: exam.total_score,
-     examType: "mock-exam"
+  const thisWeekMockTodos: TodoSession[] = thisWeekMockExams.map((exam) => ({
+    id: exam.id,
+    study_plan_id: sessions[0]?.study_plan_id || "mock",
+    scheduled_date: exam.created_at,
+    session_number: 0,
+    status:
+      exam.status === "completed"
+        ? "completed"
+        : exam.status === "in_progress"
+        ? "in-progress"
+        : "upcoming",
+    started_at: exam.started_at,
+    completed_at: exam.completed_at,
+    created_at: exam.created_at,
+    updated_at: exam.updated_at,
+    topics: [],
+    total_questions: exam.total_questions || 98,
+    completed_questions: exam.completed_questions || 0,
+    score: exam.total_score,
+    examType: "mock-exam",
   }));
 
   // Create default mock test session placeholder
@@ -115,14 +126,15 @@ function categorizeSessions(sessions: PracticeSession[], mockExams: any[] = []):
     topics: [],
     total_questions: 98,
     completed_questions: 0,
-    examType: "mock-exam"
+    examType: "mock-exam",
   };
 
   // If we have real mocks this week, use them. Otherwise use default placeholder.
-  // We also append the default placeholder if all current mocks are completed, 
+  // We also append the default placeholder if all current mocks are completed,
   // encouraging another one (optional, but sticking to "show what I did" logic + "what to do")
   // For now, let's just show the list if not empty, else the placeholder.
-  const mock1Todos = thisWeekMockTodos.length > 0 ? thisWeekMockTodos : [defaultMockSession];
+  const mock1Todos =
+    thisWeekMockTodos.length > 0 ? thisWeekMockTodos : [defaultMockSession];
 
   return [
     {
@@ -156,25 +168,29 @@ function StudyPlanContent() {
   const router = useRouter();
   const { data: studyPlan, isLoading, error, refetch } = useStudyPlan();
   const { data: mockExamsData } = useMockExams();
-  
+
   // ALL HOOKS MUST BE CALLED BEFORE ANY EARLY RETURNS
   const deleteStudyPlanMutation = useDeleteStudyPlan();
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [sections, setSections] = useState<TodoSectionType[]>([]);
-  const [activeFilter, setActiveFilter] = useState<
-    "all" | "completed"
-  >("all");
+  const [activeFilter, setActiveFilter] = useState<"all" | "completed">("all");
 
   // Initialize sections when study plan loads
   // Only update sections when the study plan ID changes or sessions length changes
   // to preserve manual drag-and-drop ordering
   useEffect(() => {
     if (studyPlan?.study_plan?.sessions) {
-      setSections(categorizeSessions(studyPlan.study_plan.sessions, mockExamsData?.exams));
+      setSections(
+        categorizeSessions(studyPlan.study_plan.sessions, mockExamsData?.exams)
+      );
     }
-  }, [studyPlan?.study_plan?.id, studyPlan?.study_plan?.sessions?.length, mockExamsData?.exams]);
+  }, [
+    studyPlan?.study_plan?.id,
+    studyPlan?.study_plan?.sessions?.length,
+    mockExamsData?.exams,
+  ]);
 
   if (isLoading) {
     return (
@@ -184,10 +200,10 @@ function StudyPlanContent() {
             <Skeleton className="h-12 w-64 rounded-xl" />
             <Skeleton className="h-6 w-96 rounded-lg" />
           </div>
-          
+
           <div className="flex items-center gap-4">
-             <Skeleton className="h-10 w-24 rounded-lg" />
-             <Skeleton className="h-10 w-24 rounded-lg" />
+            <Skeleton className="h-10 w-24 rounded-lg" />
+            <Skeleton className="h-10 w-24 rounded-lg" />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -268,7 +284,9 @@ function StudyPlanContent() {
         refetch();
       },
       onError: (err) => {
-        alert(err instanceof Error ? err.message : "Failed to delete study plan");
+        alert(
+          err instanceof Error ? err.message : "Failed to delete study plan"
+        );
         setIsDeleting(false);
       },
     });
@@ -284,7 +302,8 @@ function StudyPlanContent() {
               SAT Study Plan
             </h1>
             <p className="text-lg text-muted-foreground">
-              Your personalized roadmap • {study_plan.sessions.length} sessions total
+              Your personalized roadmap • {study_plan.sessions.length} sessions
+              total
             </p>
           </div>
 
@@ -307,7 +326,7 @@ function StudyPlanContent() {
                 Completed
               </Button>
             </div>
-            
+
             <div className="h-8 w-px bg-border/50 mx-2 hidden md:block" />
 
             <Button
@@ -331,21 +350,26 @@ function StudyPlanContent() {
 
         {/* Content */}
         {study_plan.sessions.length === 0 ? (
-           <div className="bg-card border-2 border-dashed border-border rounded-[2.5rem] p-12 text-center">
-             <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-3xl mb-6">
-                <span className="text-4xl">📚</span>
-             </div>
-             <h3 className="text-2xl font-bold text-foreground mb-2">
-               No Practice Sessions
-             </h3>
-             <p className="text-muted-foreground mb-8 max-w-sm mx-auto">
-               It looks like your plan is empty. Create a new study plan to generate your personalized schedule.
-             </p>
-             <Button onClick={() => router.push("/onboard")} size="lg" className="rounded-xl">
-               <Plus className="w-4 h-4 mr-2" />
-               Create Study Plan
-             </Button>
-           </div>
+          <div className="bg-card border-2 border-dashed border-border rounded-[2.5rem] p-12 text-center">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-primary/10 rounded-3xl mb-6">
+              <span className="text-4xl">📚</span>
+            </div>
+            <h3 className="text-2xl font-bold text-foreground mb-2">
+              No Practice Sessions
+            </h3>
+            <p className="text-muted-foreground mb-8 max-w-sm mx-auto">
+              It looks like your plan is empty. Create a new study plan to
+              generate your personalized schedule.
+            </p>
+            <Button
+              onClick={() => router.push("/onboard")}
+              size="lg"
+              className="rounded-xl"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create Study Plan
+            </Button>
+          </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
             {sections
@@ -360,7 +384,10 @@ function StudyPlanContent() {
                     : section.todos;
 
                 // Only show section if it has todos after filtering
-                if (filteredTodos.length === 0 && activeFilter === "completed") {
+                if (
+                  filteredTodos.length === 0 &&
+                  activeFilter === "completed"
+                ) {
                   return null;
                 }
 
@@ -378,14 +405,20 @@ function StudyPlanContent() {
         )}
       </div>
 
+      <FeedbackButton />
+
       <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <DialogContent className="sm:max-w-md rounded-3xl border-border">
           <DialogHeader>
-            <DialogTitle className="text-2xl font-bold">Delete Study Plan?</DialogTitle>
+            <DialogTitle className="text-2xl font-bold">
+              Delete Study Plan?
+            </DialogTitle>
             <DialogDescription className="text-base pt-2">
               This will permanently delete your study plan and all{" "}
-              <span className="font-bold text-foreground">{study_plan.sessions.length} practice sessions</span>. 
-              This action cannot be undone.
+              <span className="font-bold text-foreground">
+                {study_plan.sessions.length} practice sessions
+              </span>
+              . This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2 sm:gap-0">

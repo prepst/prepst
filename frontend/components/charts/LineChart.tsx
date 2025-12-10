@@ -25,6 +25,9 @@ interface LineChartProps {
   formatXAxis?: (value: string | number) => string;
   formatYAxis?: (value: string | number) => string;
   formatTooltip?: (value: string | number) => string;
+  xTicks?: Array<string | number>;
+  yDomain?: [number | string, number | string];
+  yTicks?: Array<number | string>;
 }
 
 export function LineChart({
@@ -37,6 +40,9 @@ export function LineChart({
   formatXAxis,
   formatYAxis,
   formatTooltip,
+  xTicks,
+  yDomain,
+  yTicks,
 }: LineChartProps) {
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -54,6 +60,7 @@ export function LineChart({
           }
           tickFormatter={formatXAxis}
           stroke="#6b7280"
+          ticks={xTicks}
         />
         <YAxis
           label={
@@ -63,6 +70,8 @@ export function LineChart({
           }
           tickFormatter={formatYAxis}
           stroke="#6b7280"
+          domain={yDomain}
+          ticks={yTicks}
         />
         <Tooltip
           formatter={formatTooltip}

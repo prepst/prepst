@@ -14,6 +14,7 @@ import QuickActionsGrid from "@/components/dashboard/QuickActionsGrid";
 import RecommendationCard from "@/components/dashboard/RecommendationCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "@/contexts/ThemeContext";
+import { FeedbackButton } from "@/components/FeedbackButton";
 
 const timeOptions = [
   { label: "5 min", value: 5 },
@@ -375,6 +376,8 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      <FeedbackButton />
     </div>
   );
 }

@@ -13,6 +13,7 @@ import { SkillRadialChart } from "@/components/charts/SkillRadialChart";
 import { PredictiveSATTracker } from "@/components/analytics/PredictiveSATTracker";
 import MagicBento from "@/components/dashboard/MagicBento";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 
 export default function ProgressPage() {
   // Use TanStack Query hooks for automatic caching
@@ -24,6 +25,27 @@ export default function ProgressPage() {
     isLoading: mockExamLoading,
     isError: mockExamError,
   } = useMockExamAnalytics();
+  const mockExamPoints =
+    mockExamData?.recent_exams?.map((exam) => ({
+      ...exam,
+      date: new Date(exam.completed_at).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      }),
+    })) ?? [];
+  const mockExamScores =
+    mockExamPoints.map((exam) => Number(exam.total_score) || 0) ?? [];
+  const mockExamMin = mockExamScores.length ? Math.min(...mockExamScores) : 0;
+  const mockExamFloor = Math.max(0, Math.floor((mockExamMin - 50) / 100) * 100);
+  const mockExamDomain =
+    mockExamScores.length > 0 ? [mockExamFloor, 1600] : [0, 1600];
+  const mockExamYTicks = Array.from(
+    { length: Math.floor((1600 - mockExamDomain[0]) / 200) + 1 },
+    (_, i) => mockExamDomain[0] + i * 200
+  );
+  const mockExamTicks = Array.from(
+    new Set(mockExamPoints.map((exam) => exam.date))
+  );
 
   // Derive data from queries
   const growthData = growthCurveQuery.data?.data || [];
@@ -152,6 +174,74 @@ export default function ProgressPage() {
             <p className="text-muted-foreground">
               Monitor your SAT preparation journey and track your improvement
             </p>
+          </div>
+
+          {/* Skill Mastery Heatmap */}
+          <div className="mb-12">
+            <h2 className="text-3xl font-semibold mb-6 text-foreground">
+              Skill Mastery
+            </h2>
+            {heatmapQuery.isLoading ? (
+              <div className="space-y-8">
+                {Array.from({ length: 2 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-card rounded-3xl p-8 border border-border shadow-sm"
+                  >
+                    <Skeleton className="h-8 w-48 mb-6" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                      {Array.from({ length: 4 }).map((_, j) => (
+                        <Skeleton
+                          key={j}
+                          className="aspect-square rounded-2xl"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              Object.keys(heatmap).length > 0 && (
+                <div className="space-y-8">
+                  {Object.entries(heatmap).map(([categoryName, category]) => (
+                    <div key={categoryName} className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <h3 className="text-xl font-bold text-foreground">
+                          {categoryName}
+                        </h3>
+                        <Badge
+                          variant="secondary"
+                          className="text-muted-foreground bg-muted font-medium"
+                        >
+                          {category.section === "math"
+                            ? "Math"
+                            : "Reading & Writing"}
+                        </Badge>
+                      </div>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {category.skills.map((skill) => (
+                          <div
+                            key={skill.skill_id}
+                            className="bg-card rounded-2xl p-1 border border-border shadow-sm hover:shadow-md transition-shadow duration-300"
+                          >
+                            <SkillRadialChart
+                              skillName={skill.skill_name}
+                              mastery={skill.mastery}
+                              correctAttempts={skill.correct_attempts}
+                              totalAttempts={skill.total_attempts}
+                              velocity={skill.velocity}
+                              plateau={skill.plateau}
+                              skillId={skill.skill_id}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )
+            )}
           </div>
 
           {/* SAT Score Overview */}
@@ -316,16 +406,7 @@ export default function ProgressPage() {
                   ) : mockExamData && mockExamData.recent_exams?.length > 0 ? (
                     <div>
                       <LineChart
-                        data={mockExamData.recent_exams.map((exam) => ({
-                          ...exam,
-                          date: new Date(exam.completed_at).toLocaleDateString(
-                            "en-US",
-                            {
-                              month: "short",
-                              day: "numeric",
-                            }
-                          ),
-                        }))}
+                        data={mockExamPoints}
                         lines={[
                           {
                             dataKey: "total_score",
@@ -336,6 +417,9 @@ export default function ProgressPage() {
                         xKey="date"
                         height={300}
                         yLabel="Score"
+                        yDomain={mockExamDomain}
+                        xTicks={mockExamTicks}
+                        yTicks={mockExamYTicks}
                       />
 
                       {/* Mock Exam Summary Stats */}

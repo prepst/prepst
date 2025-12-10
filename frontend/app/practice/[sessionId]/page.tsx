@@ -14,6 +14,7 @@ import { QuestionListSidebar } from "@/components/practice/QuestionListSidebar";
 import { usePracticeSession } from "@/hooks/usePracticeSession";
 import { useTimer } from "@/hooks/useTimer";
 import { useQuestionNavigation } from "@/hooks/useQuestionNavigation";
+import { FeedbackButton } from "@/components/FeedbackButton";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
@@ -22,13 +23,16 @@ import "./practice-session.css";
 function PracticeSessionContent() {
   const params = useParams();
   const router = useRouter();
-  
+
   // Safe access to sessionId, handling potential JSON stringification from previous bugs
   const rawSessionId = params.sessionId as string;
   const sessionId = useMemo(() => {
     if (!rawSessionId) return "";
     // Check if it looks like a JSON object string (starts with { and contains "id")
-    if (rawSessionId.startsWith("%7B") || (rawSessionId.startsWith("{") && rawSessionId.includes("id"))) {
+    if (
+      rawSessionId.startsWith("%7B") ||
+      (rawSessionId.startsWith("{") && rawSessionId.includes("id"))
+    ) {
       try {
         const decoded = decodeURIComponent(rawSessionId);
         const parsed = JSON.parse(decoded);
@@ -84,16 +88,20 @@ function PracticeSessionContent() {
   const [dragStartPosition, setDragStartPosition] = useState(480);
 
   // Track which session questions are saved
-  const [savedSessionQuestions, setSavedSessionQuestions] = useState<Map<string, boolean>>(new Map());
+  const [savedSessionQuestions, setSavedSessionQuestions] = useState<
+    Map<string, boolean>
+  >(new Map());
   const [savingQuestionId, setSavingQuestionId] = useState<string | null>(null);
 
   // Calculate gamification stats
   const { streak, score } = useMemo(() => {
     let currentStreak = 0;
     let totalScore = 0;
-    
+
     // Sort questions by display order
-    const sortedQuestions = [...questions].sort((a, b) => a.display_order - b.display_order);
+    const sortedQuestions = [...questions].sort(
+      (a, b) => a.display_order - b.display_order
+    );
 
     sortedQuestions.forEach((q) => {
       const answerState = answers[q.question.id];
@@ -101,7 +109,8 @@ function PracticeSessionContent() {
         if (answerState.isCorrect) {
           currentStreak++;
           // Base score 100, streak bonus (10 points per streak > 1)
-          totalScore += 100 + (currentStreak > 1 ? (currentStreak - 1) * 10 : 0);
+          totalScore +=
+            100 + (currentStreak > 1 ? (currentStreak - 1) * 10 : 0);
         } else {
           currentStreak = 0;
         }
@@ -126,7 +135,7 @@ function PracticeSessionContent() {
   useEffect(() => {
     if (questions && questions.length > 0) {
       const savedMap = new Map<string, boolean>();
-      questions.forEach(q => {
+      questions.forEach((q) => {
         savedMap.set(q.session_question_id, q.is_saved || false);
       });
       setSavedSessionQuestions(savedMap);
@@ -156,7 +165,7 @@ function PracticeSessionContent() {
         confetti({
           particleCount: 100,
           spread: 70,
-          origin: { y: 0.6 }
+          origin: { y: 0.6 },
         });
       }
     }
@@ -327,13 +336,17 @@ function PracticeSessionContent() {
       const result = await api.toggleSaveQuestion(sessionQuestionId);
 
       // Update local state
-      setSavedSessionQuestions(prev => {
+      setSavedSessionQuestions((prev) => {
         const newMap = new Map(prev);
         newMap.set(sessionQuestionId, result.is_saved);
         return newMap;
       });
 
-      toast.success(result.is_saved ? "Question saved for review" : "Question removed from saved");
+      toast.success(
+        result.is_saved
+          ? "Question saved for review"
+          : "Question removed from saved"
+      );
     } catch (error) {
       console.error("Failed to toggle save status:", error);
       toast.error("Failed to save question. Please try again.");
@@ -522,7 +535,10 @@ function PracticeSessionContent() {
             onGetFeedback={handleGetAiFeedback}
             onGetSimilarQuestion={handleGetSimilarQuestion}
             onSaveQuestion={handleSaveQuestion}
-            isQuestionSaved={savedSessionQuestions.get(currentQuestion.session_question_id) || false}
+            isQuestionSaved={
+              savedSessionQuestions.get(currentQuestion.session_question_id) ||
+              false
+            }
             onConfidenceSelect={handleConfidenceSelected}
             defaultConfidence={confidenceScore}
           />
@@ -540,6 +556,7 @@ function PracticeSessionContent() {
           />
         </div>
       </div>
+      <FeedbackButton />
     </div>
   );
 }

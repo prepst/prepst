@@ -8,9 +8,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useCompletedSessions } from "@/hooks/queries";
+import { useCompletedSessions, useSkillHeatmap } from "@/hooks/queries";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
+import { SkillRadialChart } from "@/components/charts/SkillRadialChart";
 
 export default function DrillPage() {
   const router = useRouter();
@@ -19,6 +20,8 @@ export default function DrillPage() {
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [isCreatingSession, setIsCreatingSession] = useState(false);
+  const { data: heatmapData, isLoading: heatmapLoading } = useSkillHeatmap();
+  const heatmap = heatmapData?.heatmap || {};
 
   // Fetch recent drill sessions
   const { data: completedSessions, isLoading: loadingSessions } =
@@ -38,11 +41,16 @@ export default function DrillPage() {
     try {
       setIsCreatingSession(true);
       const drillSession = await api.createDrillSession(selectedTopics, 3);
-      toast.success(`Drill session created with ${drillSession.num_questions} questions`);
+      toast.success(
+        `Drill session created with ${drillSession.num_questions} questions`
+      );
       router.push(`/practice/${drillSession.session_id}`);
     } catch (error) {
       console.error("Failed to create drill session:", error);
-      const errorMessage = error instanceof Error ? error.message : "Failed to create drill session";
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to create drill session";
       toast.error(errorMessage);
     } finally {
       setIsCreatingSession(false);
@@ -156,9 +164,18 @@ export default function DrillPage() {
                 {topicsBySection.math.length > 0 && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
-                      <h3 className="text-xl font-bold text-foreground">Math</h3>
-                      <Badge variant="secondary" className="text-muted-foreground bg-muted font-medium">
-                        {topicsBySection.math.reduce((acc, cat) => acc + cat.topics.length, 0)} topics
+                      <h3 className="text-xl font-bold text-foreground">
+                        Math
+                      </h3>
+                      <Badge
+                        variant="secondary"
+                        className="text-muted-foreground bg-muted font-medium"
+                      >
+                        {topicsBySection.math.reduce(
+                          (acc, cat) => acc + cat.topics.length,
+                          0
+                        )}{" "}
+                        topics
                       </Badge>
                     </div>
 
@@ -189,7 +206,9 @@ export default function DrillPage() {
                                 </div>
                                 <Checkbox
                                   checked={selectedTopics.includes(topic.id)}
-                                  onCheckedChange={() => handleTopicToggle(topic.id)}
+                                  onCheckedChange={() =>
+                                    handleTopicToggle(topic.id)
+                                  }
                                   className="w-5 h-5"
                                 />
                               </div>
@@ -209,9 +228,18 @@ export default function DrillPage() {
                 {topicsBySection.reading_writing.length > 0 && (
                   <div className="space-y-4">
                     <div className="flex items-center gap-3">
-                      <h3 className="text-xl font-bold text-foreground">Reading & Writing</h3>
-                      <Badge variant="secondary" className="text-muted-foreground bg-muted font-medium">
-                        {topicsBySection.reading_writing.reduce((acc, cat) => acc + cat.topics.length, 0)} topics
+                      <h3 className="text-xl font-bold text-foreground">
+                        Reading & Writing
+                      </h3>
+                      <Badge
+                        variant="secondary"
+                        className="text-muted-foreground bg-muted font-medium"
+                      >
+                        {topicsBySection.reading_writing.reduce(
+                          (acc, cat) => acc + cat.topics.length,
+                          0
+                        )}{" "}
+                        topics
                       </Badge>
                     </div>
 
@@ -242,7 +270,9 @@ export default function DrillPage() {
                                 </div>
                                 <Checkbox
                                   checked={selectedTopics.includes(topic.id)}
-                                  onCheckedChange={() => handleTopicToggle(topic.id)}
+                                  onCheckedChange={() =>
+                                    handleTopicToggle(topic.id)
+                                  }
                                   className="w-5 h-5"
                                 />
                               </div>
@@ -261,8 +291,7 @@ export default function DrillPage() {
             )}
           </section>
 
-          {/* Commented out - replaced with better topic selection cards above */}
-          {/* {loading ? (
+          {/* {heatmapLoading ? (
             <div className="space-y-8">
               {Array.from({ length: 2 }).map((_, i) => (
                 <div

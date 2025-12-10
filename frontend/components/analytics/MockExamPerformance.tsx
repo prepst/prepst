@@ -48,9 +48,11 @@ export function MockExamPerformance({
   const mockExamLatest = mockExamPoints[mockExamPoints.length - 1];
   const mockStartScore = Number(mockExamFirst?.total_score) || 0;
   const mockCurrentScore = Number(mockExamLatest?.total_score) || 0;
-  const mockScoreDelta = mockCurrentScore - mockStartScore;
-  const mockScoreDeltaPct =
-    mockStartScore > 0 ? (mockScoreDelta / mockStartScore) * 100 : 0;
+  const improvementFromLowest = mockExamScores.length
+    ? mockCurrentScore - mockExamMin
+    : 0;
+  const improvementPctFromLowest =
+    mockExamMin > 0 ? (improvementFromLowest / mockExamMin) * 100 : 0;
 
   return (
     <div className="mb-12">
@@ -59,8 +61,8 @@ export function MockExamPerformance({
           <div className="space-y-4">
             <Skeleton className="h-8 w-40" />
             <Skeleton className="h-72 w-full rounded-xl" />
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {Array.from({ length: 4 }).map((_, idx) => (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {Array.from({ length: 3 }).map((_, idx) => (
                 <Skeleton key={idx} className="h-24 rounded-lg" />
               ))}
             </div>
@@ -84,13 +86,13 @@ export function MockExamPerformance({
                   </div>
                   <span
                     className={`px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold border ${
-                      mockScoreDelta >= 0
+                      improvementFromLowest >= 0
                         ? "bg-emerald-500/10 text-emerald-300 border-emerald-400/40"
                         : "bg-rose-500/10 text-rose-300 border-rose-400/40"
                     }`}
                   >
-                    {mockScoreDelta >= 0 ? "+" : "-"}
-                    {Math.abs(mockScoreDelta).toFixed(0)} pts
+                    {improvementFromLowest >= 0 ? "+" : "-"}
+                    {Math.abs(improvementFromLowest).toFixed(0)} pts
                   </span>
                 </div>
               </div>
@@ -102,12 +104,14 @@ export function MockExamPerformance({
                   </span>
                   <span
                     className={`text-xs sm:text-sm font-semibold ${
-                      mockScoreDelta >= 0 ? "text-emerald-300" : "text-rose-300"
+                      improvementFromLowest >= 0
+                        ? "text-emerald-300"
+                        : "text-rose-300"
                     }`}
                   >
-                    {mockScoreDelta >= 0 ? "+" : "-"}
-                    {Math.abs(mockScoreDelta).toFixed(0)} (
-                    {mockScoreDeltaPct.toFixed(1)}%)
+                    {improvementFromLowest >= 0 ? "+" : "-"}
+                    {Math.abs(improvementFromLowest).toFixed(0)} (
+                    {improvementPctFromLowest.toFixed(1)}%)
                   </span>
                 </div>
                 <div className="text-[11px] sm:text-xs text-muted-foreground">
@@ -135,6 +139,34 @@ export function MockExamPerformance({
                     yTicks={mockExamYTicks}
                     gridColorDark="rgba(255,255,255,0.08)"
                   />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm">
+                <div className="bg-white/60 dark:bg-white/[0.04] border border-border/60 dark:border-white/10 rounded-xl p-4">
+                  <p className="text-muted-foreground text-xs uppercase tracking-wide">
+                    Latest Total Score
+                  </p>
+                  <p className="text-2xl font-semibold text-foreground mt-1">
+                    {mockCurrentScore.toFixed(0)}
+                  </p>
+                </div>
+                <div className="bg-white/60 dark:bg-white/[0.04] border border-border/60 dark:border-white/10 rounded-xl p-4">
+                  <p className="text-muted-foreground text-xs uppercase tracking-wide">
+                    Average Score
+                  </p>
+                  <p className="text-2xl font-semibold text-blue-600 dark:text-blue-300 mt-1">
+                    {Math.round(data.avg_total_score)}
+                  </p>
+                </div>
+                <div className="bg-white/60 dark:bg-white/[0.04] border border-border/60 dark:border-white/10 rounded-xl p-4">
+                  <p className="text-muted-foreground text-xs uppercase tracking-wide">
+                    Improvement
+                  </p>
+                  <p className="text-2xl font-semibold text-green-600 dark:text-green-300 mt-1">
+                    {improvementFromLowest > 0 ? "+" : ""}
+                    {Math.round(improvementFromLowest)} pts
+                  </p>
                 </div>
               </div>
             </div>

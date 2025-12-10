@@ -6,6 +6,7 @@ import {
   useSkillHeatmap,
   useMockExamAnalytics,
 } from "@/hooks/queries";
+import { MockExamPerformance } from "@/components/analytics/MockExamPerformance";
 import { LineChart } from "@/components/charts/LineChart";
 import { RadarChart } from "@/components/charts/RadarChart";
 import { AreaChart } from "@/components/charts/AreaChart";
@@ -25,27 +26,6 @@ export default function ProgressPage() {
     isLoading: mockExamLoading,
     isError: mockExamError,
   } = useMockExamAnalytics();
-  const mockExamPoints =
-    mockExamData?.recent_exams?.map((exam) => ({
-      ...exam,
-      date: new Date(exam.completed_at).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-      }),
-    })) ?? [];
-  const mockExamScores =
-    mockExamPoints.map((exam) => Number(exam.total_score) || 0) ?? [];
-  const mockExamMin = mockExamScores.length ? Math.min(...mockExamScores) : 0;
-  const mockExamFloor = Math.max(0, Math.floor((mockExamMin - 50) / 100) * 100);
-  const mockExamDomain =
-    mockExamScores.length > 0 ? [mockExamFloor, 1600] : [0, 1600];
-  const mockExamYTicks = Array.from(
-    { length: Math.floor((1600 - mockExamDomain[0]) / 200) + 1 },
-    (_, i) => mockExamDomain[0] + i * 200
-  );
-  const mockExamTicks = Array.from(
-    new Set(mockExamPoints.map((exam) => exam.date))
-  );
 
   // Derive data from queries
   const growthData = growthCurveQuery.data?.data || [];
@@ -379,123 +359,11 @@ export default function ProgressPage() {
               )}
 
               {/* Mock Exam Progress */}
-              <div className="mb-12">
-                <h2 className="text-3xl font-semibold mb-6 text-foreground">
-                  Mock Exam Performance
-                </h2>
-                <div className="bg-card border border-border rounded-2xl p-8">
-                  {mockExamLoading ? (
-                    <div className="space-y-4">
-                      <Skeleton className="h-8 w-40" />
-                      <Skeleton className="h-72 w-full rounded-xl" />
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {Array.from({ length: 4 }).map((_, idx) => (
-                          <Skeleton key={idx} className="h-24 rounded-lg" />
-                        ))}
-                      </div>
-                    </div>
-                  ) : mockExamError ? (
-                    <div className="flex flex-col items-center justify-center h-80 text-muted-foreground">
-                      <h3 className="text-lg font-medium text-foreground mb-2">
-                        Unable to load mock exam data
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        Please try again in a moment.
-                      </p>
-                    </div>
-                  ) : mockExamData && mockExamData.recent_exams?.length > 0 ? (
-                    <div>
-                      <LineChart
-                        data={mockExamPoints}
-                        lines={[
-                          {
-                            dataKey: "total_score",
-                            color: "#3b82f6",
-                            name: "Total Score",
-                          },
-                        ]}
-                        xKey="date"
-                        height={300}
-                        yLabel="Score"
-                        yDomain={mockExamDomain}
-                        xTicks={mockExamTicks}
-                        yTicks={mockExamYTicks}
-                      />
-
-                      {/* Mock Exam Summary Stats */}
-                      <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-muted/50 rounded-lg p-4 text-center">
-                          <p className="text-sm text-muted-foreground">
-                            Total Exams
-                          </p>
-                          <p className="text-2xl font-bold text-foreground">
-                            {mockExamData.total_exams}
-                          </p>
-                        </div>
-                        <div className="bg-muted/50 rounded-lg p-4 text-center">
-                          <p className="text-sm text-muted-foreground">
-                            Average Score
-                          </p>
-                          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                            {Math.round(mockExamData.avg_total_score)}
-                          </p>
-                        </div>
-                        <div className="bg-muted/50 rounded-lg p-4 text-center">
-                          <p className="text-sm text-muted-foreground">
-                            Improvement
-                          </p>
-                          <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                            {mockExamData.improvement_velocity > 0 ? "+" : ""}
-                            {Math.round(mockExamData.improvement_velocity)} pts
-                          </p>
-                        </div>
-                        <div className="bg-muted/50 rounded-lg p-4 text-center">
-                          <p className="text-sm text-muted-foreground">
-                            Readiness
-                          </p>
-                          <p className="text-2xl font-bold text-purple-600 dark:text-purple-400">
-                            {mockExamData.readiness_score}/100
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-80 text-muted-foreground">
-                      <div className="text-center">
-                        <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
-                          <svg
-                            className="w-8 h-8 text-muted-foreground"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                            />
-                          </svg>
-                        </div>
-                        <h3 className="text-lg font-medium text-foreground mb-2">
-                          No Mock Exams Yet
-                        </h3>
-                        <p className="text-muted-foreground mb-4">
-                          Take your first mock exam to start tracking your
-                          progress
-                        </p>
-                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 max-w-md">
-                          <p className="text-sm text-blue-600 dark:text-blue-400">
-                            <strong>Tip:</strong> Mock exams help you practice
-                            under real test conditions and track your
-                            improvement over time.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
+              <MockExamPerformance
+                data={mockExamData}
+                isLoading={mockExamLoading}
+                isError={mockExamError}
+              />
 
               {/* Mastery Over Time */}
               {growthData.length > 0 &&

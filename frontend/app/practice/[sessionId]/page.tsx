@@ -556,7 +556,7 @@ function PracticeSessionContent() {
           />
         </div>
       </div>
-      <FeedbackButton />
+      <FeedbackButton placement="fixed-left" />
     </div>
   );
 }

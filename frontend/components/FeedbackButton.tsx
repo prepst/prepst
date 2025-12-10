@@ -23,12 +23,12 @@ import { toast } from "sonner";
 type FeedbackType = "improvement" | "bug";
 
 type FeedbackButtonProps = {
-  placement?: "fixed" | "inline";
+  placement?: "fixed-right" | "fixed-left" | "inline";
   className?: string;
 };
 
 export function FeedbackButton({
-  placement = "fixed",
+  placement = "fixed-right",
   className,
 }: FeedbackButtonProps) {
   const { user } = useAuth();
@@ -38,10 +38,12 @@ export function FeedbackButton({
   const [attachment, setAttachment] = useState<File | null>(null);
   const [sending, setSending] = useState(false);
 
-  const wrapperClass =
-    placement === "fixed"
-      ? cn("fixed bottom-6 right-6 z-50", className)
-      : cn(className);
+  const wrapperClass = (() => {
+    if (placement === "inline") return cn(className);
+    if (placement === "fixed-left")
+      return cn("fixed bottom-6 left-6 z-50", className);
+    return cn("fixed bottom-6 right-6 z-50", className);
+  })();
 
   const subject = useMemo(
     () => `[${type === "bug" ? "Bug" : "Improvement"}] PrepST feedback`,

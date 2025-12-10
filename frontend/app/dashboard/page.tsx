@@ -309,8 +309,8 @@ export default function DashboardPage() {
                       <span
                         className="select-none bg-gradient-to-r from-gray-400/50 via-gray-300/50 to-gray-400/50 dark:from-gray-500/50 dark:via-gray-400/50 dark:to-gray-500/50 bg-clip-text text-transparent"
                         style={{
-                          backgroundSize: '200% 100%',
-                          animation: 'shimmer 2s ease-in-out infinite'
+                          backgroundSize: "200% 100%",
+                          animation: "shimmer 2s ease-in-out infinite",
                         }}
                       >
                         1600

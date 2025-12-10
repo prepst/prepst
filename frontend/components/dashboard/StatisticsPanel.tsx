@@ -5,13 +5,14 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { useProfile, useMockExamAnalytics, useStudyTime } from "@/hooks/queries";
+import {
+  useProfile,
+  useMockExamAnalytics,
+  useStudyTime,
+} from "@/hooks/queries";
 import { useStudyPlan } from "@/hooks/useStudyPlan";
 import DashboardStatsBento from "@/components/dashboard/DashboardStatsBento";
-import {
-  Target,
-  Award,
-} from "lucide-react";
+import { Target, Award } from "lucide-react";
 
 interface StatisticsPanelProps {
   userName?: string;
@@ -293,63 +294,6 @@ export function StatisticsPanel({
           </p>
         </div>
       </div>
-
-      {/* Study Goals & Achievements */}
-      {studyStats && (
-        <div className="space-y-4">
-          <Card className="p-5 bg-purple-500/10 border-purple-500/20 rounded-2xl shadow-none">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center shadow-sm">
-                <Target className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-foreground">Study Goal</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {studyStats.currentStreak >= 7
-                    ? "🎉 Weekly goal achieved!"
-                    : `${
-                        7 - studyStats.currentStreak
-                      } more days to weekly goal`}
-                </p>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="p-5 bg-green-500/10 border-green-500/20 rounded-2xl shadow-none">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center shadow-sm">
-                <Award className="w-6 h-6 text-green-600 dark:text-green-400" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-foreground">Achievement</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {studyStats.improvementRate > 0
-                    ? `+${studyStats.improvementRate}% improvement this week`
-                    : "Keep studying to see improvement!"}
-                </p>
-              </div>
-            </div>
-          </Card>
-
-          {currentSession && (
-            <Card className="p-5 bg-orange-500/10 border-orange-500/20 rounded-2xl shadow-none">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center shadow-sm">
-                  <div className="w-7 h-7 rounded-full border-2 border-orange-600 dark:border-orange-400 border-t-transparent animate-spin" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-foreground">
-                    Session {currentSession.number}
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {currentSession.title}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          )}
-        </div>
-      )}
     </div>
   );
 }

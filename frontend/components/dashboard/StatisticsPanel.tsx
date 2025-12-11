@@ -2,7 +2,6 @@
 
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
@@ -10,9 +9,9 @@ import {
   useMockExamAnalytics,
   useStudyTime,
 } from "@/hooks/queries";
-import { useStudyPlan } from "@/hooks/useStudyPlan";
 import DashboardStatsBento from "@/components/dashboard/DashboardStatsBento";
 import { Target, Award } from "lucide-react";
+import { profileCache } from "@/lib/profile-cache";
 
 interface StatisticsPanelProps {
   userName?: string;
@@ -33,6 +32,16 @@ interface StudyStats {
   topSkills: Array<{ name: string; mastery: number; color: string }>;
 }
 
+// Initialize cache synchronously outside component to avoid flicker
+const getInitialCache = () => {
+  if (typeof window === 'undefined') return { photo: null, name: "" };
+  const cached = profileCache.get();
+  return {
+    photo: cached?.profile_photo_url || null,
+    name: cached?.display_name || "",
+  };
+};
+
 export function StatisticsPanel({
   userName = "Buyan Khurelbaatar",
   progressPercentage = 32,
@@ -40,11 +49,30 @@ export function StatisticsPanel({
 }: StatisticsPanelProps) {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [studyStats, setStudyStats] = useState<StudyStats | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const { data: profileData } = useProfile();
-  const { studyPlan, isLoading: isLoadingStudyPlan } = useStudyPlan();
+
+  // Initialize with cached data synchronously - no flicker!
+  const initialCache = getInitialCache();
+  const [cachedProfilePhoto, setCachedProfilePhoto] = useState<string | null>(initialCache.photo);
+  const [cachedDisplayName, setCachedDisplayName] = useState<string>(initialCache.name);
+
+  const { data: profileData, isLoading: isLoadingProfile } = useProfile();
   const { data: mockExamAnalytics } = useMockExamAnalytics();
   const { data: studyTimeData } = useStudyTime(7);
+
+  // Update cache when profile data changes
+  useEffect(() => {
+    if (profileData?.profile) {
+      const profile = profileData.profile;
+      const displayName = (profile as any).name || profile.email?.split("@")[0] || "";
+      const photoUrl = profile.profile_photo_url;
+
+      profileCache.set(photoUrl || null, displayName || userName);
+
+      // Update state with fresh data
+      if (photoUrl) setCachedProfilePhoto(photoUrl);
+      if (displayName) setCachedDisplayName(displayName);
+    }
+  }, [profileData, userName]);
 
   // Helper functions for profile display
   const getDisplayName = () => {
@@ -64,23 +92,6 @@ export function StatisticsPanel({
     }
     return displayName[0].toUpperCase();
   };
-
-  // Calculate real progress percentage based on study plan
-  const calculateProgressPercentage = () => {
-    if (!studyPlan?.study_plan) return 0;
-
-    const currentTotal =
-      (studyPlan.study_plan.current_math_score ?? 0) +
-      (studyPlan.study_plan.current_rw_score ?? 0);
-    const targetTotal =
-      (studyPlan.study_plan.target_math_score ?? 0) +
-      (studyPlan.study_plan.target_rw_score ?? 0);
-
-    if (targetTotal === 0) return 0;
-    return Math.min(Math.round((currentTotal / targetTotal) * 100), 100);
-  };
-
-  const realProgressPercentage = calculateProgressPercentage();
 
   // Get real mock exams count from analytics
   const mockExamsCount = mockExamAnalytics?.total_exams || 0;
@@ -120,8 +131,6 @@ export function StatisticsPanel({
   useEffect(() => {
     const loadStudyStats = async () => {
       try {
-        setIsLoading(true);
-
         // Use real study time data, fall back to mock for other stats
         const mockStats: StudyStats = {
           totalStudyTime: studyTimeData?.total_minutes || 0,
@@ -146,33 +155,18 @@ export function StatisticsPanel({
         setStudyStats(mockStats);
       } catch (error) {
         console.error("Failed to load study stats:", error);
-      } finally {
-        setIsLoading(false);
       }
     };
 
     loadStudyStats();
   }, [studyTimeData]);
 
-  if (isLoading) {
-    return (
-      <div className="w-64 md:w-72 xl:w-80 p-4 md:p-5 flex-shrink-0 bg-white rounded-3xl shadow-sm">
-        <div className="animate-pulse">
-          <div className="h-8 bg-gray-200 rounded mb-8"></div>
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-36 h-36 bg-gray-200 rounded-full mb-5"></div>
-            <div className="h-6 bg-gray-200 rounded w-32 mb-2"></div>
-            <div className="h-4 bg-gray-200 rounded w-48"></div>
-          </div>
-          <div className="space-y-4">
-            <div className="h-32 bg-gray-200 rounded"></div>
-            <div className="h-20 bg-gray-200 rounded"></div>
-            <div className="h-40 bg-gray-200 rounded"></div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // Use cached data immediately, fall back to fresh data or defaults
+  const displayPhoto = cachedProfilePhoto || profileData?.profile?.profile_photo_url || "/profile.png";
+  const displayName = cachedDisplayName || getDisplayName() || userName;
+
+  // Only show profile if we have cache OR profile data is loaded
+  const hasProfileData = cachedProfilePhoto || cachedDisplayName || !isLoadingProfile;
 
   return (
     <div className="w-full max-w-full p-4 md:p-5 bg-card rounded-3xl shadow-sm border border-border">
@@ -180,47 +174,29 @@ export function StatisticsPanel({
         Study Statistics
       </h2>
 
-      {/* Profile with Progress Ring */}
-      <div className="flex flex-col items-center mb-8">
-        <div className="relative mb-5">
-          {/* Progress ring - simplified version */}
-          <div className="w-36 h-36 rounded-full bg-primary/5 flex items-center justify-center relative shadow-sm border border-border">
-            <div className="w-32 h-32 rounded-full bg-card flex items-center justify-center">
-              <div className="w-28 h-28 rounded-full overflow-hidden">
-                <Image
-                  src="/profile.png"
-                  alt="Profile"
-                  width={112}
-                  height={112}
-                  className="object-cover"
-                />
+      {/* Profile - only render when we have data to show */}
+      {hasProfileData && (
+        <div className="flex flex-col items-center mb-8">
+          <div className="relative mb-5">
+            <div className="w-36 h-36 rounded-full bg-primary/5 flex items-center justify-center relative shadow-sm border border-border">
+              <div className="w-32 h-32 rounded-full bg-card flex items-center justify-center">
+                <div className="w-28 h-28 rounded-full overflow-hidden">
+                  <Image
+                    src={displayPhoto}
+                    alt="Profile"
+                    width={112}
+                    height={112}
+                    className="object-cover"
+                  />
+                </div>
               </div>
             </div>
-            <Badge className="absolute -top-2 -right-2 bg-primary hover:bg-primary/90 text-primary-foreground px-3 py-1 text-sm font-bold rounded-full shadow-md">
-              {isLoadingStudyPlan ? (
-                <span
-                  className="inline-flex items-center justify-center"
-                  aria-label="Loading progress"
-                >
-                  <span className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
-                </span>
-              ) : !studyPlan ? (
-                "0%"
-              ) : (
-                `${realProgressPercentage}%`
-              )}
-            </Badge>
           </div>
+          <h3 className="text-xl font-bold text-center mb-2 text-foreground">
+            {displayName}
+          </h3>
         </div>
-        <h3 className="text-xl font-bold text-center mb-2 text-foreground">
-          {getDisplayName() || userName}
-        </h3>
-        <p className="text-sm text-muted-foreground text-center px-4 leading-relaxed">
-          {realProgressPercentage >= 100
-            ? "🎉 Congratulations! You've reached your target!"
-            : `Keep studying! ${100 - realProgressPercentage}% to go!`}
-        </p>
-      </div>
+      )}
 
       {/* Study Metrics */}
       {studyStats && (

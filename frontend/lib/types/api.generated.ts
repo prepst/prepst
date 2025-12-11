@@ -396,6 +396,8 @@ export interface paths {
          *     - mastery_before, mastery_after
          *     - mastery_increase (absolute percentage points)
          *     - current_percentage (0-100)
+         *     - total_attempts: number of questions in this session for this topic
+         *     - correct_attempts: number of correct answers in this session for this topic
          */
         get: operations["get_session_mastery_improvements_api_practice_sessions__session_id__mastery_improvements_get"];
         put?: never;
@@ -809,16 +811,18 @@ export interface paths {
         /**
          * Complete Module
          * @description Complete a module and calculate score. Generates adaptive questions for next module.
+         *     Heavy processing is offloaded to a background task to ensure quick UI response.
          *
          *     Args:
          *         exam_id: Mock exam ID
          *         module_id: Module ID
          *         request: Completion data with time remaining
+         *         background_tasks: FastAPI background tasks handler
          *         user_id: User ID from authentication token
          *         db: Database client
          *
          *     Returns:
-         *         Completed module with score
+         *         Status indicating completion is processing
          */
         post: operations["complete_module_api_mock_exams__exam_id__modules__module_id__complete_post"];
         delete?: never;

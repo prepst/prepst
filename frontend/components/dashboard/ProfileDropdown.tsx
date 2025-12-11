@@ -19,6 +19,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/hooks/queries";
+import { profileCache } from "@/lib/profile-cache";
+import { useState, useEffect } from "react";
+
+// Initialize cache synchronously to avoid flicker
+const getInitialCache = () => {
+  if (typeof window === 'undefined') return { photo: null, name: "" };
+  const cached = profileCache.get();
+  return {
+    photo: cached?.profile_photo_url || null,
+    name: cached?.display_name || "",
+  };
+};
 
 interface ProfileDropdownProps {
   isSidebarCollapsed: boolean;
@@ -31,6 +43,26 @@ export function ProfileDropdown({
 }: ProfileDropdownProps) {
   const { user, signOut } = useAuth();
   const { data: profileData, isLoading } = useProfile();
+
+  // Initialize with cached data synchronously
+  const initialCache = getInitialCache();
+  const [cachedProfilePhoto, setCachedProfilePhoto] = useState<string | null>(initialCache.photo);
+  const [cachedDisplayName, setCachedDisplayName] = useState<string>(initialCache.name);
+
+  // Update cache when profile data changes
+  useEffect(() => {
+    if (profileData?.profile) {
+      const profile = profileData.profile;
+      const displayName = (profile as any).name || profile.email?.split("@")[0] || "";
+      const photoUrl = profile.profile_photo_url;
+
+      profileCache.set(photoUrl || null, displayName);
+
+      // Update state with fresh data
+      if (photoUrl) setCachedProfilePhoto(photoUrl);
+      if (displayName) setCachedDisplayName(displayName);
+    }
+  }, [profileData]);
 
   const getDisplayName = () => {
     // Don't show anything until profile is loaded
@@ -96,6 +128,17 @@ export function ProfileDropdown({
     }
   };
 
+  // Use cached data immediately, fall back to fresh data or defaults
+  const displayPhoto = cachedProfilePhoto || profileData?.profile?.profile_photo_url || "/profile.png";
+  const displayName = cachedDisplayName || getDisplayName() || user?.email?.split("@")[0] || "";
+
+  // Only show profile if we have cache OR profile data is loaded
+  const hasProfileData = cachedProfilePhoto || cachedDisplayName || !isLoading;
+
+  if (!hasProfileData) {
+    return null; // Don't render anything while loading without cache
+  }
+
   if (isSidebarCollapsed) {
     return (
       <DropdownMenu>
@@ -106,7 +149,7 @@ export function ProfileDropdown({
             className="w-12 h-12 rounded-2xl p-0 overflow-hidden hover:bg-muted/60 transition-all duration-200"
           >
             <Image
-              src="/profile.png"
+              src={displayPhoto}
               alt="Profile"
               width={48}
               height={48}
@@ -151,7 +194,7 @@ export function ProfileDropdown({
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-border/50 shadow-sm">
                 <Image
-                  src="/profile.png"
+                  src={displayPhoto}
                   alt="Profile"
                   width={40}
                   height={40}
@@ -160,7 +203,7 @@ export function ProfileDropdown({
               </div>
               <div className="flex flex-col items-start flex-1">
                 <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-                  {getDisplayName()}
+                  {displayName}
                 </span>
                 <span className="text-xs text-muted-foreground">
                   {user?.email?.split("@")[0]}

@@ -23,6 +23,7 @@ import {
   Notebook,
   UserPlus,
   LogIn,
+  Shield,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { StatisticsPanel } from "@/components/dashboard/StatisticsPanel";
@@ -552,6 +553,28 @@ export default function DashboardLayout({
                   </Link>
                 );
               })}
+
+              {/* Admin Button - Show for admin users */}
+              {user && isAdmin && (
+                <div className={`mt-2 ${isSidebarCollapsed ? "mx-auto" : ""}`}>
+                  <Link
+                    href="/admin"
+                    className={`flex items-center rounded-2xl transition-all duration-200 group hover:bg-muted/60 ${
+                      isSidebarCollapsed
+                        ? "justify-center p-3 mx-auto w-12 h-12"
+                        : "gap-3 py-3 px-4 text-[15px]"
+                    }`}
+                    title={isSidebarCollapsed ? "Admin Dashboard" : undefined}
+                  >
+                    <Shield className="flex-shrink-0 text-amber-500 group-hover:text-amber-600 w-5 h-5" />
+                    {!isSidebarCollapsed && (
+                      <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                        Admin Dashboard
+                      </span>
+                    )}
+                  </Link>
+                </div>
+              )}
 
               {/* Profile Section - Show for signed in users */}
               {user && (

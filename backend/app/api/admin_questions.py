@@ -147,44 +147,64 @@ async def list_questions(
             query = query.eq('topic_id', topic_id)
 
         # Note: Text search on stem requires full table scan - for production, add full-text search index
-        # For now, we'll fetch and filter in Python for search
-        # has_empty_answers filter also needs post-processing
+        # For search/has_empty_answers, we need to fetch all matching records first, then paginate
 
-        # Execute query with pagination
-        result = query.order('created_at', desc=True).range(offset, offset + limit - 1).execute()
+        if search or has_empty_answers is not None:
+            # Fetch ALL records that match non-search filters (Supabase has 1000 row default limit)
+            # Need to paginate to get all questions
+            all_questions = []
+            batch_size = 1000
+            current_offset = 0
 
-        questions = result.data
+            while True:
+                batch_result = query.order('created_at', desc=True).range(current_offset, current_offset + batch_size - 1).execute()
+                all_questions.extend(batch_result.data)
 
-        # Post-process filters that need Python logic
-        if search:
-            search_lower = search.lower()
-            questions = [
-                q for q in questions
-                if search_lower in (q.get('stem', '') or '').lower() or
-                   search_lower in (q.get('external_id', '') or '').lower()
-            ]
+                # If we got fewer results than batch_size, we've reached the end
+                if len(batch_result.data) < batch_size:
+                    break
 
-        if has_empty_answers is not None:
-            if has_empty_answers:
-                questions = [q for q in questions if not q.get('correct_answer') or len(q.get('correct_answer', [])) == 0]
-            else:
-                questions = [q for q in questions if q.get('correct_answer') and len(q.get('correct_answer', [])) > 0]
+                current_offset += batch_size
 
-        # Get total count for pagination (approximate for now)
-        count_query = db.table('questions').select('id', count='exact')
-        if module:
-            count_query = count_query.eq('module', module)
-        if difficulty:
-            count_query = count_query.eq('difficulty', difficulty)
-        if question_type:
-            count_query = count_query.eq('question_type', question_type)
-        if is_active is not None:
-            count_query = count_query.eq('is_active', is_active)
-        if topic_id:
-            count_query = count_query.eq('topic_id', topic_id)
+            # Apply search filter
+            if search:
+                search_lower = search.lower()
+                all_questions = [
+                    q for q in all_questions
+                    if search_lower in (q.get('stem', '') or '').lower() or
+                       search_lower in (q.get('external_id', '') or '').lower()
+                ]
 
-        count_result = count_query.execute()
-        total_count = count_result.count if hasattr(count_result, 'count') else len(count_result.data)
+            # Apply empty answers filter
+            if has_empty_answers is not None:
+                if has_empty_answers:
+                    all_questions = [q for q in all_questions if not q.get('correct_answer') or len(q.get('correct_answer', [])) == 0]
+                else:
+                    all_questions = [q for q in all_questions if q.get('correct_answer') and len(q.get('correct_answer', [])) > 0]
+
+            # Get total count and apply pagination in Python
+            total_count = len(all_questions)
+            questions = all_questions[offset:offset + limit]
+        else:
+            # No search/filter - use database pagination for efficiency
+            result = query.order('created_at', desc=True).range(offset, offset + limit - 1).execute()
+            questions = result.data
+
+            # Get total count
+            count_query = db.table('questions').select('id', count='exact')
+            if module:
+                count_query = count_query.eq('module', module)
+            if difficulty:
+                count_query = count_query.eq('difficulty', difficulty)
+            if question_type:
+                count_query = count_query.eq('question_type', question_type)
+            if is_active is not None:
+                count_query = count_query.eq('is_active', is_active)
+            if topic_id:
+                count_query = count_query.eq('topic_id', topic_id)
+
+            count_result = count_query.execute()
+            total_count = count_result.count if hasattr(count_result, 'count') else len(count_result.data)
 
         return {
             'questions': questions,

@@ -30,3 +30,12 @@ export { useCompletedSessions } from './useCompletedSessions';
 // Mock Exams
 export { useMockExamPerformance } from './useMockExamPerformance';
 export { useMockExamAnalytics } from './useMockExamAnalytics';
+export { useMockExams } from './useMockExams';
+
+// Admin
+export {
+  useAdminQuestions,
+  useToggleQuestionStatus,
+  useAdminQuestionDetail,
+  useUpdateQuestion,
+} from './useAdminQuestions';

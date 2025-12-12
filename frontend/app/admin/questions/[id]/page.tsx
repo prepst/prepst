@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import { api } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { QuestionPanel } from "@/components/practice/QuestionPanel";
 import { AnswerPanel } from "@/components/practice/AnswerPanel";
@@ -25,11 +23,11 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { useAdminQuestionDetail, useUpdateQuestion } from "@/hooks/queries/useAdminQuestions";
 
 export default function AdminQuestionTestPage() {
   const params = useParams();
   const router = useRouter();
-  const queryClient = useQueryClient();
   const questionId = params.id as string;
 
   const [answer, setAnswer] = useState<AnswerState | null>(null);
@@ -38,23 +36,19 @@ export default function AdminQuestionTestPage() {
   const [editedData, setEditedData] = useState<any>({});
 
   // Fetch question details
-  const { data: adminQuestion, isLoading } = useQuery({
-    queryKey: ["admin-question-detail", questionId],
-    queryFn: () => api.getQuestionDetail(questionId),
-  });
+  const { data: adminQuestion, isLoading } = useAdminQuestionDetail(questionId);
 
   // Update mutation
-  const updateMutation = useMutation({
-    mutationFn: (updates: any) => api.updateQuestion(questionId, updates),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-questions"] });
-      queryClient.invalidateQueries({
-        queryKey: ["admin-question-detail", questionId],
-      });
-      setIsEditMode(false);
-      setEditedData({});
-    },
-  });
+  const updateMutation = useUpdateQuestion(questionId);
+
+  const handleSaveEdit = () => {
+    updateMutation.mutate(editedData, {
+      onSuccess: () => {
+        setIsEditMode(false);
+        setEditedData({});
+      },
+    });
+  };
 
   if (isLoading) {
     return (

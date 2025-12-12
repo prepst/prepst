@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { api } from "@/lib/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Eye, ChevronLeft, ChevronRight, Power, PowerOff } from "lucide-react";
+import { useAdminQuestions, useToggleQuestionStatus } from "@/hooks/queries/useAdminQuestions";
 
 export default function AdminQuestionsPage() {
   const router = useRouter();
@@ -26,23 +25,29 @@ export default function AdminQuestionsPage() {
   const limit = 20;
 
   // Fetch questions with current filters
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["admin-questions", { search, module, difficulty, questionType, isActive, page }],
-    queryFn: () =>
-      api.listQuestions({
-        search: search || undefined,
-        module: module === "all" ? undefined : module,
-        difficulty: difficulty === "all" ? undefined : difficulty,
-        question_type: questionType === "all" ? undefined : questionType,
-        is_active: isActive === "all" ? undefined : isActive === "true",
-        limit,
-        offset: page * limit,
-      }),
+  const { data, isLoading, error } = useAdminQuestions({
+    search: search || undefined,
+    module,
+    difficulty,
+    question_type: questionType,
+    is_active: isActive === "all" ? undefined : isActive === "true",
+    limit,
+    offset: page * limit,
   });
 
   const questions = data?.questions || [];
   const totalCount = data?.total || 0;
   const totalPages = Math.ceil(totalCount / limit) || 1;
+
+  // Toggle question active status mutation
+  const toggleActiveMutation = useToggleQuestionStatus();
+
+  const handleToggleActive = (questionId: string, currentStatus: boolean) => {
+    toggleActiveMutation.mutate({
+      questionId,
+      isActive: !currentStatus,
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -58,26 +63,27 @@ export default function AdminQuestionsPage() {
 
       {/* Filters */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          {/* Search */}
-          <div className="lg:col-span-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-              <Input
-                placeholder="Search questions..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(0); // Reset to first page on search
-                }}
-                className="pl-10"
-              />
-            </div>
+        {/* Search - Full Width */}
+        <div className="mb-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="Search questions..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(0);
+              }}
+              className="pl-10"
+            />
           </div>
+        </div>
 
+        {/* Filters - Compact Layout */}
+        <div className="flex flex-wrap items-center gap-3">
           {/* Module Filter */}
           <Select value={module} onValueChange={(v) => { setModule(v); setPage(0); }}>
-            <SelectTrigger>
+            <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="All Modules" />
             </SelectTrigger>
             <SelectContent>
@@ -89,7 +95,7 @@ export default function AdminQuestionsPage() {
 
           {/* Difficulty Filter */}
           <Select value={difficulty} onValueChange={(v) => { setDifficulty(v); setPage(0); }}>
-            <SelectTrigger>
+            <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="All Difficulties" />
             </SelectTrigger>
             <SelectContent>
@@ -102,7 +108,7 @@ export default function AdminQuestionsPage() {
 
           {/* Type Filter */}
           <Select value={questionType} onValueChange={(v) => { setQuestionType(v); setPage(0); }}>
-            <SelectTrigger>
+            <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="All Types" />
             </SelectTrigger>
             <SelectContent>
@@ -111,13 +117,10 @@ export default function AdminQuestionsPage() {
               <SelectItem value="spr">Student Response</SelectItem>
             </SelectContent>
           </Select>
-        </div>
 
-        {/* Second Row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
           {/* Status Filter */}
           <Select value={isActive} onValueChange={(v) => { setIsActive(v); setPage(0); }}>
-            <SelectTrigger>
+            <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="All Status" />
             </SelectTrigger>
             <SelectContent>
@@ -138,6 +141,7 @@ export default function AdminQuestionsPage() {
               setIsActive("all");
               setPage(0);
             }}
+            className="ml-auto"
           >
             Clear Filters
           </Button>
@@ -263,14 +267,29 @@ export default function AdminQuestionsPage() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => router.push(`/admin/questions/${question.id}`)}
-                          >
-                            <Eye className="w-4 h-4 mr-1" />
-                            Test
-                          </Button>
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleToggleActive(question.id, question.is_active)}
+                              disabled={toggleActiveMutation.isPending}
+                              title={question.is_active ? "Disable question" : "Enable question"}
+                            >
+                              {question.is_active ? (
+                                <PowerOff className="w-4 h-4 text-orange-500" />
+                              ) : (
+                                <Power className="w-4 h-4 text-green-500" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => router.push(`/admin/questions/${question.id}`)}
+                            >
+                              <Eye className="w-4 h-4 mr-1" />
+                              Test
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     );

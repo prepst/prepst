@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, Check, Lightbulb, Sparkles } from "lucide-react";
+import { X, Check, Lightbulb, Sparkles, BookOpen } from "lucide-react";
 import { QuestionPanel } from "@/components/practice/QuestionPanel";
 import { AnswerPanel } from "@/components/practice/AnswerPanel";
 import { AIFeedbackDisplay } from "@/components/practice/AIFeedbackDisplay";

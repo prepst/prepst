@@ -559,7 +559,7 @@ function PracticeSessionContent() {
         onNext={handleNext}
         onPrevious={handlePrevious}
         onNavigate={handleQuestionNavigation}
-        onGetFeedback={handleGetFeedback}
+        onGetFeedback={handleGetAiFeedback}
         loadingFeedback={loadingFeedback}
       />
     </div>

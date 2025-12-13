@@ -77,6 +77,7 @@ export interface AnswerState {
   confidenceScore?: number;
   timeSpentSeconds?: number;
   isMarkedForReview?: boolean;
+  optionId?: string;
 }
 
 // BKT Mastery Update

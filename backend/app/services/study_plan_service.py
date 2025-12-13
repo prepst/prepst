@@ -298,7 +298,7 @@ class StudyPlanService:
         Returns:
             Dictionary with batch info and created sessions
         """
-        QUESTIONS_PER_SESSION = 10
+        QUESTIONS_PER_SESSION = 7
 
         # Get study plan
         plan_response = self.db.table("study_plans").select("*").eq(
@@ -771,7 +771,7 @@ class StudyPlanService:
         Returns:
             List of sessions, each session is a list of topic allocations
         """
-        MAX_QUESTIONS = 25
+        MAX_QUESTIONS = 12
 
         if not topic_distribution:
             return []

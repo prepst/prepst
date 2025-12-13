@@ -9,30 +9,42 @@ import { Separator } from "@/components/ui/separator";
 interface AIFeedbackDisplayProps {
   feedback: AIFeedbackContent;
   isCorrect: boolean;
+  showHeader?: boolean;
+  headerTitle?: string;
+  headerSubtitle?: string;
 }
 
 export function AIFeedbackDisplay({
   feedback,
   isCorrect,
+  showHeader = true,
+  headerTitle = "AI Tutor Feedback",
+  headerSubtitle = "Personalized insights powered by PrepSt AI",
 }: AIFeedbackDisplayProps) {
   return (
     <Card className="mt-6 p-6 shadow-sm border-border/80">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h4 className="text-base font-semibold tracking-tight">
-            AI Tutor Feedback
-          </h4>
-          <p className="text-xs text-muted-foreground">
-            Personalized insights powered by PrepSt AI
-          </p>
-        </div>
-        <Badge variant="secondary" className="text-[10px]">
-          {isCorrect ? "Correct Attempt" : "Review & Improve"}
-        </Badge>
-      </div>
+      {showHeader && (
+        <>
+          <div className="flex items-center justify-between">
+            <div>
+              <h4 className="text-base font-semibold tracking-tight">
+                {headerTitle}
+              </h4>
+              {headerSubtitle && (
+                <p className="text-xs text-muted-foreground">
+                  {headerSubtitle}
+                </p>
+              )}
+            </div>
+            <Badge variant="secondary" className="text-[10px]">
+              {isCorrect ? "Correct Attempt" : "Review & Improve"}
+            </Badge>
+          </div>
 
-      <Separator className="my-5" />
+          <Separator className="my-5" />
+        </>
+      )}
 
       {/* Explanation */}
       <div className="mb-5 rounded-lg p-4 bg-accent/40 border border-accent">
@@ -40,9 +52,12 @@ export function AIFeedbackDisplay({
           <BookOpen className="w-4 h-4 text-purple-600" />
           <h5 className="font-semibold">Explanation</h5>
         </div>
-        <p className="text-sm leading-relaxed text-muted-foreground">
-          {feedback.explanation}
-        </p>
+        <div
+          className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground leading-relaxed"
+          dangerouslySetInnerHTML={{
+            __html: feedback.explanation,
+          }}
+        />
       </div>
 
       {/* Hints (if incorrect) */}
@@ -70,7 +85,9 @@ export function AIFeedbackDisplay({
         <div className="mb-5 rounded-lg p-4 bg-emerald-500/10 border border-emerald-500/20">
           <div className="flex items-center gap-2 mb-3">
             <Target className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <h5 className="font-semibold text-foreground">Key Learning Points</h5>
+            <h5 className="font-semibold text-foreground">
+              Key Learning Points
+            </h5>
           </div>
           <ul className="space-y-2">
             {feedback.learning_points.map((point, i) => (

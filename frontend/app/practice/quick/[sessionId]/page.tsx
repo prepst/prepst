@@ -163,8 +163,11 @@ function QuickPracticeContent() {
       })
     );
 
-    // Auto-submit answer when clicked
-    await handleSubmit();
+    // Auto-submit only for multiple choice questions
+    // For SPR (Student Produced Response) questions, user must click Check button
+    if (currentQuestion.question_type === "mc") {
+      await handleSubmit();
+    }
   };
 
   const handleSubmit = async () => {

@@ -595,19 +595,19 @@ function SummaryContent() {
                 onClick={generateAllFeedback}
                 disabled={generatingFeedback || sessionFeedback.size > 0}
                 className={`
-                  h-10 px-6 font-semibold transition-all shadow-sm text-base
+                  h-10 px-6 font-semibold transition-all shadow-sm hover:opacity-90 disabled:opacity-50 text-base flex items-center gap-2
                   ${
                     generatingFeedback || sessionFeedback.size > 0
-                      ? "bg-primary/50 text-white cursor-not-allowed"
-                      : "bg-primary text-white hover:opacity-90"
+                      ? "cursor-not-allowed"
+                      : ""
                   }
                 `}
                 style={{
                   backgroundColor:
                     generatingFeedback || sessionFeedback.size > 0
-                      ? "rgba(134, 111, 254, 0.5)"
-                      : "#866ffe",
-                  color: "#ffffff",
+                      ? "rgba(254, 165, 0, 0.25)"
+                      : "rgba(254, 165, 0, 0.25)",
+                  color: "#fea500",
                 }}
               >
                 {generatingFeedback ? (
@@ -737,7 +737,7 @@ function SummaryContent() {
           <Button
             variant="outline"
             onClick={() => router.push(`/practice/${sessionId}`)}
-            className="h-10 px-6 border-border/60 bg-background/50 hover:bg-accent transition-all text-base font-semibold min-w-[200px]"
+            className="h-10 px-6 border-border/60 bg-background/50 hover:bg-accent hover:border-primary/30 transition-all text-base font-semibold min-w-[200px] shadow-sm hover:shadow-md"
           >
             Review Questions
           </Button>

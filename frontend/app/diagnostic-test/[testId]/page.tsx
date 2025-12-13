@@ -8,6 +8,7 @@ import { ErrorDisplay } from "@/components/ui/error-display";
 import { QuestionPanel } from "@/components/practice/QuestionPanel";
 import { AnswerPanel } from "@/components/practice/AnswerPanel";
 import { QuestionListSidebar } from "@/components/practice/QuestionListSidebar";
+import { MockExamFooter } from "@/components/practice/MockExamFooter";
 import { supabase } from "@/lib/supabase";
 import { config } from "@/lib/config";
 import { components } from "@/lib/types/api.generated";
@@ -151,15 +152,28 @@ function DiagnosticTestContent() {
     if (!currentQuestion) return;
 
     const currentAns = answers[currentQuestion.question.id];
+    const newAnswer = {
+      userAnswer: [value],
+      status: "answered",
+      // @ts-ignore - using custom property
+      isMarkedForReview: currentAns?.isMarkedForReview || false,
+    };
+
     setAnswers({
       ...answers,
-      [currentQuestion.question.id]: {
-        userAnswer: [value],
-        status: "answered",
-        // @ts-ignore - using custom property
-        isMarkedForReview: currentAns?.isMarkedForReview || false,
-      },
+      [currentQuestion.question.id]: newAnswer,
     });
+
+    // Auto-submit only for multiple choice questions
+    // For SPR (Student Produced Response) questions, user must click Check button
+    if (currentQuestion.question.question_type === "mc") {
+      submitAnswer();
+    }
+  };
+
+  const handleSubmit = async () => {
+    // Submit current answer
+    await submitAnswer();
   };
 
   const toggleMarkForReview = () => {
@@ -511,14 +525,72 @@ function DiagnosticTestContent() {
           </div>
         </div>
 
-        {/* Progress Bar */}
-        <div className="absolute bottom-0 left-0 w-full h-[2px] bg-muted overflow-hidden">
+        {/* Progress Bar - Premium Design */}
+        <div className="absolute bottom-0 left-0 w-full h-[3px] bg-muted/20 overflow-hidden">
+          {/* Animated gradient progress bar */}
           <div
-            className="h-full bg-primary transition-all duration-500 ease-out shadow-[0_0_10px_rgba(var(--primary),0.5)]"
+            className="relative h-full transition-all duration-700 ease-out overflow-hidden"
             style={{
               width: `${((currentIndex + 1) / questions.length) * 100}%`,
             }}
-          />
+          >
+            {/* Main gradient fill with vibrant colors */}
+            <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/95 to-primary/90" />
+
+            {/* Secondary gradient layer for depth */}
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary to-primary/80 opacity-60" />
+
+            {/* Animated shine/shimmer effect */}
+            <div
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+              style={{
+                backgroundSize: "200% 100%",
+                animation: "shimmer 2s ease-in-out infinite",
+              }}
+            />
+
+            {/* Glow effect at the leading edge */}
+            <div
+              className="absolute top-0 right-0 w-8 h-full bg-primary/60 blur-md transition-all duration-700"
+              style={{
+                boxShadow: "0 0 20px rgba(var(--primary), 0.6)",
+              }}
+            />
+
+            {/* Animated particles/glow dots at the leading edge */}
+            <div className="absolute top-0 right-0 w-12 h-full overflow-hidden">
+              <div
+                className="absolute top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full bg-white/70 blur-[3px] animate-pulse"
+                style={{
+                  right: "4px",
+                  animationDelay: "0s",
+                  animationDuration: "1.5s",
+                }}
+              />
+              <div
+                className="absolute top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-white/90 blur-[1px] animate-pulse"
+                style={{
+                  right: "8px",
+                  animationDelay: "0.3s",
+                  animationDuration: "1.2s",
+                }}
+              />
+              <div
+                className="absolute top-1/2 -translate-y-1/2 w-1 h-1 rounded-full bg-white blur-[0.5px] animate-pulse"
+                style={{
+                  right: "12px",
+                  animationDelay: "0.6s",
+                  animationDuration: "1s",
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Subtle top border highlight */}
+          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+
+          {/* Bottom shadow for depth */}
+          <div className="absolute bottom-0 left-0 w-full h-px bg-black/5 dark:bg-white/5" />
         </div>
       </div>
 
@@ -564,61 +636,48 @@ function DiagnosticTestContent() {
             loadingFeedback={false}
             onAnswerChange={handleAnswerChange}
             onGetFeedback={() => {}}
+            onGetSimilarQuestion={undefined}
+            onSaveQuestion={undefined}
           />
 
-          {/* Action Buttons */}
-          <div className="p-6 border-t border-border bg-card/50 backdrop-blur-sm space-y-3">
-            <div className="flex gap-2 mb-3">
-              <Button
-                variant="outline"
-                onClick={toggleMarkForReview}
-                className={`flex-1 border-border hover:bg-accent text-foreground ${
-                  isCurrentMarked
-                    ? "bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400"
-                    : ""
+          {/* Mark for Review Button */}
+          <div className="p-6 border-t border-border bg-card/50 backdrop-blur-sm">
+            <Button
+              variant="outline"
+              onClick={toggleMarkForReview}
+              className={`w-full h-12 border-border/60 bg-background/50 hover:bg-accent transition-all text-base font-semibold ${
+                isCurrentMarked
+                  ? "bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400"
+                  : ""
+              }`}
+            >
+              <Flag
+                className={`w-4 h-4 mr-2 ${
+                  isCurrentMarked ? "fill-orange-500 text-orange-500" : ""
                 }`}
-              >
-                <Flag
-                  className={`w-4 h-4 mr-2 ${
-                    isCurrentMarked ? "fill-orange-500 text-orange-500" : ""
-                  }`}
-                />
-                {isCurrentMarked ? "Marked" : "Mark for Review"}
-              </Button>
-            </div>
-
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={handlePrevious}
-                disabled={currentIndex === 0}
-                className="flex-1 border-border hover:bg-accent text-foreground"
-              >
-                <ChevronLeft className="w-4 h-4 mr-1" />
-                Previous
-              </Button>
-
-              {isLastQuestion ? (
-                <Button
-                  onClick={handleCompleteTest}
-                  disabled={isSubmitting}
-                  className="flex-1 bg-green-600 hover:bg-green-700 text-white border-0"
-                >
-                  {isSubmitting ? "Completing..." : "Complete Test"}
-                </Button>
-              ) : (
-                <Button
-                  onClick={handleNext}
-                  className="flex-1 bg-[#866ffe] hover:bg-[#7a5ffe] text-white border-0"
-                >
-                  Next
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </Button>
-              )}
-            </div>
+              />
+              {isCurrentMarked ? "Marked for Review" : "Mark for Review"}
+            </Button>
           </div>
         </div>
       </div>
+
+      {/* Footer with Navigation */}
+      <MockExamFooter
+        showFeedback={false}
+        hasAnswer={!!currentAnswer && currentAnswer.userAnswer.length > 0}
+        isSubmitting={isSubmitting}
+        isFirstQuestion={currentIndex === 0}
+        isLastQuestion={currentIndex === questions.length - 1}
+        currentIndex={currentIndex}
+        totalQuestions={questions.length}
+        questions={transformedQuestions}
+        answers={sidebarAnswers}
+        onSubmit={isLastQuestion ? handleCompleteTest : handleSubmit}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+        onNavigate={handleQuestionNavigation}
+      />
     </div>
   );
 }

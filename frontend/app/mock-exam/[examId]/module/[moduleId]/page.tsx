@@ -25,6 +25,7 @@ import type {
   SubmitModuleAnswerRequest,
   BatchSubmitResponse,
   MockQuestionStatus,
+  SessionQuestion,
 } from "@/lib/types";
 
 type QuestionWithDetails = components["schemas"]["MockExamQuestionWithDetails"];
@@ -978,20 +979,24 @@ function ModuleContent() {
         isLastQuestion={currentIndex === questions.length - 1}
         currentIndex={currentIndex}
         totalQuestions={questions.length}
-        questions={questions.map((q) => ({
-          session_question_id: q.question.id,
-          question: q.question,
-          topic: {
-            id: "mock-exam",
-            name: "Mock Exam",
-          },
-          status:
-            answers[q.question.id]?.userAnswer.length > 0
-              ? "answered"
-              : "not_started",
-          display_order: questions.indexOf(q),
-          is_saved: false,
-        }))}
+        questions={questions.map(
+          (q, index): SessionQuestion => ({
+            session_question_id: (q.question as any).id,
+            question: q.question as any,
+            topic: {
+              id: "mock-exam",
+              name: "Mock Exam",
+              category_id: "mock-exam-category",
+              weight_in_category: 0,
+            } as any,
+            status:
+              answers[(q.question as any).id]?.userAnswer.length > 0
+                ? "answered"
+                : "not_started",
+            display_order: index,
+            is_saved: false,
+          })
+        )}
         answers={Object.fromEntries(
           Object.entries(answers).map(([key, value]) => [
             key,

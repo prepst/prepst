@@ -26,7 +26,7 @@ import {
   Shield,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import { StatisticsPanel } from "@/components/dashboard/StatisticsPanel";
+// import { StatisticsPanel } from "@/components/dashboard/StatisticsPanel";
 import { ProfileDropdown } from "@/components/dashboard/ProfileDropdown";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -72,17 +72,17 @@ export default function DashboardLayout({
     // Prefetch profile and study plan in parallel
     Promise.all([
       queryClient.prefetchQuery({
-        queryKey: ['profile', user.id],
+        queryKey: ["profile", user.id],
         queryFn: () => api.get("/api/profile"),
         staleTime: 5 * 60 * 1000, // 5 minutes
       }),
       queryClient.prefetchQuery({
-        queryKey: ['studyPlan'],
+        queryKey: ["studyPlan"],
         queryFn: () => api.getStudyPlan(),
         staleTime: 5 * 60 * 1000,
       }),
-    ]).catch(err => {
-      console.error('Prefetch error:', err);
+    ]).catch((err) => {
+      console.error("Prefetch error:", err);
     });
   }, [user, queryClient]);
 
@@ -259,10 +259,10 @@ export default function DashboardLayout({
   const targetSidebarWidth = isMobile
     ? isSidebarCollapsed
       ? 0
-      : 280
+      : 240
     : isSidebarCollapsed
     ? 80
-    : 280;
+    : 240;
   const navIconSize = isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5";
 
   return (
@@ -637,7 +637,7 @@ export default function DashboardLayout({
         </main>
 
         {/* Right Statistics Panel - COMMENTED OUT */}
-
+        {/* 
         <div className="hidden lg:block pl-3 pr-0 pt-6">
           <StatisticsPanel
             userName={getDisplayName()}
@@ -648,6 +648,7 @@ export default function DashboardLayout({
             }}
           />
         </div>
+        */}
       </div>
     </div>
   );

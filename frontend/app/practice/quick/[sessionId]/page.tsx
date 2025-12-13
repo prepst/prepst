@@ -6,9 +6,9 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { PageLoader } from "@/components/ui/page-loader";
 import { ErrorDisplay } from "@/components/ui/error-display";
 import { PracticeHeader } from "@/components/practice/PracticeHeader";
+import { PracticeFooter } from "@/components/practice/PracticeFooter";
 import { QuestionPanel } from "@/components/practice/QuestionPanel";
 import { AnswerPanel } from "@/components/practice/AnswerPanel";
-import { NavigationControls } from "@/components/practice/NavigationControls";
 import { QuestionListSidebar } from "@/components/practice/QuestionListSidebar";
 import { TimerModal } from "@/components/practice/TimerModal";
 import { useTimer } from "@/hooks/useTimer";
@@ -139,7 +139,7 @@ function QuickPracticeContent() {
     }
   });
 
-  const handleAnswerChange = (value: string) => {
+  const handleAnswerChange = async (value: string) => {
     if (showFeedback || !currentQuestion) return;
 
     setAnswers((prev) =>
@@ -162,6 +162,9 @@ function QuickPracticeContent() {
         return answer;
       })
     );
+
+    // Auto-submit answer when clicked
+    await handleSubmit();
   };
 
   const handleSubmit = async () => {
@@ -328,7 +331,7 @@ function QuickPracticeContent() {
     currentQuestion,
     currentAnswer,
     showFeedback,
-    // We need to be careful with dependencies here. 
+    // We need to be careful with dependencies here.
     // Since these functions and values change on every render/state update,
     // the effect will re-run often. This is generally okay for key listeners.
   ]);
@@ -579,20 +582,29 @@ function QuickPracticeContent() {
             onConfidenceSelect={setConfidenceScore}
             defaultConfidence={confidenceScore}
           />
-
-          {/* Navigation Controls */}
-          <NavigationControls
-            showFeedback={showFeedback}
-            hasAnswer={!!currentAnswer?.userAnswer?.length}
-            isSubmitting={false}
-            isFirstQuestion={currentIndex === 0}
-            isLastQuestion={currentIndex === session.questions.length - 1}
-            onSubmit={handleSubmit}
-            onNext={handleNext}
-            onPrevious={handlePrevious}
-          />
         </div>
       </div>
+
+      {/* Footer with Navigation */}
+      {session && (
+        <PracticeFooter
+          showFeedback={showFeedback}
+          hasAnswer={!!currentAnswer?.userAnswer?.length}
+          isSubmitting={false}
+          isFirstQuestion={currentIndex === 0}
+          isLastQuestion={currentIndex === session.questions.length - 1}
+          currentIndex={currentIndex}
+          totalQuestions={session.questions.length}
+          questions={formattedQuestions}
+          answers={answersRecord}
+          onSubmit={handleSubmit}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+          onNavigate={handleQuestionNavigation}
+          onGetFeedback={handleGetFeedback}
+          loadingFeedback={loadingFeedback}
+        />
+      )}
     </div>
   );
 }

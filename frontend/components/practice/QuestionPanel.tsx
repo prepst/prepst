@@ -1,6 +1,7 @@
 import type { SessionQuestion } from "@/lib/types";
-import { processQuestionBlanks } from "@/lib/question-utils";
+import { processQuestionBlanks, formatTopicName } from "@/lib/question-utils";
 import { Badge } from "@/components/ui/badge";
+import { Tag } from "lucide-react";
 
 interface QuestionPanelProps {
   question: SessionQuestion;
@@ -31,13 +32,22 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
       <div className="max-w-3xl mx-auto space-y-8">
         {/* Question Meta */}
         <div className="flex items-center gap-4">
-          <Badge variant="outline" className="pl-2 pr-3 py-1 gap-2 border-border bg-card text-foreground font-medium">
+          <Badge
+            variant="outline"
+            className="pl-2 pr-3 py-1 gap-2 border-border bg-card text-foreground font-medium"
+          >
             <div className={`w-1.5 h-1.5 rounded-full ${difficultyColor}`} />
             {difficultyLabel}
           </Badge>
-          <span className="text-sm text-muted-foreground font-medium tracking-wide uppercase">
-            {question.topic.name}
-          </span>
+          <Badge
+            variant="outline"
+            className="pl-2 pr-3 py-1 gap-1.5 border-border bg-card text-foreground font-medium"
+          >
+            <Tag className="w-3 h-3 text-muted-foreground" />
+            <span className="text-sm">
+              {formatTopicName(question.topic.name)}
+            </span>
+          </Badge>
         </div>
 
         {/* Stimulus (Passage/Context) */}

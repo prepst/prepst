@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { supabase } from "@/lib/supabase";
 import { config } from "@/lib/config";
@@ -14,7 +15,7 @@ import {
   Sparkles,
   Target,
   BarChart3,
-  ChevronDown
+  ChevronDown,
 } from "lucide-react";
 import {
   QuestionResult,
@@ -33,11 +34,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 function SummaryContent() {
   const params = useParams();
   const router = useRouter();
-  
+
   // Extract sessionId with proper handling
   let sessionId = "";
   const rawValue = params.sessionId;
-  
+
   if (typeof rawValue === "string") {
     let trimmed = rawValue.trim();
     // Handle URL encoded values first
@@ -58,18 +59,20 @@ function SummaryContent() {
       } catch {
         // If JSON parsing fails (e.g. single quotes), try to extract UUID with regex
         // Matches standard UUID format: 8-4-4-4-12 hex digits
-        const uuidMatch = trimmed.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+        const uuidMatch = trimmed.match(
+          /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
+        );
         if (uuidMatch) {
           sessionId = uuidMatch[0];
         } else {
-            // Fallback: try to parse single-quoted JSON by replacing ' with "
-            try {
-                const fixedJson = trimmed.replace(/'/g, '"');
-                const parsed = JSON.parse(fixedJson);
-                sessionId = parsed.id || parsed.sessionId || parsed.value || "";
-            } catch {
-                // Give up on parsing
-            }
+          // Fallback: try to parse single-quoted JSON by replacing ' with "
+          try {
+            const fixedJson = trimmed.replace(/'/g, '"');
+            const parsed = JSON.parse(fixedJson);
+            sessionId = parsed.id || parsed.sessionId || parsed.value || "";
+          } catch {
+            // Give up on parsing
+          }
         }
       }
     } else {
@@ -81,7 +84,7 @@ function SummaryContent() {
     const obj = rawValue as any;
     sessionId = obj.id || obj.sessionId || obj.value || "";
   }
-  
+
   // Final cleanup: ensure it's a clean UUID string
   if (sessionId && typeof sessionId === "string") {
     sessionId = sessionId.trim().replace(/^["']|["']$/g, "");
@@ -91,33 +94,47 @@ function SummaryContent() {
         const parsed = JSON.parse(sessionId);
         sessionId = parsed.id || parsed.sessionId || parsed.value || "";
       } catch {
-        const uuidMatch = sessionId.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+        const uuidMatch = sessionId.match(
+          /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
+        );
         sessionId = uuidMatch ? uuidMatch[0] : "";
       }
     }
   } else {
     sessionId = "";
   }
-  
+
   // Debug: log if extraction failed
   if (!sessionId) {
-    console.error("Failed to extract sessionId. Raw value:", rawValue, "Type:", typeof rawValue);
+    console.error(
+      "Failed to extract sessionId. Raw value:",
+      rawValue,
+      "Type:",
+      typeof rawValue
+    );
   }
 
   // Validate sessionId format
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!sessionId || !uuidRegex.test(sessionId)) {
     sessionId = "";
   }
 
   const [results, setResults] = useState<QuestionResult[]>([]);
-  const [topicPerformance, setTopicPerformance] = useState<TopicPerformance[]>([]);
-  const [masteryImprovements, setMasteryImprovements] = useState<TopicMasteryImprovement[]>([]);
+  const [topicPerformance, setTopicPerformance] = useState<TopicPerformance[]>(
+    []
+  );
+  const [masteryImprovements, setMasteryImprovements] = useState<
+    TopicMasteryImprovement[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // AI Feedback state
-  const [sessionFeedback, setSessionFeedback] = useState<Map<string, AIFeedbackContent>>(new Map());
+  const [sessionFeedback, setSessionFeedback] = useState<
+    Map<string, AIFeedbackContent>
+  >(new Map());
   const [generatingFeedback, setGeneratingFeedback] = useState(false);
   const [expandedQuestion, setExpandedQuestion] = useState<string | null>(null);
 
@@ -126,7 +143,9 @@ function SummaryContent() {
       setIsLoading(true);
       setError(null);
 
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       if (!session?.access_token) throw new Error("Not authenticated");
 
       const response = await fetch(
@@ -149,13 +168,20 @@ function SummaryContent() {
       const questionResults: QuestionResult[] = data.questions.map(
         (q: SessionQuestion) => {
           const correctAnswer = q.question.correct_answer;
-          const correctAnswerArray = Array.isArray(correctAnswer) ? correctAnswer : [String(correctAnswer)];
-          const normalizeArray = (arr: any[]) => arr.map((item) => String(item)).sort();
-          const userAnswerNormalized = q.user_answer ? normalizeArray(q.user_answer) : [];
+          const correctAnswerArray = Array.isArray(correctAnswer)
+            ? correctAnswer
+            : [String(correctAnswer)];
+          const normalizeArray = (arr: any[]) =>
+            arr.map((item) => String(item)).sort();
+          const userAnswerNormalized = q.user_answer
+            ? normalizeArray(q.user_answer)
+            : [];
           const correctAnswerNormalized = normalizeArray(correctAnswerArray);
 
-          const isCorrect = q.user_answer && q.status === "answered"
-              ? JSON.stringify(userAnswerNormalized) === JSON.stringify(correctAnswerNormalized)
+          const isCorrect =
+            q.user_answer && q.status === "answered"
+              ? JSON.stringify(userAnswerNormalized) ===
+                JSON.stringify(correctAnswerNormalized)
               : false;
 
           return {
@@ -220,10 +246,13 @@ function SummaryContent() {
           console.error("Invalid sessionId:", sessionId, typeof sessionId);
           return;
         }
-        
+
         // Double-check it's not an object that got stringified
         if (sessionId.startsWith("{") || sessionId.startsWith("[")) {
-          console.error("sessionId appears to be a stringified object:", sessionId);
+          console.error(
+            "sessionId appears to be a stringified object:",
+            sessionId
+          );
           // Try to extract UUID from the stringified object
           try {
             const parsed = JSON.parse(sessionId);
@@ -234,7 +263,9 @@ function SummaryContent() {
             }
           } catch {
             // Try regex extraction
-            const uuidMatch = sessionId.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+            const uuidMatch = sessionId.match(
+              /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
+            );
             if (uuidMatch) {
               await api.completeSession(uuidMatch[0]);
               return;
@@ -243,29 +274,35 @@ function SummaryContent() {
           console.error("Could not extract valid UUID from:", sessionId);
           return;
         }
-        
+
         // Final validation and extraction - ensure we have a clean UUID
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        
+        const uuidRegex =
+          /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
         // If sessionId doesn't match UUID format, try to extract it
         let finalSessionId = sessionId;
         if (!uuidRegex.test(finalSessionId)) {
           // Try to extract UUID from the string (handles stringified objects)
-          const uuidMatch = finalSessionId.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
+          const uuidMatch = finalSessionId.match(
+            /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i
+          );
           if (uuidMatch) {
             finalSessionId = uuidMatch[0];
           } else {
-            console.error("sessionId is not a valid UUID and could not extract one:", sessionId);
+            console.error(
+              "sessionId is not a valid UUID and could not extract one:",
+              sessionId
+            );
             return;
           }
         }
-        
+
         // Double-check it's a valid UUID before calling API
         if (!uuidRegex.test(finalSessionId)) {
           console.error("Final sessionId validation failed:", finalSessionId);
           return;
         }
-        
+
         await api.completeSession(finalSessionId);
       } catch (err) {
         console.error("Failed to complete session:", err);
@@ -294,7 +331,9 @@ function SummaryContent() {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
-          <p className="text-muted-foreground font-medium">Analyzing performance...</p>
+          <p className="text-muted-foreground font-medium">
+            Analyzing performance...
+          </p>
         </div>
       </div>
     );
@@ -316,17 +355,26 @@ function SummaryContent() {
   }
 
   // Calculate stats
-  const totalAttempts = masteryImprovements.reduce((sum, imp) => sum + imp.total_attempts, 0);
-  const totalCorrect = masteryImprovements.reduce((sum, imp) => sum + imp.correct_attempts, 0);
+  const totalAttempts = masteryImprovements.reduce(
+    (sum, imp) => sum + imp.total_attempts,
+    0
+  );
+  const totalCorrect = masteryImprovements.reduce(
+    (sum, imp) => sum + imp.correct_attempts,
+    0
+  );
 
-  const answeredQuestions = masteryImprovements.length > 0
+  const answeredQuestions =
+    masteryImprovements.length > 0
       ? totalAttempts
       : results.filter((r) => r.user_answer !== null).length;
-  const correctAnswers = masteryImprovements.length > 0
+  const correctAnswers =
+    masteryImprovements.length > 0
       ? totalCorrect
       : results.filter((r) => r.is_correct).length;
   const incorrectAnswers = answeredQuestions - correctAnswers;
-  const accuracy = answeredQuestions > 0
+  const accuracy =
+    answeredQuestions > 0
       ? Math.round((correctAnswers / answeredQuestions) * 100)
       : 0;
 
@@ -334,17 +382,21 @@ function SummaryContent() {
     <div className="min-h-screen bg-background py-12 px-4 sm:px-6">
       <div className="max-w-5xl mx-auto space-y-8">
         {/* Header */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center space-y-2"
         >
-          <h1 className="text-4xl font-bold tracking-tight text-foreground">Session Complete</h1>
-          <p className="text-muted-foreground text-lg">Here's a breakdown of your performance</p>
+          <h1 className="text-4xl font-bold tracking-tight text-foreground">
+            Session Complete
+          </h1>
+          <p className="text-muted-foreground text-lg">
+            Here's a breakdown of your performance
+          </p>
         </motion.div>
 
         {/* Overall Stats Grid */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -356,8 +408,12 @@ function SummaryContent() {
                 <TrendingUp className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Accuracy</p>
-                <p className="text-3xl font-bold text-foreground">{accuracy}%</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Accuracy
+                </p>
+                <p className="text-3xl font-bold text-foreground">
+                  {accuracy}%
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -368,8 +424,12 @@ function SummaryContent() {
                 <CheckCircle className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Correct</p>
-                <p className="text-3xl font-bold text-foreground">{correctAnswers}</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Correct
+                </p>
+                <p className="text-3xl font-bold text-foreground">
+                  {correctAnswers}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -380,8 +440,12 @@ function SummaryContent() {
                 <XCircle className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Incorrect</p>
-                <p className="text-3xl font-bold text-foreground">{incorrectAnswers}</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Incorrect
+                </p>
+                <p className="text-3xl font-bold text-foreground">
+                  {incorrectAnswers}
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -389,49 +453,118 @@ function SummaryContent() {
 
         {/* Charts & Details Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-
-
           {/* Topic Performance List */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3 }}
             className="lg:col-span-2"
           >
-            <Card className="border-border/50 bg-card h-full">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="w-5 h-5 text-primary" />
-                  Topic Breakdown
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                {(masteryImprovements.length > 0 ? masteryImprovements : topicPerformance).map((item: any, i) => {
-                  const name = item.topic_name;
-                  const correct = item.correct_attempts ?? item.correct;
-                  const total = item.total_attempts ?? item.total;
-                  const acc = total > 0 ? Math.round((correct / total) * 100) : 0;
-                  
-                  return (
-                    <div key={i} className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="font-medium text-foreground">{name}</span>
-                        <span className="text-muted-foreground">{correct}/{total} Correct</span>
+            <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm h-full overflow-hidden">
+              {/* Header Section */}
+              <div className="p-6 lg:p-8 border-b border-border/40 bg-card/70 backdrop-blur-sm">
+                <div className="flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 border border-primary/20">
+                    <BarChart3 className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-foreground leading-tight">
+                      Topic Breakdown
+                    </h2>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Performance by topic area
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content Section */}
+              <div className="p-6 lg:p-8 bg-muted/20">
+                <div className="space-y-6">
+                  {(masteryImprovements.length > 0
+                    ? masteryImprovements
+                    : topicPerformance
+                  ).map((item: any, i) => {
+                    const name = item.topic_name;
+                    const correct = item.correct_attempts ?? item.correct;
+                    const total = item.total_attempts ?? item.total;
+                    const acc =
+                      total > 0 ? Math.round((correct / total) * 100) : 0;
+
+                    return (
+                      <div
+                        key={i}
+                        className="p-4 rounded-xl border border-border/40 bg-card/50 hover:bg-card/70 hover:border-primary/30 transition-all duration-200 ease-in-out"
+                      >
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="font-semibold text-foreground text-base">
+                            {name}
+                          </span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm font-medium text-muted-foreground tabular-nums">
+                              {correct}/{total}
+                            </span>
+                            <Badge
+                              variant="secondary"
+                              className={`
+                                font-mono font-semibold text-xs px-2 py-0.5
+                                ${
+                                  acc >= 70
+                                    ? "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20"
+                                    : acc >= 50
+                                    ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
+                                    : "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20"
+                                }
+                              `}
+                            >
+                              {acc}%
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="h-3 w-full bg-muted/50 rounded-full overflow-hidden border border-border/30">
+                          <motion.div
+                            initial={{ width: 0 }}
+                            animate={{ width: `${acc}%` }}
+                            transition={{ duration: 1, ease: "easeOut" }}
+                            className={`
+                              h-full rounded-full transition-all duration-700 ease-out relative overflow-hidden
+                              ${
+                                acc >= 70
+                                  ? "bg-green-500"
+                                  : acc >= 50
+                                  ? "bg-amber-500"
+                                  : "bg-red-500"
+                              }
+                            `}
+                          >
+                            {/* Shimmer effect */}
+                            <div
+                              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                              style={{
+                                backgroundSize: "200% 100%",
+                                animation: "shimmer 2s ease-in-out infinite",
+                              }}
+                            />
+                            {/* Glow effect */}
+                            <div
+                              className={`
+                                absolute top-0 right-0 w-8 h-full blur-md transition-all duration-700
+                                ${
+                                  acc >= 70
+                                    ? "bg-green-500/60"
+                                    : acc >= 50
+                                    ? "bg-amber-500/60"
+                                    : "bg-red-500/60"
+                                }
+                              `}
+                            />
+                          </motion.div>
+                        </div>
                       </div>
-                      <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                        <motion.div 
-                          initial={{ width: 0 }}
-                          animate={{ width: `${acc}%` }}
-                          transition={{ duration: 1, ease: "easeOut" }}
-                          className={`h-full rounded-full ${
-                            acc >= 70 ? "bg-green-500" : acc >= 50 ? "bg-amber-500" : "bg-red-500"
-                          }`}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
-              </CardContent>
+                    );
+                  })}
+                </div>
+              </div>
             </Card>
           </motion.div>
         </div>
@@ -442,67 +575,131 @@ function SummaryContent() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
         >
-          <Card className="border-border/50 bg-card overflow-hidden">
-            <div className="p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/50">
-              <div>
-                <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
-                  <Sparkles className="w-6 h-6 text-purple-500" />
-                  AI Insights
-                </h2>
-                <p className="text-muted-foreground">Get personalized feedback on your answers</p>
+          <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm overflow-hidden">
+            {/* Header Section */}
+            <div className="p-6 lg:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 bg-card/70 backdrop-blur-sm">
+              <div className="flex items-center gap-4">
+                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-foreground flex items-center gap-2 leading-tight">
+                    AI Insights
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Get personalized feedback on your answers
+                  </p>
+                </div>
               </div>
               <Button
                 onClick={generateAllFeedback}
                 disabled={generatingFeedback || sessionFeedback.size > 0}
-                className="bg-purple-600 hover:bg-purple-700 text-white shadow-lg shadow-purple-500/20"
+                className={`
+                  h-10 px-6 font-semibold transition-all shadow-sm text-base
+                  ${
+                    generatingFeedback || sessionFeedback.size > 0
+                      ? "bg-primary/50 text-white cursor-not-allowed"
+                      : "bg-primary text-white hover:opacity-90"
+                  }
+                `}
+                style={{
+                  backgroundColor:
+                    generatingFeedback || sessionFeedback.size > 0
+                      ? "rgba(134, 111, 254, 0.5)"
+                      : "#866ffe",
+                  color: "#ffffff",
+                }}
               >
-                {generatingFeedback ? "Analyzing..." : sessionFeedback.size > 0 ? "Feedback Ready" : "Generate Feedback"}
+                {generatingFeedback ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent mr-2"></div>
+                    Analyzing...
+                  </>
+                ) : sessionFeedback.size > 0 ? (
+                  "Feedback Ready"
+                ) : (
+                  "Generate Feedback"
+                )}
               </Button>
             </div>
 
-            <div className="p-6 bg-muted/30">
+            {/* Content Section */}
+            <div className="p-6 lg:p-8 bg-muted/20">
               {sessionFeedback.size > 0 ? (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {results.map((result, index) => {
                     const feedback = sessionFeedback.get(result.question_id);
                     if (!feedback) return null;
                     const isExpanded = expandedQuestion === result.question_id;
 
                     return (
-                      <div 
+                      <div
                         key={result.question_id}
-                        className={`border rounded-xl overflow-hidden transition-all duration-200 bg-card ${
-                          isExpanded ? 'ring-2 ring-primary/20 border-primary/50' : 'border-border hover:border-border/80'
-                        }`}
+                        className={`
+                          border-2 rounded-xl overflow-hidden transition-all duration-200 ease-in-out
+                          ${
+                            isExpanded
+                              ? "border-primary/50 bg-primary/5 ring-1 ring-primary/20 shadow-sm"
+                              : "border-border bg-card hover:border-primary/30 hover:bg-accent/50 hover:scale-[1.005]"
+                          }
+                        `}
                       >
                         <button
-                          onClick={() => setExpandedQuestion(isExpanded ? null : result.question_id)}
-                          className="w-full p-4 flex items-center justify-between gap-4 text-left"
+                          onClick={() =>
+                            setExpandedQuestion(
+                              isExpanded ? null : result.question_id
+                            )
+                          }
+                          className="w-full p-4 flex items-center justify-between gap-4 text-left transition-colors hover:bg-accent/30"
                         >
-                          <div className="flex items-center gap-4">
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                              result.is_correct ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"
-                            }`}>
-                              {result.is_correct ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+                          <div className="flex items-center gap-4 min-w-0">
+                            <div
+                              className={`
+                              w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors
+                              ${
+                                result.is_correct
+                                  ? "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20"
+                                  : "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20"
+                              }
+                            `}
+                            >
+                              {result.is_correct ? (
+                                <CheckCircle className="w-5 h-5" />
+                              ) : (
+                                <XCircle className="w-5 h-5" />
+                              )}
                             </div>
-                            <div>
-                              <p className="font-medium text-foreground">Question {index + 1}</p>
-                              <p className="text-sm text-muted-foreground">{result.topic_name}</p>
+                            <div className="min-w-0">
+                              <p className="font-semibold text-foreground text-base">
+                                Question {index + 1}
+                              </p>
+                              <p className="text-sm text-muted-foreground mt-0.5 truncate">
+                                {result.topic_name}
+                              </p>
                             </div>
                           </div>
-                          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                          <ChevronDown
+                            className={`
+                              w-5 h-5 text-muted-foreground transition-all duration-200 shrink-0
+                              ${isExpanded ? "rotate-180 text-primary" : ""}
+                            `}
+                          />
                         </button>
-                        
+
                         <AnimatePresence>
                           {isExpanded && (
                             <motion.div
                               initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: 'auto', opacity: 1 }}
+                              animate={{ height: "auto", opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
-                              className="border-t border-border/50"
+                              transition={{ duration: 0.2, ease: "easeInOut" }}
+                              className="border-t border-border/40 bg-card/50"
                             >
-                              <div className="p-4">
-                                <AIFeedbackDisplay feedback={feedback} isCorrect={result.is_correct} />
+                              <div className="p-6">
+                                <AIFeedbackDisplay
+                                  feedback={feedback}
+                                  isCorrect={result.is_correct}
+                                />
                               </div>
                             </motion.div>
                           )}
@@ -512,12 +709,17 @@ function SummaryContent() {
                   })}
                 </div>
               ) : (
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-purple-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Sparkles className="w-8 h-8 text-purple-500" />
+                <div className="text-center py-12 lg:py-16">
+                  <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-primary/20">
+                    <Sparkles className="w-10 h-10 text-primary" />
                   </div>
-                  <p className="text-muted-foreground">
-                    Tap "Generate Feedback" to unlock deep insights into your performance.
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                    Unlock AI-Powered Insights
+                  </h3>
+                  <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+                    Tap "Generate Feedback" to unlock deep insights into your
+                    performance and get personalized explanations for each
+                    question.
                   </p>
                 </div>
               )}
@@ -526,27 +728,28 @@ function SummaryContent() {
         </motion.div>
 
         {/* Footer Actions */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center pt-8"
+          className="flex flex-col sm:flex-row gap-3 justify-center pt-8"
         >
           <Button
             variant="outline"
-            size="lg"
             onClick={() => router.push(`/practice/${sessionId}`)}
-            className="min-w-[200px]"
+            className="h-10 px-6 border-border/60 bg-background/50 hover:bg-accent transition-all text-base font-semibold min-w-[200px]"
           >
             Review Questions
           </Button>
           <Button
-            size="lg"
             onClick={() => router.push("/dashboard/study-plan")}
-            className="min-w-[200px]"
+            className="h-10 px-6 font-semibold transition-all shadow-sm text-white hover:opacity-90 text-base min-w-[200px] flex items-center justify-center gap-2"
+            style={{
+              backgroundColor: "#866ffe",
+            }}
           >
             Return to Dashboard
-            <ArrowRight className="w-4 h-4 ml-2" />
+            <ArrowRight className="w-4 h-4" />
           </Button>
         </motion.div>
       </div>

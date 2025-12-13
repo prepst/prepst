@@ -34,7 +34,7 @@ interface StudyStats {
 
 // Initialize cache synchronously outside component to avoid flicker
 const getInitialCache = () => {
-  if (typeof window === 'undefined') return { photo: null, name: "" };
+  if (typeof window === "undefined") return { photo: null, name: "" };
   const cached = profileCache.get();
   return {
     photo: cached?.profile_photo_url || null,
@@ -52,8 +52,12 @@ export function StatisticsPanel({
 
   // Initialize with cached data synchronously - no flicker!
   const initialCache = getInitialCache();
-  const [cachedProfilePhoto, setCachedProfilePhoto] = useState<string | null>(initialCache.photo);
-  const [cachedDisplayName, setCachedDisplayName] = useState<string>(initialCache.name);
+  const [cachedProfilePhoto, setCachedProfilePhoto] = useState<string | null>(
+    initialCache.photo
+  );
+  const [cachedDisplayName, setCachedDisplayName] = useState<string>(
+    initialCache.name
+  );
 
   const { data: profileData, isLoading: isLoadingProfile } = useProfile();
   const { data: mockExamAnalytics } = useMockExamAnalytics();
@@ -63,7 +67,8 @@ export function StatisticsPanel({
   useEffect(() => {
     if (profileData?.profile) {
       const profile = profileData.profile;
-      const displayName = (profile as any).name || profile.email?.split("@")[0] || "";
+      const displayName =
+        (profile as any).name || profile.email?.split("@")[0] || "";
       const photoUrl = profile.profile_photo_url;
 
       profileCache.set(photoUrl || null, displayName || userName);
@@ -162,11 +167,15 @@ export function StatisticsPanel({
   }, [studyTimeData]);
 
   // Use cached data immediately, fall back to fresh data or defaults
-  const displayPhoto = cachedProfilePhoto || profileData?.profile?.profile_photo_url || "/profile.png";
+  const displayPhoto =
+    cachedProfilePhoto ||
+    profileData?.profile?.profile_photo_url ||
+    "/profile.png";
   const displayName = cachedDisplayName || getDisplayName() || userName;
 
   // Only show profile if we have cache OR profile data is loaded
-  const hasProfileData = cachedProfilePhoto || cachedDisplayName || !isLoadingProfile;
+  const hasProfileData =
+    cachedProfilePhoto || cachedDisplayName || !isLoadingProfile;
 
   return (
     <div className="w-full max-w-full p-4 md:p-5 bg-card rounded-3xl shadow-sm border border-border">

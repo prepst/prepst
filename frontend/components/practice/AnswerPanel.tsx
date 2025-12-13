@@ -70,9 +70,16 @@ export function AnswerPanel({
                   <X className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-destructive">Incorrect</p>
+                  <p className="text-sm font-medium text-destructive">
+                    Incorrect
+                  </p>
                   <p className="text-sm text-muted-foreground">
-                    Correct answer: <span className="font-mono font-bold text-foreground">{Array.isArray(question.question.correct_answer) ? question.question.correct_answer.join(", ") : question.question.correct_answer}</span>
+                    Correct answer:{" "}
+                    <span className="font-mono font-bold text-foreground">
+                      {Array.isArray(question.question.correct_answer)
+                        ? question.question.correct_answer.join(", ")
+                        : question.question.correct_answer}
+                    </span>
                   </p>
                 </div>
               </div>
@@ -104,7 +111,25 @@ export function AnswerPanel({
                   (optArray[1] as Record<string, unknown>)?.content ||
                   optArray[1];
 
-                const isSelected = answer?.userAnswer[0] === optionId;
+                // Check if this option is selected - match by optionId or by label
+                const isSelected =
+                  answer?.userAnswer[0] === optionId ||
+                  (answer as any)?.optionId === optionId ||
+                  (() => {
+                    // Also check if answer matches by label (for backwards compatibility)
+                    const labels = ["A", "B", "C", "D", "E", "F"];
+                    const answerValue = answer?.userAnswer[0];
+                    if (
+                      answerValue &&
+                      labels.includes(String(answerValue).toUpperCase())
+                    ) {
+                      const answerLabel = String(answerValue).toUpperCase();
+                      const optionLabel = label.toUpperCase();
+                      return answerLabel === optionLabel;
+                    }
+                    return false;
+                  })();
+
                 const isCorrect =
                   showFeedback && answer?.isCorrect && isSelected;
                 const isWrong =
@@ -131,7 +156,7 @@ export function AnswerPanel({
                         isCorrect
                           ? "border-green-500 bg-green-500/10 ring-1 ring-green-500/20"
                           : isWrong
-                          ? "border-destructive bg-destructive/10 ring-1 ring-destructive/20"
+                          ? "border-red-500 bg-red-500/10 ring-1 ring-red-500/20"
                           : isCorrectAnswer
                           ? "border-green-500 bg-green-500/10 ring-1 ring-green-500/20 border-dashed"
                           : isSelected
@@ -142,16 +167,22 @@ export function AnswerPanel({
                     onClick={() => !showFeedback && onAnswerChange(optionId)}
                   >
                     {/* Label Badge */}
-                    <div className={`
+                    <div
+                      className={`
                       flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-sm font-bold transition-colors
                       ${
-                        isSelected || isCorrect || isCorrectAnswer
-                          ? "border-transparent bg-primary text-primary-foreground"
+                        isCorrect
+                          ? "border-transparent bg-green-500 text-white"
                           : isWrong
-                          ? "border-transparent bg-destructive text-destructive-foreground"
+                          ? "border-transparent bg-red-500 text-white"
+                          : isCorrectAnswer
+                          ? "border-transparent bg-green-500 text-white"
+                          : isSelected
+                          ? "border-transparent bg-primary text-primary-foreground"
                           : "border-border bg-muted text-muted-foreground group-hover:bg-background"
                       }
-                    `}>
+                    `}
+                    >
                       {label}
                     </div>
 
@@ -163,10 +194,10 @@ export function AnswerPanel({
                         }}
                       />
                     </div>
-                    
+
                     {/* Feedback Icon */}
                     {isCorrect && <Check className="w-5 h-5 text-green-500" />}
-                    {isWrong && <X className="w-5 h-5 text-destructive" />}
+                    {isWrong && <X className="w-5 h-5 text-red-500" />}
                   </div>
                 );
               });
@@ -174,86 +205,68 @@ export function AnswerPanel({
           </div>
         )}
 
-      {/* Confidence Rating - Show when answer is selected but before feedback */}
-      {answer && !showFeedback && onConfidenceSelect && (
-        <div className="mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <ConfidenceRating
-            onSelect={onConfidenceSelect}
-            defaultScore={defaultConfidence}
-          />
-        </div>
-      )}
-
       {/* Feedback Section */}
       {showFeedback && answer && (
         <div className="mt-8 space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-500">
-          <div className={`
-            rounded-2xl p-6 border
-            ${answer.isCorrect 
-              ? "bg-green-500/10 border-green-500/20" 
-              : "bg-destructive/10 border-destructive/20"}
-          `}>
-            <div className="flex items-center gap-4">
-              <div className={`
-                h-12 w-12 rounded-full flex items-center justify-center
-                ${answer.isCorrect 
-                  ? "bg-green-500 text-white" 
-                  : "bg-destructive text-white"}
-              `}>
-                {answer.isCorrect ? <Check className="w-6 h-6" /> : <X className="w-6 h-6" />}
+          {/* Feedback Card */}
+          <div
+            className={`
+            rounded-xl p-4 border-2 transition-all duration-200
+            ${
+              answer.isCorrect
+                ? "bg-green-500/10 border-green-500/20 ring-1 ring-green-500/10"
+                : "bg-destructive/10 border-destructive/20 ring-1 ring-destructive/10"
+            }
+          `}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className={`
+                h-10 w-10 rounded-lg flex items-center justify-center shrink-0 transition-all shadow-sm
+                ${
+                  answer.isCorrect
+                    ? "bg-green-500 text-white border border-green-500/30"
+                    : "bg-destructive text-white border border-destructive/30"
+                }
+              `}
+              >
+                {answer.isCorrect ? (
+                  <Check className="w-5 h-5" />
+                ) : (
+                  <X className="w-5 h-5" />
+                )}
               </div>
-              <div>
-                <h4 className="text-lg font-bold text-foreground">
+              <div className="flex-1 min-w-0">
+                <h4 className="text-lg font-bold text-foreground leading-tight mb-0.5">
                   {answer.isCorrect ? "Excellent Work!" : "Not Quite Right"}
                 </h4>
-                <p className="text-muted-foreground">
-                  {answer.isCorrect 
-                    ? "You nailed this concept." 
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {answer.isCorrect
+                    ? "You nailed this concept."
                     : "Review the explanation below to understand why."}
                 </p>
               </div>
             </div>
           </div>
 
+          {/* Confidence Rating - Show together with feedback */}
+          {onConfidenceSelect && (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <ConfidenceRating
+                onSelect={onConfidenceSelect}
+                defaultScore={defaultConfidence}
+              />
+            </div>
+          )}
+
           {/* Action Buttons Grid */}
           <div className="grid gap-3">
-            <Button
-              onClick={onGetFeedback}
-              disabled={loadingFeedback}
-              size="lg"
-              className="w-full font-semibold h-12 text-base shadow-sm"
-            >
-              {loadingFeedback ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent mr-2"></div>
-                  Generating Insight...
-                </>
-              ) : (
-                <>
-                  <svg
-                    className="w-4 h-4 mr-2"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"
-                    />
-                  </svg>
-                  AI Explanation
-                </>
-              )}
-            </Button>
-
             <div className="grid grid-cols-2 gap-3">
               {onGetSimilarQuestion && (
                 <Button
                   onClick={onGetSimilarQuestion}
                   variant="outline"
-                  className="h-12"
+                  className="h-12 border-border/60 bg-background/50 hover:bg-accent transition-all text-base font-semibold"
                 >
                   Practice Similar
                 </Button>
@@ -262,7 +275,7 @@ export function AnswerPanel({
                 <Button
                   onClick={onSaveQuestion}
                   variant="outline"
-                  className="h-12"
+                  className="h-12 border-border/60 bg-background/50 hover:bg-accent transition-all text-base font-semibold disabled:opacity-50"
                   disabled={!!isQuestionSaved}
                 >
                   {isQuestionSaved ? "Saved" : "Save Question"}

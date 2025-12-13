@@ -93,8 +93,9 @@ export function usePracticeSession(sessionId: string) {
       setAnswers((prev) => ({
         ...prev,
         [questionId]: {
-          userAnswer: [value],
+          userAnswer: [value], // Store optionId
           status: "in_progress",
+          optionId: value, // Also store separately to preserve it
         },
       }));
     },
@@ -120,22 +121,83 @@ export function usePracticeSession(sessionId: string) {
       const correctAnswerArray = Array.isArray(correctAnswer)
         ? correctAnswer
         : [String(correctAnswer)];
-      
+
+      // Convert userAnswer (which might be optionIds or labels) to labels for comparison
+      // If answer_options exist, try to map optionIds to labels
+      let userAnswerLabels = userAnswer;
+      if (question.question.answer_options) {
+        const options = Array.isArray(question.question.answer_options)
+          ? question.question.answer_options
+          : Object.entries(question.question.answer_options);
+        const labels = ["A", "B", "C", "D", "E", "F"];
+
+        userAnswerLabels = userAnswer.map((answer: string) => {
+          // Check if answer is already a label (A, B, C, D)
+          if (labels.includes(answer.toUpperCase())) {
+            return answer.toUpperCase();
+          }
+
+          // Otherwise, try to find the label for this optionId
+          const optionIndex = options.findIndex((option: unknown) => {
+            const opt = option as Record<string, unknown>;
+            const optArray = option as unknown[];
+            const optionId = String(opt.id || optArray[0]);
+            return optionId === answer;
+          });
+
+          if (optionIndex >= 0 && optionIndex < labels.length) {
+            return labels[optionIndex];
+          }
+
+          return answer; // Fallback to original value
+        });
+      }
+
       // Basic grading logic: strict equality of sorted arrays
       // Note: This logic must match the backend's grading logic
-      const isCorrect = 
-        JSON.stringify(userAnswer.sort()) === 
+      const isCorrect =
+        JSON.stringify(userAnswerLabels.map(String).sort()) ===
         JSON.stringify(correctAnswerArray.map(String).sort());
 
       // 2. Optimistic UI Update
+      // Preserve the original userAnswer (optionId) if it exists in state
+      // This is important because AnswerPanel checks answer?.userAnswer[0] === optionId
+      const existingAnswer = answers[questionId];
+      let answerToStore = userAnswer;
+      const labels = ["A", "B", "C", "D", "E", "F"];
+
+      // Always preserve the optionId if it was stored via handleAnswerChange
+      if (existingAnswer?.optionId) {
+        answerToStore = [existingAnswer.optionId];
+      } else if (existingAnswer?.userAnswer && existingAnswer.userAnswer[0]) {
+        const existingValue = String(existingAnswer.userAnswer[0]);
+        // If existing value is not a label (A-F), it's likely an optionId - preserve it
+        const isLabel = labels.some(
+          (label) =>
+            existingValue.toUpperCase().trim() === label.toUpperCase().trim()
+        );
+        if (!isLabel) {
+          answerToStore = existingAnswer.userAnswer;
+        }
+      }
+
+      // Determine the optionId to preserve
+      const preservedOptionId =
+        existingAnswer?.optionId ||
+        (answerToStore[0] &&
+        !labels.includes(String(answerToStore[0]).toUpperCase().trim())
+          ? answerToStore[0]
+          : undefined);
+
       setAnswers((prev) => ({
         ...prev,
         [questionId]: {
-          userAnswer,
+          userAnswer: answerToStore, // Keep optionId for UI matching
           isCorrect: isCorrect,
           status: "answered",
           confidenceScore,
           timeSpentSeconds,
+          ...(preservedOptionId && { optionId: preservedOptionId }), // Preserve optionId if we have it
         },
       }));
 

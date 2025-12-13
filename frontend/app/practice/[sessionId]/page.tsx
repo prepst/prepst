@@ -7,14 +7,13 @@ import { PageLoader } from "@/components/ui/page-loader";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ErrorDisplay } from "@/components/ui/error-display";
 import { PracticeHeader } from "@/components/practice/PracticeHeader";
+import { PracticeFooter } from "@/components/practice/PracticeFooter";
 import { QuestionPanel } from "@/components/practice/QuestionPanel";
 import { AnswerPanel } from "@/components/practice/AnswerPanel";
-import { NavigationControls } from "@/components/practice/NavigationControls";
 import { QuestionListSidebar } from "@/components/practice/QuestionListSidebar";
 import { usePracticeSession } from "@/hooks/usePracticeSession";
 import { useTimer } from "@/hooks/useTimer";
 import { useQuestionNavigation } from "@/hooks/useQuestionNavigation";
-import { FeedbackButton } from "@/components/FeedbackButton";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
@@ -542,21 +541,27 @@ function PracticeSessionContent() {
             onConfidenceSelect={handleConfidenceSelected}
             defaultConfidence={confidenceScore}
           />
-
-          {/* Navigation Controls */}
-          <NavigationControls
-            showFeedback={showFeedback}
-            hasAnswer={!!currentAnswer}
-            isSubmitting={isSubmitting}
-            isFirstQuestion={currentIndex === 0}
-            isLastQuestion={currentIndex === questions.length - 1}
-            onSubmit={handleSubmit}
-            onNext={handleNext}
-            onPrevious={handlePrevious}
-          />
         </div>
       </div>
-      <FeedbackButton placement="fixed-left" />
+
+      {/* Footer with Navigation */}
+      <PracticeFooter
+        showFeedback={showFeedback}
+        hasAnswer={!!currentAnswer}
+        isSubmitting={isSubmitting}
+        isFirstQuestion={currentIndex === 0}
+        isLastQuestion={currentIndex === questions.length - 1}
+        currentIndex={currentIndex}
+        totalQuestions={questions.length}
+        questions={questions}
+        answers={answers}
+        onSubmit={handleSubmit}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+        onNavigate={handleQuestionNavigation}
+        onGetFeedback={handleGetFeedback}
+        loadingFeedback={loadingFeedback}
+      />
     </div>
   );
 }

@@ -62,17 +62,26 @@ class PracticeSessionService:
             "practice_sessions!inner(study_plans!inner(user_id))"
         ).eq("topic_id", topic_id).execute()
 
-        # Filter to only this user's data
-        user_questions = [
-            q for q in topic_performance.data
-            if q["practice_sessions"]["study_plans"]["user_id"] == user_id
-        ]
+        # Filter to only this user's data, with null safety checks
+        user_questions = []
+        for q in topic_performance.data:
+            practice_session = q.get("practice_sessions")
+            if not practice_session:
+                continue
+            study_plan = practice_session.get("study_plans")
+            if not study_plan:
+                continue
+            if study_plan.get("user_id") == user_id:
+                user_questions.append(q)
 
-        topic_correct = sum(
-            1 for q in user_questions
-            if q["status"] == "answered" and q.get("user_answer") == q["questions"]["correct_answer"]
-        )
-        topic_total = len([q for q in user_questions if q["status"] == "answered"])
+        topic_correct = 0
+        topic_total = 0
+        for q in user_questions:
+            if q["status"] == "answered":
+                topic_total += 1
+                question_data = q.get("questions")
+                if question_data and q.get("user_answer") == question_data.get("correct_answer"):
+                    topic_correct += 1
 
         return {
             "topic_correct": topic_correct,

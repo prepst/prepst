@@ -12,7 +12,10 @@ from app.models.study_plan import (
     AIFeedbackResponse,
     AIFeedbackRequest,
     AIFeedbackContent,
+    SessionSummaryResponse,
+    SessionSummaryContent,
 )
+from datetime import datetime
 from app.services.practice_session_service import PracticeSessionService
 from app.services.answer_validation_service import AnswerValidationService
 from app.services.openai_service import openai_service
@@ -352,6 +355,11 @@ async def generate_session_feedback(
             question = sq["questions"]
             topic = sq["topics"]
 
+            # Skip if question or topic is missing (e.g., deleted or orphaned records)
+            if not question or not topic:
+                print(f"Skipping session question {sq.get('id')} - missing question or topic data")
+                continue
+
             # Skip if no user answer
             if not sq.get("user_answer"):
                 continue
@@ -420,6 +428,188 @@ async def generate_session_feedback(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to generate session feedback: {str(e)}"
+        )
+
+
+@router.post("/{session_id}/generate-session-summary", response_model=SessionSummaryResponse)
+async def generate_session_summary(
+    session_id: str,
+    user_id: str = Depends(get_current_user),
+    db: Client = Depends(get_authenticated_client)
+):
+    """
+    Generate a holistic AI summary for a completed practice session.
+    
+    Instead of per-question feedback, this provides:
+    - Overall assessment of the session
+    - Strengths and weaknesses by topic
+    - Speed/pacing analysis
+    - Error patterns detected
+    - Actionable improvement tips
+    
+    Args:
+        session_id: Practice session ID
+        user_id: User ID from authentication token
+        db: Database client
+    
+    Returns:
+        Session summary with AI-generated insights
+    """
+    try:
+        # Verify session belongs to user
+        service = PracticeSessionService(db)
+        service.verify_session_ownership(session_id, user_id)
+        
+        # Get all session questions with details
+        sq_response = db.table("session_questions").select(
+            "*, questions(id, stem, question_type, correct_answer, topic_id), topics(id, name)"
+        ).eq("session_id", session_id).execute()
+        
+        if not sq_response.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No questions found for this session"
+            )
+        
+        # Aggregate stats
+        total_questions = len(sq_response.data)
+        correct_count = 0
+        incorrect_count = 0
+        topic_stats = {}  # {topic_name: {correct: 0, total: 0}}
+        question_details = []
+        time_spent_list = []
+        
+        for sq in sq_response.data:
+            question = sq.get("questions")
+            topic = sq.get("topics")
+            
+            if not question or not topic:
+                continue
+            
+            topic_name = topic.get("name", "Unknown")
+            
+            # Initialize topic stats
+            if topic_name not in topic_stats:
+                topic_stats[topic_name] = {"correct": 0, "total": 0}
+            
+            # Check if answered
+            if sq.get("status") == "answered" and sq.get("user_answer"):
+                topic_stats[topic_name]["total"] += 1
+                
+                # Check correctness
+                user_answer = sq.get("user_answer") or []
+                correct_answer = question.get("correct_answer") or []
+                is_correct = sorted(user_answer) == sorted(correct_answer)
+                
+                if is_correct:
+                    correct_count += 1
+                    topic_stats[topic_name]["correct"] += 1
+                else:
+                    incorrect_count += 1
+                
+                # Track time
+                time_spent = sq.get("time_spent_seconds")
+                if time_spent:
+                    time_spent_list.append(time_spent)
+                
+                # Question details for pattern detection
+                question_details.append({
+                    "topic_name": topic_name,
+                    "is_correct": is_correct,
+                    "time_spent": time_spent,
+                    "question_type": question.get("question_type")
+                })
+        
+        # Calculate accuracy
+        answered_count = correct_count + incorrect_count
+        accuracy = (correct_count / answered_count * 100) if answered_count > 0 else 0
+        
+        # Format topic performance
+        topic_performance = []
+        for topic_name, stats in topic_stats.items():
+            if stats["total"] > 0:
+                topic_performance.append({
+                    "topic_name": topic_name,
+                    "correct": stats["correct"],
+                    "total": stats["total"],
+                    "accuracy": stats["correct"] / stats["total"] * 100
+                })
+        
+        # Sort by accuracy ascending (worst first for focus areas)
+        topic_performance.sort(key=lambda x: x["accuracy"])
+        
+        # Speed stats
+        speed_stats = {}
+        if time_spent_list:
+            avg_time = sum(time_spent_list) / len(time_spent_list)
+            fast_count = sum(1 for t in time_spent_list if t < 30)
+            slow_count = sum(1 for t in time_spent_list if t > 90)
+            total_time = sum(time_spent_list)
+            
+            speed_stats = {
+                "avg_time_seconds": avg_time,
+                "fast_count": fast_count,
+                "slow_count": slow_count,
+                "total_time_minutes": total_time / 60
+            }
+        
+        # Get historical performance for comparison
+        historical_comparison = {}
+        topic_ids = list(set(sq.get("topic_id") for sq in sq_response.data if sq.get("topic_id")))
+        
+        for topic_id in topic_ids:
+            perf = service.get_topic_performance(topic_id, user_id)
+            if perf.get("topic_total", 0) > 0:
+                # Find topic name
+                for sq in sq_response.data:
+                    if sq.get("topic_id") == topic_id and sq.get("topics"):
+                        topic_name = sq["topics"].get("name", "")
+                        if topic_name:
+                            historical_comparison[topic_name] = {
+                                "historical_accuracy": perf["topic_correct"] / perf["topic_total"] * 100
+                            }
+                        break
+        
+        # Prepare stats for OpenAI
+        session_stats = {
+            "total_questions": total_questions,
+            "correct_count": correct_count,
+            "incorrect_count": incorrect_count,
+            "accuracy": accuracy,
+            "topic_performance": topic_performance,
+            "speed_stats": speed_stats,
+            "historical_comparison": historical_comparison,
+            "question_details": question_details
+        }
+        
+        # Generate AI summary
+        summary_dict = await openai_service.generate_session_summary(session_stats)
+        summary = SessionSummaryContent(**summary_dict)
+        
+        # Build response stats for frontend display
+        display_stats = {
+            "total_questions": total_questions,
+            "correct_count": correct_count,
+            "incorrect_count": incorrect_count,
+            "accuracy": round(accuracy, 1),
+            "topic_performance": topic_performance,
+            "speed_stats": speed_stats
+        }
+        
+        return SessionSummaryResponse(
+            session_id=UUID(session_id),
+            summary=summary,
+            stats=display_stats,
+            generated_at=datetime.utcnow()
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error generating session summary: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate session summary: {str(e)}"
         )
 
 

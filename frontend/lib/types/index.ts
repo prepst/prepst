@@ -109,6 +109,40 @@ export interface AIFeedbackResponse {
   is_cached: boolean;
 }
 
+// Session Summary types (holistic AI analysis)
+export interface SessionSummaryContent {
+  overall_assessment: string;
+  strengths: string[];
+  weaknesses: string[];
+  speed_analysis: string;
+  error_patterns: string[];
+  improvement_tips: string[];
+}
+
+export interface SessionSummaryResponse {
+  session_id: string;
+  summary: SessionSummaryContent;
+  stats: {
+    total_questions: number;
+    correct_count: number;
+    incorrect_count: number;
+    accuracy: number;
+    topic_performance: Array<{
+      topic_name: string;
+      correct: number;
+      total: number;
+      accuracy: number;
+    }>;
+    speed_stats: {
+      avg_time_seconds?: number;
+      fast_count?: number;
+      slow_count?: number;
+      total_time_minutes?: number;
+    };
+  };
+  generated_at: string;
+}
+
 // Analytics types
 export interface GrowthCurveDataPoint {
   date: string;

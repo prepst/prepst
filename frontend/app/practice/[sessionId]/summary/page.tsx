@@ -16,19 +16,21 @@ import {
   Target,
   BarChart3,
   ChevronDown,
+  Zap,
+  Lightbulb,
+  AlertTriangle,
+  Clock,
 } from "lucide-react";
 import {
   QuestionResult,
   TopicPerformance,
   SessionQuestion,
   SessionQuestionsResponse,
-  AIFeedbackContent,
   TopicMasteryImprovement,
+  SessionSummaryResponse,
 } from "@/lib/types";
 import { api } from "@/lib/api";
-import { AIFeedbackDisplay } from "@/components/practice/AIFeedbackDisplay";
-import { TopicMasteryRadialChart } from "@/components/charts/TopicMasteryRadialChart";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 function SummaryContent() {
@@ -131,12 +133,9 @@ function SummaryContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // AI Feedback state
-  const [sessionFeedback, setSessionFeedback] = useState<
-    Map<string, AIFeedbackContent>
-  >(new Map());
+  // AI Session Summary state
+  const [sessionSummary, setSessionSummary] = useState<SessionSummaryResponse | null>(null);
   const [generatingFeedback, setGeneratingFeedback] = useState(false);
-  const [expandedQuestion, setExpandedQuestion] = useState<string | null>(null);
 
   const loadSummary = useCallback(async () => {
     try {
@@ -181,7 +180,7 @@ function SummaryContent() {
           const isCorrect =
             q.user_answer && q.status === "answered"
               ? JSON.stringify(userAnswerNormalized) ===
-                JSON.stringify(correctAnswerNormalized)
+              JSON.stringify(correctAnswerNormalized)
               : false;
 
           return {
@@ -314,13 +313,10 @@ function SummaryContent() {
   const generateAllFeedback = async () => {
     setGeneratingFeedback(true);
     try {
-      const feedbackList = await api.generateSessionFeedback(sessionId);
-      const feedbackMap = new Map(
-        feedbackList.map((f) => [f.question_id, f.feedback])
-      );
-      setSessionFeedback(feedbackMap);
+      const summary = await api.generateSessionSummary(sessionId);
+      setSessionSummary(summary);
     } catch (error) {
-      console.error("Failed to generate feedback:", error);
+      console.error("Failed to generate session summary:", error);
     } finally {
       setGeneratingFeedback(false);
     }
@@ -508,10 +504,9 @@ function SummaryContent() {
                               variant="secondary"
                               className={`
                                 font-mono font-semibold text-xs px-2 py-0.5
-                                ${
-                                  acc >= 70
-                                    ? "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20"
-                                    : acc >= 50
+                                ${acc >= 70
+                                  ? "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20"
+                                  : acc >= 50
                                     ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
                                     : "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20"
                                 }
@@ -528,10 +523,9 @@ function SummaryContent() {
                             transition={{ duration: 1, ease: "easeOut" }}
                             className={`
                               h-full rounded-full transition-all duration-700 ease-out relative overflow-hidden
-                              ${
-                                acc >= 70
-                                  ? "bg-green-500"
-                                  : acc >= 50
+                              ${acc >= 70
+                                ? "bg-green-500"
+                                : acc >= 50
                                   ? "bg-amber-500"
                                   : "bg-red-500"
                               }
@@ -549,10 +543,9 @@ function SummaryContent() {
                             <div
                               className={`
                                 absolute top-0 right-0 w-8 h-full blur-md transition-all duration-700
-                                ${
-                                  acc >= 70
-                                    ? "bg-green-500/60"
-                                    : acc >= 50
+                                ${acc >= 70
+                                  ? "bg-green-500/60"
+                                  : acc >= 50
                                     ? "bg-amber-500/60"
                                     : "bg-red-500/60"
                                 }
@@ -569,158 +562,281 @@ function SummaryContent() {
           </motion.div>
         </div>
 
-        {/* AI Feedback Section */}
+        {/* AI Insights Section - Billion Dollar Design */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
+          className="group"
         >
-          <Card className="border-border/50 bg-card/50 backdrop-blur-sm shadow-sm overflow-hidden">
-            {/* Header Section */}
-            <div className="p-6 lg:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 bg-card/70 backdrop-blur-sm">
-              <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                  <Sparkles className="w-6 h-6 text-primary" />
+          <Card className="border border-border rounded-3xl bg-card shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden">
+            {/* Header Section with Glassmorphism */}
+            <div className="relative p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-border/40 bg-gradient-to-br from-primary/5 via-transparent to-transparent">
+              {/* Subtle gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent opacity-50" />
+
+              <div className="relative flex items-center gap-5">
+                <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-primary/10">
+                  <Sparkles className="w-7 h-7 text-primary" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-foreground flex items-center gap-2 leading-tight">
+                  <h2 className="text-2xl font-bold text-foreground tracking-tight">
                     AI Insights
                   </h2>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Get personalized feedback on your answers
+                  <p className="text-muted-foreground mt-1">
+                    Holistic session analysis powered by AI
                   </p>
                 </div>
               </div>
+
               <Button
                 onClick={generateAllFeedback}
-                disabled={generatingFeedback || sessionFeedback.size > 0}
+                disabled={generatingFeedback || sessionSummary !== null}
                 className={`
-                  h-10 px-6 font-semibold transition-all shadow-sm hover:opacity-90 disabled:opacity-50 text-base flex items-center gap-2
-                  ${
-                    generatingFeedback || sessionFeedback.size > 0
-                      ? "cursor-not-allowed"
-                      : ""
+                  relative h-12 px-8 font-semibold text-base rounded-xl transition-all duration-300 shadow-lg
+                  ${generatingFeedback || sessionSummary !== null
+                    ? "cursor-not-allowed opacity-60"
+                    : "hover:scale-[1.02] hover:shadow-xl"
                   }
                 `}
                 style={{
-                  backgroundColor:
-                    generatingFeedback || sessionFeedback.size > 0
-                      ? "rgba(254, 165, 0, 0.25)"
-                      : "rgba(254, 165, 0, 0.25)",
-                  color: "#fea500",
+                  backgroundColor: sessionSummary !== null ? "#22c55e" : "#866ffe",
+                  color: "white",
                 }}
               >
-                {generatingFeedback ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent mr-2"></div>
-                    Analyzing...
-                  </>
-                ) : sessionFeedback.size > 0 ? (
-                  "Feedback Ready"
-                ) : (
-                  "Generate Feedback"
+                {/* Animated shimmer effect */}
+                {!sessionSummary && !generatingFeedback && (
+                  <div
+                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent rounded-xl"
+                    style={{
+                      backgroundSize: "200% 100%",
+                      animation: "shimmer 2s ease-in-out infinite",
+                    }}
+                  />
                 )}
+                <span className="relative flex items-center gap-2">
+                  {generatingFeedback ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+                      <span>Analyzing Session...</span>
+                    </>
+                  ) : sessionSummary !== null ? (
+                    <>
+                      <CheckCircle className="w-5 h-5" />
+                      <span>Insights Ready</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-5 h-5" />
+                      <span>Generate Insights</span>
+                    </>
+                  )}
+                </span>
               </Button>
             </div>
 
             {/* Content Section */}
-            <div className="p-6 lg:p-8 bg-muted/20">
-              {sessionFeedback.size > 0 ? (
-                <div className="space-y-3">
-                  {results.map((result, index) => {
-                    const feedback = sessionFeedback.get(result.question_id);
-                    if (!feedback) return null;
-                    const isExpanded = expandedQuestion === result.question_id;
-
-                    return (
-                      <div
-                        key={result.question_id}
-                        className={`
-                          border-2 rounded-xl overflow-hidden transition-all duration-200 ease-in-out
-                          ${
-                            isExpanded
-                              ? "border-primary/50 bg-primary/5 ring-1 ring-primary/20 shadow-sm"
-                              : "border-border bg-card hover:border-primary/30 hover:bg-accent/50 hover:scale-[1.005]"
-                          }
-                        `}
-                      >
-                        <button
-                          onClick={() =>
-                            setExpandedQuestion(
-                              isExpanded ? null : result.question_id
-                            )
-                          }
-                          className="w-full p-4 flex items-center justify-between gap-4 text-left transition-colors hover:bg-accent/30"
-                        >
-                          <div className="flex items-center gap-4 min-w-0">
-                            <div
-                              className={`
-                              w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors
-                              ${
-                                result.is_correct
-                                  ? "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20"
-                                  : "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20"
-                              }
-                            `}
-                            >
-                              {result.is_correct ? (
-                                <CheckCircle className="w-5 h-5" />
-                              ) : (
-                                <XCircle className="w-5 h-5" />
-                              )}
-                            </div>
-                            <div className="min-w-0">
-                              <p className="font-semibold text-foreground text-base">
-                                Question {index + 1}
-                              </p>
-                              <p className="text-sm text-muted-foreground mt-0.5 truncate">
-                                {result.topic_name}
-                              </p>
-                            </div>
-                          </div>
-                          <ChevronDown
-                            className={`
-                              w-5 h-5 text-muted-foreground transition-all duration-200 shrink-0
-                              ${isExpanded ? "rotate-180 text-primary" : ""}
-                            `}
-                          />
-                        </button>
-
-                        <AnimatePresence>
-                          {isExpanded && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0 }}
-                              animate={{ height: "auto", opacity: 1 }}
-                              exit={{ height: 0, opacity: 0 }}
-                              transition={{ duration: 0.2, ease: "easeInOut" }}
-                              className="border-t border-border/40 bg-card/50"
-                            >
-                              <div className="p-6">
-                                <AIFeedbackDisplay
-                                  feedback={feedback}
-                                  isCorrect={result.is_correct}
-                                />
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
+            <div className="p-8">
+              {sessionSummary ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-8"
+                >
+                  {/* Overall Assessment - Premium Card */}
+                  <div className="relative p-6 rounded-2xl bg-gradient-to-br from-card to-muted/30 border border-border shadow-sm overflow-hidden">
+                    {/* Decorative gradient orb */}
+                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-primary/10 rounded-full blur-3xl" />
+                    <div className="relative">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                          <Target className="w-5 h-5 text-primary" />
+                        </div>
+                        <h3 className="text-lg font-bold text-foreground">Overall Assessment</h3>
                       </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="text-center py-12 lg:py-16">
-                  <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-primary/20">
-                    <Sparkles className="w-10 h-10 text-primary" />
+                      <p className="text-foreground leading-relaxed text-lg">
+                        {sessionSummary.summary.overall_assessment}
+                      </p>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
+
+                  {/* Strengths & Weaknesses - Side by Side */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Strengths */}
+                    <motion.div
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.1 }}
+                      className="relative p-6 rounded-2xl bg-gradient-to-br from-green-500/10 to-green-500/5 border border-green-500/20 overflow-hidden group/card hover:shadow-lg hover:shadow-green-500/10 transition-all duration-300"
+                    >
+                      <div className="absolute -top-6 -right-6 w-24 h-24 bg-green-500/20 rounded-full blur-2xl group-hover/card:scale-150 transition-transform duration-500" />
+                      <div className="relative">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="h-10 w-10 rounded-xl bg-green-500/20 border border-green-500/30 flex items-center justify-center">
+                            <CheckCircle className="w-5 h-5 text-green-500" />
+                          </div>
+                          <h3 className="text-lg font-bold text-foreground">Strengths</h3>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {sessionSummary.summary.strengths.length > 0 ? (
+                            sessionSummary.summary.strengths.map((s, i) => (
+                              <Badge
+                                key={i}
+                                className="px-3 py-1.5 bg-green-500/15 text-green-600 dark:text-green-400 border border-green-500/30 font-medium hover:bg-green-500/25 transition-colors cursor-default"
+                              >
+                                {s}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-muted-foreground">Keep practicing to identify your strengths!</span>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+
+                    {/* Weaknesses */}
+                    <motion.div
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.2 }}
+                      className="relative p-6 rounded-2xl bg-gradient-to-br from-amber-500/10 to-amber-500/5 border border-amber-500/20 overflow-hidden group/card hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300"
+                    >
+                      <div className="absolute -top-6 -right-6 w-24 h-24 bg-amber-500/20 rounded-full blur-2xl group-hover/card:scale-150 transition-transform duration-500" />
+                      <div className="relative">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="h-10 w-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
+                            <AlertTriangle className="w-5 h-5 text-amber-500" />
+                          </div>
+                          <h3 className="text-lg font-bold text-foreground">Areas to Improve</h3>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {sessionSummary.summary.weaknesses.length > 0 ? (
+                            sessionSummary.summary.weaknesses.map((w, i) => (
+                              <Badge
+                                key={i}
+                                className="px-3 py-1.5 bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 font-medium hover:bg-amber-500/25 transition-colors cursor-default"
+                              >
+                                {w}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-muted-foreground">Great job - no major weaknesses identified!</span>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  </div>
+
+                  {/* Speed Analysis */}
+                  {sessionSummary.summary.speed_analysis && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="relative p-6 rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20 overflow-hidden group/card hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300"
+                    >
+                      <div className="absolute -top-6 -left-6 w-32 h-32 bg-blue-500/15 rounded-full blur-3xl group-hover/card:scale-125 transition-transform duration-500" />
+                      <div className="relative flex items-start gap-4">
+                        <div className="h-12 w-12 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center shrink-0">
+                          <Clock className="w-6 h-6 text-blue-500" />
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-bold text-foreground mb-2">Speed Analysis</h3>
+                          <p className="text-muted-foreground leading-relaxed">
+                            {sessionSummary.summary.speed_analysis}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Error Patterns */}
+                  {sessionSummary.summary.error_patterns.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 }}
+                      className="relative p-6 rounded-2xl bg-gradient-to-br from-rose-500/10 to-rose-500/5 border border-rose-500/20 overflow-hidden"
+                    >
+                      <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-rose-500/10 rounded-full blur-3xl" />
+                      <div className="relative">
+                        <div className="flex items-center gap-3 mb-4">
+                          <div className="h-10 w-10 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center">
+                            <Zap className="w-5 h-5 text-rose-500" />
+                          </div>
+                          <h3 className="text-lg font-bold text-foreground">Patterns to Watch</h3>
+                        </div>
+                        <ul className="space-y-3">
+                          {sessionSummary.summary.error_patterns.map((pattern, i) => (
+                            <li key={i} className="flex items-start gap-3 p-3 rounded-xl bg-rose-500/5 border border-rose-500/10">
+                              <div className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-2 shrink-0" />
+                              <span className="text-foreground">{pattern}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Improvement Tips - Premium Design */}
+                  {sessionSummary.summary.improvement_tips.length > 0 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.5 }}
+                      className="relative p-6 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 overflow-hidden"
+                    >
+                      <div className="absolute -top-10 -left-10 w-40 h-40 bg-primary/15 rounded-full blur-3xl" />
+                      <div className="relative">
+                        <div className="flex items-center gap-3 mb-5">
+                          <div className="h-10 w-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
+                            <Lightbulb className="w-5 h-5 text-primary" />
+                          </div>
+                          <h3 className="text-lg font-bold text-foreground">Tips for Improvement</h3>
+                        </div>
+                        <div className="space-y-3">
+                          {sessionSummary.summary.improvement_tips.map((tip, i) => (
+                            <div
+                              key={i}
+                              className="flex items-start gap-4 p-4 rounded-xl bg-card border border-border/50 hover:border-primary/30 hover:shadow-sm transition-all duration-300"
+                            >
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold text-sm">
+                                {i + 1}
+                              </div>
+                              <p className="text-foreground leading-relaxed pt-1">{tip}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </motion.div>
+              ) : (
+                /* Empty State - Premium Design */
+                <div className="text-center py-16 lg:py-20">
+                  <div className="relative inline-block">
+                    {/* Animated gradient ring */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-primary rounded-3xl blur-xl opacity-30 animate-pulse" />
+                    <div className="relative w-24 h-24 bg-gradient-to-br from-primary/20 to-primary/5 rounded-3xl flex items-center justify-center border border-primary/20 shadow-2xl shadow-primary/20">
+                      <Sparkles className="w-12 h-12 text-primary" />
+                    </div>
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground mt-8 mb-3">
                     Unlock AI-Powered Insights
                   </h3>
-                  <p className="text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-                    Tap "Generate Feedback" to unlock deep insights into your
-                    performance and get personalized explanations for each
-                    question.
+                  <p className="text-muted-foreground max-w-md mx-auto leading-relaxed text-lg mb-8">
+                    Get a comprehensive analysis of your session including strengths,
+                    areas to improve, pacing insights, and personalized tips.
                   </p>
+                  <Button
+                    onClick={generateAllFeedback}
+                    disabled={generatingFeedback}
+                    className="h-12 px-8 font-semibold text-base rounded-xl shadow-lg hover:scale-[1.02] hover:shadow-xl transition-all duration-300"
+                    style={{ backgroundColor: "#866ffe", color: "white" }}
+                  >
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    Generate Insights Now
+                  </Button>
                 </div>
               )}
             </div>

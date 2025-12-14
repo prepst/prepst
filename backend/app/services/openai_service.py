@@ -204,6 +204,151 @@ If asked about inappropriate content, politely redirect to educational topics.""
             print(f"OpenAI Chat API Error: {str(e)}")
             raise Exception(f"Failed to generate chat response: {str(e)}")
 
+    async def generate_session_summary(
+        self,
+        session_stats: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Generate a holistic session summary using OpenAI.
+        
+        Args:
+            session_stats: Aggregated session data including:
+                - total_questions, correct_count, incorrect_count, accuracy
+                - topic_performance: list of {topic_name, correct, total, accuracy}
+                - speed_stats: {avg_time_seconds, fast_count, slow_count, total_time}
+                - historical_comparison: {topic_name: {current_accuracy, historical_accuracy}}
+                - question_details: list of {topic_name, is_correct, time_spent, question_type}
+        
+        Returns:
+            Dict with overall_assessment, strengths, weaknesses, speed_analysis,
+            error_patterns, and improvement_tips
+        """
+        
+        # Build summary context
+        accuracy = session_stats.get("accuracy", 0)
+        total = session_stats.get("total_questions", 0)
+        correct = session_stats.get("correct_count", 0)
+        incorrect = session_stats.get("incorrect_count", 0)
+        
+        topic_perf = session_stats.get("topic_performance", [])
+        speed_stats = session_stats.get("speed_stats", {})
+        historical = session_stats.get("historical_comparison", {})
+        question_details = session_stats.get("question_details", [])
+        
+        # Format topic performance
+        topic_summary = ""
+        if topic_perf:
+            topic_lines = []
+            for tp in topic_perf:
+                hist = historical.get(tp["topic_name"], {})
+                hist_acc = hist.get("historical_accuracy")
+                comparison = ""
+                if hist_acc is not None:
+                    diff = tp["accuracy"] - hist_acc
+                    if diff > 5:
+                        comparison = f" (↑ improved from {hist_acc:.0f}% historical)"
+                    elif diff < -5:
+                        comparison = f" (↓ declined from {hist_acc:.0f}% historical)"
+                topic_lines.append(f"  - {tp['topic_name']}: {tp['correct']}/{tp['total']} ({tp['accuracy']:.0f}%){comparison}")
+            topic_summary = "\n".join(topic_lines)
+        
+        # Format speed analysis context
+        speed_context = ""
+        if speed_stats:
+            avg_time = speed_stats.get("avg_time_seconds", 0)
+            fast = speed_stats.get("fast_count", 0)
+            slow = speed_stats.get("slow_count", 0)
+            speed_context = f"""
+Speed Analysis:
+- Average time per question: {avg_time:.1f} seconds
+- Questions answered quickly (<30s): {fast}
+- Questions taking longer (>90s): {slow}
+- Total session time: {speed_stats.get('total_time_minutes', 0):.1f} minutes"""
+        
+        # Build question details for pattern detection
+        incorrect_details = [q for q in question_details if not q.get("is_correct")]
+        incorrect_topics = [q["topic_name"] for q in incorrect_details]
+        
+        prompt = f"""You are an expert SAT tutor analyzing a student's practice session performance.
+
+SESSION OVERVIEW:
+- Total Questions: {total}
+- Correct: {correct} | Incorrect: {incorrect}
+- Accuracy: {accuracy:.1f}%
+
+PERFORMANCE BY TOPIC:
+{topic_summary if topic_summary else "No topic data available"}
+{speed_context}
+
+INCORRECT ANSWERS BY TOPIC:
+{', '.join(incorrect_topics) if incorrect_topics else 'None - perfect score!'}
+
+Please analyze this session and provide feedback in the following JSON format:
+{{
+    "overall_assessment": "A 2-3 sentence summary of how the session went. Be encouraging but honest about areas needing work.",
+    "strengths": ["Topic or skill where student performed well", "Another strength"],
+    "weaknesses": ["Topic or skill needing improvement", "Another weakness"],
+    "speed_analysis": "One sentence about their pacing - were they rushing, taking appropriate time, or spending too long on questions?",
+    "error_patterns": ["Describe any patterns in their mistakes, e.g. 'Struggles with word problems involving rates'", "Another pattern if applicable"],
+    "improvement_tips": ["Specific, actionable tip 1", "Specific, actionable tip 2", "Specific, actionable tip 3"]
+}}
+
+Guidelines:
+1. Be encouraging and supportive, even when pointing out weaknesses
+2. Make improvement tips specific and actionable (not generic like "practice more")
+3. If accuracy is high (>80%), focus more on optimization and mastery
+4. If accuracy is low (<50%), be extra encouraging and focus on foundational tips
+5. Relate patterns to common SAT question types when possible
+6. Keep each field concise - 1-2 sentences max for text fields, 2-4 items for lists"""
+
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are an expert SAT tutor providing holistic session analysis. Always respond with valid JSON. Be encouraging and specific."
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                temperature=0.7,
+                max_tokens=self.max_tokens,
+                response_format={"type": "json_object"}
+            )
+            
+            feedback_text = response.choices[0].message.content
+            feedback = json.loads(feedback_text)
+            
+            # Ensure all required fields exist
+            required_fields = {
+                "overall_assessment": "Session analysis not available.",
+                "strengths": [],
+                "weaknesses": [],
+                "speed_analysis": "Speed data not available.",
+                "error_patterns": [],
+                "improvement_tips": []
+            }
+            
+            for field, default in required_fields.items():
+                if field not in feedback:
+                    feedback[field] = default
+            
+            return feedback
+            
+        except Exception as e:
+            print(f"OpenAI Session Summary API Error: {str(e)}")
+            return {
+                "overall_assessment": f"Unable to generate AI analysis at this time.",
+                "strengths": [],
+                "weaknesses": [],
+                "speed_analysis": "Speed analysis not available.",
+                "error_patterns": [],
+                "improvement_tips": ["Review your incorrect answers to identify patterns.", "Focus on understanding the concepts behind each question."]
+            }
+
 
 # Global instance
 openai_service = OpenAIService()

@@ -179,3 +179,21 @@ class AIFeedbackResponse(BaseModel):
     question_id: UUID
     feedback: AIFeedbackContent
     is_cached: bool
+
+
+class SessionSummaryContent(BaseModel):
+    """AI-generated session summary content"""
+    overall_assessment: str
+    strengths: List[str]
+    weaknesses: List[str]
+    speed_analysis: str
+    error_patterns: List[str]
+    improvement_tips: List[str]
+
+
+class SessionSummaryResponse(BaseModel):
+    """Response model for session summary"""
+    session_id: UUID
+    summary: SessionSummaryContent
+    stats: Dict[str, Any]  # Raw stats used for display
+    generated_at: datetime

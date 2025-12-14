@@ -23,6 +23,7 @@ import type {
   ChatRequest,
   ChatResponse,
   ChatMessageAPI,
+  SessionSummaryResponse,
 } from "./types";
 
 async function getAuthHeaders() {
@@ -64,8 +65,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            `Failed to fetch ${endpoint}`;
+          JSON.stringify(error.detail) ||
+          `Failed to fetch ${endpoint}`;
       console.error("GET Error:", errorMessage, "Full error:", error);
       throw new Error(errorMessage);
     }
@@ -80,8 +81,8 @@ export const api = {
     const isFormData = data instanceof FormData;
     const requestHeaders = isFormData
       ? {
-          Authorization: headers.Authorization,
-        }
+        Authorization: headers.Authorization,
+      }
       : headers;
 
     const response = await fetch(`${config.apiUrl}${endpoint}`, {
@@ -99,8 +100,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            `Failed to post to ${endpoint}`;
+          JSON.stringify(error.detail) ||
+          `Failed to post to ${endpoint}`;
       console.error("POST Error:", errorMessage, "Full error:", error);
       throw new Error(errorMessage);
     }
@@ -125,8 +126,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            `Failed to patch ${endpoint}`;
+          JSON.stringify(error.detail) ||
+          `Failed to patch ${endpoint}`;
       console.error("PATCH Error:", errorMessage, "Full error:", error);
       throw new Error(errorMessage);
     }
@@ -150,8 +151,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            `Failed to delete ${endpoint}`;
+          JSON.stringify(error.detail) ||
+          `Failed to delete ${endpoint}`;
       console.error("DELETE Error:", errorMessage, "Full error:", error);
       throw new Error(errorMessage);
     }
@@ -175,8 +176,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to generate study plan";
+          JSON.stringify(error.detail) ||
+          "Failed to generate study plan";
       console.error(
         "Study Plan Generation Error:",
         errorMessage,
@@ -204,8 +205,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to fetch study plan";
+          JSON.stringify(error.detail) ||
+          "Failed to fetch study plan";
       console.error(
         "Study Plan Fetch Error:",
         errorMessage,
@@ -236,8 +237,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to delete study plan";
+          JSON.stringify(error.detail) ||
+          "Failed to delete study plan";
       console.error(
         "Study Plan Delete Error:",
         errorMessage,
@@ -261,8 +262,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to fetch categories and topics";
+          JSON.stringify(error.detail) ||
+          "Failed to fetch categories and topics";
       console.error(
         "Categories and Topics Error:",
         errorMessage,
@@ -281,11 +282,9 @@ export const api = {
     regenerate: boolean = false
   ): Promise<AIFeedbackResponse> {
     const headers = await getAuthHeaders();
-    const url = `${
-      config.apiUrl
-    }/api/practice-sessions/${sessionId}/questions/${questionId}/feedback${
-      regenerate ? "?regenerate=true" : ""
-    }`;
+    const url = `${config.apiUrl
+      }/api/practice-sessions/${sessionId}/questions/${questionId}/feedback${regenerate ? "?regenerate=true" : ""
+      }`;
 
     const response = await fetch(url, { headers });
 
@@ -295,8 +294,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to get feedback";
+          JSON.stringify(error.detail) ||
+          "Failed to get feedback";
       console.error(
         "Question Feedback Error:",
         errorMessage,
@@ -333,10 +332,43 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to generate feedback";
+          JSON.stringify(error.detail) ||
+          "Failed to generate feedback";
       console.error(
         "Session Feedback Generation Error:",
+        errorMessage,
+        "Full error:",
+        error
+      );
+      throw new Error(errorMessage);
+    }
+
+    return response.json();
+  },
+
+  async generateSessionSummary(
+    sessionId: string
+  ): Promise<SessionSummaryResponse> {
+    const headers = await getAuthHeaders();
+
+    const response = await fetch(
+      `${config.apiUrl}/api/practice-sessions/${sessionId}/generate-session-summary`,
+      {
+        method: "POST",
+        headers,
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      const errorMessage =
+        typeof error.detail === "string"
+          ? error.detail
+          : error.message ||
+          JSON.stringify(error.detail) ||
+          "Failed to generate session summary";
+      console.error(
+        "Session Summary Generation Error:",
         errorMessage,
         "Full error:",
         error
@@ -368,8 +400,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to complete session";
+          JSON.stringify(error.detail) ||
+          "Failed to complete session";
       console.error(
         "Session Completion Error:",
         errorMessage,
@@ -411,8 +443,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to create drill session";
+          JSON.stringify(error.detail) ||
+          "Failed to create drill session";
       console.error(
         "Drill Session Creation Error:",
         errorMessage,
@@ -449,8 +481,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to fetch growth curve";
+          JSON.stringify(error.detail) ||
+          "Failed to fetch growth curve";
       console.error("Growth Curve Error:", errorMessage, "Full error:", error);
       throw new Error(errorMessage);
     }
@@ -475,8 +507,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to fetch skill heatmap";
+          JSON.stringify(error.detail) ||
+          "Failed to fetch skill heatmap";
       console.error("Skill Heatmap Error:", errorMessage, "Full error:", error);
       throw new Error(errorMessage);
     }
@@ -506,8 +538,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to fetch snapshots";
+          JSON.stringify(error.detail) ||
+          "Failed to fetch snapshots";
       console.error(
         "Performance Snapshots Error:",
         errorMessage,
@@ -533,8 +565,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to create snapshot";
+          JSON.stringify(error.detail) ||
+          "Failed to create snapshot";
       console.error(
         "Create Snapshot Error:",
         errorMessage,
@@ -569,8 +601,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to fetch learning events";
+          JSON.stringify(error.detail) ||
+          "Failed to fetch learning events";
       console.error(
         "Learning Events Error:",
         errorMessage,
@@ -599,8 +631,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to fetch masteries";
+          JSON.stringify(error.detail) ||
+          "Failed to fetch masteries";
       console.error("Masteries Error:", errorMessage, "Full error:", error);
       throw new Error(errorMessage);
     }
@@ -622,8 +654,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to fetch mastery tracking stats";
+          JSON.stringify(error.detail) ||
+          "Failed to fetch mastery tracking stats";
       console.error(
         "Mastery Tracking Error:",
         errorMessage,
@@ -651,8 +683,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to fetch confidence timing stats";
+          JSON.stringify(error.detail) ||
+          "Failed to fetch confidence timing stats";
       console.error(
         "Confidence Timing Error:",
         errorMessage,
@@ -678,8 +710,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to fetch learning events stats";
+          JSON.stringify(error.detail) ||
+          "Failed to fetch learning events stats";
       console.error(
         "Learning Events Stats Error:",
         errorMessage,
@@ -707,8 +739,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to fetch performance snapshots";
+          JSON.stringify(error.detail) ||
+          "Failed to fetch performance snapshots";
       console.error(
         "Performance Snapshots Overview Error:",
         errorMessage,
@@ -734,8 +766,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to fetch user progress summary";
+          JSON.stringify(error.detail) ||
+          "Failed to fetch user progress summary";
       console.error(
         "User Progress Summary Error:",
         errorMessage,
@@ -794,8 +826,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to fetch mock exam analytics";
+          JSON.stringify(error.detail) ||
+          "Failed to fetch mock exam analytics";
       console.error(
         "Mock Exam Analytics Error:",
         errorMessage,
@@ -849,8 +881,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to fetch mock exam performance";
+          JSON.stringify(error.detail) ||
+          "Failed to fetch mock exam performance";
       console.error(
         "Mock Exam Performance Error:",
         errorMessage,
@@ -950,8 +982,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to chat with AI";
+          JSON.stringify(error.detail) ||
+          "Failed to chat with AI";
       console.error("Chat API Error:", errorMessage, "Full error:", error);
       throw new Error(errorMessage);
     }
@@ -1047,8 +1079,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to fetch wrong answers";
+          JSON.stringify(error.detail) ||
+          "Failed to fetch wrong answers";
       console.error(
         "Wrong Answers API Error:",
         errorMessage,
@@ -1079,8 +1111,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to fetch saved questions";
+          JSON.stringify(error.detail) ||
+          "Failed to fetch saved questions";
       throw new Error(errorMessage);
     }
 
@@ -1124,8 +1156,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to fetch completed sessions";
+          JSON.stringify(error.detail) ||
+          "Failed to fetch completed sessions";
       console.error(
         "Completed Sessions API Error:",
         errorMessage,
@@ -1165,8 +1197,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to create revision session";
+          JSON.stringify(error.detail) ||
+          "Failed to create revision session";
       console.error(
         "Revision Session Creation Error:",
         errorMessage,
@@ -1209,8 +1241,8 @@ export const api = {
         typeof error.detail === "string"
           ? error.detail
           : error.message ||
-            JSON.stringify(error.detail) ||
-            "Failed to add similar question";
+          JSON.stringify(error.detail) ||
+          "Failed to add similar question";
       console.error(
         "Add Similar Question Error:",
         errorMessage,

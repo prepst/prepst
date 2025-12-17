@@ -59,7 +59,7 @@ export function PracticeFooter({
 
   return (
     <div className="relative z-50 bg-background/80 backdrop-blur-xl border-t border-border/40 supports-[backdrop-filter]:bg-background/60">
-      <div className="flex items-center justify-between px-6 h-16">
+      <div className="flex items-center justify-between pl-[250px] pr-[250px] h-16">
         {/* Left: Question Counter - Clickable */}
         <div className="flex items-center gap-3">
           {questions.length > 0 ? (

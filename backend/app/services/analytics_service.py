@@ -35,24 +35,50 @@ class AnalyticsService:
         """
         
         # Ensure related_id is a clean UUID string, not a dict
+        import re
+        uuid_pattern = re.compile(r'[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}', re.IGNORECASE)
+        
         if related_id is not None:
+            # First, convert to string to handle UUID objects
+            related_id_str = str(related_id) if not isinstance(related_id, str) else related_id
+            
             if isinstance(related_id, dict):
                 # Handle case where a dict was passed (extract 'id' field)
                 print(f"WARNING: related_id passed as dict: {related_id}")
                 related_id = related_id.get('id')
-            elif isinstance(related_id, str) and related_id.startswith('{') and related_id.endswith('}'):
-                # Handle case where a dict was stringified
-                print(f"WARNING: related_id appears to be a stringified dict: {related_id}")
-                try:
-                    import ast
-                    parsed_dict = ast.literal_eval(related_id)
-                    if isinstance(parsed_dict, dict) and 'id' in parsed_dict:
-                        related_id = parsed_dict['id']
-                except:
-                    print(f"ERROR: Could not parse stringified dict: {related_id}")
-                    related_id = None
-            # Convert to string to ensure it's not a UUID object
-            related_id = str(related_id) if related_id else None
+                if related_id:
+                    related_id = str(related_id)
+            elif related_id_str.startswith('{') or related_id_str.startswith("{'"):
+                # Handle case where a dict was stringified (with single or double quotes)
+                print(f"WARNING: related_id appears to be a stringified dict: {related_id_str}")
+                # Try to extract UUID using regex first (more reliable)
+                uuid_match = uuid_pattern.search(related_id_str)
+                if uuid_match:
+                    related_id = uuid_match.group(0)
+                    print(f"DEBUG: Extracted UUID from stringified dict: {related_id}")
+                else:
+                    try:
+                        import ast
+                        parsed_dict = ast.literal_eval(related_id_str)
+                        if isinstance(parsed_dict, dict) and 'id' in parsed_dict:
+                            related_id = str(parsed_dict['id'])
+                    except:
+                        print(f"ERROR: Could not parse stringified dict: {related_id_str}")
+                        related_id = None
+            else:
+                # Already a string, just ensure it's clean
+                related_id = related_id_str
+            
+            # Final validation: ensure it's a valid UUID format
+            if related_id:
+                if not uuid_pattern.fullmatch(related_id):
+                    # Try to extract UUID from the string
+                    uuid_match = uuid_pattern.search(related_id)
+                    if uuid_match:
+                        related_id = uuid_match.group(0)
+                    else:
+                        print(f"ERROR: related_id is not a valid UUID: {related_id}")
+                        related_id = None
         
         # Debug logging to understand where the dict is coming from
         print(f"DEBUG: Creating snapshot with related_id type={type(related_id)}, value={related_id}")

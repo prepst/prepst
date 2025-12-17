@@ -28,7 +28,7 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
       : "Hard";
 
   return (
-    <div className="flex-1 overflow-y-auto p-8 lg:p-12">
+    <div className="flex-1 overflow-y-auto py-8 pl-[250px] pr-0 lg:py-12">
       <div className="max-w-3xl mx-auto space-y-8">
         {/* Question Meta */}
         <div className="flex items-center gap-4">

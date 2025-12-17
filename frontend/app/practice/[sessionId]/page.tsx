@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef, useLayoutEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { PageLoader } from "@/components/ui/page-loader";
@@ -11,6 +11,7 @@ import { PracticeFooter } from "@/components/practice/PracticeFooter";
 import { QuestionPanel } from "@/components/practice/QuestionPanel";
 import { AnswerPanel } from "@/components/practice/AnswerPanel";
 import { QuestionListSidebar } from "@/components/practice/QuestionListSidebar";
+import { SATToolsToolbar } from "@/components/practice/SATToolsToolbar";
 import { usePracticeSession } from "@/hooks/usePracticeSession";
 import { useTimer } from "@/hooks/useTimer";
 import { useQuestionNavigation } from "@/hooks/useQuestionNavigation";
@@ -80,11 +81,24 @@ function PracticeSessionContent() {
   const [showQuestionList, setShowQuestionList] = useState(false);
   const [confidenceScore, setConfidenceScore] = useState<number>(3); // Default confidence
 
-  // Draggable divider state
-  const [dividerPosition, setDividerPosition] = useState(480); // Initial width for right panel
+  // Container ref for calculating middle position
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Draggable divider state - initialize to middle of viewport
+  const [dividerPosition, setDividerPosition] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth / 2;
+    }
+    return 480;
+  });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartX, setDragStartX] = useState(0);
-  const [dragStartPosition, setDragStartPosition] = useState(480);
+  const [dragStartPosition, setDragStartPosition] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth / 2;
+    }
+    return 480;
+  });
 
   // Track which session questions are saved
   const [savedSessionQuestions, setSavedSessionQuestions] = useState<
@@ -141,6 +155,41 @@ function PracticeSessionContent() {
     }
   }, [questions]);
 
+  // Auto-start stopwatch when a new question loads
+  useEffect(() => {
+    if (currentQuestion && !isLoading) {
+      // Reset and start stopwatch for the new question
+      timer.handleStartStopwatch();
+    }
+  }, [currentQuestion?.session_question_id, isLoading]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Calculate middle position for divider on mount
+  useEffect(() => {
+    const calculateMiddlePosition = () => {
+      if (containerRef.current) {
+        const containerWidth =
+          containerRef.current.offsetWidth || containerRef.current.clientWidth;
+        if (containerWidth > 0) {
+          const middlePosition = containerWidth / 2;
+          setDividerPosition(middlePosition);
+          setDragStartPosition(middlePosition);
+        }
+      }
+    };
+
+    // Wait for next tick to ensure container is rendered
+    const timeoutId = setTimeout(() => {
+      calculateMiddlePosition();
+    }, 100);
+
+    // Also recalculate on window resize
+    window.addEventListener("resize", calculateMiddlePosition);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", calculateMiddlePosition);
+    };
+  }, []);
+
   // Handler functions (defined before useEffect that uses them)
   const handleAnswerChange = (value: string) => {
     if (!currentQuestion || showFeedback) return;
@@ -172,6 +221,8 @@ function PracticeSessionContent() {
 
   const handleNext = () => {
     clearAiFeedback();
+    // Reset and start stopwatch for the next question
+    timer.handleStartStopwatch();
     const isLastQuestion = navHandleNext();
     if (isLastQuestion) {
       router.push(`/practice/${sessionId}/summary`);
@@ -391,8 +442,8 @@ function PracticeSessionContent() {
   if (isLoading) {
     return (
       <div className="h-screen bg-background flex flex-col overflow-hidden">
-        <div className="p-4 border-b border-border bg-background/80 backdrop-blur-sm">
-          <div className="flex items-center justify-between">
+        <div className="relative z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/60">
+          <div className="flex items-center justify-between pl-[250px] pr-[250px] h-16">
             <div className="flex items-center gap-3">
               <Skeleton className="h-6 w-24" />
               <Skeleton className="h-4 w-32" />
@@ -404,24 +455,35 @@ function PracticeSessionContent() {
           </div>
         </div>
         <div className="flex-1 flex overflow-hidden">
-          {/* Left question panel */}
-          <div className="flex-1 p-6 space-y-4 min-w-0">
-            <Skeleton className="h-6 w-40" />
-            <Skeleton className="h-8 w-3/4" />
-            <div className="space-y-3">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <Skeleton key={i} className="h-4 w-full" />
-              ))}
+          {/* Question Panel - Flexible width */}
+          <div className="flex-1 flex flex-col min-w-0 relative">
+            <div className="flex-1 overflow-y-auto py-8 pl-[250px] pr-0 space-y-4">
+              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-8 w-3/4" />
+              <div className="space-y-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="h-4 w-full" />
+                ))}
+              </div>
             </div>
           </div>
-          {/* Divider */}
-          <div className="w-1 bg-border" />
-          {/* Right answer panel */}
+
+          {/* Draggable Divider */}
+          <div className="group relative w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ml-5">
+            {/* Grip Handle Indicators */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-1.5">
+              <div className="w-0.5 h-1.5 bg-muted-foreground/40 rounded-full" />
+              <div className="w-0.5 h-1.5 bg-muted-foreground/40 rounded-full" />
+              <div className="w-0.5 h-1.5 bg-muted-foreground/40 rounded-full" />
+            </div>
+          </div>
+
+          {/* Right Panel - Answer Choices & Feedback - Dynamic width */}
           <div
             className="border-l border-border bg-card/50 backdrop-blur-sm flex flex-col"
             style={{ width: `480px` }}
           >
-            <div className="p-6 space-y-4">
+            <div className="pt-8 pb-8 pl-8 pr-[250px] flex-1 overflow-y-auto space-y-4">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-3">
                   <Skeleton className="h-5 w-5 rounded" />
@@ -429,14 +491,16 @@ function PracticeSessionContent() {
                 </div>
               ))}
             </div>
-            <div className="mt-auto p-4 border-t border-border bg-card/70">
-              <div className="flex items-center justify-between">
-                <Skeleton className="h-10 w-24" />
-                <div className="flex gap-2">
-                  <Skeleton className="h-10 w-24" />
-                  <Skeleton className="h-10 w-24" />
-                </div>
-              </div>
+          </div>
+        </div>
+
+        {/* Footer with Navigation */}
+        <div className="relative z-50 bg-background/80 backdrop-blur-xl border-t border-border/40 supports-[backdrop-filter]:bg-background/60">
+          <div className="flex items-center justify-between pl-[250px] pr-[250px] h-16">
+            <Skeleton className="h-10 w-24" />
+            <div className="flex gap-2">
+              <Skeleton className="h-10 w-24" />
+              <Skeleton className="h-10 w-24" />
             </div>
           </div>
         </div>
@@ -486,6 +550,7 @@ function PracticeSessionContent() {
       />
 
       <div
+        ref={containerRef}
         className="flex-1 flex overflow-hidden"
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -503,13 +568,17 @@ function PracticeSessionContent() {
         )}
 
         {/* Question Panel - Flexible width */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex-1 flex flex-col min-w-0 relative">
+          {/* SAT Tools Toolbar - positioned at top-right of question area */}
+          <div className="absolute top-4 right-4 z-30">
+            <SATToolsToolbar />
+          </div>
           <QuestionPanel question={currentQuestion} />
         </div>
 
         {/* Draggable Divider */}
         <div
-          className={`w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ${
+          className={`group relative w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ml-5 ${
             isDragging ? "bg-primary" : ""
           }`}
           onMouseDown={handleMouseDown}
@@ -517,7 +586,14 @@ function PracticeSessionContent() {
             userSelect: "none",
             cursor: isDragging ? "col-resize" : "col-resize",
           }}
-        />
+        >
+          {/* Grip Handle Indicators */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-1.5">
+            <div className="w-0.5 h-1.5 bg-muted-foreground/40 rounded-full" />
+            <div className="w-0.5 h-1.5 bg-muted-foreground/40 rounded-full" />
+            <div className="w-0.5 h-1.5 bg-muted-foreground/40 rounded-full" />
+          </div>
+        </div>
 
         {/* Right Panel - Answer Choices & Feedback - Dynamic width */}
         <div

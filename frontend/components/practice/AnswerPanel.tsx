@@ -39,7 +39,7 @@ export function AnswerPanel({
   defaultConfidence = 3,
 }: AnswerPanelProps) {
   return (
-    <div className="p-8 flex-1 overflow-y-auto">
+    <div className="pt-8 pb-8 pl-8 pr-[250px] flex-1 overflow-y-auto bg-background">
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6">
         {question.question.question_type === "mc"
           ? "Select an Answer"

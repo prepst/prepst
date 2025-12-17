@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AnswerPanel } from "@/components/practice/AnswerPanel";
 import { MockExamFooter } from "@/components/practice/MockExamFooter";
+import { MockExamToolsToolbar } from "@/components/practice/MockExamToolsToolbar";
 import { supabase } from "@/lib/supabase";
 import { config } from "@/lib/config";
 import {
@@ -605,31 +606,28 @@ function ModuleContent() {
           {/* Center: Timer (Absolute Center) */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
             <div
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-sm transition-all duration-300 ${
-                timeRemaining <= 300
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-sm transition-all duration-300 ${timeRemaining <= 300
                   ? "bg-red-500/10 border-red-500/20 ring-1 ring-red-500/10"
                   : timeRemaining <= 600
-                  ? "bg-orange-500/10 border-orange-500/20 ring-1 ring-orange-500/10"
-                  : "bg-blue-500/10 border-blue-500/20 ring-1 ring-blue-500/10"
-              }`}
+                    ? "bg-orange-500/10 border-orange-500/20 ring-1 ring-orange-500/10"
+                    : "bg-blue-500/10 border-blue-500/20 ring-1 ring-blue-500/10"
+                }`}
             >
               <Clock
-                className={`w-3.5 h-3.5 ${
-                  timeRemaining <= 300
+                className={`w-3.5 h-3.5 ${timeRemaining <= 300
                     ? "text-red-600 dark:text-red-400"
                     : timeRemaining <= 600
-                    ? "text-orange-600 dark:text-orange-400"
-                    : "text-blue-600 dark:text-blue-400"
-                }`}
+                      ? "text-orange-600 dark:text-orange-400"
+                      : "text-blue-600 dark:text-blue-400"
+                  }`}
               />
               <span
-                className={`text-sm font-mono font-bold tabular-nums tracking-tight ${
-                  timeRemaining <= 300
+                className={`text-sm font-mono font-bold tabular-nums tracking-tight ${timeRemaining <= 300
                     ? "text-red-700 dark:text-red-300"
                     : timeRemaining <= 600
-                    ? "text-orange-700 dark:text-orange-300"
-                    : "text-blue-700 dark:text-blue-300"
-                }`}
+                      ? "text-orange-700 dark:text-orange-300"
+                      : "text-blue-700 dark:text-blue-300"
+                  }`}
               >
                 {formatTime(timeRemaining)}
               </span>
@@ -790,14 +788,13 @@ function ModuleContent() {
                     onClick={() => handleQuestionNavigation(index)}
                     className={`
                       group w-full p-3 rounded-xl text-left transition-all duration-200 border
-                      ${
-                        isCurrent
-                          ? "border-primary/50 bg-primary/5 ring-1 ring-primary/20 shadow-sm"
-                          : isMarked
+                      ${isCurrent
+                        ? "border-primary/50 bg-primary/5 ring-1 ring-primary/20 shadow-sm"
+                        : isMarked
                           ? "border-orange-500/30 bg-orange-500/5"
                           : isAnswered
-                          ? "border-border bg-muted/30 hover:bg-muted/50"
-                          : "border-transparent hover:bg-accent hover:border-border"
+                            ? "border-border bg-muted/30 hover:bg-muted/50"
+                            : "border-transparent hover:bg-accent hover:border-border"
                       }
                     `}
                   >
@@ -806,10 +803,9 @@ function ModuleContent() {
                         <span
                           className={`
                             flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-mono font-medium transition-colors
-                            ${
-                              isCurrent
-                                ? "bg-primary text-primary-foreground"
-                                : isAnswered
+                            ${isCurrent
+                              ? "bg-primary text-primary-foreground"
+                              : isAnswered
                                 ? "bg-secondary text-secondary-foreground"
                                 : "bg-muted text-muted-foreground"
                             }
@@ -819,11 +815,10 @@ function ModuleContent() {
                         </span>
                         <div className="flex-1">
                           <span
-                            className={`text-sm font-medium ${
-                              isCurrent
+                            className={`text-sm font-medium ${isCurrent
                                 ? "text-foreground"
                                 : "text-muted-foreground group-hover:text-foreground"
-                            }`}
+                              }`}
                           >
                             Question {index + 1}
                           </span>
@@ -841,7 +836,11 @@ function ModuleContent() {
         )}
 
         {/* Question Content - Flexible width */}
-        <div className="flex-1 overflow-y-auto p-8 lg:p-12 min-w-0">
+        <div className="flex-1 overflow-y-auto p-8 lg:p-12 min-w-0 relative">
+          {/* SAT Tools Toolbar */}
+          <div className="absolute top-4 right-4 z-30">
+            <MockExamToolsToolbar />
+          </div>
           <div className="max-w-3xl mx-auto space-y-8">
             {/* Question Meta */}
             <div className="flex items-center gap-4">
@@ -850,19 +849,18 @@ function ModuleContent() {
                 className="pl-2 pr-3 py-1 gap-2 border-border bg-card text-foreground font-medium"
               >
                 <div
-                  className={`w-1.5 h-1.5 rounded-full ${
-                    currentQuestion.question.difficulty === "E"
+                  className={`w-1.5 h-1.5 rounded-full ${currentQuestion.question.difficulty === "E"
                       ? "bg-emerald-500"
                       : currentQuestion.question.difficulty === "M"
-                      ? "bg-amber-500"
-                      : "bg-rose-500"
-                  }`}
+                        ? "bg-amber-500"
+                        : "bg-rose-500"
+                    }`}
                 />
                 {currentQuestion.question.difficulty === "E"
                   ? "Easy"
                   : currentQuestion.question.difficulty === "M"
-                  ? "Medium"
-                  : "Hard"}
+                    ? "Medium"
+                    : "Hard"}
               </Badge>
             </div>
 
@@ -890,9 +888,8 @@ function ModuleContent() {
 
         {/* Draggable Divider */}
         <div
-          className={`w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ${
-            isDragging ? "bg-primary" : ""
-          }`}
+          className={`w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ${isDragging ? "bg-primary" : ""
+            }`}
           onMouseDown={handleMouseDown}
           style={{
             userSelect: "none",
@@ -926,20 +923,20 @@ function ModuleContent() {
             answer={
               currentAnswer
                 ? ({
-                    ...currentAnswer,
-                    status:
-                      currentAnswer.userAnswer.length === 0
-                        ? "not_started"
-                        : "answered",
-                    session_question_id: currentQuestion.question.id,
-                  } as any)
+                  ...currentAnswer,
+                  status:
+                    currentAnswer.userAnswer.length === 0
+                      ? "not_started"
+                      : "answered",
+                  session_question_id: currentQuestion.question.id,
+                } as any)
                 : null
             }
             showFeedback={false} // Mock exams don't show feedback during questions
             aiFeedback={null}
             loadingFeedback={false}
             onAnswerChange={handleAnswerChange}
-            onGetFeedback={() => {}} // Not used in mock exams
+            onGetFeedback={() => { }} // Not used in mock exams
             onGetSimilarQuestion={undefined} // Not used in mock exams
             onSaveQuestion={undefined} // Not used in mock exams
           />
@@ -949,18 +946,16 @@ function ModuleContent() {
             <Button
               variant="outline"
               onClick={toggleMarkForReview}
-              className={`w-full h-12 border-border/60 bg-background/50 hover:bg-accent transition-all text-base font-semibold ${
-                currentAnswer?.isMarkedForReview
+              className={`w-full h-12 border-border/60 bg-background/50 hover:bg-accent transition-all text-base font-semibold ${currentAnswer?.isMarkedForReview
                   ? "bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400"
                   : ""
-              }`}
+                }`}
             >
               <Flag
-                className={`w-4 h-4 mr-2 ${
-                  currentAnswer?.isMarkedForReview
+                className={`w-4 h-4 mr-2 ${currentAnswer?.isMarkedForReview
                     ? "fill-orange-500 text-orange-500"
                     : ""
-                }`}
+                  }`}
               />
               {currentAnswer?.isMarkedForReview
                 ? "Marked for Review"

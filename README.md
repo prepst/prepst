@@ -1,59 +1,91 @@
 # Prep St
 
-AI-powered test preparation platform with personalized study plans that adapt to student weaknesses.
+AI-powered SAT test preparation platform with adaptive learning analytics and personalized study plans.
 
-## 🎯 MVP Features - Study Planner (Implemented)
+## Features
 
-✅ **Study Plan Generation**
-
-- Input current/target scores (Math & Reading/Writing)
-- Set test date
-- Auto-generate personalized study schedule
-- Topic distribution based on category weights (Algebra 35%, etc.)
+### Study Planning
+- Personalized study plan generation based on current/target scores
+- Topic distribution by category weights (Math: Algebra 35%, Advanced Math 35%, Problem-Solving 15%, Geometry 15%)
 - Daily practice sessions with specific topics and question counts
+- Adaptive plan updates based on performance
 
-✅ **Backend API**
+### Practice Sessions
+- Question-based practice with answer submission
+- AI-powered feedback generation using OpenAI
+- Confidence scoring and time tracking
+- Session summaries and mastery improvements
+- Drill sessions and revision sessions
+- Save/bookmark questions for later review
+- Quick practice mode
 
-- FastAPI with Supabase PostgreSQL
-- Study plan generation algorithm
-- Topic taxonomy (19 Math + 11 Reading/Writing topics)
-- RESTful endpoints for plan management
+### Mock Exams
+- Full-length SAT mock exams
+- Module-based structure (Math, Reading/Writing)
+- Break periods between modules
+- Detailed results and performance analytics
+- Historical exam tracking
 
-✅ **Frontend UI**
+### Diagnostic Tests
+- Initial assessment to gauge skill levels
+- Results-based study plan recommendations
+- Performance tracking over time
 
-- Onboarding form for score input
-- Study plan calendar view
-- Session breakdown by day
-- Responsive design with shadcn/ui
+### Learning Analytics
+- Bayesian Knowledge Tracing (BKT) for skill mastery tracking
+- Growth curves and skill heatmaps
+- Performance snapshots and learning events
+- Cognitive efficiency metrics
+- Predictive score modeling
+- Learning velocity tracking
 
-## 🚀 Coming Next
+### User Features
+- User profiles with preferences
+- Achievement system
+- Study streak tracking with freeze/unfreeze
+- Progress dashboard with recommendations
+- Analytics dashboard
+- Admin panel for question management
 
-- Question Generation & Practice Sessions
-- Mock Tests
-- Adaptive Plan Updates
+### Additional Tools
+- AI chat assistant
+- Manim video generation for explanations
+- Notebook for notes
+- Mind map visualization
+- Admin analytics dashboard
 
 ## Tech Stack
 
 ### Frontend
-
-- **Next.js 15** with App Router
-- **TypeScript**
-- **Tailwind CSS v4**
-- **shadcn/ui** (latest)
-- **React**
+- Next.js 15 (App Router)
+- TypeScript
+- Tailwind CSS v4
+- shadcn/ui components
+- React Query (TanStack Query)
+- Supabase client
+- OpenAI SDK
 
 ### Backend
-
-- **FastAPI**
-- **Supabase**
-- **Python 3.10+**
+- FastAPI
+- Supabase PostgreSQL
+- Python 3.10+
+- OpenAI API integration
+- Pydantic for data validation
 
 ## Project Structure
 
 ```
-sat/
+.
 ├── frontend/          # Next.js application
 ├── backend/           # FastAPI application
+│   ├── app/
+│   │   ├── api/       # API route handlers
+│   │   ├── models/    # Pydantic models
+│   │   ├── services/  # Business logic services
+│   │   └── core/      # Core utilities (auth, etc.)
+│   └── supabase/
+│       └── migrations/ # Database migrations
+├── docs/              # Documentation
 ├── package.json       # Root package.json for monorepo
 └── pnpm-workspace.yaml
 ```
@@ -61,86 +93,58 @@ sat/
 ## Getting Started
 
 ### Prerequisites
-
 - Node.js 18+
 - pnpm 8+
 - Python 3.10+
+- Supabase account
+- OpenAI API key (for AI feedback)
 
 ### Installation
 
-1. **Install root dependencies**
-
+1. Install root dependencies:
    ```bash
    pnpm install
    ```
 
-2. **Set up Frontend**
-
+2. Set up Frontend:
    ```bash
    cd frontend
    cp .env.example .env.local
    # Edit .env.local with your configuration
-   pnpm install
    ```
 
-3. **Set up Backend**
-
+3. Set up Backend:
    ```bash
    cd backend
-
-   # Create virtual environment
    python -m venv venv
-
-   # Activate virtual environment
-   # On macOS/Linux:
-   source venv/bin/activate
-   # On Windows:
-   # venv\Scripts\activate
-
-   # Install dependencies
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    pip install -r requirements.txt
-
-   # Set up environment variables
    cp .env.example .env
-   # Edit .env with your Supabase credentials
+   # Edit .env with your Supabase and OpenAI credentials
    ```
 
-### Running the Development Servers
+4. Run database migrations:
+   - Execute SQL files in `backend/supabase/migrations/` in order via Supabase SQL Editor
 
-#### Option 1: Run both servers from root
+### Running Development Servers
 
+From root directory:
 ```bash
-# From root directory
 pnpm dev
 ```
 
-#### Option 2: Run servers individually
-
-**Frontend:**
-
+Or run individually:
 ```bash
-pnpm dev:frontend
-# or
-cd frontend && pnpm dev
+pnpm dev:frontend  # Frontend only
+pnpm dev:backend   # Backend only
 ```
 
-**Backend:**
-
-```bash
-pnpm dev:backend
-# or
-cd backend && source venv/bin/activate && pnpm dev
-```
-
-### Access the Applications
-
-- **Frontend:** http://localhost:3000
-- **Backend API:** http://localhost:8000
-- **API Docs:** http://localhost:8000/docs
+Access:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8000
+- API Docs: http://localhost:8000/docs
 
 ## Available Scripts
-
-From the root directory:
 
 - `pnpm dev` - Run both frontend and backend in parallel
 - `pnpm dev:frontend` - Run only frontend
@@ -150,104 +154,111 @@ From the root directory:
 
 ### Type Generation
 
-The frontend uses auto-generated TypeScript types from the backend OpenAPI specification:
+Generate TypeScript types from backend OpenAPI specification:
 
 ```bash
-# Generate TypeScript types from backend OpenAPI
 cd frontend
 pnpm generate:api-types
 ```
 
-**When to regenerate types:**
-- After changing Pydantic models in `backend/app/models/`
-- After adding/modifying API endpoints
-- After updating response structures
+Regenerate types after:
+- Changing Pydantic models in `backend/app/models/`
+- Adding/modifying API endpoints
+- Updating response structures
 
-**Requirements:**
-- Backend must be running on `http://localhost:8000`
-- Uses `openapi-typescript` to generate types from `/openapi.json` endpoint
-
-Generated types are saved to `frontend/lib/types/api.generated.ts` and re-exported through `frontend/lib/types/index.ts`.
-
-## Adding Turborepo (Optional)
-
-To add Turborepo for better monorepo management:
-
-```bash
-pnpm add -Dw turbo
-```
-
-Then create `turbo.json` in the root directory.
+Requires backend running on `http://localhost:8000`. Generated types are saved to `frontend/lib/types/api.generated.ts`.
 
 ## Environment Variables
 
 ### Frontend (.env.local)
-
 - `NEXT_PUBLIC_API_URL` - Backend API URL
 - `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anon key
 
-### Backend (.env.local)
-
+### Backend (.env)
 - `SUPABASE_URL` - Supabase project URL
 - `SUPABASE_ANON_KEY` - Supabase anon key
+- `OPENAI_API_KEY` - OpenAI API key for AI feedback
+- `OPENAI_MODEL` - OpenAI model (default: gpt-4o-mini)
 - `API_HOST` - API host (default: 0.0.0.0)
 - `API_PORT` - API port (default: 8000)
-- `CORS_ORIGINS` - Allowed CORS origins
+- `CORS_ORIGINS` - Allowed CORS origins (comma-separated)
 
-## 📊 Study Planner Algorithm
+## Database Schema
 
-The study plan generation works as follows:
-
-1. **Calculate Practice Volume**
-
-   - Base: 20 questions/day
-   - Adjusted based on score gaps and days available
-   - Capped between 15-40 questions/day
-
-2. **Distribute by Category Weights**
-
-   - Math: Algebra (35%), Advanced Math (35%), Problem-Solving (15%), Geometry (15%)
-   - Reading/Writing: 4 categories at 25% each
-   - Equal distribution within each category
-
-3. **Group Into Sessions**
-
-   - Related topics grouped together
-   - ~20-40 questions per session
-   - Interleave Math and R/W for variety
-
-4. **Schedule Across Days**
-   - Evenly distributed from start date to test date
-   - Multiple sessions per day based on volume
-
-## 🗃️ Database Schema
-
-See [backend/supabase/migrations/](backend/supabase/migrations/) for complete schema.
-
-**Key Tables:**
-
+Key tables:
 - `categories` - SAT categories with weights
 - `topics` - Granular topics within categories
 - `study_plans` - User study plans
 - `practice_sessions` - Scheduled practice sessions
-- `session_topics` - Topics assigned to each session
+- `session_questions` - Questions in practice sessions
+- `mock_exams` - Mock exam instances
+- `diagnostic_tests` - Diagnostic test instances
+- `user_skill_mastery` - BKT mastery tracking
+- `user_performance_snapshots` - Historical performance
+- `learning_events` - Granular event log
+- `ai_feedback` - Cached AI feedback
+- `user_profiles` - User profile data
+- `user_achievements` - Achievement tracking
+- `user_streaks` - Streak tracking
 
-## 🧪 Testing the Application
+See `backend/supabase/migrations/` for complete schema.
 
-1. **Run migrations** in Supabase SQL Editor:
+## Study Plan Algorithm
 
-   - `backend/supabase/migrations/001_initial_schema.sql`
-   - `backend/supabase/migrations/002_seed_topics.sql`
+1. Calculate practice volume based on score gaps and days available (15-40 questions/day)
+2. Distribute questions by category weights
+3. Group related topics into sessions (20-40 questions per session)
+4. Schedule sessions evenly from start date to test date
+5. Interleave Math and Reading/Writing for variety
 
-2. **Start both servers**: `pnpm dev`
+## API Endpoints
 
-3. **Test flow**:
-   - Visit http://localhost:3000
-   - Click "Get Started"
-   - Enter scores (e.g., Math: 500→700, R/W: 520→680)
-   - Set test date (future date)
-   - View generated study plan
+### Authentication
+- `POST /api/auth/signup` - User registration
+- `POST /api/auth/signin` - User login
+- `POST /api/auth/signout` - User logout
+- `GET /api/auth/me` - Current user
+
+### Study Plans
+- `POST /api/study-plans/generate` - Generate study plan
+- `GET /api/study-plans/me` - Get user's study plan
+- `DELETE /api/study-plans/me` - Delete study plan
+
+### Practice Sessions
+- `GET /api/practice-sessions/{session_id}/questions` - Get session questions
+- `PATCH /api/practice-sessions/{session_id}/questions/{question_id}` - Submit answer
+- `POST /api/practice-sessions/{session_id}/complete` - Complete session
+- `POST /api/practice-sessions/create-drill` - Create drill session
+- `GET /api/practice-sessions/wrong-answers` - Get wrong answers
+- `GET /api/practice-sessions/saved-questions` - Get saved questions
+
+### Mock Exams
+- `POST /api/mock-exams/create` - Create mock exam
+- `GET /api/mock-exams/` - List mock exams
+- `GET /api/mock-exams/{exam_id}` - Get exam details
+- `POST /api/mock-exams/{exam_id}/modules/{module_id}/start` - Start module
+- `POST /api/mock-exams/{exam_id}/modules/{module_id}/complete` - Complete module
+- `GET /api/mock-exams/{exam_id}/results` - Get exam results
+
+### Analytics
+- `GET /api/analytics/users/me/growth-curve` - Growth curve data
+- `GET /api/analytics/users/me/skill-heatmap` - Skill heatmap
+- `GET /api/analytics/users/me/mastery` - Mastery levels
+- `GET /api/analytics/admin/mastery-tracking` - Admin mastery tracking
+- `GET /api/analytics/learning-velocity` - Learning velocity
+
+### AI Feedback
+- `POST /api/ai-feedback/` - Generate feedback
+- `POST /api/ai-feedback/chat` - Chat with AI
+
+### Profile
+- `GET /api/profile/profile` - Get user profile
+- `PATCH /api/profile/profile` - Update profile
+- `GET /api/profile/achievements` - Get achievements
+- `GET /api/profile/streak` - Get streak data
+
+See `http://localhost:8000/docs` for complete API documentation.
 
 ## License
 

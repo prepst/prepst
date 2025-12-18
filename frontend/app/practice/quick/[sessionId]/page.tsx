@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { PageLoader } from "@/components/ui/page-loader";
@@ -56,11 +56,24 @@ function QuickPracticeContent() {
   const [aiFeedback, setAiFeedback] = useState<any>(null);
   const [loadingFeedback, setLoadingFeedback] = useState(false);
 
-  // Draggable divider state
-  const [dividerPosition, setDividerPosition] = useState(480); // Initial width for right panel
+  // Container ref for calculating middle position
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Draggable divider state - initialize to middle of viewport
+  const [dividerPosition, setDividerPosition] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth / 2;
+    }
+    return 480;
+  });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartX, setDragStartX] = useState(0);
-  const [dragStartPosition, setDragStartPosition] = useState(480);
+  const [dragStartPosition, setDragStartPosition] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth / 2;
+    }
+    return 480;
+  });
 
   useEffect(() => {
     // Load session from localStorage
@@ -91,6 +104,33 @@ function QuickPracticeContent() {
 
   // Timer hook with fixed time limit
   const timer = useTimer(sessionId);
+
+  // Calculate middle position for divider on mount
+  useEffect(() => {
+    const calculateMiddlePosition = () => {
+      if (containerRef.current) {
+        const containerWidth =
+          containerRef.current.offsetWidth || containerRef.current.clientWidth;
+        if (containerWidth > 0) {
+          const middlePosition = containerWidth / 2;
+          setDividerPosition(middlePosition);
+          setDragStartPosition(middlePosition);
+        }
+      }
+    };
+
+    // Wait for next tick to ensure container is rendered
+    const timeoutId = setTimeout(() => {
+      calculateMiddlePosition();
+    }, 100);
+
+    // Also recalculate on window resize
+    window.addEventListener("resize", calculateMiddlePosition);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", calculateMiddlePosition);
+    };
+  }, []);
 
   const currentQuestion = session?.questions[currentIndex];
   const currentAnswer = answers[currentIndex];
@@ -536,6 +576,7 @@ function QuickPracticeContent() {
       />
 
       <div
+        ref={containerRef}
         className="flex-1 flex overflow-hidden"
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
@@ -559,7 +600,7 @@ function QuickPracticeContent() {
 
         {/* Draggable Divider */}
         <div
-          className={`w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ${
+          className={`w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ml-5 ${
             isDragging ? "bg-primary" : ""
           }`}
           onMouseDown={handleMouseDown}

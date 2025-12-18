@@ -413,3 +413,5 @@ The component uses your existing design system:
 - `frontend/components/practice/QuestionPanel.tsx` - Question display component
 - `frontend/components/practice/AnswerPanel.tsx` - Answer selection component
 
+
+

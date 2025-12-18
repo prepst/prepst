@@ -21,6 +21,9 @@ class Settings(BaseSettings):
     openai_model: str = Field(default="gpt-4o-mini", env="OPENAI_MODEL")
     openai_max_tokens: int = Field(default=500, env="OPENAI_MAX_TOKENS")
 
+    # Discord
+    discord_webhook_url: str = Field(default="", env="DISCORD_WEBHOOK_URL")
+
     class Config:
         env_file = ".env"
         case_sensitive = False

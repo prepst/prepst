@@ -17,6 +17,7 @@ import {
   Clock,
   Sparkles,
   ArrowRight,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -260,12 +261,31 @@ function OnboardContent() {
     );
   }
 
+  const handleSkip = async () => {
+    try {
+      await api.post("/api/complete-onboarding");
+      router.push("/dashboard");
+    } catch (err) {
+      console.error("Error skipping onboarding:", err);
+      router.push("/dashboard");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="max-w-3xl w-full bg-card rounded-[2rem] shadow-2xl border border-border/40 p-10 md:p-16 relative overflow-hidden">
         {/* Background Accents */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
         <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+
+        {/* Close Button */}
+        <button
+          onClick={handleSkip}
+          className="absolute top-6 right-6 z-20 p-2 rounded-full hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+          aria-label="Skip onboarding"
+        >
+          <X className="w-5 h-5" />
+        </button>
 
         <div className="relative z-10">
           {/* Progress Indicator */}

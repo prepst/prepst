@@ -3,6 +3,7 @@
 import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import { api } from '@/lib/api';
 
 function CallbackHandler() {
   const router = useRouter();
@@ -29,6 +30,18 @@ function CallbackHandler() {
           setError('Authentication failed: ' + exchangeError.message);
           setTimeout(() => router.push('/login'), 3000);
           return;
+        }
+
+        // Check if user has completed onboarding
+        try {
+          const profileData = await api.get('/api/profile');
+
+          if (profileData?.profile?.onboarding_completed === false) {
+            router.push('/onboard');
+            return;
+          }
+        } catch (err) {
+          console.error('Error checking onboarding status:', err);
         }
 
         router.push('/dashboard');

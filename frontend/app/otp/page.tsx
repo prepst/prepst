@@ -4,16 +4,22 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { OTPForm } from "@/components/otp-form";
+import { useProfile } from "@/lib/hooks/useProfile";
 
 export default function OTPPage() {
   const { user, loading: authLoading } = useAuth();
+  const { profileData, isLoading: profileLoading } = useProfile();
   const router = useRouter();
 
   useEffect(() => {
-    if (!authLoading && user) {
-      router.push("/dashboard");
+    if (!authLoading && !profileLoading && user && profileData) {
+      if (profileData?.profile?.onboarding_completed === false) {
+        router.push('/onboard');
+      } else {
+        router.push("/dashboard");
+      }
     }
-  }, [user, authLoading, router]);
+  }, [user, authLoading, profileData, profileLoading, router]);
 
   if (authLoading) {
     return (

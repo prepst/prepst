@@ -66,15 +66,17 @@ class ManimService:
             return []
 
     async def generate_video_from_question(
-        self, question: str, user_id: Optional[str] = None
+        self, question: str, user_id: Optional[str] = None, max_retries: int = 3
     ) -> Dict[str, Any]:
         """
         Generate a Manim video from a natural language math question.
         First checks for similar existing videos to avoid regenerating.
+        Retries with error feedback if generation fails.
 
         Args:
             question: Natural language question (e.g., "How to find slope?")
             user_id: Optional user ID for tracking
+            max_retries: Maximum number of retry attempts (default: 3)
 
         Returns:
             Dictionary with video URL and metadata
@@ -100,44 +102,61 @@ class ManimService:
                         "similarityScore": best_match.get("similarity_score", 1.0),
                     }
 
-            # Step 2: Generate new video
-            manim_code = await self._generate_manim_code(question)
+            # Step 2-5: Generate and execute with retry logic
+            last_error = None
+            for attempt in range(max_retries):
+                try:
+                    print(f"Attempt {attempt + 1}/{max_retries} to generate video for: {question}")
 
-            # Step 3: Generate unique scene ID
-            scene_id = str(uuid.uuid4())
+                    # Generate Manim code (with error feedback if retrying)
+                    manim_code = await self._generate_manim_code(question, previous_error=last_error)
 
-            # Step 4: Write code to file
-            scene_file = self.output_dir / f"scene_{scene_id}.py"
-            scene_file.write_text(manim_code)
+                    # Generate unique scene ID
+                    scene_id = str(uuid.uuid4())
 
-            # Step 5: Execute Manim to generate video
-            video_path = await self._execute_manim(scene_file, scene_id)
+                    # Write code to file
+                    scene_file = self.output_dir / f"scene_{scene_id}.py"
+                    scene_file.write_text(manim_code)
 
-            if not video_path or not video_path.exists():
-                raise Exception("Video file not found after generation")
+                    # Execute Manim to generate video
+                    video_path = await self._execute_manim(scene_file, scene_id)
 
-            # Step 6: Upload to Supabase Storage
-            video_url = await self._upload_to_storage(video_path, scene_id, user_id)
+                    if not video_path or not video_path.exists():
+                        raise Exception("Video file not found after generation")
 
-            # Step 7: Store metadata in database
-            if self.db and user_id:
-                await self._store_video_metadata(
-                    question=question,
-                    video_url=video_url,
-                    storage_path=f"manim-videos/{scene_id}.mp4",
-                    scene_id=scene_id,
-                    user_id=user_id,
-                    file_size=video_path.stat().st_size if video_path.exists() else None,
-                )
+                    # Success! Upload and store
+                    video_url = await self._upload_to_storage(video_path, scene_id, user_id)
 
-            return {
-                "success": True,
-                "videoUrl": video_url,
-                "video_url": video_url,
-                "sceneId": scene_id,
-                "question": question,
-                "isCached": False,
-            }
+                    if self.db and user_id:
+                        await self._store_video_metadata(
+                            question=question,
+                            video_url=video_url,
+                            storage_path=f"manim-videos/{scene_id}.mp4",
+                            scene_id=scene_id,
+                            user_id=user_id,
+                            file_size=video_path.stat().st_size if video_path.exists() else None,
+                        )
+
+                    return {
+                        "success": True,
+                        "videoUrl": video_url,
+                        "video_url": video_url,
+                        "sceneId": scene_id,
+                        "question": question,
+                        "isCached": False,
+                        "attempts": attempt + 1,
+                    }
+
+                except Exception as e:
+                    last_error = str(e)
+                    print(f"Attempt {attempt + 1} failed: {last_error}")
+
+                    if attempt < max_retries - 1:
+                        # We have more attempts, continue to retry
+                        continue
+                    else:
+                        # Last attempt failed, raise the error
+                        raise Exception(f"Failed to generate video after {max_retries} attempts. Last error: {last_error}")
 
         except Exception as e:
             print(f"Error generating Manim video: {str(e)}")
@@ -237,23 +256,47 @@ class ManimService:
             print(f"Error storing video metadata: {str(e)}")
             # Don't fail the whole operation if metadata storage fails
 
-    async def _generate_manim_code(self, question: str) -> str:
-        """Use OpenAI to convert natural language question to Manim code"""
+    async def _generate_manim_code(self, question: str, previous_error: Optional[str] = None) -> str:
+        """Use OpenAI to convert natural language question to Manim code
+
+        Args:
+            question: Natural language math question
+            previous_error: Error from previous attempt, if retrying
+
+        Returns:
+            Generated Manim Python code
+        """
+
+        error_context = ""
+        if previous_error:
+            error_context = f"""
+
+IMPORTANT - Previous attempt failed with this error:
+{previous_error}
+
+Please fix the error in your code generation. Common issues:
+- Do NOT use font_size parameter in Tex() or MathTex() - use .scale() method instead
+- Use MathTex() for mathematical formulas, not Tex()
+- Ensure all LaTeX syntax is correct
+- Example: formula = MathTex(r"\\frac{{a}}{{b}}").scale(0.8)
+"""
 
         prompt = f"""You are an expert at creating educational math animations using Manim.
 
 Convert the following math question into a complete Manim scene that explains the concept clearly.
 
 Question: {question}
-
+{error_context}
 Requirements:
 1. Create a class that inherits from Scene
 2. Use clear, step-by-step animations
-3. Include text explanations
+3. For text, use Text(). For math formulas, use MathTex() (NOT Tex())
 4. Use appropriate colors and visual elements
 5. Make it educational and easy to understand
 6. Keep animations concise (under 30 seconds total)
 7. Use proper Manim syntax
+8. CRITICAL: Do NOT use font_size parameter with Tex/MathTex - use .scale() method instead
+9. Example: formula = MathTex(r"\\frac{{y_2 - y_1}}{{x_2 - x_1}}").scale(0.8)
 
 Return ONLY the Python code, starting with "from manim import *" and ending with the class definition.
 Do not include any explanations or markdown formatting, just the code."""

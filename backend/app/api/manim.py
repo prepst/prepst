@@ -96,14 +96,13 @@ async def list_user_videos(
 @router.get("/videos/{filename}")
 async def get_video(
     filename: str,
-    user_id: str = Depends(get_current_user),
 ):
     """
     Serve generated Manim video files.
+    Public endpoint - no auth required for video playback.
 
     Args:
         filename: Video filename (e.g., scene_id.mp4)
-        user_id: User ID from authentication token
 
     Returns:
         Video file

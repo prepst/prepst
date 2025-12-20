@@ -13,6 +13,7 @@ import {
   Menu,
   X,
   LogOut,
+  Video,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -52,6 +53,11 @@ export default function AdminLayout({
       name: "Questions",
       href: "/admin/questions",
       icon: FileQuestion,
+    },
+    {
+      name: "Manim Generator",
+      href: "/admin/manim",
+      icon: Video,
     },
     // Analytics link commented out - keeping implementation as dead code
     // {

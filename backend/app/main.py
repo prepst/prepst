@@ -1,14 +1,10 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from dotenv import load_dotenv
 import os
 import sys
 import time
 import logging
 from app.api import study_plans, practice_sessions, auth, mock_exams, analytics, profile, ai_feedback, diagnostic_test, admin_questions, manim, webhooks
-
-# Load environment variables
-load_dotenv()
 
 # Configure logging - suppress httpx logs
 logging.basicConfig(
@@ -94,6 +90,7 @@ if __name__ == "__main__":
     import uvicorn
 
     host = os.getenv("API_HOST", "0.0.0.0")
-    port = int(os.getenv("API_PORT", 8000))
+    # Railway uses PORT, fallback to API_PORT
+    port = int(os.getenv("PORT") or os.getenv("API_PORT", 8000))
 
     uvicorn.run("app.main:app", host=host, port=port, reload=True)

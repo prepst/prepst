@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 
     # API
     api_host: str = Field(default="0.0.0.0", env="API_HOST")
-    api_port: int = Field(default=8000, env="API_PORT")
+    api_port: int = Field(default=8000, env="API_PORT")  # Railway sets PORT, handled in main.py
     debug: bool = Field(default=False, env="DEBUG")
 
     # CORS - use environment variable

@@ -85,7 +85,7 @@ export function LoginForm({
             Welcome back!
           </h1>
           <p className="text-base text-muted-foreground mb-8">
-            Sign in to continue to SATGuide.
+            Sign in to continue to PrepSt.
           </p>
 
           {error && (

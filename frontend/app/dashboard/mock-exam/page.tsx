@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { config } from "@/lib/config";
-import { Clock, BookOpen, TrendingUp, AlertCircle } from "lucide-react";
+import { Clock, AlertCircle, Zap, Target, Award } from "lucide-react";
 import { components } from "@/lib/types/api.generated";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MockExamPerformance } from "@/components/analytics/MockExamPerformance";
+import { useMockExamAnalytics } from "@/hooks/queries";
 
 type MockExam = components["schemas"]["MockExamListItem"];
 
@@ -17,6 +19,12 @@ export default function MockExamPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [visibleCount, setVisibleCount] = useState(3);
+  const {
+    data: mockExamData,
+    isLoading: mockExamLoading,
+    isError: mockExamError,
+  } = useMockExamAnalytics();
 
   useEffect(() => {
     loadExams();
@@ -168,60 +176,125 @@ export default function MockExamPage() {
       <div className="flex justify-center">
         <div className="w-full max-w-6xl px-6 py-12 space-y-12">
           {/* Header */}
-          <div className="flex flex-col gap-2">
-            <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Mock SAT Exam</h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">
-              Take a full-length, adaptive practice test that simulates the real SAT experience. 
-              Timed conditions help you build stamina and test-taking strategies.
-            </p>
+          <div className="flex flex-col gap-4">
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 w-fit">
+                <Zap className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs font-semibold text-primary uppercase tracking-wide">
+                  Full-Length Practice Test
+                </span>
+              </div>
+              <h1 className="text-5xl font-bold tracking-tight text-foreground">
+                Mock SAT Exam
+              </h1>
+              <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed">
+                Experience the real SAT under timed conditions. Build endurance,
+                refine your strategy, and track your progress with detailed
+                analytics.
+              </p>
+            </div>
           </div>
 
-          {/* Info Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-card rounded-2xl p-6 border border-border shadow-sm hover:shadow-md transition-all duration-300 group">
-              <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-500/20 transition-colors">
-                <Clock className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+          {/* Stats Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500/5 via-blue-500/10 to-transparent border border-blue-500/20 p-6 backdrop-blur-sm">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+              <div className="relative">
+                <div className="text-4xl font-black text-blue-600 dark:text-blue-400 mb-2">
+                  128
+                </div>
+                <div className="text-sm font-semibold text-foreground mb-1">
+                  Minutes Total
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Standard duration with breaks
+                </div>
               </div>
-              <h3 className="text-lg font-bold text-foreground mb-1">2 Hours 8 Minutes</h3>
-              <p className="text-sm text-muted-foreground">Standard test duration with breaks</p>
             </div>
 
-            <div className="bg-card rounded-2xl p-6 border border-border shadow-sm hover:shadow-md transition-all duration-300 group">
-              <div className="w-12 h-12 bg-purple-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-purple-500/20 transition-colors">
-                <BookOpen className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500/5 via-purple-500/10 to-transparent border border-purple-500/20 p-6 backdrop-blur-sm">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+              <div className="relative">
+                <div className="text-4xl font-black text-purple-600 dark:text-purple-400 mb-2">
+                  4
+                </div>
+                <div className="text-sm font-semibold text-foreground mb-1">
+                  Adaptive Modules
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  2 R&W • 2 Math sections
+                </div>
               </div>
-              <h3 className="text-lg font-bold text-foreground mb-1">4 Adaptive Modules</h3>
-              <p className="text-sm text-muted-foreground">2 Reading & Writing, 2 Math sections</p>
             </div>
 
-            <div className="bg-card rounded-2xl p-6 border border-border shadow-sm hover:shadow-md transition-all duration-300 group">
-              <div className="w-12 h-12 bg-green-500/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-green-500/20 transition-colors">
-                <TrendingUp className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500/5 via-emerald-500/10 to-transparent border border-emerald-500/20 p-6 backdrop-blur-sm">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+              <div className="relative">
+                <div className="text-4xl font-black text-emerald-600 dark:text-emerald-400 mb-2">
+                  Instant
+                </div>
+                <div className="text-sm font-semibold text-foreground mb-1">
+                  Score & Analysis
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  Detailed performance insights
+                </div>
               </div>
-              <h3 className="text-lg font-bold text-foreground mb-1">Smart Scoring</h3>
-              <p className="text-sm text-muted-foreground">Instant results and performance analysis</p>
             </div>
           </div>
 
           {/* Start New Exam */}
-          <div className="relative overflow-hidden bg-gradient-to-br from-card to-muted/30 rounded-3xl border border-border p-10 shadow-lg">
-            <div className="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
-            <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
-              <div className="max-w-xl">
-                <h2 className="text-2xl font-bold text-foreground mb-3">
-                  Ready to test your skills?
-                </h2>
-                <p className="text-muted-foreground leading-relaxed">
-                  Make sure you have 2+ hours available in a quiet environment. 
-                  This test mimics real exam conditions and cannot be paused once a module starts.
-                </p>
+          <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/5 via-primary/10 to-transparent p-8 md:p-12 shadow-xl">
+            <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+
+            <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+              <div className="flex-1 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                    <Target className="w-5 h-5 text-primary" />
+                  </div>
+                  <h2 className="text-3xl font-bold text-foreground">
+                    Ready to test your skills?
+                  </h2>
+                </div>
+                <div className="space-y-2 pl-14">
+                  <p className="text-muted-foreground leading-relaxed text-lg">
+                    Simulate real exam conditions and get instant feedback on
+                    your performance.
+                  </p>
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      <span>2+ hours recommended</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      <span>Quiet environment</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      <span>Cannot be paused</span>
+                    </div>
+                  </div>
+                </div>
               </div>
               <Button
                 onClick={createMockExam}
                 disabled={isCreating}
-                className="h-14 px-10 text-lg font-semibold bg-[#866ffe] hover:bg-[#7a5ffe] text-white shadow-lg shadow-primary/25 transition-all hover:scale-105 disabled:opacity-70 disabled:hover:scale-100 shrink-0"
+                className="h-14 px-8 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:scale-105 disabled:opacity-70 disabled:hover:scale-100 shrink-0 rounded-xl"
               >
-                {isCreating ? "Preparing Exam..." : "Start Mock Exam"}
+                {isCreating ? (
+                  <>
+                    <Zap className="w-5 h-5 mr-2 animate-pulse" />
+                    Preparing Exam...
+                  </>
+                ) : (
+                  <>
+                    <Award className="w-5 h-5 mr-2" />
+                    Start Mock Exam
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -235,14 +308,15 @@ export default function MockExamPage() {
 
           {/* Previous Exams */}
           <div className="space-y-6">
-            <h2 className="text-2xl font-bold text-foreground">
-              Exam History
-            </h2>
+            <h2 className="text-2xl font-bold text-foreground">Exam History</h2>
 
             {isLoading ? (
               <div className="space-y-4">
                 {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="bg-card rounded-2xl p-6 border border-border shadow-sm">
+                  <div
+                    key={i}
+                    className="bg-card rounded-2xl p-6 border border-border shadow-sm"
+                  >
                     <div className="flex items-center justify-between">
                       <div className="space-y-3 w-full">
                         <div className="flex items-center gap-3">
@@ -264,79 +338,132 @@ export default function MockExamPage() {
                   No exams taken yet
                 </h3>
                 <p className="text-muted-foreground max-w-md mx-auto">
-                  Your exam history will appear here. Start your first mock exam to establish a baseline score.
+                  Your exam history will appear here. Start your first mock exam
+                  to establish a baseline score.
                 </p>
               </div>
             ) : (
-              <div className="grid gap-4">
-                {exams.map((exam, index) => (
-                  <div
-                    key={exam.id}
-                    className="bg-card rounded-2xl p-6 border border-border shadow-sm hover:border-primary/30 transition-all group"
-                  >
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-lg font-bold text-foreground">
-                            Mock Exam #{exams.length - index}
-                          </h3>
-                          {getStatusBadge(exam.status)}
-                        </div>
-                        
-                        <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
-                          <span className="flex items-center gap-1.5">
-                            <Clock className="w-4 h-4" />
-                            {exam.started_at ? formatDate(exam.started_at) : "Not started"}
-                          </span>
-                          {exam.completed_at && (
-                            <span className="flex items-center gap-1.5 text-green-600 dark:text-green-400">
-                              <AlertCircle className="w-4 h-4" /> {/* Using AlertCircle as generic icon for completed */}
-                              Completed
+              <>
+                <div className="grid gap-4">
+                  {exams.slice(0, visibleCount).map((exam, index) => (
+                    <div
+                      key={exam.id}
+                      className="bg-card rounded-2xl p-6 border border-border shadow-sm hover:border-primary/30 transition-all group"
+                    >
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-lg font-bold text-foreground">
+                              Mock Exam #{exams.length - index}
+                            </h3>
+                            {getStatusBadge(exam.status)}
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-muted-foreground">
+                            <span className="flex items-center gap-1.5">
+                              <Clock className="w-4 h-4" />
+                              {exam.started_at
+                                ? formatDate(exam.started_at)
+                                : "Not started"}
                             </span>
+                            {exam.completed_at && (
+                              <span className="flex items-center gap-1.5 text-green-600 dark:text-green-400">
+                                <AlertCircle className="w-4 h-4" />{" "}
+                                {/* Using AlertCircle as generic icon for completed */}
+                                Completed
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {exam.status === "completed" &&
+                          exam.total_score != null && (
+                            <div className="flex items-center gap-8 px-6 border-l border-border/50">
+                              <div className="text-center">
+                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                                  Total
+                                </p>
+                                <p className="text-3xl font-black text-foreground">
+                                  {exam.total_score}
+                                </p>
+                              </div>
+                              <div className="hidden sm:block text-center">
+                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                                  Math
+                                </p>
+                                <p className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                                  {exam.math_score ?? "-"}
+                                </p>
+                              </div>
+                              <div className="hidden sm:block text-center">
+                                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                                  R&W
+                                </p>
+                                <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                                  {exam.rw_score ?? "-"}
+                                </p>
+                              </div>
+                            </div>
                           )}
-                        </div>
-                      </div>
 
-                      {exam.status === "completed" && exam.total_score != null && (
-                        <div className="flex items-center gap-8 px-6 border-l border-border/50">
-                          <div className="text-center">
-                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Total</p>
-                            <p className="text-3xl font-black text-foreground">{exam.total_score}</p>
-                          </div>
-                          <div className="hidden sm:block text-center">
-                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Math</p>
-                            <p className="text-xl font-bold text-blue-600 dark:text-blue-400">{exam.math_score ?? "-"}</p>
-                          </div>
-                          <div className="hidden sm:block text-center">
-                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">R&W</p>
-                            <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{exam.rw_score ?? "-"}</p>
-                          </div>
+                        <div className="flex items-center gap-3 pt-4 md:pt-0 border-t md:border-t-0 border-border">
+                          {exam.status === "completed" ? (
+                            <Button
+                              variant="outline"
+                              className="w-full md:w-auto border-border hover:bg-accent text-foreground"
+                              onClick={() =>
+                                router.push(`/mock-exam/${exam.id}/results`)
+                              }
+                            >
+                              View Results
+                            </Button>
+                          ) : exam.status === "in_progress" ? (
+                            <Button
+                              onClick={() => handleResumeExam(exam.id)}
+                              className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white"
+                            >
+                              Resume Exam
+                            </Button>
+                          ) : null}
                         </div>
-                      )}
-
-                      <div className="flex items-center gap-3 pt-4 md:pt-0 border-t md:border-t-0 border-border">
-                        {exam.status === "completed" ? (
-                          <Button
-                            variant="outline"
-                            className="w-full md:w-auto border-border hover:bg-accent text-foreground"
-                            onClick={() => router.push(`/mock-exam/${exam.id}/results`)}
-                          >
-                            View Results
-                          </Button>
-                        ) : exam.status === "in_progress" ? (
-                          <Button
-                            onClick={() => handleResumeExam(exam.id)}
-                            className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white"
-                          >
-                            Resume Exam
-                          </Button>
-                        ) : null}
                       </div>
                     </div>
+                  ))}
+                </div>
+                {visibleCount < exams.length && (
+                  <div className="flex justify-center pt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        setVisibleCount((prev) =>
+                          Math.min(prev + 5, exams.length)
+                        )
+                      }
+                      className="border-border hover:bg-accent text-foreground"
+                    >
+                      Show More
+                    </Button>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
+          </div>
+
+          {/* Mock Exam Progress */}
+          <div className="space-y-6">
+            <div className="mb-8">
+              <h2 className="text-2xl font-bold text-foreground">
+                Mock Exam Progress
+              </h2>
+              <p className="text-muted-foreground">
+                Track your performance trends and score improvements over time.
+              </p>
+            </div>
+            <MockExamPerformance
+              data={mockExamData}
+              isLoading={mockExamLoading}
+              isError={mockExamError}
+            />
           </div>
         </div>
       </div>

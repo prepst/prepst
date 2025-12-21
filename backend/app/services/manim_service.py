@@ -2,10 +2,11 @@ import os
 import uuid
 import subprocess
 import re
+import shutil
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 from openai import OpenAI
-from supabase import Client
+from supabase import Client, create_client
 from app.config import get_settings
 
 settings = get_settings()
@@ -21,89 +22,27 @@ class ManimService:
         self.output_dir.mkdir(exist_ok=True)
         self.db = db
 
-    def _normalize_question(self, question: str) -> str:
-        """Normalize question text for similarity matching"""
-        # Convert to lowercase, remove extra spaces, remove punctuation
-        normalized = question.lower().strip()
-        normalized = re.sub(r'[^\w\s]', '', normalized)
-        normalized = re.sub(r'\s+', ' ', normalized)
-        return normalized
-
-    async def find_similar_videos(
-        self, question: str, similarity_threshold: float = 0.7, max_results: int = 5
-    ) -> List[Dict[str, Any]]:
-        """
-        Find similar videos based on question similarity.
-
-        Args:
-            question: Natural language question
-            similarity_threshold: Minimum similarity score (0-1)
-            max_results: Maximum number of results to return
-
-        Returns:
-            List of similar videos with similarity scores
-        """
-        if not self.db:
-            return []
-
-        try:
-            normalized = self._normalize_question(question)
-
-            # Use the database function to find similar videos
-            result = self.db.rpc(
-                "find_similar_manim_videos",
-                {
-                    "search_question": question,
-                    "similarity_threshold": similarity_threshold,
-                    "max_results": max_results,
-                },
-            ).execute()
-
-            return result.data or []
-
-        except Exception as e:
-            print(f"Error finding similar videos: {str(e)}")
-            return []
-
     async def generate_video_from_question(
         self, question: str, user_id: Optional[str] = None, max_retries: int = 3
     ) -> Dict[str, Any]:
         """
         Generate a Manim video from a natural language math question.
-        First checks for similar existing videos to avoid regenerating.
         Retries with error feedback if generation fails.
 
         Args:
             question: Natural language question (e.g., "How to find slope?")
-            user_id: Optional user ID for tracking
+            user_id: Optional user ID (not used, kept for API compatibility)
             max_retries: Maximum number of retry attempts (default: 3)
 
         Returns:
             Dictionary with video URL and metadata
         """
         try:
-            # Step 1: Check for similar existing videos
-            if self.db:
-                similar_videos = await self.find_similar_videos(question, similarity_threshold=0.8)
-                if similar_videos:
-                    # Use the most similar video
-                    best_match = similar_videos[0]
-                    print(
-                        f"Found similar video (similarity: {best_match.get('similarity_score', 0)}): {best_match.get('question')}"
-                    )
-                    return {
-                        "success": True,
-                        "videoUrl": best_match["video_url"],
-                        "video_url": best_match["video_url"],
-                        "sceneId": str(best_match["id"]),
-                        "question": question,
-                        "isCached": True,
-                        "originalQuestion": best_match["question"],
-                        "similarityScore": best_match.get("similarity_score", 1.0),
-                    }
-
-            # Step 2-5: Generate and execute with retry logic
+            # Generate and execute with retry logic (only for generation errors)
             last_error = None
+            video_path = None
+            scene_id = None
+
             for attempt in range(max_retries):
                 try:
                     print(f"Attempt {attempt + 1}/{max_retries} to generate video for: {question}")
@@ -124,32 +63,13 @@ class ManimService:
                     if not video_path or not video_path.exists():
                         raise Exception("Video file not found after generation")
 
-                    # Success! Upload and store
-                    video_url = await self._upload_to_storage(video_path, scene_id, user_id)
-
-                    if self.db and user_id:
-                        await self._store_video_metadata(
-                            question=question,
-                            video_url=video_url,
-                            storage_path=f"manim-videos/{scene_id}.mp4",
-                            scene_id=scene_id,
-                            user_id=user_id,
-                            file_size=video_path.stat().st_size if video_path.exists() else None,
-                        )
-
-                    return {
-                        "success": True,
-                        "videoUrl": video_url,
-                        "video_url": video_url,
-                        "sceneId": scene_id,
-                        "question": question,
-                        "isCached": False,
-                        "attempts": attempt + 1,
-                    }
+                    # Successfully generated video - break out of retry loop
+                    print(f"Video generated successfully on attempt {attempt + 1}")
+                    break
 
                 except Exception as e:
                     last_error = str(e)
-                    print(f"Attempt {attempt + 1} failed: {last_error}")
+                    print(f"Generation attempt {attempt + 1} failed: {last_error}")
 
                     if attempt < max_retries - 1:
                         # We have more attempts, continue to retry
@@ -157,6 +77,18 @@ class ManimService:
                     else:
                         # Last attempt failed, raise the error
                         raise Exception(f"Failed to generate video after {max_retries} attempts. Last error: {last_error}")
+
+            # Video generated successfully - now upload (no retry for upload errors)
+            video_url = await self._upload_to_storage(video_path, scene_id, user_id)
+
+            return {
+                "success": True,
+                "videoUrl": video_url,
+                "video_url": video_url,
+                "sceneId": scene_id,
+                "question": question,
+                "isCached": False,
+            }
 
         except Exception as e:
             print(f"Error generating Manim video: {str(e)}")
@@ -166,7 +98,8 @@ class ManimService:
         self, video_path: Path, scene_id: str, user_id: Optional[str] = None
     ) -> str:
         """
-        Upload video to Supabase Storage.
+        Upload video to Supabase Storage and clean up local files.
+        Uses service role key to bypass RLS policies.
 
         Args:
             video_path: Path to the video file
@@ -175,27 +108,26 @@ class ManimService:
 
         Returns:
             Public URL of the uploaded video
-        """
-        if not self.db:
-            # Fallback to local file serving
-            return f"/api/manim/videos/{scene_id}.mp4"
 
+        Raises:
+            Exception: If Supabase Storage upload fails
+        """
         try:
+            # Create service role client to bypass RLS (admin-only feature)
+            service_client = create_client(
+                settings.supabase_url,
+                settings.supabase_service_role_key
+            )
+
             # Read video file
             with open(video_path, "rb") as f:
                 video_content = f.read()
 
             # Upload to Supabase Storage
-            storage_path = f"manim-videos/{scene_id}.mp4"
-            bucket = self.db.storage.from_("manim-videos")
+            storage_path = f"{scene_id}.mp4"
+            bucket = service_client.storage.from_("manim-videos")
 
-            # Create bucket if it doesn't exist (this might fail if bucket exists, that's ok)
-            try:
-                self.db.storage.create_bucket("manim-videos", {"public": True})
-            except:
-                pass  # Bucket might already exist
-
-            # Upload file
+            # Upload file (bucket should already exist from migration)
             result = bucket.upload(
                 storage_path,
                 video_content,
@@ -207,54 +139,27 @@ class ManimService:
 
             # Get public URL
             video_url = bucket.get_public_url(storage_path)
+
+            # Clean up local files after successful upload
+            try:
+                # Delete the video file
+                if video_path.exists():
+                    video_path.unlink()
+
+                # Delete the entire scene directory to clean up all artifacts
+                scene_dir = video_path.parent.parent.parent  # Go up to scene_xxx directory
+                if scene_dir.exists() and scene_dir.name.startswith("scene_"):
+                    shutil.rmtree(scene_dir)
+                    print(f"Cleaned up local files for scene {scene_id}")
+            except Exception as cleanup_error:
+                # Don't fail if cleanup fails - video is already uploaded
+                print(f"Warning: Could not clean up local files: {cleanup_error}")
+
             return video_url
 
         except Exception as e:
             print(f"Error uploading to storage: {str(e)}")
-            # Fallback to local file serving
-            return f"/api/manim/videos/{scene_id}.mp4"
-
-    async def _store_video_metadata(
-        self,
-        question: str,
-        video_url: str,
-        storage_path: str,
-        scene_id: str,
-        user_id: str,
-        file_size: Optional[int] = None,
-    ) -> None:
-        """
-        Store video metadata in the database.
-
-        Args:
-            question: Original question
-            video_url: Public URL of the video
-            storage_path: Path in Supabase Storage
-            scene_id: Unique scene identifier
-            user_id: User ID who generated the video
-            file_size: Size of the video file in bytes
-        """
-        if not self.db:
-            return
-
-        try:
-            normalized_question = self._normalize_question(question)
-
-            self.db.table("manim_videos").insert(
-                {
-                    "user_id": user_id,
-                    "question": question,
-                    "question_normalized": normalized_question,
-                    "video_url": video_url,
-                    "storage_path": storage_path,
-                    "scene_id": scene_id,
-                    "file_size": file_size,
-                }
-            ).execute()
-
-        except Exception as e:
-            print(f"Error storing video metadata: {str(e)}")
-            # Don't fail the whole operation if metadata storage fails
+            raise Exception(f"Failed to upload video to Supabase Storage: {str(e)}")
 
     async def _generate_manim_code(self, question: str, previous_error: Optional[str] = None) -> str:
         """Use OpenAI to convert natural language question to Manim code
@@ -281,7 +186,7 @@ Please fix the error in your code generation. Common issues:
 - Example: formula = MathTex(r"\\frac{{a}}{{b}}").scale(0.8)
 """
 
-        prompt = f"""You are an expert at creating educational math animations using Manim.
+        prompt = f"""You are an expert SAT Math tutor creating engaging educational videos using Manim.
 
 Convert the following math question into a complete Manim scene that explains the concept clearly.
 
@@ -296,8 +201,13 @@ Requirements:
 6. Use .scale() method, NOT font_size parameter
 7. Use appropriate colors and visual elements
 8. Make it educational and easy to understand
-9. Keep animations concise (under 30 seconds)
+9. Keep animations concise (20-40 seconds)
 10. IMPORTANT - Spatial positioning: Carefully position elements to avoid overlap. Use positioning methods like .next_to(), .to_edge(), .shift(), and .move_to() to create clean, well-organized layouts. Plan the vertical and horizontal spacing between elements before placing them.
+
+SAT-Specific Guidelines:
+- Mention this is a common question on the SAT when introducing the concept
+- End with: "Want to master more SAT math? Check out our practice questions."
+- Keep the tone encouraging and student-friendly
 
 Return ONLY the Python code, starting with "from manim import *" and ending with the class definition.
 Do not include any explanations or markdown formatting, just the code."""

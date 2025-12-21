@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     # Supabase - explicitly set env names for Vercel
     supabase_url: str = Field(..., env="SUPABASE_URL")
     supabase_anon_key: str = Field(..., env="SUPABASE_ANON_KEY")
+    supabase_service_role_key: str = Field(..., env="SUPABASE_SERVICE_ROLE_KEY")
 
     # API
     api_host: str = Field(default="0.0.0.0", env="API_HOST")

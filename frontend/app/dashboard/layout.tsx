@@ -176,14 +176,6 @@ export default function DashboardLayout({
       name: "Progress",
       href: "/dashboard/progress",
       icon: TrendingUp,
-      isCollapsible: true,
-      subItems: [
-        {
-          name: "Overview",
-          href: "/dashboard/progress",
-          icon: BarChart3,
-        },
-      ],
     },
     // { name: "Manim", href: "/dashboard/manim", icon: Video },
     // { name: "Notebook", href: "/dashboard/notebook", icon: Notebook },

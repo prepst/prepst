@@ -4,12 +4,21 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 
+interface SignUpResponse {
+  user: User | null;
+  session: Session | null;
+}
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, name: string) => Promise<void>;
+  signUp: (
+    email: string,
+    password: string,
+    name: string
+  ) => Promise<SignUpResponse>;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   verifyOTP: (token: string, email: string) => Promise<void>;
@@ -51,17 +60,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (error) throw error;
   };
 
-  const signUp = async (email: string, password: string, name: string) => {
-    const { error } = await supabase.auth.signUp({
+  const signUp = async (
+    email: string,
+    password: string,
+    name: string
+  ): Promise<SignUpResponse> => {
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           name: name,
         },
+        emailRedirectTo: `${window.location.origin}/otp`,
       },
     });
-    if (error) throw error;
+
+    if (error) {
+      console.error("Signup error:", error);
+      throw error;
+    }
+
+    // Log signup response for debugging
+    console.log("Signup response:", {
+      user: data.user,
+      session: data.session,
+      needsEmailConfirmation: !data.session,
+    });
+
+    return {
+      user: data.user,
+      session: data.session,
+    };
   };
 
   const signInWithGoogle = async () => {
@@ -93,7 +123,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       type: "signup",
       email: email,
     });
-    if (error) throw error;
+
+    if (error) {
+      console.error("Resend OTP error:", error);
+      throw error;
+    }
+
+    console.log("OTP resent successfully to:", email);
   };
 
   const value = {

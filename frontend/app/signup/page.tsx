@@ -43,11 +43,33 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      await signUp(email, password, "");
+      const result = await signUp(email, password, "");
       sessionStorage.setItem("pendingEmail", email);
-      router.push("/otp");
+
+      // Check if email confirmation is required
+      if (result && !result.session) {
+        // User created but needs email confirmation
+        router.push("/otp");
+      } else {
+        // User is already confirmed (shouldn't happen normally)
+        router.push("/otp");
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Sign up failed");
+      const errorMessage =
+        err instanceof Error ? err.message : "Sign up failed";
+      console.error("Signup error details:", err);
+
+      // Provide more helpful error messages
+      if (errorMessage.includes("email") || errorMessage.includes("Email")) {
+        setError(errorMessage);
+      } else if (
+        errorMessage.includes("rate limit") ||
+        errorMessage.includes("too many")
+      ) {
+        setError("Too many requests. Please wait a moment and try again.");
+      } else {
+        setError(`Sign up failed: ${errorMessage}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -76,7 +98,7 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Left Side - Form */}
-      <div className="w-full lg:w-1/2 flex flex-col p-8 lg:p-16 border-r border-border/40">
+      <div className="w-full lg:w-1/2 flex flex-col p-8 lg:p-16 lg:pl-[250px] border-r border-border/40">
         {/* Logo */}
         <div className="flex items-center gap-3 mb-12">
           <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -91,7 +113,9 @@ export default function SignupPage() {
 
         {/* Form Container */}
         <div className="flex-1 flex flex-col justify-center max-w-md">
-          <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">Welcome!</h1>
+          <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">
+            Welcome!
+          </h1>
           <p className="text-base text-muted-foreground mb-8">
             Sign up to SATGuide to continue to SATGuide.
           </p>
@@ -139,7 +163,11 @@ export default function SignupPage() {
               disabled={loading}
               className="w-full h-12 rounded-xl border-border/60 bg-card hover:bg-accent hover:text-foreground text-muted-foreground font-medium transition-all"
             >
-              <svg className="mr-3 h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+              <svg
+                className="mr-3 h-5 w-5"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
                 <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
               </svg>
               Sign up with Apple
@@ -156,7 +184,10 @@ export default function SignupPage() {
           {/* Email/Password Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-semibold text-muted-foreground ml-1">
+              <Label
+                htmlFor="email"
+                className="text-sm font-semibold text-muted-foreground ml-1"
+              >
                 Email
               </Label>
               <Input
@@ -172,10 +203,16 @@ export default function SignupPage() {
 
             <div className="space-y-2">
               <div className="flex items-center justify-between ml-1">
-                <Label htmlFor="password" className="text-sm font-semibold text-muted-foreground">
+                <Label
+                  htmlFor="password"
+                  className="text-sm font-semibold text-muted-foreground"
+                >
                   Password
                 </Label>
-                <Link href="#" className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+                <Link
+                  href="#"
+                  className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -194,7 +231,11 @@ export default function SignupPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-muted-foreground transition-colors"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
             </div>
@@ -218,7 +259,10 @@ export default function SignupPage() {
 
           <p className="mt-8 text-center text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link href="/login" className="font-semibold text-primary hover:text-primary/80 transition-colors">
+            <Link
+              href="/login"
+              className="font-semibold text-primary hover:text-primary/80 transition-colors"
+            >
               Log in
             </Link>
           </p>
@@ -228,31 +272,41 @@ export default function SignupPage() {
       {/* Right Side - Visual */}
       <div className="hidden lg:flex w-1/2 bg-card/50 backdrop-blur-sm relative overflow-hidden border-l border-border/40">
         {/* Content */}
-        <div className="flex-1 flex flex-col items-center justify-center p-16">
+        <div className="flex-1 flex flex-col items-center justify-center p-16 pr-[250px]">
           {/* Stats Text */}
           <div className="text-center mb-8">
             <h2 className="text-4xl lg:text-5xl font-bold text-foreground leading-tight tracking-tight">
-              Boost your SAT<br />
+              Boost your SAT
+              <br />
               score by 200+ points.
             </h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-md">
-              AI-powered practice with personalized feedback to help you reach your dream score.
+              AI-powered practice with personalized feedback to help you reach
+              your dream score.
             </p>
           </div>
 
           {/* Stats pills */}
           <div className="flex items-center gap-3 mb-12">
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-              <span className="text-sm font-bold text-primary tabular-nums">10K+</span>
+              <span className="text-sm font-bold text-primary tabular-nums">
+                10K+
+              </span>
               <span className="text-sm text-muted-foreground">Students</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-              <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">5000+</span>
+              <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                5000+
+              </span>
               <span className="text-sm text-muted-foreground">Questions</span>
             </div>
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20">
-              <span className="text-sm font-bold text-amber-600 dark:text-amber-400 tabular-nums">200+</span>
-              <span className="text-sm text-muted-foreground">Avg Score Gain</span>
+              <span className="text-sm font-bold text-amber-600 dark:text-amber-400 tabular-nums">
+                200+
+              </span>
+              <span className="text-sm text-muted-foreground">
+                Avg Score Gain
+              </span>
             </div>
           </div>
 
@@ -270,60 +324,199 @@ export default function SignupPage() {
             <div className="relative">
               <svg viewBox="0 0 200 200" className="w-56 h-56">
                 {/* Shadow ellipse */}
-                <ellipse cx="100" cy="175" rx="65" ry="12" fill="hsl(var(--primary) / 0.1)" />
+                <ellipse
+                  cx="100"
+                  cy="175"
+                  rx="65"
+                  ry="12"
+                  fill="hsl(var(--primary) / 0.1)"
+                />
 
                 {/* Bottom book */}
                 <g transform="translate(0, 20)">
-                  <path d="M35 120 L35 90 L165 90 L165 120 L35 120" fill="hsl(var(--primary) / 0.3)" stroke="hsl(var(--primary) / 0.5)" strokeWidth="1.5" />
-                  <path d="M35 90 L50 75 L180 75 L165 90" fill="hsl(var(--primary) / 0.4)" stroke="hsl(var(--primary) / 0.5)" strokeWidth="1.5" />
-                  <path d="M165 90 L180 75 L180 105 L165 120" fill="hsl(var(--primary) / 0.25)" stroke="hsl(var(--primary) / 0.5)" strokeWidth="1.5" />
+                  <path
+                    d="M35 120 L35 90 L165 90 L165 120 L35 120"
+                    fill="hsl(var(--primary) / 0.3)"
+                    stroke="hsl(var(--primary) / 0.5)"
+                    strokeWidth="1.5"
+                  />
+                  <path
+                    d="M35 90 L50 75 L180 75 L165 90"
+                    fill="hsl(var(--primary) / 0.4)"
+                    stroke="hsl(var(--primary) / 0.5)"
+                    strokeWidth="1.5"
+                  />
+                  <path
+                    d="M165 90 L180 75 L180 105 L165 120"
+                    fill="hsl(var(--primary) / 0.25)"
+                    stroke="hsl(var(--primary) / 0.5)"
+                    strokeWidth="1.5"
+                  />
                   {/* Book spine lines */}
-                  <line x1="38" y1="95" x2="38" y2="117" stroke="hsl(var(--primary) / 0.6)" strokeWidth="1" />
-                  <line x1="42" y1="95" x2="42" y2="117" stroke="hsl(var(--primary) / 0.4)" strokeWidth="0.5" />
+                  <line
+                    x1="38"
+                    y1="95"
+                    x2="38"
+                    y2="117"
+                    stroke="hsl(var(--primary) / 0.6)"
+                    strokeWidth="1"
+                  />
+                  <line
+                    x1="42"
+                    y1="95"
+                    x2="42"
+                    y2="117"
+                    stroke="hsl(var(--primary) / 0.4)"
+                    strokeWidth="0.5"
+                  />
                 </g>
 
                 {/* Middle book */}
                 <g transform="translate(5, 0)">
-                  <path d="M30 100 L30 70 L160 70 L160 100 L30 100" fill="hsl(var(--primary) / 0.4)" stroke="hsl(var(--primary) / 0.6)" strokeWidth="1.5" />
-                  <path d="M30 70 L45 55 L175 55 L160 70" fill="hsl(var(--primary) / 0.5)" stroke="hsl(var(--primary) / 0.6)" strokeWidth="1.5" />
-                  <path d="M160 70 L175 55 L175 85 L160 100" fill="hsl(var(--primary) / 0.35)" stroke="hsl(var(--primary) / 0.6)" strokeWidth="1.5" />
+                  <path
+                    d="M30 100 L30 70 L160 70 L160 100 L30 100"
+                    fill="hsl(var(--primary) / 0.4)"
+                    stroke="hsl(var(--primary) / 0.6)"
+                    strokeWidth="1.5"
+                  />
+                  <path
+                    d="M30 70 L45 55 L175 55 L160 70"
+                    fill="hsl(var(--primary) / 0.5)"
+                    stroke="hsl(var(--primary) / 0.6)"
+                    strokeWidth="1.5"
+                  />
+                  <path
+                    d="M160 70 L175 55 L175 85 L160 100"
+                    fill="hsl(var(--primary) / 0.35)"
+                    stroke="hsl(var(--primary) / 0.6)"
+                    strokeWidth="1.5"
+                  />
                   {/* Book label */}
-                  <text x="95" y="88" textAnchor="middle" fill="hsl(var(--primary) / 0.8)" fontSize="10" fontWeight="bold">MATH</text>
+                  <text
+                    x="95"
+                    y="88"
+                    textAnchor="middle"
+                    fill="hsl(var(--primary) / 0.8)"
+                    fontSize="10"
+                    fontWeight="bold"
+                  >
+                    MATH
+                  </text>
                 </g>
 
                 {/* Top book */}
                 <g transform="translate(10, -20)">
-                  <path d="M25 80 L25 50 L155 50 L155 80 L25 80" fill="hsl(var(--primary) / 0.5)" stroke="hsl(var(--primary) / 0.7)" strokeWidth="1.5" />
-                  <path d="M25 50 L40 35 L170 35 L155 50" fill="hsl(var(--primary) / 0.6)" stroke="hsl(var(--primary) / 0.7)" strokeWidth="1.5" />
-                  <path d="M155 50 L170 35 L170 65 L155 80" fill="hsl(var(--primary) / 0.45)" stroke="hsl(var(--primary) / 0.7)" strokeWidth="1.5" />
+                  <path
+                    d="M25 80 L25 50 L155 50 L155 80 L25 80"
+                    fill="hsl(var(--primary) / 0.5)"
+                    stroke="hsl(var(--primary) / 0.7)"
+                    strokeWidth="1.5"
+                  />
+                  <path
+                    d="M25 50 L40 35 L170 35 L155 50"
+                    fill="hsl(var(--primary) / 0.6)"
+                    stroke="hsl(var(--primary) / 0.7)"
+                    strokeWidth="1.5"
+                  />
+                  <path
+                    d="M155 50 L170 35 L170 65 L155 80"
+                    fill="hsl(var(--primary) / 0.45)"
+                    stroke="hsl(var(--primary) / 0.7)"
+                    strokeWidth="1.5"
+                  />
                   {/* Book label */}
-                  <text x="90" y="68" textAnchor="middle" fill="hsl(var(--primary) / 0.9)" fontSize="10" fontWeight="bold">READING</text>
+                  <text
+                    x="90"
+                    y="68"
+                    textAnchor="middle"
+                    fill="hsl(var(--primary) / 0.9)"
+                    fontSize="10"
+                    fontWeight="bold"
+                  >
+                    READING
+                  </text>
                 </g>
 
                 {/* Floating score indicator */}
                 <g transform="translate(140, 15)">
-                  <circle cx="25" cy="25" r="22" fill="hsl(var(--primary) / 0.15)" stroke="hsl(var(--primary) / 0.4)" strokeWidth="1.5" />
-                  <text x="25" y="22" textAnchor="middle" fill="hsl(var(--primary))" fontSize="11" fontWeight="bold">1600</text>
-                  <text x="25" y="32" textAnchor="middle" fill="hsl(var(--primary) / 0.7)" fontSize="6">SCORE</text>
+                  <circle
+                    cx="25"
+                    cy="25"
+                    r="22"
+                    fill="hsl(var(--primary) / 0.15)"
+                    stroke="hsl(var(--primary) / 0.4)"
+                    strokeWidth="1.5"
+                  />
+                  <text
+                    x="25"
+                    y="22"
+                    textAnchor="middle"
+                    fill="hsl(var(--primary))"
+                    fontSize="11"
+                    fontWeight="bold"
+                  >
+                    1600
+                  </text>
+                  <text
+                    x="25"
+                    y="32"
+                    textAnchor="middle"
+                    fill="hsl(var(--primary) / 0.7)"
+                    fontSize="6"
+                  >
+                    SCORE
+                  </text>
                 </g>
 
                 {/* Floating pencil */}
                 <g transform="translate(10, 40) rotate(-30)">
-                  <rect x="0" y="0" width="45" height="8" rx="1" fill="hsl(var(--primary) / 0.6)" />
-                  <polygon points="45,0 55,4 45,8" fill="hsl(var(--primary) / 0.4)" />
-                  <rect x="0" y="0" width="8" height="8" rx="1" fill="hsl(var(--primary) / 0.8)" />
+                  <rect
+                    x="0"
+                    y="0"
+                    width="45"
+                    height="8"
+                    rx="1"
+                    fill="hsl(var(--primary) / 0.6)"
+                  />
+                  <polygon
+                    points="45,0 55,4 45,8"
+                    fill="hsl(var(--primary) / 0.4)"
+                  />
+                  <rect
+                    x="0"
+                    y="0"
+                    width="8"
+                    height="8"
+                    rx="1"
+                    fill="hsl(var(--primary) / 0.8)"
+                  />
                 </g>
 
                 {/* Sparkle effects */}
                 <g fill="hsl(var(--primary) / 0.6)">
                   <circle cx="45" cy="25" r="2">
-                    <animate attributeName="opacity" values="0.3;1;0.3" dur="2s" repeatCount="indefinite" />
+                    <animate
+                      attributeName="opacity"
+                      values="0.3;1;0.3"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
                   </circle>
                   <circle cx="170" cy="100" r="1.5">
-                    <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite" />
+                    <animate
+                      attributeName="opacity"
+                      values="0.5;1;0.5"
+                      dur="1.5s"
+                      repeatCount="indefinite"
+                    />
                   </circle>
                   <circle cx="30" cy="130" r="1.5">
-                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2.5s" repeatCount="indefinite" />
+                    <animate
+                      attributeName="opacity"
+                      values="0.4;1;0.4"
+                      dur="2.5s"
+                      repeatCount="indefinite"
+                    />
                   </circle>
                 </g>
               </svg>
@@ -336,21 +529,25 @@ export default function SignupPage() {
               <p className="text-sm text-muted-foreground italic">
                 "I improved my score from 1320 to 1520 in just 2 months!"
               </p>
-              <p className="mt-2 text-xs text-primary font-medium">— Alex K., Stanford Admit</p>
+              <p className="mt-2 text-xs text-primary font-medium">
+                — Alex K., Stanford Admit
+              </p>
             </div>
           </div>
         </div>
 
         {/* Subtle grid pattern */}
         <div className="absolute inset-0 opacity-[0.02] pointer-events-none">
-          <div className="w-full h-full" style={{
-            backgroundImage: `linear-gradient(hsl(var(--primary) / 0.2) 1px, transparent 1px),
+          <div
+            className="w-full h-full"
+            style={{
+              backgroundImage: `linear-gradient(hsl(var(--primary) / 0.2) 1px, transparent 1px),
                               linear-gradient(90deg, hsl(var(--primary) / 0.2) 1px, transparent 1px)`,
-            backgroundSize: '50px 50px'
-          }}></div>
+              backgroundSize: "50px 50px",
+            }}
+          ></div>
         </div>
       </div>
     </div>
   );
 }
-

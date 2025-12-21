@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Calendar, Loader2, ArrowRight } from "lucide-react";
+import { Calendar, Loader2, ArrowRight, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { QuestionPracticePopup } from "@/components/revision/QuestionPracticePopup";
 import type { SessionQuestion } from "@/lib/types";
@@ -13,6 +13,42 @@ export default function QuestionOfTheDayCard() {
   const [selectedQuestion, setSelectedQuestion] =
     useState<SessionQuestion | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [todayKey, setTodayKey] = useState<string>("");
+
+  // Helper function to get today's date key
+  const getTodayKey = () => {
+    return new Date().toISOString().split("T")[0];
+  };
+
+  // Check for date changes and reset completion if needed
+  useEffect(() => {
+    const checkDateChange = () => {
+      const currentDateKey = getTodayKey();
+      if (todayKey && todayKey !== currentDateKey) {
+        // Date has changed, reset completion
+        setIsCompleted(false);
+      }
+      setTodayKey(currentDateKey);
+    };
+
+    // Check immediately
+    checkDateChange();
+
+    // Set up interval to check every minute (in case user keeps page open overnight)
+    const interval = setInterval(checkDateChange, 60000);
+
+    // Also check when window regains focus (user comes back to tab)
+    const handleFocus = () => {
+      checkDateChange();
+    };
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [todayKey]);
 
   useEffect(() => {
     const fetchQuestionOfTheDay = async () => {
@@ -31,7 +67,15 @@ export default function QuestionOfTheDayCard() {
               (1000 * 60 * 60 * 24)
           );
           const randomIndex = dayOfYear % data.length;
-          setQuestion(data[randomIndex]);
+          const selectedQuestion = data[randomIndex];
+          setQuestion(selectedQuestion);
+
+          // Check if today's question has been completed
+          const currentDateKey = getTodayKey();
+          setTodayKey(currentDateKey);
+          const completionKey = `qotd-completed-${selectedQuestion.id}-${currentDateKey}`;
+          const completed = localStorage.getItem(completionKey) === "true";
+          setIsCompleted(completed);
         }
       } catch (error) {
         console.error("Error fetching question of the day:", error);
@@ -111,17 +155,27 @@ export default function QuestionOfTheDayCard() {
 
         {/* Content */}
         <div className="relative z-10 h-full flex flex-col p-6 md:p-10 backdrop-blur-sm">
-          <div className="flex items-center gap-2 mb-6">
-            <Calendar className="w-5 h-5 text-yellow-400" />
-            <span className="text-xs font-semibold uppercase tracking-wide text-foreground">
-              Question of the Day
-            </span>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <Calendar className="w-5 h-5 text-yellow-400" />
+              <span className="text-xs font-semibold uppercase tracking-wide text-foreground">
+                Question of the Day
+              </span>
+            </div>
+            {isCompleted && (
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/20 dark:bg-emerald-500/30 backdrop-blur-md rounded-md border border-emerald-500/30">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">
+                  Done
+                </span>
+              </div>
+            )}
           </div>
 
           {isLoading ? (
             <div className="flex flex-col flex-1 justify-between">
               <div className="flex-1 flex flex-col">
-                <p className="text-base text-muted-foreground leading-relaxed mb-4">
+                <p className="text-base text-black leading-relaxed mb-4">
                   Practice a new question every day to build consistency and
                   improve your SAT skills.
                 </p>
@@ -140,7 +194,7 @@ export default function QuestionOfTheDayCard() {
           ) : question ? (
             <div className="flex flex-col flex-1 justify-between">
               <div className="flex-1 flex flex-col">
-                <p className="text-base text-muted-foreground leading-relaxed mb-4">
+                <p className="text-base text-black leading-relaxed mb-4">
                   Practice a new question every day to build consistency and
                   improve your SAT skills.
                 </p>
@@ -186,6 +240,13 @@ export default function QuestionOfTheDayCard() {
           onOpenChange={setIsPopupOpen}
           question={selectedQuestion}
           onComplete={() => {
+            // Mark question as completed
+            if (question) {
+              const currentDateKey = getTodayKey();
+              const completionKey = `qotd-completed-${question.id}-${currentDateKey}`;
+              localStorage.setItem(completionKey, "true");
+              setIsCompleted(true);
+            }
             setIsPopupOpen(false);
             setSelectedQuestion(null);
           }}

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 import { config } from "@/lib/config";
-import { Clock, AlertCircle, Zap, Target, Award } from "lucide-react";
+import { Clock, AlertCircle, Zap, Target, Award, BookOpen } from "lucide-react";
 import { components } from "@/lib/types/api.generated";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MockExamPerformance } from "@/components/analytics/MockExamPerformance";

@@ -59,7 +59,7 @@ export default function QuickActionsGrid() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: index * 0.1 }}
-          className="group relative flex flex-col items-start p-4 rounded-2xl bg-card border border-border/50 hover:bg-muted/50 transition-all hover:shadow-lg hover:-translate-y-1 text-left"
+          className="group relative flex flex-col items-start p-4 rounded-2xl bg-card border-2 border-border/50 hover:bg-muted/50 transition-all hover:shadow-lg hover:-translate-y-1 text-left"
         >
           <div
             className={`p-2.5 rounded-xl ${action.bg} ${action.color} mb-3 group-hover:scale-110 transition-transform`}

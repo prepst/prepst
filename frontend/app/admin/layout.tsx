@@ -2,7 +2,7 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -15,7 +15,7 @@ import {
   LogOut,
   Video,
 } from "lucide-react";
-import { useState } from "react";
+import { api } from "@/lib/api";
 
 export default function AdminLayout({
   children,
@@ -26,6 +26,7 @@ export default function AdminLayout({
   const router = useRouter();
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(true);
 
   useEffect(() => {
     // Don't do anything while auth is still loading
@@ -36,11 +37,44 @@ export default function AdminLayout({
       return;
     }
 
-    // Check if user is admin
-    const isAdmin = user?.user_metadata?.role === "admin";
-    if (!isAdmin) {
-      router.push("/dashboard");
-    }
+    // Check if user is admin - check both user_metadata and backend API
+    const checkAdminStatus = async () => {
+      setIsCheckingAdmin(true);
+      try {
+        // First check user_metadata (quick check)
+        const metadataAdmin = user?.user_metadata?.role === "admin";
+
+        if (metadataAdmin) {
+          setIsCheckingAdmin(false);
+          return;
+        }
+
+        // If not in metadata, check backend API (users table)
+        try {
+          const userData = await api.get("/api/auth/me");
+          const isAdmin = userData?.role === "admin" || metadataAdmin;
+
+          if (!isAdmin) {
+            router.push("/dashboard");
+          }
+        } catch (error) {
+          // If API call fails, fall back to metadata check
+          if (!metadataAdmin) {
+            router.push("/dashboard");
+          }
+        }
+      } catch (error) {
+        // Fallback: check only metadata
+        const metadataAdmin = user?.user_metadata?.role === "admin";
+        if (!metadataAdmin) {
+          router.push("/dashboard");
+        }
+      } finally {
+        setIsCheckingAdmin(false);
+      }
+    };
+
+    checkAdminStatus();
   }, [user, router, loading]);
 
   const adminNavItems = [
@@ -67,7 +101,7 @@ export default function AdminLayout({
     // },
   ];
 
-  if (loading || !user) {
+  if (loading || !user || isCheckingAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
         <div className="text-lg text-white">Loading...</div>
@@ -112,7 +146,9 @@ export default function AdminLayout({
             className="flex items-center gap-3 p-2 hover:bg-gray-800 rounded-lg transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
-            {isSidebarOpen && <span className="text-sm">Back to Dashboard</span>}
+            {isSidebarOpen && (
+              <span className="text-sm">Back to Dashboard</span>
+            )}
           </Link>
         </div>
 

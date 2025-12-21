@@ -16,7 +16,7 @@ class ManimService:
 
     def __init__(self, db: Optional[Client] = None):
         self.client = OpenAI(api_key=settings.openai_api_key)
-        self.model = settings.openai_model
+        self.model = "gpt-5.2"  # Use GPT-5.2 (thinking mode) for better spatial reasoning
         self.output_dir = Path(__file__).parent.parent.parent / "manim_output"
         self.output_dir.mkdir(exist_ok=True)
         self.db = db
@@ -288,15 +288,16 @@ Convert the following math question into a complete Manim scene that explains th
 Question: {question}
 {error_context}
 Requirements:
-1. Create a class that inherits from Scene
-2. Use clear, step-by-step animations
-3. For text, use Text(). For math formulas, use MathTex() (NOT Tex())
-4. Use appropriate colors and visual elements
-5. Make it educational and easy to understand
-6. Keep animations concise (under 30 seconds total)
-7. Use proper Manim syntax
-8. CRITICAL: Do NOT use font_size parameter with Tex/MathTex - use .scale() method instead
-9. Example: formula = MathTex(r"\\frac{{y_2 - y_1}}{{x_2 - x_1}}").scale(0.8)
+1. Create a class that inherits from VoiceoverScene
+2. Import: from manim import *, from manim_voiceover import VoiceoverScene, from app.services.openai_voiceover import VoiceoverService
+3. In construct(), call: self.set_speech_service(VoiceoverService())
+4. Wrap animations in: with self.voiceover(text="...") as tracker:
+5. Use Text() for text, MathTex() for formulas
+6. Use .scale() method, NOT font_size parameter
+7. Use appropriate colors and visual elements
+8. Make it educational and easy to understand
+9. Keep animations concise (under 30 seconds)
+10. IMPORTANT - Spatial positioning: Carefully position elements to avoid overlap. Use positioning methods like .next_to(), .to_edge(), .shift(), and .move_to() to create clean, well-organized layouts. Plan the vertical and horizontal spacing between elements before placing them.
 
 Return ONLY the Python code, starting with "from manim import *" and ending with the class definition.
 Do not include any explanations or markdown formatting, just the code."""
@@ -312,7 +313,7 @@ Do not include any explanations or markdown formatting, just the code."""
                     {"role": "user", "content": prompt},
                 ],
                 temperature=0.7,
-                max_tokens=2000,
+                max_completion_tokens=2000,  # GPT-5 uses max_completion_tokens instead of max_tokens
             )
 
             code = response.choices[0].message.content.strip()
@@ -353,12 +354,13 @@ Do not include any explanations or markdown formatting, just the code."""
             code = scene_file.read_text()
             class_name = None
             for line in code.split("\n"):
-                if "class " in line and "(Scene)" in line:
+                # Look for VoiceoverScene or Scene
+                if "class " in line and ("(VoiceoverScene)" in line or "(Scene)" in line):
                     class_name = line.split("class ")[1].split("(")[0].strip()
                     break
 
             if not class_name:
-                raise Exception("Could not find Scene class in generated code")
+                raise Exception("Could not find Scene or VoiceoverScene class in generated code")
 
             # Run manim command
             cmd = [
@@ -369,9 +371,15 @@ Do not include any explanations or markdown formatting, just the code."""
                 class_name,
             ]
 
+            # Set up environment to include backend directory in Python path
+            env = os.environ.copy()
+            backend_dir = str(Path(__file__).parent.parent.parent)
+            env['PYTHONPATH'] = backend_dir + os.pathsep + env.get('PYTHONPATH', '')
+
             result = subprocess.run(
                 cmd,
                 cwd=str(self.output_dir),
+                env=env,
                 capture_output=True,
                 text=True,
                 timeout=120,  # 2 minute timeout

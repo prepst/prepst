@@ -18,6 +18,7 @@ import {
   InputOTPSeparator,
   InputOTPSlot,
 } from "@/components/ui/input-otp";
+import { ArrowLeft } from "lucide-react";
 
 export function OTPForm({ className, ...props }: React.ComponentProps<"div">) {
   const [otp, setOtp] = useState("");
@@ -84,6 +85,13 @@ export function OTPForm({ className, ...props }: React.ComponentProps<"div">) {
     try {
       await resendOTP(email);
       setResendCooldown(60); // 60 second cooldown
+      setError(""); // Clear any previous errors
+
+      // Show success message temporarily
+      const successMsg =
+        "Verification code sent! Please check your email (and spam folder).";
+      setError(successMsg);
+      setTimeout(() => setError(""), 5000);
 
       // Start countdown timer
       const timer = setInterval(() => {
@@ -96,7 +104,25 @@ export function OTPForm({ className, ...props }: React.ComponentProps<"div">) {
         });
       }, 1000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to resend code");
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to resend code";
+      console.error("Resend OTP error:", err);
+
+      // Provide more helpful error messages
+      if (
+        errorMessage.includes("rate limit") ||
+        errorMessage.includes("too many")
+      ) {
+        setError(
+          "Too many requests. Please wait a moment before requesting another code."
+        );
+      } else if (errorMessage.includes("email")) {
+        setError(
+          `Email error: ${errorMessage}. Please check your email address.`
+        );
+      } else {
+        setError(`Failed to resend code: ${errorMessage}`);
+      }
     } finally {
       setLoading(false);
     }
@@ -110,9 +136,19 @@ export function OTPForm({ className, ...props }: React.ComponentProps<"div">) {
       <Card className="flex-1 overflow-hidden p-0">
         <CardContent className="grid flex-1 p-0 md:grid-cols-2">
           <form
-            className="flex flex-col items-center justify-center p-6 md:p-8"
+            className="flex flex-col items-center justify-center p-6 md:p-8 relative"
             onSubmit={handleSubmit}
           >
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={() => router.push("/signup")}
+              className="absolute top-4 left-4 md:top-6 md:left-6 h-8 w-8 rounded-full hover:bg-muted"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="sr-only">Go back</span>
+            </Button>
             <FieldGroup>
               <Field className="items-center text-center">
                 <h1 className="text-2xl font-bold">Enter verification code</h1>
@@ -122,8 +158,30 @@ export function OTPForm({ className, ...props }: React.ComponentProps<"div">) {
               </Field>
 
               {error && (
-                <div className="text-sm text-red-600 bg-red-50 p-4 rounded-xl border border-red-100">
+                <div
+                  className={`text-sm p-4 rounded-xl border ${
+                    error.includes("sent!") ||
+                    error.includes("Verification code sent")
+                      ? "text-green-700 bg-green-50 border-green-200"
+                      : "text-red-600 bg-red-50 border-red-100"
+                  }`}
+                >
                   {error}
+                  {error.includes("Failed") && (
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      <p className="font-semibold mb-1">
+                        Troubleshooting tips:
+                      </p>
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>Check your spam/junk folder</li>
+                        <li>
+                          Verify email confirmation is enabled in Supabase
+                        </li>
+                        <li>Check SMTP settings in Supabase dashboard</li>
+                        <li>Wait a few minutes and try again</li>
+                      </ul>
+                    </div>
+                  )}
                 </div>
               )}
 

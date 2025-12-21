@@ -1,5 +1,5 @@
 """
-One-time script to set admin role in auth.users metadata
+One-time script to set admin role in both auth.users metadata and public.users table
 """
 import os
 from supabase import create_client
@@ -27,7 +27,7 @@ if not users:
 user = users[0]
 print(f"Found user: {user.email} (ID: {user.id})")
 
-# Update user metadata to include role
+# Update user metadata to include role (for JWT token)
 current_metadata = user.user_metadata or {}
 current_metadata['role'] = 'admin'
 
@@ -36,5 +36,10 @@ supabase.auth.admin.update_user_by_id(
     {"user_metadata": current_metadata}
 )
 
+# Also update the role in the public.users table (for backend checks)
+supabase.table("users").update({"role": "admin"}).eq("id", user.id).execute()
+
 print(f"✅ Successfully set role=admin for {user.email}")
-print("⚠️  User must sign out and sign back in to see changes")
+print("   - Updated auth.users.user_metadata.role")
+print("   - Updated public.users.role")
+print("⚠️  User must sign out and sign back in to see changes in frontend")

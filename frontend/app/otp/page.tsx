@@ -14,7 +14,7 @@ export default function OTPPage() {
   useEffect(() => {
     if (!authLoading && !profileLoading && user && profileData) {
       if (profileData?.profile?.onboarding_completed === false) {
-        router.push('/onboard');
+        router.push("/onboard");
       } else {
         router.push("/dashboard");
       }

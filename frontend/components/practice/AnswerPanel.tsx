@@ -22,6 +22,7 @@ interface AnswerPanelProps {
   isQuestionSaved?: boolean;
   onConfidenceSelect?: (confidence: number) => void;
   defaultConfidence?: number;
+  compact?: boolean;
 }
 
 export function AnswerPanel({
@@ -37,9 +38,14 @@ export function AnswerPanel({
   isQuestionSaved,
   onConfidenceSelect,
   defaultConfidence = 3,
+  compact = false,
 }: AnswerPanelProps) {
   return (
-    <div className="pt-8 pb-8 pl-8 pr-[250px] flex-1 overflow-y-auto bg-background">
+    <div
+      className={`flex-1 overflow-y-auto bg-background ${
+        compact ? "p-6" : "pt-8 pb-8 pl-8 pr-[250px]"
+      }`}
+    >
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6">
         {question.question.question_type === "mc"
           ? "Select an Answer"

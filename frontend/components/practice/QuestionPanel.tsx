@@ -5,9 +5,13 @@ import { Tag } from "lucide-react";
 
 interface QuestionPanelProps {
   question: SessionQuestion;
+  compact?: boolean;
 }
 
-export function QuestionPanel({ question }: QuestionPanelProps) {
+export function QuestionPanel({
+  question,
+  compact = false,
+}: QuestionPanelProps) {
   const processedStem = processQuestionBlanks(question.question.stem || "");
   const processedStimulus = processQuestionBlanks(
     question.question.stimulus || ""
@@ -28,8 +32,14 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
       : "Hard";
 
   return (
-    <div className="flex-1 overflow-y-auto py-8 pl-[250px] pr-0 lg:py-12">
-      <div className="max-w-3xl mx-auto space-y-8">
+    <div
+      className={`flex-1 overflow-y-auto ${
+        compact ? "p-6" : "py-8 pl-[250px] pr-0 lg:py-12"
+      }`}
+    >
+      <div
+        className={`${compact ? "max-w-full" : "max-w-3xl"} mx-auto space-y-8`}
+      >
         {/* Question Meta */}
         <div className="flex items-center gap-4">
           <Badge

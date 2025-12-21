@@ -324,10 +324,10 @@ export function QuestionPracticePopup({
         {/* Content */}
         <div className="flex-1 flex overflow-hidden min-h-0 w-full">
           {/* Question Panel */}
-          <div className="flex-1 flex flex-col min-w-[300px] overflow-hidden border-r border-border">
+          <div className="flex-1 flex flex-col min-w-[300px] overflow-hidden">
             <div className="flex-1 overflow-y-auto bg-background">
               {question && question.question ? (
-                <QuestionPanel question={question} />
+                <QuestionPanel question={question} compact={true} />
               ) : (
                 <div className="p-8 text-center text-muted-foreground">
                   Question not available
@@ -336,11 +336,8 @@ export function QuestionPracticePopup({
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="w-1 bg-border shrink-0" />
-
           {/* Answer Panel */}
-          <div className="w-[480px] shrink-0 border-l border-border bg-card/50 backdrop-blur-sm flex flex-col overflow-hidden">
+          <div className="w-[480px] shrink-0 bg-card/50 backdrop-blur-sm flex flex-col overflow-hidden">
             <div className="flex-1 overflow-y-auto">
               <AnswerPanel
                 question={question}
@@ -352,6 +349,7 @@ export function QuestionPracticePopup({
                 onGetFeedback={handleGetFeedback}
                 onGetSimilarQuestion={undefined}
                 onSaveQuestion={undefined}
+                compact={true}
               />
 
               {/* Simple Explanation Display */}

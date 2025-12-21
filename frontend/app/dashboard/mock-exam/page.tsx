@@ -184,7 +184,7 @@ export default function MockExamPage() {
                   Full-Length Practice Test
                 </span>
               </div>
-              <h1 className="text-5xl font-bold tracking-tight text-foreground">
+              <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
                 Mock SAT Exam
               </h1>
               <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed">

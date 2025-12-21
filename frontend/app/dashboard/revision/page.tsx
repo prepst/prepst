@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { BookOpen, Bookmark } from "lucide-react";
+import { BookOpen, Bookmark, Zap } from "lucide-react";
 import { useWrongAnswers, useSavedQuestions } from "@/hooks/queries";
 import { useCreateRevisionSession } from "@/hooks/mutations";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -105,14 +105,22 @@ export default function RevisionPage() {
       <div className="flex justify-center">
         <div className="w-full max-w-6xl px-6 py-12 space-y-12">
           {/* Header */}
-          <div className="flex flex-col gap-2">
-            <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
-              Revision Sessions
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">
-              Review and reinforce your knowledge by practicing questions you
-              missed.
-            </p>
+          <div className="flex flex-col gap-4">
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 w-fit">
+                <Zap className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs font-semibold text-primary uppercase tracking-wide">
+                  Review & Practice
+                </span>
+              </div>
+              <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+                Revision Sessions
+              </h1>
+              <p className="text-lg text-muted-foreground max-w-2xl">
+                Review and reinforce your knowledge by practicing questions you
+                missed.
+              </p>
+            </div>
           </div>
 
           {/* Wrong Answers Section */}

@@ -62,10 +62,7 @@ function ProgressContent() {
                   <Skeleton className="h-8 w-48 mb-6" />
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {Array.from({ length: 4 }).map((_, j) => (
-                      <Skeleton
-                        key={j}
-                        className="aspect-square rounded-2xl"
-                      />
+                      <Skeleton key={j} className="aspect-square rounded-2xl" />
                     ))}
                   </div>
                 </div>
@@ -137,8 +134,9 @@ function ProgressContent() {
     {
       color: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)", // Mint-pink gradient for current total (BIG CARD)
       title: currentTotal.toString(),
-      description: `Current Total Score • ${improvement > 0 ? `+${improvement} to go` : "Target reached!"
-        }`,
+      description: `Current Total Score • ${
+        improvement > 0 ? `+${improvement} to go` : "Target reached!"
+      }`,
       label: "Current Total",
     },
     {
@@ -189,10 +187,7 @@ function ProgressContent() {
                   <Skeleton className="h-8 w-48 mb-6" />
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {Array.from({ length: 4 }).map((_, j) => (
-                      <Skeleton
-                        key={j}
-                        className="aspect-square rounded-2xl"
-                      />
+                      <Skeleton key={j} className="aspect-square rounded-2xl" />
                     ))}
                   </div>
                 </div>
@@ -243,7 +238,7 @@ function ProgressContent() {
         </div>
 
         {/* SAT Score Overview */}
-        <div className="mb-16">
+        {/* <div className="mb-16">
           <h2 className="text-2xl font-bold text-foreground mb-6">
             SAT Score Overview
           </h2>
@@ -260,7 +255,7 @@ function ProgressContent() {
             glowColor="132, 0, 255"
             cardData={satCardData}
           />
-        </div>
+        </div> */}
 
         {/* Charts Section */}
         {chartsLoading ? (
@@ -327,10 +322,7 @@ function ProgressContent() {
                         ([name, cat]) => ({
                           category: name,
                           mastery:
-                            (cat.skills.reduce(
-                              (sum, s) => sum + s.mastery,
-                              0
-                            ) /
+                            (cat.skills.reduce((sum, s) => sum + s.mastery, 0) /
                               cat.skills.length) *
                             100,
                           section: cat.section,

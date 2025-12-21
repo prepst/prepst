@@ -12,6 +12,7 @@ import { useCompletedSessions, useSkillHeatmap } from "@/hooks/queries";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import { SkillRadialChart } from "@/components/charts/SkillRadialChart";
+import { Zap } from "lucide-react";
 
 export default function DrillPage() {
   const router = useRouter();
@@ -124,8 +125,14 @@ export default function DrillPage() {
         <div className="w-full max-w-6xl px-6 py-12 space-y-12">
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <h1 className="text-4xl font-extrabold tracking-tight text-foreground mb-2">
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 w-fit">
+                <Zap className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs font-semibold text-primary uppercase tracking-wide">
+                  Targeted Practice
+                </span>
+              </div>
+              <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
                 Drill Session
               </h1>
               <p className="text-lg text-muted-foreground">

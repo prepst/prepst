@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search, Trash2, Calendar } from "lucide-react";
+import { Plus, Search, Trash2, Calendar, Zap } from "lucide-react";
 import {
   TodoSection as TodoSectionType,
   TodoSession,
@@ -297,7 +297,13 @@ function StudyPlanContent() {
       <div className="mx-auto max-w-7xl">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div className="space-y-2">
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 w-fit">
+              <Zap className="w-3.5 h-3.5 text-primary" />
+              <span className="text-xs font-semibold text-primary uppercase tracking-wide">
+                Personalized Learning
+              </span>
+            </div>
             <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
               SAT Study Plan
             </h1>

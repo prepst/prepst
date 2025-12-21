@@ -218,15 +218,23 @@ export default function ChatPage() {
           <div className="flex h-10 w-10 items-center justify-center rounded-xl">
             <span className="text-xl font-bold text-foreground">P</span>
           </div>
-          <div>
-            <h1 className="font-semibold text-foreground">Peppa AI</h1>
-            <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 w-fit">
+              <Zap className="w-3.5 h-3.5 text-primary" />
+              <span className="text-xs font-semibold text-primary uppercase tracking-wide">
+                AI Assistant
               </span>
-              Online & Ready
-            </p>
+            </div>
+            <div>
+              <h1 className="font-semibold text-foreground">Peppa AI</h1>
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                </span>
+                Online & Ready
+              </p>
+            </div>
           </div>
         </div>
 

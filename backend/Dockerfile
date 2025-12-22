@@ -17,10 +17,11 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /app
 
 # Copy requirements file with manim dependencies
-COPY requirements-manim.txt requirements.txt
+# Copy as-is first, then we'll use it
+COPY requirements-manim.txt requirements-manim.txt
 
-# Install Python dependencies including manim
-RUN pip install --no-cache-dir -r requirements.txt
+# Install Python dependencies including manim (use the manim requirements file)
+RUN pip install --no-cache-dir -r requirements-manim.txt
 
 # Copy application code
 COPY . .
@@ -28,5 +29,5 @@ COPY . .
 # Expose port (Railway will set PORT env var)
 EXPOSE ${PORT:-8000}
 
-# Run the application (Railway sets PORT env var)
-CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+# Run the Railway-specific main file (manim routes only)
+CMD uvicorn app.main_railway:app --host 0.0.0.0 --port ${PORT:-8000}

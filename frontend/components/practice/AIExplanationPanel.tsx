@@ -242,12 +242,12 @@ export function AIExplanationPanel({
         streamContentRef.current = "";
 
         try {
-            const formattingInstructions = `You are a concise SAT tutor. Give VERY SHORT, step-by-step solutions:
-- Use numbered steps (1., 2., 3.)
-- Show math equations clearly
-- NO unnecessary explanations
-- End with "Correct answer: [letter]. [value]"
-- Be direct and to the point
+            const formattingInstructions = `You are Peppa, an ultra-concise SAT tutor. Rules:
+- Maximum 3-4 short lines per response
+- Use numbered steps ONLY when solving
+- NO explanations, NO fluff, NO "Let me explain"
+- End with: "Answer: [letter]" or the value
+- Be extremely brief
 
 `;
             const questionContextStr = questionContext?.stem
@@ -557,13 +557,48 @@ export function AIExplanationPanel({
                                                         </div>
                                                         <span className="text-sm font-bold text-foreground">Peppa</span>
                                                     </div>
-                                                    <div className="rounded-2xl px-4 py-3 bg-muted text-foreground">
+                                                    <div className="px-4 py-3 text-foreground">
                                                         {message.content ? (
                                                             <div className="prose prose-sm dark:prose-invert max-w-none">
-                                                                <Markdown>{message.content}</Markdown>
+                                                                <Markdown>
+                                                                    {/* Show only complete lines while streaming to avoid broken LaTeX */}
+                                                                    {isStreaming && messages[messages.length - 1]?.id === message.id
+                                                                        ? (() => {
+                                                                            let content = message.content;
+                                                                            // Find and remove last incomplete line (no newline at end)
+                                                                            const lastNewline = content.lastIndexOf('\n');
+                                                                            // Check for incomplete LaTeX (odd $ count)
+                                                                            const dollarCount = (content.match(/\$/g) || []).length;
+                                                                            const hasIncompleteLatex = dollarCount % 2 !== 0;
+                                                                            // Check for incomplete inline LaTeX \( or \[
+                                                                            const openParens = (content.match(/\\\(/g) || []).length;
+                                                                            const closeParens = (content.match(/\\\)/g) || []).length;
+                                                                            const openBrackets = (content.match(/\\\[/g) || []).length;
+                                                                            const closeBrackets = (content.match(/\\\]/g) || []).length;
+                                                                            const hasIncompleteBlock = openParens !== closeParens || openBrackets !== closeBrackets;
+
+                                                                            if (hasIncompleteLatex || hasIncompleteBlock) {
+                                                                                // Truncate to last complete line
+                                                                                if (lastNewline > 0) {
+                                                                                    content = content.substring(0, lastNewline);
+                                                                                } else {
+                                                                                    content = '';
+                                                                                }
+                                                                            }
+                                                                            return content;
+                                                                        })()
+                                                                        : message.content
+                                                                    }
+                                                                </Markdown>
+                                                                {isStreaming && messages[messages.length - 1]?.id === message.id && (
+                                                                    <span className="inline-block w-2 h-4 bg-foreground/50 animate-pulse ml-1" />
+                                                                )}
                                                             </div>
                                                         ) : (
-                                                            <Loader variant="typing" size="sm" className="opacity-50" />
+                                                            <div className="flex items-center gap-2 text-muted-foreground">
+                                                                <Loader variant="typing" size="sm" />
+                                                                <span className="text-sm italic">Peppa is thinking...</span>
+                                                            </div>
                                                         )}
                                                     </div>
                                                 </div>

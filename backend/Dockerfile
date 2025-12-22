@@ -22,9 +22,10 @@ RUN pip install --no-cache-dir -r requirements-manim.txt
 # Copy application code
 COPY . .
 
-# Expose port (Railway will set PORT env var)
-EXPOSE ${PORT:-8000}
+# Expose port - Railway will dynamically assign PORT at runtime
+# EXPOSE is just metadata, Railway uses the PORT env var
+EXPOSE 8000
 
-# Run the application - Railway sets PORT env var
+# Run the application - Railway sets PORT env var dynamically
 # Use shell form to ensure PORT variable expansion
 CMD sh -c "uvicorn app.main_railway:app --host 0.0.0.0 --port ${PORT:-8000}"

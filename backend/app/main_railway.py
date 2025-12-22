@@ -62,8 +62,10 @@ async def log_requests(request: Request, call_next):
 @app.on_event("startup")
 async def startup_event():
     port = os.getenv("PORT", "8000")
-    logger.info(f"🚀 Manim Service API started on port {port}")
+    host = os.getenv("API_HOST", "0.0.0.0")
+    logger.info(f"🚀 Manim Service API starting on {host}:{port}")
     logger.info("✅ Application ready to accept requests")
+    print(f"✅ Server listening on {host}:{port}", flush=True)
 
 # Only include manim router - all other routes handled by Vercel
 app.include_router(manim.router, prefix="/api")

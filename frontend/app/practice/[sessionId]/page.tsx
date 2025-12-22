@@ -18,6 +18,13 @@ import { useQuestionNavigation } from "@/hooks/useQuestionNavigation";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import confetti from "canvas-confetti";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Lightbulb } from "lucide-react";
 import "./practice-session.css";
 
 function PracticeSessionContent() {
@@ -80,6 +87,7 @@ function PracticeSessionContent() {
   // Local UI state
   const [showQuestionList, setShowQuestionList] = useState(false);
   const [confidenceScore, setConfidenceScore] = useState<number>(3); // Default confidence
+  const [showExplanation, setShowExplanation] = useState(false);
 
   // Container ref for calculating middle position
   const containerRef = useRef<HTMLDivElement>(null);
@@ -367,6 +375,9 @@ function PracticeSessionContent() {
 
       // Just move to the next question like skip button
       handleNext();
+
+      // Let the user know the similar question was queued
+      toast.success("Queued similar question");
     } catch (error) {
       console.error("Failed to add similar question:", error);
     }
@@ -637,7 +648,33 @@ function PracticeSessionContent() {
         onNavigate={handleQuestionNavigation}
         onGetFeedback={handleGetAiFeedback}
         loadingFeedback={loadingFeedback}
+        onShowExplanation={() => setShowExplanation(true)}
+        hasRationale={!!currentQuestion?.question.rationale}
       />
+
+      {/* Explanation Dialog */}
+      <Dialog open={showExplanation} onOpenChange={setShowExplanation}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lightbulb className="w-5 h-5 text-purple-600" />
+              Explanation
+            </DialogTitle>
+          </DialogHeader>
+          {currentQuestion?.question.rationale ? (
+            <div
+              className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground leading-relaxed mt-4"
+              dangerouslySetInnerHTML={{
+                __html: currentQuestion.question.rationale,
+              }}
+            />
+          ) : (
+            <p className="text-muted-foreground">
+              No explanation available for this question.
+            </p>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

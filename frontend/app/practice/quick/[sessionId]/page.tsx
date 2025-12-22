@@ -16,6 +16,13 @@ import { SessionQuestion, AnswerState } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { config } from "@/lib/config";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Lightbulb } from "lucide-react";
 
 interface PracticeQuestion {
   id: string;
@@ -24,6 +31,7 @@ interface PracticeQuestion {
   answer_options: any;
   correct_answer: any;
   difficulty: string;
+  rationale?: string;
   topics: {
     name: string;
   };
@@ -55,6 +63,7 @@ function QuickPracticeContent() {
   const [confidenceScore, setConfidenceScore] = useState<number>(3);
   const [aiFeedback, setAiFeedback] = useState<any>(null);
   const [loadingFeedback, setLoadingFeedback] = useState(false);
+  const [showExplanation, setShowExplanation] = useState(false);
 
   // Container ref for calculating middle position
   const containerRef = useRef<HTMLDivElement>(null);
@@ -647,8 +656,34 @@ function QuickPracticeContent() {
           onNavigate={handleQuestionNavigation}
           onGetFeedback={handleGetFeedback}
           loadingFeedback={loadingFeedback}
+          onShowExplanation={() => setShowExplanation(true)}
+          hasRationale={!!currentQuestion?.rationale}
         />
       )}
+
+      {/* Explanation Dialog */}
+      <Dialog open={showExplanation} onOpenChange={setShowExplanation}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lightbulb className="w-5 h-5 text-purple-600" />
+              Explanation
+            </DialogTitle>
+          </DialogHeader>
+          {currentQuestion?.rationale ? (
+            <div
+              className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground leading-relaxed mt-4"
+              dangerouslySetInnerHTML={{
+                __html: currentQuestion.rationale,
+              }}
+            />
+          ) : (
+            <p className="text-muted-foreground">
+              No explanation available for this question.
+            </p>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

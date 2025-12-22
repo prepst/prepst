@@ -32,6 +32,8 @@ interface PracticeFooterProps {
   onNavigate?: (index: number) => void;
   onGetFeedback?: () => void;
   loadingFeedback?: boolean;
+  onShowExplanation?: () => void;
+  hasRationale?: boolean;
 }
 
 export function PracticeFooter({
@@ -50,6 +52,8 @@ export function PracticeFooter({
   onNavigate,
   onGetFeedback,
   loadingFeedback = false,
+  onShowExplanation,
+  hasRationale = false,
 }: PracticeFooterProps) {
   const handleNavigate = (index: number) => {
     if (onNavigate) {
@@ -137,16 +141,20 @@ export function PracticeFooter({
           )}
 
           {/* Explanation Button */}
-          <Button
-            className="h-10 px-6 font-semibold transition-all shadow-sm text-base flex items-center gap-2"
-            style={{
-              backgroundColor: "rgba(134, 111, 254, 0.3)",
-              color: "#866ffe",
-            }}
-          >
-            <Lightbulb className="size-4" />
-            Explanation
-          </Button>
+          {onShowExplanation && (
+            <Button
+              onClick={onShowExplanation}
+              disabled={!hasRationale}
+              className="h-10 px-6 font-semibold transition-all shadow-sm text-base flex items-center gap-2"
+              style={{
+                backgroundColor: "rgba(134, 111, 254, 0.3)",
+                color: "#866ffe",
+              }}
+            >
+              <Lightbulb className="size-4" />
+              Explanation
+            </Button>
+          )}
 
           {/* Check Button */}
           <Button

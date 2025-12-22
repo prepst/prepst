@@ -10,6 +10,12 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AnswerPanel } from "@/components/practice/AnswerPanel";
 import { MockExamFooter } from "@/components/practice/MockExamFooter";
 import { MockExamToolsToolbar } from "@/components/practice/MockExamToolsToolbar";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { supabase } from "@/lib/supabase";
 import { config } from "@/lib/config";
 import {
@@ -20,6 +26,7 @@ import {
   Flag,
   List,
   Clock,
+  Lightbulb,
 } from "lucide-react";
 import { components } from "@/lib/types/api.generated";
 import type {
@@ -51,6 +58,7 @@ function ModuleContent() {
   const [error, setError] = useState<string | null>(null);
   const [moduleData, setModuleData] = useState<ModuleData | null>(null);
   const [showQuestionList, setShowQuestionList] = useState(false);
+  const [showExplanation, setShowExplanation] = useState(false);
 
   const [isCompleting, setIsCompleting] = useState(false);
 
@@ -1035,7 +1043,33 @@ function ModuleContent() {
         onNavigate={handleQuestionNavigation}
         onToggleMarkForReview={toggleMarkForReview}
         isMarkedForReview={currentAnswer?.isMarkedForReview || false}
+        onShowExplanation={() => setShowExplanation(true)}
+        hasRationale={!!currentQuestion?.question.rationale}
       />
+
+      {/* Explanation Dialog */}
+      <Dialog open={showExplanation} onOpenChange={setShowExplanation}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lightbulb className="w-5 h-5 text-purple-600" />
+              Explanation
+            </DialogTitle>
+          </DialogHeader>
+          {currentQuestion?.question.rationale ? (
+            <div
+              className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground leading-relaxed mt-4"
+              dangerouslySetInnerHTML={{
+                __html: currentQuestion.question.rationale,
+              }}
+            />
+          ) : (
+            <p className="text-muted-foreground">
+              No explanation available for this question.
+            </p>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

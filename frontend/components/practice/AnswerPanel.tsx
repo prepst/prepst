@@ -1,8 +1,9 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react";
+import { Check, X, RefreshCcw, Bookmark } from "lucide-react";
 import { AIFeedbackDisplay } from "./AIFeedbackDisplay";
 import { ConfidenceRating } from "./ConfidenceRating";
+import { toast } from "sonner";
 import type {
   SessionQuestion,
   AnswerState,
@@ -270,10 +271,14 @@ export function AnswerPanel({
             <div className="grid grid-cols-2 gap-3">
               {onGetSimilarQuestion && (
                 <Button
-                  onClick={onGetSimilarQuestion}
+                  onClick={() => {
+                    toast("We’ll queue up similar questions for you.");
+                    onGetSimilarQuestion();
+                  }}
                   variant="outline"
                   className="h-12 border-border/60 bg-background/50 hover:bg-accent transition-all text-base font-semibold"
                 >
+                  <RefreshCcw className="w-4 h-4" />
                   Practice Similar
                 </Button>
               )}
@@ -284,6 +289,7 @@ export function AnswerPanel({
                   className="h-12 border-border/60 bg-background/50 hover:bg-accent transition-all text-base font-semibold disabled:opacity-50"
                   disabled={!!isQuestionSaved}
                 >
+                  <Bookmark className="w-4 h-4" />
                   {isQuestionSaved ? "Saved" : "Save Question"}
                 </Button>
               )}

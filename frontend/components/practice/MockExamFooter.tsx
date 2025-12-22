@@ -1,5 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, ChevronDown, Flag } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronDown,
+  Flag,
+  Lightbulb,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { QuestionNavigatorPopup } from "./QuestionNavigatorPopup";
 import type { SessionQuestion, AnswerState } from "@/lib/types";
@@ -25,6 +31,8 @@ interface MockExamFooterProps {
   onNavigate?: (index: number) => void;
   onToggleMarkForReview?: () => void;
   isMarkedForReview?: boolean;
+  onShowExplanation?: () => void;
+  hasRationale?: boolean;
 }
 
 export function MockExamFooter({
@@ -43,6 +51,8 @@ export function MockExamFooter({
   onNavigate,
   onToggleMarkForReview,
   isMarkedForReview = false,
+  onShowExplanation,
+  hasRationale = false,
 }: MockExamFooterProps) {
   const handleNavigate = (index: number) => {
     if (onNavigate) {
@@ -119,7 +129,7 @@ export function MockExamFooter({
           </div>
         </div> */}
 
-        {/* Right: Mark for Review / Back / Next / Submit */}
+        {/* Right: Mark for Review / Explanation / Back / Next / Submit */}
         <div className="flex items-center gap-3">
           {/* Mark for Review Button */}
           {onToggleMarkForReview && (
@@ -139,6 +149,21 @@ export function MockExamFooter({
                 )}
               />
               {isMarkedForReview ? "Marked for Review" : "Mark for Review"}
+            </Button>
+          )}
+
+          {/* Explanation Button */}
+          {onShowExplanation && hasRationale && (
+            <Button
+              onClick={onShowExplanation}
+              className="h-10 px-6 font-semibold transition-all shadow-sm text-base flex items-center gap-2"
+              style={{
+                backgroundColor: "rgba(134, 111, 254, 0.3)",
+                color: "#866ffe",
+              }}
+            >
+              <Lightbulb className="size-4" />
+              Explanation
             </Button>
           )}
 

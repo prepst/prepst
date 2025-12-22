@@ -167,7 +167,7 @@ export function ProgressOverview({
       </div>
 
       {/* Study Plan Timeline */}
-      <div className="grid grid-cols-1 gap-6">
+      {/* <div className="grid grid-cols-1 gap-6">
         <Card className="border-border shadow-sm bg-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-card-foreground">
@@ -236,7 +236,7 @@ export function ProgressOverview({
             </div>
           </CardContent>
         </Card>
-      </div>
+      </div> */}
     </div>
   );
 }

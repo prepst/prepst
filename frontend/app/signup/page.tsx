@@ -6,7 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Eye, EyeOff, Loader2, ChevronDown } from "lucide-react";
+import { Eye, EyeOff, Loader2, ChevronDown, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default function SignupPage() {
@@ -100,7 +100,17 @@ export default function SignupPage() {
       {/* Left Side - Form */}
       <div className="w-full lg:w-1/2 flex flex-col p-8 lg:p-16 lg:pl-[250px] border-r border-border/40 pt-0 lg:pt-0">
         {/* Form Container */}
-        <div className="flex-1 flex flex-col justify-center max-w-md">
+        <div
+          className="flex-1 flex flex-col justify-center max-w-md mx-auto"
+          style={{ width: "300px" }}
+        >
+          <button
+            onClick={() => router.back()}
+            className="mb-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
           <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">
             Welcome!
           </h1>

@@ -197,46 +197,46 @@ export default function MockExamPage() {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500/5 via-blue-500/10 to-transparent border border-blue-500/20 p-6 backdrop-blur-sm">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500/5 via-blue-500/10 to-transparent border border-blue-500/20 p-4 backdrop-blur-sm">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
               <div className="relative">
-                <div className="text-4xl font-black text-blue-600 dark:text-blue-400 mb-2">
+                <div className="text-2xl font-black text-blue-600 dark:text-blue-400 mb-1">
                   128
                 </div>
-                <div className="text-sm font-semibold text-foreground mb-1">
+                <div className="text-xs font-semibold text-foreground mb-0.5">
                   Minutes Total
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-[10px] text-muted-foreground">
                   Standard duration with breaks
                 </div>
               </div>
             </div>
 
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500/5 via-purple-500/10 to-transparent border border-purple-500/20 p-6 backdrop-blur-sm">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-purple-500/5 via-purple-500/10 to-transparent border border-purple-500/20 p-4 backdrop-blur-sm">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-purple-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
               <div className="relative">
-                <div className="text-4xl font-black text-purple-600 dark:text-purple-400 mb-2">
+                <div className="text-2xl font-black text-purple-600 dark:text-purple-400 mb-1">
                   4
                 </div>
-                <div className="text-sm font-semibold text-foreground mb-1">
+                <div className="text-xs font-semibold text-foreground mb-0.5">
                   Adaptive Modules
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-[10px] text-muted-foreground">
                   2 R&W • 2 Math sections
                 </div>
               </div>
             </div>
 
-            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500/5 via-emerald-500/10 to-transparent border border-emerald-500/20 p-6 backdrop-blur-sm">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-500/5 via-emerald-500/10 to-transparent border border-emerald-500/20 p-4 backdrop-blur-sm">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-emerald-500/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
               <div className="relative">
-                <div className="text-4xl font-black text-emerald-600 dark:text-emerald-400 mb-2">
+                <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400 mb-1">
                   Instant
                 </div>
-                <div className="text-sm font-semibold text-foreground mb-1">
+                <div className="text-xs font-semibold text-foreground mb-0.5">
                   Score & Analysis
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-[10px] text-muted-foreground">
                   Detailed performance insights
                 </div>
               </div>
@@ -244,22 +244,22 @@ export default function MockExamPage() {
           </div>
 
           {/* Start New Exam */}
-          <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/5 via-primary/10 to-transparent p-8 md:p-12 shadow-xl">
+          <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/5 via-primary/10 to-transparent p-6 md:p-8 shadow-xl">
             <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
-            <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-              <div className="flex-1 space-y-4">
+            <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+              <div className="flex-1 space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                     <Target className="w-5 h-5 text-primary" />
                   </div>
-                  <h2 className="text-3xl font-bold text-foreground">
+                  <h2 className="text-2xl font-bold text-foreground">
                     Ready to test your skills?
                   </h2>
                 </div>
-                <div className="space-y-2 pl-14">
-                  <p className="text-muted-foreground leading-relaxed text-lg">
+                <div className="space-y-1.5 pl-14">
+                  <p className="text-muted-foreground leading-relaxed text-base">
                     Simulate real exam conditions and get instant feedback on
                     your performance.
                   </p>
@@ -282,7 +282,7 @@ export default function MockExamPage() {
               <Button
                 onClick={createMockExam}
                 disabled={isCreating}
-                className="h-14 px-8 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:scale-105 disabled:opacity-70 disabled:hover:scale-100 shrink-0 rounded-xl"
+                className="h-12 px-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:scale-105 disabled:opacity-70 disabled:hover:scale-100 shrink-0 rounded-xl"
               >
                 {isCreating ? (
                   <>

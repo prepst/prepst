@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, Flag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { QuestionNavigatorPopup } from "./QuestionNavigatorPopup";
 import type { SessionQuestion, AnswerState } from "@/lib/types";
@@ -23,6 +23,8 @@ interface MockExamFooterProps {
   onNext: () => void;
   onPrevious: () => void;
   onNavigate?: (index: number) => void;
+  onToggleMarkForReview?: () => void;
+  isMarkedForReview?: boolean;
 }
 
 export function MockExamFooter({
@@ -39,6 +41,8 @@ export function MockExamFooter({
   onNext,
   onPrevious,
   onNavigate,
+  onToggleMarkForReview,
+  isMarkedForReview = false,
 }: MockExamFooterProps) {
   const handleNavigate = (index: number) => {
     if (onNavigate) {
@@ -48,7 +52,7 @@ export function MockExamFooter({
 
   return (
     <div className="relative z-50 bg-background/80 backdrop-blur-xl border-t border-border/40 supports-[backdrop-filter]:bg-background/60">
-      <div className="flex items-center justify-between px-6 h-16">
+      <div className="flex items-center justify-between pl-[250px] pr-[250px] h-16">
         {/* Left: Question Counter - Clickable */}
         <div className="flex items-center gap-3">
           {questions.length > 0 ? (
@@ -78,6 +82,7 @@ export function MockExamFooter({
                   answers={answers}
                   currentIndex={currentIndex}
                   onNavigate={handleNavigate}
+                  isMockExam={true}
                 />
               </PopoverContent>
             </Popover>
@@ -97,7 +102,7 @@ export function MockExamFooter({
         </div>
 
         {/* Center: Question Counter */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        {/* <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
           <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-card/50 border border-border/40 backdrop-blur-sm">
             <span className="text-sm font-medium text-muted-foreground">
               Question
@@ -112,10 +117,31 @@ export function MockExamFooter({
               {totalQuestions}
             </span>
           </div>
-        </div>
+        </div> */}
 
-        {/* Right: Back / Next / Submit */}
+        {/* Right: Mark for Review / Back / Next / Submit */}
         <div className="flex items-center gap-3">
+          {/* Mark for Review Button */}
+          {onToggleMarkForReview && (
+            <Button
+              variant="outline"
+              onClick={onToggleMarkForReview}
+              className={cn(
+                "h-10 px-4 border-border/60 bg-background/50 hover:bg-accent transition-all text-base font-semibold",
+                isMarkedForReview &&
+                  "bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400"
+              )}
+            >
+              <Flag
+                className={cn(
+                  "w-4 h-4 mr-2",
+                  isMarkedForReview && "fill-orange-500 text-orange-500"
+                )}
+              />
+              {isMarkedForReview ? "Marked for Review" : "Mark for Review"}
+            </Button>
+          )}
+
           {/* Back Button */}
           <Button
             variant="outline"
@@ -169,4 +195,3 @@ export function MockExamFooter({
     </div>
   );
 }
-

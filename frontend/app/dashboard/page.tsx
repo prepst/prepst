@@ -7,15 +7,24 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/lib/hooks/useProfile";
 import { ProgressOverview } from "@/components/dashboard/ProgressOverview";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { supabase } from "@/lib/supabase";
-import { Play, Target, Sparkles, ArrowRight, Clock, X } from "lucide-react";
+import { Play, Target, Sparkles, ArrowRight, Clock } from "lucide-react";
 import MissionCard from "@/components/dashboard/MissionCard";
 import QuickActionsGrid from "@/components/dashboard/QuickActionsGrid";
 import RecommendationCard from "@/components/dashboard/RecommendationCard";
 import QuestionOfTheDayCard from "@/components/dashboard/QuestionOfTheDayCard";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useTheme } from "@/contexts/ThemeContext";
 import { FeedbackButton } from "@/components/FeedbackButton";
+import { QuestionPracticePopup } from "@/components/revision/QuestionPracticePopup";
+import type { SessionQuestion } from "@/lib/types";
 
 const timeOptions = [
   { label: "5 min", value: 5 },
@@ -33,6 +42,12 @@ export default function DashboardPage() {
   const [showTimeSelection, setShowTimeSelection] = useState(false);
   const { isDarkMode } = useTheme();
 
+  // Lightweight question popup state
+  const [questions, setQuestions] = useState<SessionQuestion[]>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [isLoadingQuestions, setIsLoadingQuestions] = useState(false);
+
   const getDisplayName = () => {
     if (user?.user_metadata?.name) {
       return user.user_metadata.name;
@@ -48,9 +63,52 @@ export default function DashboardPage() {
   const mockExamData = mockExamQuery.data || null;
   const mockExamPerformance = mockExamData?.recent_exams || [];
 
+  // Transform raw question data to SessionQuestion format
+  const transformToSessionQuestion = (
+    q: any,
+    index: number
+  ): SessionQuestion | null => {
+    if (!q || !q.topics) {
+      return null;
+    }
+    return {
+      session_question_id: `quick-${q.id}-${index}`,
+      question: {
+        id: q.id,
+        stem: q.stem,
+        stimulus: q.stimulus || null,
+        question_type: q.question_type,
+        answer_options: q.answer_options,
+        correct_answer: q.correct_answer,
+        difficulty: q.difficulty,
+        rationale: q.rationale || null,
+        module: "math",
+        topic_id: q.topics?.id || q.id,
+        external_id: q.id,
+        source_uid: q.id,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      } as any,
+      topic: {
+        id: q.topics?.id || q.id,
+        name: q.topics?.name || "Unknown Topic",
+        category_id: "",
+        weight_in_category: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      } as any,
+      status: "not_started",
+      display_order: index + 1,
+      user_answer: null,
+      is_saved: false,
+    } as SessionQuestion;
+  };
+
   const handleStartPractice = async (minutes: number) => {
     if (!user) return;
 
+    setIsLoadingQuestions(true);
     try {
       // Calculate number of questions based on time
       // Assuming average 1.5-2 minutes per question
@@ -58,46 +116,81 @@ export default function DashboardPage() {
       const numQuestions = Math.floor(minutes * questionsPerMinute);
 
       // Get random questions from the database
-      const { data: questions, error } = await supabase
+      const { data: rawQuestions, error } = await supabase
         .from("questions")
         .select(
-          "id, stem, question_type, answer_options, correct_answer, difficulty, topics(name)"
+          "id, stem, stimulus, question_type, answer_options, correct_answer, difficulty, rationale, topics(id, name)"
         )
         .limit(numQuestions * 2); // Get more than needed for variety
 
       if (error) throw error;
 
-      if (!questions || questions.length === 0) {
+      if (!rawQuestions || rawQuestions.length === 0) {
         alert("No questions available. Please try again later.");
+        setIsLoadingQuestions(false);
         return;
       }
 
       // Randomly select questions and shuffle them
-      const shuffled = questions.sort(() => 0.5 - Math.random());
+      const shuffled = rawQuestions.sort(() => 0.5 - Math.random());
       const selectedQuestions = shuffled.slice(0, numQuestions);
 
-      // Create a simple practice session in localStorage for now
-      const sessionId = `quick-practice-${Date.now()}`;
-      const practiceSession = {
-        id: sessionId,
-        questions: selectedQuestions,
-        currentIndex: 0,
-        timeLimit: minutes * 60, // Convert to seconds
-        createdAt: new Date().toISOString(),
-      };
+      // Transform to SessionQuestion format
+      const sessionQuestions = selectedQuestions
+        .map((q, index) => transformToSessionQuestion(q, index))
+        .filter((q): q is SessionQuestion => q !== null);
 
-      // Store in localStorage
-      localStorage.setItem(
-        `practice-session-${sessionId}`,
-        JSON.stringify(practiceSession)
-      );
+      if (sessionQuestions.length === 0) {
+        alert("Failed to load questions. Please try again.");
+        setIsLoadingQuestions(false);
+        return;
+      }
 
-      // Navigate to a simple practice page
-      router.push(`/practice/quick/${sessionId}`);
+      // Set questions and open popup
+      setQuestions(sessionQuestions);
+      setCurrentQuestionIndex(0);
+      setIsPopupOpen(true);
+      setShowTimeSelection(false);
     } catch (error) {
       console.error("Error creating practice session:", error);
       alert("Failed to create practice session. Please try again.");
+    } finally {
+      setIsLoadingQuestions(false);
     }
+  };
+
+  const handleQuestionComplete = (isCorrect: boolean) => {
+    // This is called when user clicks "Done" after checking answer
+    // Navigation is handled by onNext prop
+  };
+
+  const handleNext = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    } else {
+      // All questions completed
+      setIsPopupOpen(false);
+      setQuestions([]);
+      setCurrentQuestionIndex(0);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
+    }
+  };
+
+  const handleSkip = () => {
+    if (currentQuestionIndex < questions.length - 1) {
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
+    }
+  };
+
+  const handlePopupClose = () => {
+    setIsPopupOpen(false);
+    setQuestions([]);
+    setCurrentQuestionIndex(0);
   };
 
   // Get next session and transform it to match MissionCard's expected type
@@ -183,110 +276,65 @@ export default function DashboardPage() {
 
               <div className="relative z-10 p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 flex-1">
                 <div className="flex-1 space-y-4">
-                  <AnimatePresence mode="wait">
-                    {!showTimeSelection ? (
-                      <motion.div
-                        key="hero-content"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 20 }}
-                        className="space-y-6"
-                      >
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 dark:bg-black/10 backdrop-blur-md border border-white/10 dark:border-black/10">
-                          <Sparkles className="w-4 h-4 text-yellow-400" />
-                          <span className="text-sm font-medium">
-                            AI-Powered Learning
-                          </span>
-                        </div>
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    className="space-y-6"
+                  >
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 dark:bg-black/10 backdrop-blur-md border border-white/10 dark:border-black/10">
+                      <Sparkles className="w-4 h-4 text-yellow-400" />
+                      <span className="text-sm font-medium">
+                        AI-Powered Learning
+                      </span>
+                    </div>
 
-                        <div className="space-y-2">
-                          <h1 className="text-3xl md:text-5xl font-bold leading-tight">
+                    <div className="space-y-2">
+                      <h1 className="text-3xl md:text-5xl font-bold leading-tight">
+                        {user ? (
+                          <>
                             Hello, <span>{getDisplayName().split(" ")[0]}</span>
-                          </h1>
-                          <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 max-w-lg">
-                            Ready to crush your SAT goals? Let's get started!
-                            Your personalized study plan is optimized for
-                            maximum score improvement.
-                          </p>
-                        </div>
+                          </>
+                        ) : (
+                          "Hey there!"
+                        )}
+                      </h1>
+                      <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 max-w-lg">
+                        Ready to crush your SAT goals? Let's get started! Your
+                        personalized study plan is optimized for maximum score
+                        improvement.
+                      </p>
+                    </div>
 
-                        <div className="flex flex-wrap gap-3">
-                          <Button
-                            onClick={() => setShowTimeSelection(true)}
-                            className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6 py-4 text-base font-bold transition-all hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-                          >
-                            <Play className="w-4 h-4 mr-2 fill-current" />
-                            Quick Start
-                          </Button>
-                          <Button
-                            onClick={() => router.push("/dashboard/mock-exam")}
-                            variant="outline"
-                            className="border-border text-foreground hover:bg-accent rounded-full px-6 py-4 text-base font-medium backdrop-blur-sm"
-                          >
-                            <Target className="w-4 h-4 mr-2" />
-                            Mock Exam
-                          </Button>
-                        </div>
-                      </motion.div>
-                    ) : (
-                      <motion.div
-                        key="time-selection"
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -20 }}
-                        className="space-y-4"
+                    <div className="flex flex-wrap gap-3">
+                      <Button
+                        onClick={() => {
+                          if (!user) {
+                            router.push("/signup");
+                          } else {
+                            setShowTimeSelection(true);
+                          }
+                        }}
+                        className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6 py-4 text-base font-bold transition-all hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.3)]"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 dark:bg-black/10 backdrop-blur-md border border-white/10 dark:border-black/10">
-                            <Clock className="w-4 h-4 text-blue-400" />
-                            <span className="text-sm font-medium">
-                              Choose Duration
-                            </span>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => setShowTimeSelection(false)}
-                            className="rounded-full hover:bg-white/10 text-foreground/80"
-                          >
-                            <X className="w-5 h-5" />
-                          </Button>
-                        </div>
-
-                        <div className="space-y-2">
-                          <h2 className="text-2xl md:text-3xl font-bold">
-                            How much time do you have?
-                          </h2>
-                          <p className="text-sm md:text-base text-gray-700 dark:text-gray-300 max-w-md">
-                            We'll generate a custom practice session that fits
-                            perfectly into your schedule.
-                          </p>
-                        </div>
-
-                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-lg">
-                          {timeOptions.map((option) => (
-                            <Button
-                              key={option.value}
-                              onClick={() => handleStartPractice(option.value)}
-                              variant="outline"
-                              className="h-auto py-4 flex flex-col gap-1 border-border/50 bg-white/5 hover:bg-primary hover:text-primary-foreground hover:border-primary backdrop-blur-sm transition-all duration-200 group"
-                            >
-                              <span className="text-lg font-bold">
-                                {option.label}
-                              </span>
-                              <span className="text-xs opacity-70 group-hover:opacity-100 font-normal">
-                                ~
-                                {Math.floor(
-                                  option.value * (option.value <= 30 ? 2 : 1.5)
-                                )}{" "}
-                                questions
-                              </span>
-                            </Button>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
+                        <Play className="w-4 h-4 mr-2 fill-current" />
+                        {user ? "Quick Start" : "Sign Up"}
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          if (!user) {
+                            router.push("/login");
+                          } else {
+                            router.push("/dashboard/mock-exam");
+                          }
+                        }}
+                        variant="outline"
+                        className="border-border text-foreground hover:bg-accent rounded-full px-6 py-4 text-base font-medium backdrop-blur-sm"
+                      >
+                        <Target className="w-4 h-4 mr-2" />
+                        {user ? "Mock Exam" : "Log In"}
+                      </Button>
+                    </div>
+                  </motion.div>
                 </div>
 
                 {/* Hero Illustration / Stats or 3D Element placeholder */}
@@ -385,6 +433,63 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+
+      {/* Quick Start Time Selection Modal */}
+      <Dialog open={showTimeSelection} onOpenChange={setShowTimeSelection}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Clock className="w-5 h-5 text-primary" />
+              Choose Duration
+            </DialogTitle>
+            <DialogDescription>
+              How much time do you have? We'll generate a custom practice
+              session that fits perfectly into your schedule.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-4">
+            {timeOptions.map((option) => (
+              <Button
+                key={option.value}
+                onClick={() => {
+                  handleStartPractice(option.value);
+                }}
+                disabled={isLoadingQuestions}
+                variant="outline"
+                className="h-auto py-4 flex flex-col gap-1 border-border/50 hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-200 group disabled:opacity-50"
+              >
+                <span className="text-lg font-bold">{option.label}</span>
+                <span className="text-xs opacity-70 group-hover:opacity-100 font-normal">
+                  ~{Math.floor(option.value * (option.value <= 30 ? 2 : 1.5))}{" "}
+                  questions
+                </span>
+              </Button>
+            ))}
+          </div>
+          {isLoadingQuestions && (
+            <div className="mt-4 text-center text-sm text-muted-foreground">
+              Loading questions...
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Lightweight Question Popup */}
+      {questions.length > 0 && questions[currentQuestionIndex] && (
+        <QuestionPracticePopup
+          open={isPopupOpen && !!questions[currentQuestionIndex]}
+          onOpenChange={handlePopupClose}
+          question={questions[currentQuestionIndex]}
+          onComplete={handleQuestionComplete}
+          currentIndex={currentQuestionIndex}
+          totalQuestions={questions.length}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+          onSkip={handleSkip}
+          hasPrevious={currentQuestionIndex > 0}
+          hasNext={currentQuestionIndex < questions.length - 1}
+        />
+      )}
 
       <FeedbackButton />
     </div>

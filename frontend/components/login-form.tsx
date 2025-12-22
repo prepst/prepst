@@ -15,6 +15,7 @@ import {
   ArrowRight,
   Eye,
   EyeOff,
+  ArrowLeft,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -68,7 +69,17 @@ export function LoginForm({
         {...props}
       >
         {/* Form Container */}
-        <div className="flex-1 flex flex-col justify-center max-w-md">
+        <div
+          className="flex-1 flex flex-col justify-center max-w-md mx-auto"
+          style={{ width: "300px" }}
+        >
+          <button
+            onClick={() => router.back()}
+            className="mb-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-fit"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </button>
           <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">
             Welcome back!
           </h1>

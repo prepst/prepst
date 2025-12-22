@@ -49,12 +49,16 @@ export function formatTopicName(topicName: string): string {
 
   // Common phrase mappings for shortening long topic names
   const phraseMappings: Record<string, string> = {
+    "NONLINEAR EQUATIONS IN ONE VARIABLE AND SYSTEMS OF EQUATIONS IN TWO VARIABLES":
+      "Nonlinear Equations & Systems",
+    "NONLINEAR EQUATIONS": "Nonlinear Equations",
     "LINEAR EQUATIONS IN ONE VARIABLE": "Linear Equations",
     "LINEAR EQUATIONS": "Linear Equations",
     "QUADRATIC EQUATIONS": "Quadratic Equations",
     "SYSTEM OF EQUATIONS": "System of Equations",
     "SYSTEM OF INEQUALITIES": "System of Inequalities",
     "SYSTEM OF EQUATIONS/INEQUALITIES": "System of Equations",
+    "SYSTEMS OF EQUATIONS": "Systems of Equations",
     "COMPOSITE FUNCTIONS": "Composite Functions",
     "EXPONENTIAL FUNCTIONS": "Exponential Functions",
     "POLYNOMIAL FUNCTIONS": "Polynomials",

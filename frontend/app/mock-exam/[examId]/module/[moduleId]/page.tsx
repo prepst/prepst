@@ -599,7 +599,7 @@ function ModuleContent() {
     <div className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Header with Progress */}
       <div className="relative z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center justify-between px-6 h-16">
+        <div className="flex items-center justify-between pl-[250px] pr-[250px] h-16">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-3">
               <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -617,7 +617,7 @@ function ModuleContent() {
 
             <div className="h-6 w-px bg-border/60 hidden sm:block" />
 
-            <div className="flex items-center gap-2 hidden sm:flex">
+            {/* <div className="flex items-center gap-2 hidden sm:flex">
               <Button
                 variant="ghost"
                 size="icon"
@@ -640,7 +640,7 @@ function ModuleContent() {
               <span className="text-xs text-muted-foreground ml-2">
                 {answeredCount} answered
               </span>
-            </div>
+            </div> */}
           </div>
 
           {/* Center: Timer (Absolute Center) */}
@@ -883,7 +883,7 @@ function ModuleContent() {
         )}
 
         {/* Question Content - Flexible width */}
-        <div className="flex-1 overflow-y-auto p-8 lg:p-12 min-w-0 relative">
+        <div className="flex-1 overflow-y-auto pl-[250px] pr-8 lg:pr-12 pt-8 lg:pt-12 pb-8 lg:pb-12 min-w-0 relative">
           {/* SAT Tools Toolbar */}
           <div className="absolute top-4 right-4 z-30">
             <MockExamToolsToolbar />
@@ -989,30 +989,6 @@ function ModuleContent() {
             onGetSimilarQuestion={undefined} // Not used in mock exams
             onSaveQuestion={undefined} // Not used in mock exams
           />
-
-          {/* Mark for Review Button */}
-          <div className="p-6 border-t border-border bg-card/50 backdrop-blur-sm">
-            <Button
-              variant="outline"
-              onClick={toggleMarkForReview}
-              className={`w-full h-12 border-border/60 bg-background/50 hover:bg-accent transition-all text-base font-semibold ${
-                currentAnswer?.isMarkedForReview
-                  ? "bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400"
-                  : ""
-              }`}
-            >
-              <Flag
-                className={`w-4 h-4 mr-2 ${
-                  currentAnswer?.isMarkedForReview
-                    ? "fill-orange-500 text-orange-500"
-                    : ""
-                }`}
-              />
-              {currentAnswer?.isMarkedForReview
-                ? "Marked for Review"
-                : "Mark for Review"}
-            </Button>
-          </div>
         </div>
       </div>
 
@@ -1057,6 +1033,8 @@ function ModuleContent() {
         onNext={handleNext}
         onPrevious={handlePrevious}
         onNavigate={handleQuestionNavigation}
+        onToggleMarkForReview={toggleMarkForReview}
+        isMarkedForReview={currentAnswer?.isMarkedForReview || false}
       />
     </div>
   );

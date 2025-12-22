@@ -1,9 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { X, Check, Lightbulb, Sparkles, BookOpen } from "lucide-react";
+import {
+  X,
+  Check,
+  Lightbulb,
+  Sparkles,
+  BookOpen,
+  ChevronLeft,
+  ChevronRight,
+  SkipForward,
+} from "lucide-react";
 import { QuestionPanel } from "@/components/practice/QuestionPanel";
 import { AnswerPanel } from "@/components/practice/AnswerPanel";
 import { AIFeedbackDisplay } from "@/components/practice/AIFeedbackDisplay";
@@ -21,6 +30,14 @@ interface QuestionPracticePopupProps {
   onOpenChange: (open: boolean) => void;
   question: SessionQuestion;
   onComplete?: (isCorrect: boolean) => void;
+  // Navigation props for multi-question sessions
+  currentIndex?: number;
+  totalQuestions?: number;
+  onNext?: () => void;
+  onPrevious?: () => void;
+  onSkip?: () => void;
+  hasPrevious?: boolean;
+  hasNext?: boolean;
 }
 
 export function QuestionPracticePopup({
@@ -28,6 +45,13 @@ export function QuestionPracticePopup({
   onOpenChange,
   question,
   onComplete,
+  currentIndex,
+  totalQuestions,
+  onNext,
+  onPrevious,
+  onSkip,
+  hasPrevious = false,
+  hasNext = false,
 }: QuestionPracticePopupProps) {
   const [answer, setAnswer] = useState<AnswerState | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -35,6 +59,18 @@ export function QuestionPracticePopup({
   const [aiFeedback, setAiFeedback] = useState<AIFeedbackContent | null>(null);
   const [loadingFeedback, setLoadingFeedback] = useState(false);
   const [isSimpleExplanation, setIsSimpleExplanation] = useState(false);
+
+  // Reset state when question changes
+  useEffect(() => {
+    if (open && question) {
+      setAnswer(null);
+      setShowFeedback(false);
+      setIsSubmitting(false);
+      setAiFeedback(null);
+      setIsSimpleExplanation(false);
+      setLoadingFeedback(false);
+    }
+  }, [question?.session_question_id, open]);
 
   const handleAnswerChange = (value: string) => {
     if (showFeedback) return;
@@ -222,7 +258,28 @@ export function QuestionPracticePopup({
     if (onComplete && answer) {
       onComplete(answer.isCorrect === true);
     }
-    handleClose();
+
+    // If navigation handlers are provided, use them instead of closing
+    // State will be reset by useEffect when question changes
+    if (onNext && hasNext) {
+      onNext();
+    } else {
+      handleClose();
+    }
+  };
+
+  const handleSkip = () => {
+    // State will be reset by useEffect when question changes
+    if (onSkip && hasNext) {
+      onSkip();
+    }
+  };
+
+  const handlePrevious = () => {
+    // State will be reset by useEffect when question changes
+    if (onPrevious && hasPrevious) {
+      onPrevious();
+    }
   };
 
   const handleGetFeedback = async () => {
@@ -297,28 +354,92 @@ export function QuestionPracticePopup({
         showCloseButton={false}
       >
         {/* Header */}
-        <div className="relative z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/60 px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-              <span className="font-bold text-primary text-sm">Q</span>
+        <div className="relative z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/60 flex flex-col">
+          <div className="px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <span className="font-bold text-primary text-sm">Q</span>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold text-foreground leading-none">
+                  Quick Practice
+                </span>
+                <span className="text-[10px] text-muted-foreground font-medium mt-1">
+                  {totalQuestions && currentIndex !== undefined
+                    ? `Question ${currentIndex + 1} of ${totalQuestions}`
+                    : "Single Question Review"}
+                </span>
+              </div>
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold text-foreground leading-none">
-                Quick Practice
-              </span>
-              <span className="text-[10px] text-muted-foreground font-medium mt-1">
-                Single Question Review
-              </span>
+
+            <div className="flex items-center gap-2">
+              {/* Navigation buttons */}
+              {totalQuestions && totalQuestions > 1 && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handlePrevious}
+                    disabled={!hasPrevious}
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                    title="Previous question"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
+
+                  {!showFeedback && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleSkip}
+                      disabled={!hasNext}
+                      className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground disabled:opacity-30"
+                      title="Skip question"
+                    >
+                      <SkipForward className="w-3 h-3 mr-1" />
+                      Skip
+                    </Button>
+                  )}
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleNext}
+                    disabled={!hasNext || !showFeedback}
+                    className="h-8 w-8 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                    title={hasNext ? "Next question" : "Finish"}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                  </Button>
+                </>
+              )}
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleClose}
+                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              >
+                <X className="w-4 h-4" />
+              </Button>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleClose}
-            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-          >
-            <X className="w-4 h-4" />
-          </Button>
+
+          {/* Progress bar */}
+          {totalQuestions &&
+            totalQuestions > 1 &&
+            currentIndex !== undefined && (
+              <div className="px-6 pb-3">
+                <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-primary transition-all duration-300"
+                    style={{
+                      width: `${((currentIndex + 1) / totalQuestions) * 100}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            )}
         </div>
 
         {/* Content */}
@@ -337,7 +458,7 @@ export function QuestionPracticePopup({
           </div>
 
           {/* Answer Panel */}
-          <div className="w-[480px] shrink-0 bg-card/50 backdrop-blur-sm flex flex-col overflow-hidden">
+          <div className="w-[480px] shrink-0 bg-background backdrop-blur-sm flex flex-col overflow-hidden">
             <div className="flex-1 overflow-y-auto">
               <AnswerPanel
                 question={question}
@@ -374,7 +495,7 @@ export function QuestionPracticePopup({
             </div>
 
             {/* Footer Actions */}
-            <div className="p-6 border-t border-border bg-card/50 backdrop-blur-sm space-y-3">
+            <div className="p-6 border-t border-border bg-background backdrop-blur-sm space-y-3">
               {!showFeedback ? (
                 <>
                   {/* Check Answer Button */}
@@ -433,7 +554,7 @@ export function QuestionPracticePopup({
                 </>
               ) : (
                 <>
-                  {/* Done Button */}
+                  {/* Done/Next Button */}
                   <Button
                     onClick={handleNext}
                     className="w-full h-10 px-6 font-semibold transition-all shadow-sm hover:opacity-90 text-base flex items-center justify-center gap-2"
@@ -442,7 +563,14 @@ export function QuestionPracticePopup({
                       color: "#fea500",
                     }}
                   >
-                    Done
+                    {hasNext ? (
+                      <>
+                        Next Question
+                        <ChevronRight className="size-4" />
+                      </>
+                    ) : (
+                      "Done"
+                    )}
                   </Button>
 
                   {/* Explanation and AI Explanation Buttons */}

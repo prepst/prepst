@@ -56,7 +56,7 @@ async def generate_video(
             )
 
         # If MANIM_SERVICE_URL is set, proxy to Railway
-        if settings.manim_service_url:
+        if settings.manim_service_url and settings.manim_service_url.strip():
             try:
                 async with httpx.AsyncClient(timeout=300.0) as client:
                     # Forward authorization header
@@ -65,9 +65,14 @@ async def generate_video(
                     if auth_header:
                         headers["Authorization"] = auth_header
                     
+                    # Ensure URL has protocol
+                    manim_url = settings.manim_service_url.strip()
+                    if not manim_url.startswith(("http://", "https://")):
+                        manim_url = f"https://{manim_url}"
+                    
                     # Forward request to Railway
                     response = await client.post(
-                        f"{settings.manim_service_url}/api/manim/generate",
+                        f"{manim_url}/api/manim/generate",
                         json={"question": request.question.strip()},
                         headers=headers,
                     )
@@ -129,7 +134,7 @@ async def list_user_videos(
     """
     try:
         # If MANIM_SERVICE_URL is set, proxy to Railway
-        if settings.manim_service_url:
+        if settings.manim_service_url and settings.manim_service_url.strip():
             try:
                 async with httpx.AsyncClient(timeout=30.0) as client:
                     # Forward authorization header
@@ -138,9 +143,14 @@ async def list_user_videos(
                     if auth_header:
                         headers["Authorization"] = auth_header
                     
+                    # Ensure URL has protocol
+                    manim_url = settings.manim_service_url.strip()
+                    if not manim_url.startswith(("http://", "https://")):
+                        manim_url = f"https://{manim_url}"
+                    
                     # Forward request to Railway
                     response = await client.get(
-                        f"{settings.manim_service_url}/api/manim/videos",
+                        f"{manim_url}/api/manim/videos",
                         params={"limit": limit},
                         headers=headers,
                     )
@@ -209,12 +219,17 @@ async def get_video(
     """
     try:
         # If MANIM_SERVICE_URL is set, proxy to Railway
-        if settings.manim_service_url:
+        if settings.manim_service_url and settings.manim_service_url.strip():
             try:
                 async with httpx.AsyncClient(timeout=60.0, follow_redirects=True) as client:
+                    # Ensure URL has protocol
+                    manim_url = settings.manim_service_url.strip()
+                    if not manim_url.startswith(("http://", "https://")):
+                        manim_url = f"https://{manim_url}"
+                    
                     # Forward request to Railway
                     response = await client.get(
-                        f"{settings.manim_service_url}/api/manim/videos/{filename}",
+                        f"{manim_url}/api/manim/videos/{filename}",
                     )
                     response.raise_for_status()
                     

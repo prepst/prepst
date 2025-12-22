@@ -58,15 +58,24 @@ async def log_requests(request: Request, call_next):
     
     return response
 
+# Startup event - log when app is ready
+@app.on_event("startup")
+async def startup_event():
+    port = os.getenv("PORT", "8000")
+    logger.info(f"🚀 Manim Service API started on port {port}")
+    logger.info("✅ Application ready to accept requests")
+
 # Only include manim router - all other routes handled by Vercel
 app.include_router(manim.router, prefix="/api")
 
 @app.get("/")
 async def root():
-    return {"message": "Manim Service API (Railway) - Manim routes only"}
+    """Root endpoint - responds quickly for Railway health checks"""
+    return {"status": "ok", "message": "Manim Service API (Railway) - Manim routes only"}
 
 @app.get("/health")
 async def health_check():
+    """Health check endpoint"""
     return {"status": "healthy", "service": "manim-only"}
 
 if __name__ == "__main__":

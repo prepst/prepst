@@ -28,5 +28,5 @@ COPY . .
 # Expose port (Railway will set PORT env var)
 EXPOSE ${PORT:-8000}
 
-# Run the Railway-specific main file (manim routes only)
-CMD uvicorn app.main_railway:app --host 0.0.0.0 --port ${PORT:-8000}
+# Run the application (Railway sets PORT env var)
+CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}

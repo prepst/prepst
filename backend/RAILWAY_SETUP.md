@@ -40,6 +40,8 @@ API_PORT=8000
 DEBUG=False
 ```
 
+**Important**: Do NOT set `MANIM_SERVICE_URL` on Railway. This variable should only be set on Vercel to enable proxying. Railway handles manim requests directly.
+
 ### 5. Deploy
 
 - Railway will automatically build using `Dockerfile.manim`
@@ -57,17 +59,22 @@ curl https://your-app.up.railway.app/health
 
 Should return: `{"status": "healthy"}`
 
-### 7. (Optional) Update Vercel to Proxy Manim Requests
+### 7. Configure Vercel to Proxy Manim Requests
 
-If you want your Vercel backend to forward manim requests to Railway:
+The Vercel backend is already configured to proxy manim requests to Railway:
 
-1. Add to Vercel environment variables:
+1. Add to **Vercel** environment variables:
 
    ```
    MANIM_SERVICE_URL=https://your-app.up.railway.app
    ```
 
-2. Update `backend/app/api/manim.py` to forward requests to Railway when `MANIM_SERVICE_URL` is set
+2. The manim router (`backend/app/api/manim.py`) automatically detects `MANIM_SERVICE_URL`:
+
+   - **If set (Vercel)**: Proxies all `/api/manim/*` requests to Railway
+   - **If not set (Railway)**: Handles requests locally with full manim capabilities
+
+3. No frontend changes needed - all requests go to `/api/manim/*` and Vercel handles routing
 
 ## Cost
 

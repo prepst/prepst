@@ -4,10 +4,11 @@ import subprocess
 import re
 import shutil
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Tuple
 from openai import OpenAI
 from supabase import Client, create_client
 from app.config import get_settings
+from datetime import datetime
 
 settings = get_settings()
 
@@ -21,6 +22,84 @@ class ManimService:
         self.output_dir = Path(__file__).parent.parent.parent / "manim_output"
         self.output_dir.mkdir(exist_ok=True)
         self.db = db
+
+    def _slugify(self, text: str) -> str:
+        """Convert text to URL-friendly slug
+        
+        Example: "Linear functions" -> "linear-functions"
+        """
+        # Convert to lowercase
+        slug = text.lower().strip()
+        # Replace spaces and underscores with hyphens
+        slug = re.sub(r'[\s_]+', '-', slug)
+        # Remove all non-alphanumeric characters except hyphens
+        slug = re.sub(r'[^a-z0-9\-]', '', slug)
+        # Replace multiple hyphens with single hyphen
+        slug = re.sub(r'-+', '-', slug)
+        # Remove leading/trailing hyphens
+        slug = slug.strip('-')
+        return slug
+
+    def _generate_short_id(self) -> str:
+        """Generate a short ID (first 8 characters of UUID)"""
+        return str(uuid.uuid4())[:8]
+
+    async def _classify_question(self, question: str) -> Tuple[str, str]:
+        """Classify question into category and topic using OpenAI
+        
+        Returns:
+            Tuple of (category_slug, topic_slug)
+            Example: ("algebra", "linear-functions")
+        """
+        # List of SAT Math categories and topics
+        categories_and_topics = """
+Math Categories and Topics:
+- Algebra: Linear equations in one variable, Linear functions, Linear equations in two variables, Systems of two linear equations in two variables, Linear inequalities in one or two variables
+- Advanced Math: Equivalent expressions, Nonlinear equations in one variable and systems of equations in two variables, Nonlinear functions
+- Problem-Solving and Data Analysis: Percentages, Ratios rates proportional relationships and units, One-variable data Distributions and measures of center and spread, Two-variable data Models and scatterplots, Probability and conditional probability, Inference from sample statistics and margin of error, Evaluating statistical claims Observational studies and experiments
+- Geometry and Trigonometry: Area and volume, Lines angles and triangles, Circles, Right triangles and trigonometry
+"""
+
+        prompt = f"""Classify the following SAT math question into the most appropriate category and topic.
+
+{categories_and_topics}
+
+Question: {question}
+
+Respond with ONLY a JSON object in this exact format:
+{{
+  "category": "Category Name",
+  "topic": "Topic Name"
+}}
+
+Use the exact category and topic names from the list above. If the question doesn't clearly fit, choose the closest match."""
+
+        try:
+            response = self.client.chat.completions.create(
+                model="gpt-4o-mini",  # Use cheaper model for classification
+                messages=[
+                    {
+                        "role": "system",
+                        "content": "You are a SAT math question classifier. Return only valid JSON, no explanations.",
+                    },
+                    {"role": "user", "content": prompt},
+                ],
+                temperature=0.3,
+                max_completion_tokens=100,
+            )
+
+            import json
+            result = json.loads(response.choices[0].message.content.strip())
+            
+            category_slug = self._slugify(result.get("category", "general"))
+            topic_slug = self._slugify(result.get("topic", "general"))
+            
+            return category_slug, topic_slug
+
+        except Exception as e:
+            print(f"Error classifying question: {str(e)}")
+            # Fallback to general category/topic
+            return "general", "general"
 
     async def generate_video_from_question(
         self, question: str, user_id: Optional[str] = None, max_retries: int = 3
@@ -38,10 +117,15 @@ class ManimService:
             Dictionary with video URL and metadata
         """
         try:
+            # Classify question into category and topic
+            category_slug, topic_slug = await self._classify_question(question)
+            print(f"Classified question: category={category_slug}, topic={topic_slug}")
+
             # Generate and execute with retry logic (only for generation errors)
             last_error = None
             video_path = None
             scene_id = None
+            short_id = None
 
             for attempt in range(max_retries):
                 try:
@@ -50,7 +134,9 @@ class ManimService:
                     # Generate Manim code (with error feedback if retrying)
                     manim_code = await self._generate_manim_code(question, previous_error=last_error)
 
-                    # Generate unique scene ID
+                    # Generate short ID for filename
+                    short_id = self._generate_short_id()
+                    # Keep full UUID for scene_id (used internally)
                     scene_id = str(uuid.uuid4())
 
                     # Write code to file
@@ -79,7 +165,14 @@ class ManimService:
                         raise Exception(f"Failed to generate video after {max_retries} attempts. Last error: {last_error}")
 
             # Video generated successfully - now upload (no retry for upload errors)
-            video_url = await self._upload_to_storage(video_path, scene_id, user_id)
+            video_url = await self._upload_to_storage(
+                video_path, 
+                scene_id, 
+                user_id,
+                category_slug=category_slug,
+                topic_slug=topic_slug,
+                short_id=short_id
+            )
 
             return {
                 "success": True,
@@ -88,6 +181,8 @@ class ManimService:
                 "sceneId": scene_id,
                 "question": question,
                 "isCached": False,
+                "category": category_slug,
+                "topic": topic_slug,
             }
 
         except Exception as e:
@@ -95,16 +190,28 @@ class ManimService:
             raise Exception(f"Failed to generate video: {str(e)}")
 
     async def _upload_to_storage(
-        self, video_path: Path, scene_id: str, user_id: Optional[str] = None
+        self, 
+        video_path: Path, 
+        scene_id: str, 
+        user_id: Optional[str] = None,
+        category_slug: str = "general",
+        topic_slug: str = "general",
+        short_id: str = None
     ) -> str:
         """
         Upload video to Supabase Storage and clean up local files.
         Uses service role key to bypass RLS policies.
+        
+        Storage path structure: {category_slug}/{topic_slug}/{short_id}.mp4
+        Example: algebra/linear-functions/a3f9b2c1.mp4
 
         Args:
             video_path: Path to the video file
-            scene_id: Unique scene identifier
+            scene_id: Unique scene identifier (full UUID, used internally)
             user_id: Optional user ID
+            category_slug: Category slug (e.g., "algebra")
+            topic_slug: Topic slug (e.g., "linear-functions")
+            short_id: Short ID for filename (e.g., "a3f9b2c1")
 
         Returns:
             Public URL of the uploaded video
@@ -113,6 +220,10 @@ class ManimService:
             Exception: If Supabase Storage upload fails
         """
         try:
+            # Generate short ID if not provided
+            if not short_id:
+                short_id = self._generate_short_id()
+
             # Create service role client to bypass RLS (admin-only feature)
             service_client = create_client(
                 settings.supabase_url,
@@ -123,8 +234,9 @@ class ManimService:
             with open(video_path, "rb") as f:
                 video_content = f.read()
 
-            # Upload to Supabase Storage
-            storage_path = f"{scene_id}.mp4"
+            # Upload to Supabase Storage with organized path structure
+            # Format: {category_slug}/{topic_slug}/{short_id}.mp4
+            storage_path = f"{category_slug}/{topic_slug}/{short_id}.mp4"
             bucket = service_client.storage.from_("manim-videos")
 
             # Upload file (bucket should already exist from migration)

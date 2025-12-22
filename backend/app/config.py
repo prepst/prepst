@@ -25,6 +25,11 @@ class Settings(BaseSettings):
     # Discord
     discord_webhook_url: str = Field(default="", env="DISCORD_WEBHOOK_URL")
 
+    # Manim Service (Railway)
+    # When set, Vercel will proxy manim requests to Railway
+    # When empty (Railway deployment), manim routes work directly
+    manim_service_url: str = Field(default="", env="MANIM_SERVICE_URL")
+
     class Config:
         env_file = ".env"
         case_sensitive = False

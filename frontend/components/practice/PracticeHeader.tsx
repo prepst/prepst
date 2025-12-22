@@ -51,6 +51,7 @@ interface PracticeHeaderProps {
   onStartTimer?: () => void;
 
   onExit: () => void;
+  isPinned?: boolean;
 }
 
 export function PracticeHeader({
@@ -68,24 +69,28 @@ export function PracticeHeader({
   showTimerModal,
   onToggleTimerModal,
   showTimerSetup = false,
-  setShowTimerSetup = () => {},
+  setShowTimerSetup = () => { },
   customHours = 0,
-  setCustomHours = () => {},
+  setCustomHours = () => { },
   customMinutes = 0,
-  setCustomMinutes = () => {},
-  onStartStopwatch = () => {},
-  onStartTimer = () => {},
+  setCustomMinutes = () => { },
+  onStartStopwatch = () => { },
+  onStartTimer = () => { },
 
   onPauseResume,
   onReset,
   onCloseTimer,
   onExit,
+  isPinned = false,
 }: PracticeHeaderProps) {
   const progress = ((currentIndex + 1) / totalQuestions) * 100;
 
   return (
     <div className="relative z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/60">
-      <div className="flex items-center justify-between pl-[250px] pr-[250px] h-16">
+      <div className={cn(
+        "flex items-center justify-between h-16",
+        isPinned ? "px-8" : "pl-[250px] pr-[250px]"
+      )}>
         {/* Left: Branding & Session Info */}
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">

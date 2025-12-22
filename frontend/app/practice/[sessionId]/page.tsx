@@ -25,6 +25,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Lightbulb } from "lucide-react";
+import { AIExplanationPanel } from "@/components/practice/AIExplanationPanel";
+import { cn } from "@/lib/utils";
 import "./practice-session.css";
 
 function PracticeSessionContent() {
@@ -88,6 +90,9 @@ function PracticeSessionContent() {
   const [showQuestionList, setShowQuestionList] = useState(false);
   const [confidenceScore, setConfidenceScore] = useState<number>(3); // Default confidence
   const [showExplanation, setShowExplanation] = useState(false);
+  const [showAIPanel, setShowAIPanel] = useState(false);
+  const [aiPanelTab, setAiPanelTab] = useState<"ask" | "explanation">("ask");
+  const [isAIPanelPinned, setIsAIPanelPinned] = useState(false);
 
   // Container ref for calculating middle position
   const containerRef = useRef<HTMLDivElement>(null);
@@ -107,6 +112,19 @@ function PracticeSessionContent() {
     }
     return 480;
   });
+
+  // Adjust divider position when panel is pinned/unpinned
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (isAIPanelPinned && showAIPanel) {
+      // When pinned, move divider to center of remaining space (viewport - 420px panel)
+      const availableWidth = window.innerWidth - 420;
+      setDividerPosition(availableWidth / 2);
+    } else {
+      // When unpinned, reset to viewport center
+      setDividerPosition(window.innerWidth / 2);
+    }
+  }, [isAIPanelPinned, showAIPanel]);
 
   // Track which session questions are saved
   const [savedSessionQuestions, setSavedSessionQuestions] = useState<
@@ -277,8 +295,8 @@ function PracticeSessionContent() {
         const options = Array.isArray(answerOptions)
           ? answerOptions
           : answerOptions
-          ? Object.entries(answerOptions)
-          : [];
+            ? Object.entries(answerOptions)
+            : [];
 
         let selectedOptionId: string | undefined;
 
@@ -360,7 +378,16 @@ function PracticeSessionContent() {
 
   const handleGetAiFeedback = () => {
     if (!currentQuestion) return;
-    handleGetFeedback(currentQuestion.question.id);
+    // Open AI panel with Ask Prepy tab
+    setAiPanelTab("ask");
+    setShowAIPanel(true);
+  };
+
+  const handleShowExplanation = () => {
+    if (!currentQuestion) return;
+    // Open AI panel with Explanation tab
+    setAiPanelTab("explanation");
+    setShowAIPanel(true);
   };
 
   const handleGetSimilarQuestion = async () => {
@@ -532,124 +559,145 @@ function PracticeSessionContent() {
 
   return (
     <div className="h-screen bg-background flex flex-col overflow-hidden">
-      {/* Header with Progress */}
-      <PracticeHeader
-        currentIndex={currentIndex}
-        totalQuestions={questions.length}
-        timerMode={timer.timerMode}
-        time={timer.time}
-        isRunning={timer.isRunning}
-        formatTime={timer.formatTime}
-        onToggleQuestionList={() => setShowQuestionList(!showQuestionList)}
-        streak={streak}
-        score={score}
-        // Timer Props
-        showTimerModal={timer.showTimerModal}
-        onToggleTimerModal={timer.setShowTimerModal}
-        showTimerSetup={timer.showTimerSetup}
-        setShowTimerSetup={timer.setShowTimerSetup}
-        customHours={timer.customHours}
-        setCustomHours={timer.setCustomHours}
-        customMinutes={timer.customMinutes}
-        setCustomMinutes={timer.setCustomMinutes}
-        onStartStopwatch={timer.handleStartStopwatch}
-        onStartTimer={timer.handleStartTimer}
-        onPauseResume={timer.handlePauseResume}
-        onReset={timer.handleReset}
-        onCloseTimer={timer.handleCloseTimer}
-        onExit={() => router.push("/dashboard/study-plan")}
-      />
+      {/* Main content wrapper that adjusts for pinned panel */}
+      <div className={cn("flex-1 flex flex-col overflow-hidden transition-all duration-300", isAIPanelPinned && showAIPanel ? "mr-[420px]" : "")}>
+        {/* Header with Progress */}
+        <PracticeHeader
+          currentIndex={currentIndex}
+          totalQuestions={questions.length}
+          timerMode={timer.timerMode}
+          time={timer.time}
+          isRunning={timer.isRunning}
+          formatTime={timer.formatTime}
+          onToggleQuestionList={() => setShowQuestionList(!showQuestionList)}
+          streak={streak}
+          score={score}
+          // Timer Props
+          showTimerModal={timer.showTimerModal}
+          onToggleTimerModal={timer.setShowTimerModal}
+          showTimerSetup={timer.showTimerSetup}
+          setShowTimerSetup={timer.setShowTimerSetup}
+          customHours={timer.customHours}
+          setCustomHours={timer.setCustomHours}
+          customMinutes={timer.customMinutes}
+          setCustomMinutes={timer.setCustomMinutes}
+          onStartStopwatch={timer.handleStartStopwatch}
+          onStartTimer={timer.handleStartTimer}
+          onPauseResume={timer.handlePauseResume}
+          onReset={timer.handleReset}
+          onCloseTimer={timer.handleCloseTimer}
+          onExit={() => router.push("/dashboard/study-plan")}
+          isPinned={isAIPanelPinned && showAIPanel}
+        />
 
-      <div
-        ref={containerRef}
-        className="flex-1 flex overflow-hidden"
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-      >
-        {/* Left Sidebar - Question List */}
-        {showQuestionList && (
-          <QuestionListSidebar
-            questions={questions}
-            answers={answers}
-            currentIndex={currentIndex}
-            onNavigate={handleQuestionNavigation}
-            onClose={() => setShowQuestionList(false)}
-          />
-        )}
-
-        {/* Question Panel - Flexible width */}
-        <div className="flex-1 flex flex-col min-w-0 relative">
-          {/* SAT Tools Toolbar - positioned at top-right of question area */}
-          <div className="absolute top-4 right-4 z-30">
-            <SATToolsToolbar />
-          </div>
-          <QuestionPanel question={currentQuestion} />
-        </div>
-
-        {/* Draggable Divider */}
         <div
-          className={`group relative w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ml-5 ${
-            isDragging ? "bg-primary" : ""
-          }`}
-          onMouseDown={handleMouseDown}
-          style={{
-            userSelect: "none",
-            cursor: isDragging ? "col-resize" : "col-resize",
-          }}
+          ref={containerRef}
+          className="flex-1 flex overflow-hidden"
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
         >
-          {/* Grip Handle Indicators */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-1.5">
-            <div className="w-0.5 h-1.5 bg-muted-foreground/40 rounded-full" />
-            <div className="w-0.5 h-1.5 bg-muted-foreground/40 rounded-full" />
-            <div className="w-0.5 h-1.5 bg-muted-foreground/40 rounded-full" />
+          {/* Left Sidebar - Question List */}
+          {showQuestionList && (
+            <QuestionListSidebar
+              questions={questions}
+              answers={answers}
+              currentIndex={currentIndex}
+              onNavigate={handleQuestionNavigation}
+              onClose={() => setShowQuestionList(false)}
+            />
+          )}
+
+          {/* Question Panel - Flexible width */}
+          <div className="flex-1 flex flex-col min-w-0 relative">
+            {/* SAT Tools Toolbar - positioned at top-right of question area */}
+            <div className="absolute top-4 right-4 z-30">
+              <SATToolsToolbar />
+            </div>
+            <QuestionPanel question={currentQuestion} isPinned={isAIPanelPinned && showAIPanel} />
+          </div>
+
+          {/* Draggable Divider */}
+          <div
+            className={`group relative w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ml-5 ${isDragging ? "bg-primary" : ""
+              }`}
+            onMouseDown={handleMouseDown}
+            style={{
+              userSelect: "none",
+              cursor: isDragging ? "col-resize" : "col-resize",
+            }}
+          >
+            {/* Grip Handle Indicators */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-1.5">
+              <div className="w-0.5 h-1.5 bg-muted-foreground/40 rounded-full" />
+              <div className="w-0.5 h-1.5 bg-muted-foreground/40 rounded-full" />
+              <div className="w-0.5 h-1.5 bg-muted-foreground/40 rounded-full" />
+            </div>
+          </div>
+
+          {/* Right Panel - Answer Choices & Feedback - Dynamic width */}
+          <div
+            className="border-l border-border bg-card/50 backdrop-blur-sm flex flex-col"
+            style={{ width: `${dividerPosition}px` }}
+          >
+            <AnswerPanel
+              question={currentQuestion}
+              answer={currentAnswer}
+              showFeedback={showFeedback}
+              aiFeedback={aiFeedback}
+              loadingFeedback={loadingFeedback}
+              onAnswerChange={handleAnswerChange}
+              onGetFeedback={handleGetAiFeedback}
+              onGetSimilarQuestion={handleGetSimilarQuestion}
+              onSaveQuestion={handleSaveQuestion}
+              isQuestionSaved={
+                savedSessionQuestions.get(currentQuestion.session_question_id) ||
+                false
+              }
+              onConfidenceSelect={handleConfidenceSelected}
+              defaultConfidence={confidenceScore}
+              isPinned={isAIPanelPinned && showAIPanel}
+            />
           </div>
         </div>
 
-        {/* Right Panel - Answer Choices & Feedback - Dynamic width */}
-        <div
-          className="border-l border-border bg-card/50 backdrop-blur-sm flex flex-col"
-          style={{ width: `${dividerPosition}px` }}
-        >
-          <AnswerPanel
-            question={currentQuestion}
-            answer={currentAnswer}
-            showFeedback={showFeedback}
-            aiFeedback={aiFeedback}
-            loadingFeedback={loadingFeedback}
-            onAnswerChange={handleAnswerChange}
-            onGetFeedback={handleGetAiFeedback}
-            onGetSimilarQuestion={handleGetSimilarQuestion}
-            onSaveQuestion={handleSaveQuestion}
-            isQuestionSaved={
-              savedSessionQuestions.get(currentQuestion.session_question_id) ||
-              false
-            }
-            onConfidenceSelect={handleConfidenceSelected}
-            defaultConfidence={confidenceScore}
-          />
-        </div>
+        {/* Footer with Navigation */}
+        <PracticeFooter
+          showFeedback={showFeedback}
+          hasAnswer={!!currentAnswer}
+          isSubmitting={isSubmitting}
+          isFirstQuestion={currentIndex === 0}
+          isLastQuestion={currentIndex === questions.length - 1}
+          currentIndex={currentIndex}
+          totalQuestions={questions.length}
+          questions={questions}
+          answers={answers}
+          onSubmit={handleSubmit}
+          onNext={handleNext}
+          onPrevious={handlePrevious}
+          onNavigate={handleQuestionNavigation}
+          onGetFeedback={handleGetAiFeedback}
+          loadingFeedback={loadingFeedback}
+          onShowExplanation={handleShowExplanation}
+          hasRationale={!!currentQuestion?.question.rationale}
+          isPinned={isAIPanelPinned && showAIPanel}
+        />
       </div>
 
-      {/* Footer with Navigation */}
-      <PracticeFooter
-        showFeedback={showFeedback}
-        hasAnswer={!!currentAnswer}
-        isSubmitting={isSubmitting}
-        isFirstQuestion={currentIndex === 0}
-        isLastQuestion={currentIndex === questions.length - 1}
-        currentIndex={currentIndex}
-        totalQuestions={questions.length}
-        questions={questions}
-        answers={answers}
-        onSubmit={handleSubmit}
-        onNext={handleNext}
-        onPrevious={handlePrevious}
-        onNavigate={handleQuestionNavigation}
-        onGetFeedback={handleGetAiFeedback}
-        loadingFeedback={loadingFeedback}
-        onShowExplanation={() => setShowExplanation(true)}
-        hasRationale={!!currentQuestion?.question.rationale}
+      {/* AI Explanation Panel */}
+      <AIExplanationPanel
+        key={currentQuestion?.question.id || 'no-question'}
+        isOpen={showAIPanel}
+        onClose={() => setShowAIPanel(false)}
+        isPinned={isAIPanelPinned}
+        onPinChange={(pinned) => setIsAIPanelPinned(pinned)}
+        initialTab={aiPanelTab}
+        questionId={currentQuestion?.question.id}
+        questionContext={{
+          stem: currentQuestion?.question.stem,
+          topic: currentQuestion?.topic.name,
+          rationale: currentQuestion?.question.rationale || undefined,
+        }}
       />
 
       {/* Explanation Dialog */}

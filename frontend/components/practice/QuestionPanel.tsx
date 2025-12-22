@@ -6,11 +6,13 @@ import { Tag } from "lucide-react";
 interface QuestionPanelProps {
   question: SessionQuestion;
   compact?: boolean;
+  isPinned?: boolean;
 }
 
 export function QuestionPanel({
   question,
   compact = false,
+  isPinned = false,
 }: QuestionPanelProps) {
   const processedStem = processQuestionBlanks(question.question.stem || "");
   const processedStimulus = processQuestionBlanks(
@@ -21,21 +23,20 @@ export function QuestionPanel({
     question.question.difficulty === "E"
       ? "bg-emerald-500"
       : question.question.difficulty === "M"
-      ? "bg-amber-500"
-      : "bg-rose-500";
+        ? "bg-amber-500"
+        : "bg-rose-500";
 
   const difficultyLabel =
     question.question.difficulty === "E"
       ? "Easy"
       : question.question.difficulty === "M"
-      ? "Medium"
-      : "Hard";
+        ? "Medium"
+        : "Hard";
 
   return (
     <div
-      className={`flex-1 overflow-y-auto ${
-        compact ? "p-6" : "py-8 pl-[250px] pr-0 lg:py-12"
-      }`}
+      className={`flex-1 overflow-y-auto ${compact ? "p-6" : isPinned ? "py-8 px-8 lg:py-12" : "py-8 pl-[250px] pr-0 lg:py-12"
+        }`}
     >
       <div
         className={`${compact ? "max-w-full" : "max-w-3xl"} mx-auto space-y-8`}

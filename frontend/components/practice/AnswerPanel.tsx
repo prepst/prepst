@@ -24,6 +24,7 @@ interface AnswerPanelProps {
   onConfidenceSelect?: (confidence: number) => void;
   defaultConfidence?: number;
   compact?: boolean;
+  isPinned?: boolean;
 }
 
 export function AnswerPanel({
@@ -40,12 +41,12 @@ export function AnswerPanel({
   onConfidenceSelect,
   defaultConfidence = 3,
   compact = false,
+  isPinned = false,
 }: AnswerPanelProps) {
   return (
     <div
-      className={`flex-1 overflow-y-auto bg-background ${
-        compact ? "p-6" : "pt-8 pb-8 pl-8 pr-[250px]"
-      }`}
+      className={`flex-1 overflow-y-auto bg-background ${compact ? "p-6" : isPinned ? "py-8 px-8" : "pt-8 pb-8 pl-8 pr-[250px]"
+        }`}
     >
       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6">
         {question.question.question_type === "mc"
@@ -159,16 +160,15 @@ export function AnswerPanel({
                     key={optionId}
                     className={`
                       group relative flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ease-in-out
-                      ${
-                        isCorrect
-                          ? "border-green-500 bg-green-500/10 ring-1 ring-green-500/20"
-                          : isWrong
+                      ${isCorrect
+                        ? "border-green-500 bg-green-500/10 ring-1 ring-green-500/20"
+                        : isWrong
                           ? "border-red-500 bg-red-500/10 ring-1 ring-red-500/20"
                           : isCorrectAnswer
-                          ? "border-green-500 bg-green-500/10 ring-1 ring-green-500/20 border-dashed"
-                          : isSelected
-                          ? "border-primary bg-primary/5 ring-1 ring-primary/20 scale-[1.01] shadow-sm"
-                          : "border-border bg-card hover:border-primary/50 hover:bg-accent hover:scale-[1.005]"
+                            ? "border-green-500 bg-green-500/10 ring-1 ring-green-500/20 border-dashed"
+                            : isSelected
+                              ? "border-primary bg-primary/5 ring-1 ring-primary/20 scale-[1.01] shadow-sm"
+                              : "border-border bg-card hover:border-primary/50 hover:bg-accent hover:scale-[1.005]"
                       }
                     `}
                     onClick={() => !showFeedback && onAnswerChange(optionId)}
@@ -177,17 +177,16 @@ export function AnswerPanel({
                     <div
                       className={`
                       flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-sm font-bold transition-colors
-                      ${
-                        isCorrect
+                      ${isCorrect
                           ? "border-transparent bg-green-500 text-white"
                           : isWrong
-                          ? "border-transparent bg-red-500 text-white"
-                          : isCorrectAnswer
-                          ? "border-transparent bg-green-500 text-white"
-                          : isSelected
-                          ? "border-transparent bg-primary text-primary-foreground"
-                          : "border-border bg-muted text-muted-foreground group-hover:bg-background"
-                      }
+                            ? "border-transparent bg-red-500 text-white"
+                            : isCorrectAnswer
+                              ? "border-transparent bg-green-500 text-white"
+                              : isSelected
+                                ? "border-transparent bg-primary text-primary-foreground"
+                                : "border-border bg-muted text-muted-foreground group-hover:bg-background"
+                        }
                     `}
                     >
                       {label}
@@ -219,22 +218,20 @@ export function AnswerPanel({
           <div
             className={`
             rounded-xl p-4 border-2 transition-all duration-200
-            ${
-              answer.isCorrect
+            ${answer.isCorrect
                 ? "bg-green-500/10 border-green-500/20 ring-1 ring-green-500/10"
                 : "bg-destructive/10 border-destructive/20 ring-1 ring-destructive/10"
-            }
+              }
           `}
           >
             <div className="flex items-center gap-3">
               <div
                 className={`
                 h-10 w-10 rounded-lg flex items-center justify-center shrink-0 transition-all shadow-sm
-                ${
-                  answer.isCorrect
+                ${answer.isCorrect
                     ? "bg-green-500 text-white border border-green-500/30"
                     : "bg-destructive text-white border border-destructive/30"
-                }
+                  }
               `}
               >
                 {answer.isCorrect ? (

@@ -1,5 +1,5 @@
 from pydantic_settings import BaseSettings
-from pydantic import Field
+from pydantic import Field, field_validator
 from functools import lru_cache
 
 
@@ -29,6 +29,21 @@ class Settings(BaseSettings):
     # When set, Vercel will proxy manim requests to Railway
     # When empty (Railway deployment), manim routes work directly
     manim_service_url: str = Field(default="", env="MANIM_SERVICE_URL")
+
+    @field_validator("manim_service_url")
+    @classmethod
+    def validate_manim_service_url(cls, v: str) -> str:
+        """Validate and normalize MANIM_SERVICE_URL"""
+        if not v:
+            return ""
+        # Strip whitespace
+        v = v.strip()
+        if not v:
+            return ""
+        # If URL doesn't start with http:// or https://, add https://
+        if not v.startswith(("http://", "https://")):
+            return f"https://{v}"
+        return v
 
     class Config:
         env_file = ".env"

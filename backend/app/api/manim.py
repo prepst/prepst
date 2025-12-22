@@ -60,15 +60,20 @@ async def generate_video(
             try:
                 async with httpx.AsyncClient(timeout=300.0) as client:
                     # Forward authorization header
-                    headers = {}
+                    headers = {"Content-Type": "application/json"}
                     auth_header = http_request.headers.get("Authorization")
                     if auth_header:
                         headers["Authorization"] = auth_header
+                        print(f"Forwarding Authorization header to Railway: {auth_header[:50]}...")
+                    else:
+                        print("WARNING: No Authorization header found in request")
                     
                     # Ensure URL has protocol
                     manim_url = settings.manim_service_url.strip()
                     if not manim_url.startswith(("http://", "https://")):
                         manim_url = f"https://{manim_url}"
+                    
+                    print(f"Proxying request to Railway: {manim_url}/api/manim/generate")
                     
                     # Forward request to Railway
                     response = await client.post(
@@ -78,6 +83,20 @@ async def generate_video(
                     )
                     response.raise_for_status()
                     return response.json()
+            except httpx.HTTPStatusError as e:
+                # Capture more details about the error
+                error_detail = f"Railway returned {e.response.status_code}"
+                try:
+                    error_body = e.response.json()
+                    if isinstance(error_body, dict) and "detail" in error_body:
+                        error_detail = f"{error_detail}: {error_body['detail']}"
+                except:
+                    error_detail = f"{error_detail}: {e.response.text[:200]}"
+                print(f"Error proxying to Railway: {error_detail}")
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail=f"Failed to connect to manim service: {error_detail}",
+                )
             except httpx.HTTPError as e:
                 print(f"Error proxying to Railway: {str(e)}")
                 raise HTTPException(
@@ -156,6 +175,20 @@ async def list_user_videos(
                     )
                     response.raise_for_status()
                     return response.json()
+            except httpx.HTTPStatusError as e:
+                # Capture more details about the error
+                error_detail = f"Railway returned {e.response.status_code}"
+                try:
+                    error_body = e.response.json()
+                    if isinstance(error_body, dict) and "detail" in error_body:
+                        error_detail = f"{error_detail}: {error_body['detail']}"
+                except:
+                    error_detail = f"{error_detail}: {e.response.text[:200]}"
+                print(f"Error proxying to Railway: {error_detail}")
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail=f"Failed to connect to manim service: {error_detail}",
+                )
             except httpx.HTTPError as e:
                 print(f"Error proxying to Railway: {str(e)}")
                 raise HTTPException(
@@ -242,6 +275,20 @@ async def get_video(
                             "Cache-Control": "public, max-age=3600",
                         }
                     )
+            except httpx.HTTPStatusError as e:
+                # Capture more details about the error
+                error_detail = f"Railway returned {e.response.status_code}"
+                try:
+                    error_body = e.response.json()
+                    if isinstance(error_body, dict) and "detail" in error_body:
+                        error_detail = f"{error_detail}: {error_body['detail']}"
+                except:
+                    error_detail = f"{error_detail}: {e.response.text[:200]}"
+                print(f"Error proxying video to Railway: {error_detail}")
+                raise HTTPException(
+                    status_code=status.HTTP_502_BAD_GATEWAY,
+                    detail=f"Failed to connect to manim service: {error_detail}",
+                )
             except httpx.HTTPError as e:
                 print(f"Error proxying video to Railway: {str(e)}")
                 raise HTTPException(

@@ -14,6 +14,7 @@ import {
   X,
   LogOut,
   Video,
+  Users,
 } from "lucide-react";
 import { api } from "@/lib/api";
 
@@ -92,6 +93,11 @@ export default function AdminLayout({
       name: "Manim Generator",
       href: "/admin/manim",
       icon: Video,
+    },
+    {
+      name: "Users",
+      href: "/admin/users",
+      icon: Users,
     },
     // Analytics link commented out - keeping implementation as dead code
     // {

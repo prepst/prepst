@@ -62,23 +62,11 @@ export function LoginForm({
       {/* Left Side - Form */}
       <div
         className={cn(
-          "w-full lg:w-1/2 flex flex-col p-8 lg:p-16 lg:pl-[250px] border-r border-border/40",
+          "w-full lg:w-1/2 flex flex-col p-8 lg:p-16 lg:pl-[250px] border-r border-border/40 pt-0 lg:pt-0",
           className
         )}
         {...props}
       >
-        {/* Logo */}
-        <div className="flex items-center gap-3 mb-12">
-          <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-            <span className="font-bold text-primary">S</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-semibold text-foreground leading-none">
-              SAT<span className="text-primary">Guide</span>
-            </span>
-          </div>
-        </div>
-
         {/* Form Container */}
         <div className="flex-1 flex flex-col justify-center max-w-md">
           <h1 className="text-3xl font-bold text-foreground mb-2 tracking-tight">
@@ -240,14 +228,9 @@ export function LoginForm({
       {/* Right Side - Visual */}
       <div className="hidden lg:flex w-1/2 bg-card/50 backdrop-blur-sm relative overflow-hidden border-l border-border/40">
         {/* Content */}
-        <div className="flex-1 flex flex-col items-center justify-center p-16 pr-[250px]">
+        <div className="flex-1 flex flex-col items-center justify-center p-16 pr-[250px] pt-0">
           {/* Stats Text */}
           <div className="text-center mb-8">
-            <h2 className="text-4xl lg:text-5xl font-bold text-foreground leading-tight tracking-tight">
-              Boost your SAT
-              <br />
-              score by 200+ points.
-            </h2>
             <p className="mt-4 text-lg text-muted-foreground max-w-md">
               AI-powered practice with personalized feedback to help you reach
               your dream score.
@@ -256,12 +239,12 @@ export function LoginForm({
 
           {/* Stats pills */}
           <div className="flex items-center gap-3 mb-12">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+            {/* <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
               <span className="text-sm font-bold text-primary tabular-nums">
                 10K+
               </span>
               <span className="text-sm text-muted-foreground">Students</span>
-            </div>
+            </div> */}
             <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
               <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
                 5000+
@@ -289,35 +272,42 @@ export function LoginForm({
             </div>
 
             {/* 3D Book Stack Visual */}
-            <div className="relative">
-              <svg viewBox="0 0 200 200" className="w-56 h-56">
+            <div className="relative group cursor-pointer">
+              <svg
+                viewBox="0 0 200 200"
+                className="w-56 h-56 transition-transform duration-500 group-hover:scale-105"
+              >
                 {/* Shadow ellipse */}
                 <ellipse
                   cx="100"
                   cy="175"
                   rx="65"
                   ry="12"
-                  fill="hsl(var(--primary) / 0.1)"
+                  fill="rgba(0, 0, 0, 0.1)"
+                  className="transition-all duration-500 group-hover:opacity-50 group-hover:ry-8"
                 />
 
-                {/* Bottom book */}
-                <g transform="translate(0, 20)">
+                {/* Bottom book - Blue */}
+                <g
+                  transform="translate(0, 20)"
+                  className="transition-all duration-500 group-hover:-translate-y-2 group-hover:translate-x-1"
+                >
                   <path
                     d="M35 120 L35 90 L165 90 L165 120 L35 120"
-                    fill="hsl(var(--primary) / 0.3)"
-                    stroke="hsl(var(--primary) / 0.5)"
+                    fill="#3b82f6"
+                    stroke="#2563eb"
                     strokeWidth="1.5"
                   />
                   <path
                     d="M35 90 L50 75 L180 75 L165 90"
-                    fill="hsl(var(--primary) / 0.4)"
-                    stroke="hsl(var(--primary) / 0.5)"
+                    fill="#60a5fa"
+                    stroke="#2563eb"
                     strokeWidth="1.5"
                   />
                   <path
                     d="M165 90 L180 75 L180 105 L165 120"
-                    fill="hsl(var(--primary) / 0.25)"
-                    stroke="hsl(var(--primary) / 0.5)"
+                    fill="#2563eb"
+                    stroke="#1e40af"
                     strokeWidth="1.5"
                   />
                   {/* Book spine lines */}
@@ -326,7 +316,7 @@ export function LoginForm({
                     y1="95"
                     x2="38"
                     y2="117"
-                    stroke="hsl(var(--primary) / 0.6)"
+                    stroke="#1e40af"
                     strokeWidth="1"
                   />
                   <line
@@ -334,29 +324,43 @@ export function LoginForm({
                     y1="95"
                     x2="42"
                     y2="117"
-                    stroke="hsl(var(--primary) / 0.4)"
+                    stroke="#3b82f6"
                     strokeWidth="0.5"
                   />
+                  {/* Book label */}
+                  <text
+                    x="100"
+                    y="108"
+                    textAnchor="middle"
+                    fill="#ffffff"
+                    fontSize="10"
+                    fontWeight="bold"
+                  >
+                    WRITING
+                  </text>
                 </g>
 
-                {/* Middle book */}
-                <g transform="translate(5, 0)">
+                {/* Middle book - Green */}
+                <g
+                  transform="translate(5, 0)"
+                  className="transition-all duration-500 delay-75 group-hover:-translate-y-4 group-hover:translate-x-0.5"
+                >
                   <path
                     d="M30 100 L30 70 L160 70 L160 100 L30 100"
-                    fill="hsl(var(--primary) / 0.4)"
-                    stroke="hsl(var(--primary) / 0.6)"
+                    fill="#10b981"
+                    stroke="#059669"
                     strokeWidth="1.5"
                   />
                   <path
                     d="M30 70 L45 55 L175 55 L160 70"
-                    fill="hsl(var(--primary) / 0.5)"
-                    stroke="hsl(var(--primary) / 0.6)"
+                    fill="#34d399"
+                    stroke="#059669"
                     strokeWidth="1.5"
                   />
                   <path
                     d="M160 70 L175 55 L175 85 L160 100"
-                    fill="hsl(var(--primary) / 0.35)"
-                    stroke="hsl(var(--primary) / 0.6)"
+                    fill="#059669"
+                    stroke="#047857"
                     strokeWidth="1.5"
                   />
                   {/* Book label */}
@@ -364,7 +368,7 @@ export function LoginForm({
                     x="95"
                     y="88"
                     textAnchor="middle"
-                    fill="hsl(var(--primary) / 0.8)"
+                    fill="#ffffff"
                     fontSize="10"
                     fontWeight="bold"
                   >
@@ -372,24 +376,27 @@ export function LoginForm({
                   </text>
                 </g>
 
-                {/* Top book */}
-                <g transform="translate(10, -20)">
+                {/* Top book - Purple */}
+                <g
+                  transform="translate(10, -20)"
+                  className="transition-all duration-500 delay-150 group-hover:-translate-y-6 group-hover:-translate-x-0.5"
+                >
                   <path
                     d="M25 80 L25 50 L155 50 L155 80 L25 80"
-                    fill="hsl(var(--primary) / 0.5)"
-                    stroke="hsl(var(--primary) / 0.7)"
+                    fill="#866ffe"
+                    stroke="#6d5dd3"
                     strokeWidth="1.5"
                   />
                   <path
                     d="M25 50 L40 35 L170 35 L155 50"
-                    fill="hsl(var(--primary) / 0.6)"
-                    stroke="hsl(var(--primary) / 0.7)"
+                    fill="#a78bfa"
+                    stroke="#6d5dd3"
                     strokeWidth="1.5"
                   />
                   <path
                     d="M155 50 L170 35 L170 65 L155 80"
-                    fill="hsl(var(--primary) / 0.45)"
-                    stroke="hsl(var(--primary) / 0.7)"
+                    fill="#6d5dd3"
+                    stroke="#5b4fc7"
                     strokeWidth="1.5"
                   />
                   {/* Book label */}
@@ -397,42 +404,11 @@ export function LoginForm({
                     x="90"
                     y="68"
                     textAnchor="middle"
-                    fill="hsl(var(--primary) / 0.9)"
+                    fill="#ffffff"
                     fontSize="10"
                     fontWeight="bold"
                   >
                     READING
-                  </text>
-                </g>
-
-                {/* Floating score indicator */}
-                <g transform="translate(140, 15)">
-                  <circle
-                    cx="25"
-                    cy="25"
-                    r="22"
-                    fill="hsl(var(--primary) / 0.15)"
-                    stroke="hsl(var(--primary) / 0.4)"
-                    strokeWidth="1.5"
-                  />
-                  <text
-                    x="25"
-                    y="22"
-                    textAnchor="middle"
-                    fill="hsl(var(--primary))"
-                    fontSize="11"
-                    fontWeight="bold"
-                  >
-                    1600
-                  </text>
-                  <text
-                    x="25"
-                    y="32"
-                    textAnchor="middle"
-                    fill="hsl(var(--primary) / 0.7)"
-                    fontSize="6"
-                  >
-                    SCORE
                   </text>
                 </g>
 
@@ -444,24 +420,21 @@ export function LoginForm({
                     width="45"
                     height="8"
                     rx="1"
-                    fill="hsl(var(--primary) / 0.6)"
+                    fill="#f59e0b"
                   />
-                  <polygon
-                    points="45,0 55,4 45,8"
-                    fill="hsl(var(--primary) / 0.4)"
-                  />
+                  <polygon points="45,0 55,4 45,8" fill="#d97706" />
                   <rect
                     x="0"
                     y="0"
                     width="8"
                     height="8"
                     rx="1"
-                    fill="hsl(var(--primary) / 0.8)"
+                    fill="#fbbf24"
                   />
                 </g>
 
                 {/* Sparkle effects */}
-                <g fill="hsl(var(--primary) / 0.6)">
+                <g fill="#866ffe">
                   <circle cx="45" cy="25" r="2">
                     <animate
                       attributeName="opacity"

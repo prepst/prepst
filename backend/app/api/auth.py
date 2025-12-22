@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr
 from supabase import Client
 from app.db import get_db
-from app.core.auth import get_current_user
+from app.core.auth import get_current_user, is_admin
+from app.core.auth import get_authenticated_client
 from typing import Dict
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -174,4 +175,45 @@ async def get_current_user_info(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve user: {str(e)}"
+        )
+
+
+@router.get("/admin/users/count")
+async def get_total_users_count(
+    user_id: str = Depends(get_current_user),
+    db: Client = Depends(get_authenticated_client)
+):
+    """
+    Get total number of users in the system.
+    Admin only endpoint.
+
+    Args:
+        user_id: Current user ID from auth token
+        db: Supabase client
+
+    Returns:
+        Total user count
+    """
+    try:
+        user_is_admin = await is_admin(user_id, db)
+
+        if not user_is_admin:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Admin access required"
+            )
+
+        result = db.table("users").select("id", count="exact").execute()
+        total_count = result.count if hasattr(result, 'count') else len(result.data)
+
+        return {
+            "total_users": total_count
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve user count: {str(e)}"
         )

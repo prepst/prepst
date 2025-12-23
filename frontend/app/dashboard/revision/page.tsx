@@ -212,7 +212,7 @@ export default function RevisionPage() {
                   </h2>
                   <p className="text-muted-foreground text-sm mt-1 ml-14">
                     Questions you answered incorrectly. Select one to practice
-                    similar questions.
+                    similar.
                   </p>
                 </div>
                 <Select
@@ -275,6 +275,17 @@ export default function RevisionPage() {
                           >
                             <div className="flex justify-between items-start gap-4">
                               <div className="flex-1">
+                                {/* Show stimulus (graphs/tables) if available */}
+                                {(wrongAnswer.question as any)?.stimulus && (
+                                  <div
+                                    className="mb-3 prose prose-sm dark:prose-invert max-w-none [&_svg]:max-h-[120px] [&_img]:max-h-[120px] [&_table]:text-sm"
+                                    dangerouslySetInnerHTML={{
+                                      __html: processQuestionText(
+                                        (wrongAnswer.question as any).stimulus
+                                      ),
+                                    }}
+                                  />
+                                )}
                                 <div
                                   className="text-lg font-medium text-foreground line-clamp-2 leading-relaxed mb-3 group-hover:text-primary transition-colors prose prose-sm dark:prose-invert max-w-none"
                                   dangerouslySetInnerHTML={{
@@ -298,8 +309,8 @@ export default function RevisionPage() {
                                   <span>
                                     {wrongAnswer.session?.created_at
                                       ? new Date(
-                                          wrongAnswer.session.created_at
-                                        ).toLocaleDateString()
+                                        wrongAnswer.session.created_at
+                                      ).toLocaleDateString()
                                       : "Unknown Date"}
                                   </span>
                                 </div>
@@ -414,6 +425,17 @@ export default function RevisionPage() {
                           >
                             <div className="flex justify-between items-start gap-4">
                               <div className="flex-1">
+                                {/* Show stimulus (graphs/tables) if available */}
+                                {(savedQuestion.question as any)?.stimulus && (
+                                  <div
+                                    className="mb-3 prose prose-sm dark:prose-invert max-w-none [&_svg]:max-h-[120px] [&_img]:max-h-[120px] [&_table]:text-sm"
+                                    dangerouslySetInnerHTML={{
+                                      __html: processQuestionText(
+                                        (savedQuestion.question as any).stimulus
+                                      ),
+                                    }}
+                                  />
+                                )}
                                 <div
                                   className="text-lg font-medium text-foreground line-clamp-2 leading-relaxed mb-3 group-hover:text-primary transition-colors prose prose-sm dark:prose-invert max-w-none"
                                   dangerouslySetInnerHTML={{
@@ -432,15 +454,15 @@ export default function RevisionPage() {
                                   >
                                     {formatTopicName(
                                       savedQuestion.topic?.name ||
-                                        "Unknown Topic"
+                                      "Unknown Topic"
                                     )}
                                   </span>
                                   <span>•</span>
                                   <span>
                                     {savedQuestion.session?.created_at
                                       ? new Date(
-                                          savedQuestion.session.created_at
-                                        ).toLocaleDateString()
+                                        savedQuestion.session.created_at
+                                      ).toLocaleDateString()
                                       : "Unknown Date"}
                                   </span>
                                 </div>
@@ -466,20 +488,20 @@ export default function RevisionPage() {
                     </div>
                     {visibleSavedQuestionsCount <
                       sortedSavedQuestions.length && (
-                      <div className="flex justify-center pt-4">
-                        <Button
-                          variant="outline"
-                          onClick={() =>
-                            setVisibleSavedQuestionsCount((prev) =>
-                              Math.min(prev + 5, sortedSavedQuestions.length)
-                            )
-                          }
-                          className="border-border hover:bg-accent text-foreground"
-                        >
-                          Show More
-                        </Button>
-                      </div>
-                    )}
+                        <div className="flex justify-center pt-4">
+                          <Button
+                            variant="outline"
+                            onClick={() =>
+                              setVisibleSavedQuestionsCount((prev) =>
+                                Math.min(prev + 5, sortedSavedQuestions.length)
+                              )
+                            }
+                            className="border-border hover:bg-accent text-foreground"
+                          >
+                            Show More
+                          </Button>
+                        </div>
+                      )}
                   </>
                 )}
               </div>

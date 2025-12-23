@@ -1226,6 +1226,7 @@ async def get_wrong_answers(
                 "question": {
                     "id": question.get("id"),
                     "stem": question.get("stem"),
+                    "stimulus": question.get("stimulus"),
                     "difficulty": question.get("difficulty"),
                     "question_type": question.get("question_type"),
                     "answer_options": question.get("answer_options"),
@@ -1358,6 +1359,7 @@ async def get_saved_questions(
                 "question": {
                     "id": question.get("id"),
                     "stem": question.get("stem"),
+                    "stimulus": question.get("stimulus"),
                     "difficulty": question.get("difficulty"),
                     "question_type": question.get("question_type"),
                     "answer_options": question.get("answer_options"),

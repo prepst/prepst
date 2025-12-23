@@ -443,6 +443,7 @@ export interface WrongAnswer {
   question: {
     id: string;
     stem: string;
+    stimulus: string | null;
     difficulty: string;
     question_type: string;
     answer_options: Record<string, any> | null;
@@ -477,6 +478,7 @@ export interface SavedQuestion {
   question: {
     id: string;
     stem: string;
+    stimulus: string | null;
     difficulty: string;
     question_type: string;
     answer_options: Record<string, any> | null;

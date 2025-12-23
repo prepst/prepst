@@ -31,7 +31,70 @@ export function processQuestionBlanks(text: string): string {
     );
   }
 
+  // Process text-based tables into HTML tables
+  processedText = processTextTables(processedText);
+
   return processedText;
+}
+
+/**
+ * Detect and convert text-based tables to HTML tables
+ * Handles patterns like:
+ * x y
+ * 21 -8
+ * 23 8
+ * 25 -8
+ */
+function processTextTables(text: string): string {
+  // Split into lines and look for table-like patterns
+  const lines = text.split('\n');
+  let result = '';
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i].trim();
+
+    // Check if this line could be a table header (simple text with spaces between values)
+    // Pattern: letter(s) followed by space and more letter(s), like "x y" or "x   y"
+    const headerMatch = line.match(/^([a-zA-Z]+)\s+([a-zA-Z]+)$/);
+
+    if (headerMatch) {
+      // Check if following lines are data rows (numbers separated by spaces)
+      const tableRows: string[][] = [];
+      tableRows.push([headerMatch[1], headerMatch[2]]);
+
+      let j = i + 1;
+      while (j < lines.length) {
+        const dataLine = lines[j].trim();
+        // Match numeric patterns like "21 -8", "23 8", "25-8", etc.
+        // Also handle negative numbers
+        const dataMatch = dataLine.match(/^(-?\d+)\s*(-?\d+)$/);
+        if (dataMatch) {
+          tableRows.push([dataMatch[1], dataMatch[2]]);
+          j++;
+        } else {
+          break;
+        }
+      }
+
+      // If we found at least 2 data rows, convert to table
+      if (tableRows.length >= 3) {
+        result += '<table class="question-table">';
+        tableRows.forEach((row, idx) => {
+          const tag = idx === 0 ? 'th' : 'td';
+          result += `<tr><${tag}>${row[0]}</${tag}><${tag}>${row[1]}</${tag}></tr>`;
+        });
+        result += '</table>';
+        i = j;
+        continue;
+      }
+    }
+
+    result += line + '\n';
+    i++;
+  }
+
+  return result.trim();
 }
 
 /**

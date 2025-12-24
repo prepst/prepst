@@ -170,7 +170,7 @@ function ProgressContent() {
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 w-fit">
               <Zap className="w-3.5 h-3.5 text-primary" />
               <span className="text-xs font-semibold text-primary uppercase tracking-wide">
-                Full-Length Practice Test
+                Track Your Progress
               </span>
             </div>
             <h1 className="text-4xl font-extrabold tracking-tight text-foreground mb-2">

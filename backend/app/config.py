@@ -24,6 +24,7 @@ class Settings(BaseSettings):
 
     # Discord
     discord_webhook_url: str = Field(default="", env="DISCORD_WEBHOOK_URL")
+    discord_feedback_webhook_url: str = Field(default="", env="DISCORD_FEEDBACK_WEBHOOK_URL")
 
     # Manim Service (Railway)
     # When set, Vercel will proxy manim requests to Railway

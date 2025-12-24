@@ -19,6 +19,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { config } from "@/lib/config";
 
 type FeedbackType = "improvement" | "bug";
 
@@ -85,20 +86,30 @@ export function FeedbackButton({
         }
       }
 
-      const { error: insertError } = await supabase.from("feedback").insert({
-        type,
-        details: details || "(no details provided)",
-        page_url:
-          typeof window !== "undefined" ? window.location.href : "unknown",
-        attachment_url: attachmentUrl,
-        user_id: user.id,
-        user_email: user.email,
-        subject,
+      // Send feedback to backend API which forwards to Discord
+      const response = await fetch(`${config.apiUrl}/api/webhooks/feedback`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          type,
+          details: details || "(no details provided)",
+          page_url:
+            typeof window !== "undefined" ? window.location.href : "unknown",
+          attachment_url: attachmentUrl,
+          user_email: user.email,
+        }),
       });
 
-      if (insertError) {
-        console.error("Feedback insert failed", insertError);
-        throw insertError;
+      if (!response.ok) {
+        throw new Error("Failed to send feedback");
+      }
+
+      const result = await response.json();
+
+      if (result.status !== "ok") {
+        throw new Error("Feedback webhook returned error status");
       }
 
       toast.success("Feedback sent. Thank you!");

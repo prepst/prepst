@@ -208,16 +208,13 @@ export default function QuestionOfTheDayCard() {
                     </span>
                   )}
                   {question.difficulty && (
-                    <>
-                      <span className="text-muted-foreground/50">•</span>
-                      <span className="px-3 py-1.5 bg-background/50 backdrop-blur-md rounded-md border border-border/50">
-                        {question.difficulty === "E"
-                          ? "Easy"
-                          : question.difficulty === "M"
-                          ? "Medium"
-                          : "Hard"}
-                      </span>
-                    </>
+                    <span className="px-3 py-1.5 bg-background/50 backdrop-blur-md rounded-md border border-border/50">
+                      {question.difficulty === "E"
+                        ? "Easy"
+                        : question.difficulty === "M"
+                        ? "Medium"
+                        : "Hard"}
+                    </span>
                   )}
                 </div>
               </div>

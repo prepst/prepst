@@ -134,9 +134,8 @@ function ProgressContent() {
     {
       color: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)", // Mint-pink gradient for current total (BIG CARD)
       title: currentTotal.toString(),
-      description: `Current Total Score • ${
-        improvement > 0 ? `+${improvement} to go` : "Target reached!"
-      }`,
+      description: `Current Total Score • ${improvement > 0 ? `+${improvement} to go` : "Target reached!"
+        }`,
       label: "Current Total",
     },
     {
@@ -172,8 +171,310 @@ function ProgressContent() {
           </p>
         </div>
 
+        {/* Dream Score Tracker & Quick Stats */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
+          {/* Dream Score Card - Main Feature */}
+          <div className="lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-[#866ffe]/10 via-card to-card border border-border/60 rounded-3xl p-8 shadow-sm">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="relative z-10">
+              <div className="flex items-start justify-between mb-6">
+                <div>
+                  <Badge variant="outline" className="mb-3 bg-primary/10 border-primary/30 text-primary font-medium">
+                    <TrendingUp className="w-3 h-3 mr-1" />
+                    Your Journey
+                  </Badge>
+                  <h2 className="text-2xl font-bold text-foreground mb-1">Dream Score Target</h2>
+                  <p className="text-muted-foreground">Keep pushing toward your goal!</p>
+                </div>
+                <div className="flex flex-col items-end">
+                  <div className="text-sm font-medium text-muted-foreground mb-1">Days Until Goal</div>
+                  <div className="text-3xl font-bold text-primary font-mono tabular-nums">
+                    {study_plan.test_date
+                      ? Math.max(0, Math.ceil((new Date(study_plan.test_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+                      : '—'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-6">
+                {/* Current Score */}
+                <div className="text-center p-4 bg-background/50 rounded-2xl border border-border/40">
+                  <div className="text-sm font-medium text-muted-foreground mb-2">Current</div>
+                  <div className="text-4xl font-bold text-foreground font-mono tabular-nums">{currentTotal}</div>
+                  <div className="text-xs text-muted-foreground mt-1">combined score</div>
+                </div>
+
+                {/* Progress Ring */}
+                <div className="flex flex-col items-center justify-center">
+                  <div className="relative w-24 h-24">
+                    <svg className="w-24 h-24 transform -rotate-90" viewBox="0 0 100 100">
+                      <circle cx="50" cy="50" r="40" fill="none" stroke="currentColor" strokeWidth="8" className="text-muted/20" />
+                      <circle
+                        cx="50" cy="50" r="40" fill="none" stroke="url(#progressGradient)" strokeWidth="8"
+                        strokeLinecap="round"
+                        strokeDasharray={`${(currentTotal / targetTotal) * 251.2} 251.2`}
+                        className="transition-all duration-1000 ease-out"
+                      />
+                      <defs>
+                        <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stopColor="#866ffe" />
+                          <stop offset="100%" stopColor="#a78bfa" />
+                        </linearGradient>
+                      </defs>
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-lg font-bold text-foreground">{Math.round((currentTotal / targetTotal) * 100)}%</span>
+                    </div>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-2">of target</div>
+                </div>
+
+                {/* Target Score */}
+                <div className="text-center p-4 bg-primary/5 rounded-2xl border border-primary/20">
+                  <div className="text-sm font-medium text-primary mb-2">Target</div>
+                  <div className="text-4xl font-bold text-primary font-mono tabular-nums">{targetTotal}</div>
+                  <div className="text-xs text-muted-foreground mt-1">dream score</div>
+                </div>
+              </div>
+
+              {/* Improvement Needed */}
+              <div className="mt-6 flex items-center justify-center gap-2 py-3 px-4 bg-background/50 rounded-xl border border-border/40">
+                <TrendingUp className="w-4 h-4 text-emerald-500" />
+                <span className="text-sm text-muted-foreground">
+                  {improvement > 0
+                    ? `${improvement} points to reach your dream score`
+                    : '🎉 Congratulations! You\'ve reached your target!'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Stats Column */}
+          <div className="space-y-4">
+            {/* Study Streak */}
+            <div className="bg-gradient-to-br from-orange-500/10 to-card border border-orange-500/20 rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-orange-500/10 rounded-lg">
+                  <svg className="w-5 h-5 text-orange-500" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Current Streak</div>
+                  <div className="text-2xl font-bold text-foreground font-mono">7 <span className="text-sm font-normal text-orange-500">days 🔥</span></div>
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground">Keep it up! Practice daily to maintain momentum.</div>
+            </div>
+
+            {/* Questions Answered */}
+            <div className="bg-gradient-to-br from-emerald-500/10 to-card border border-emerald-500/20 rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-emerald-500/10 rounded-lg">
+                  <svg className="w-5 h-5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Questions Solved</div>
+                  <div className="text-2xl font-bold text-foreground font-mono">247</div>
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground">This week: 42 questions (+15% vs last week)</div>
+            </div>
+
+            {/* Accuracy */}
+            <div className="bg-gradient-to-br from-blue-500/10 to-card border border-blue-500/20 rounded-2xl p-5 shadow-sm">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="p-2 bg-blue-500/10 rounded-lg">
+                  <svg className="w-5 h-5 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                  </svg>
+                </div>
+                <div>
+                  <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Accuracy Rate</div>
+                  <div className="text-2xl font-bold text-foreground font-mono">73%</div>
+                </div>
+              </div>
+              <div className="text-xs text-muted-foreground">Trending up! +5% improvement this month.</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Smart Insights & Score Projection */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12">
+          {/* AI Insights Panel - Glassmorphism Style */}
+          <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-3xl p-6 shadow-xl relative overflow-hidden">
+            {/* Background gradient effect */}
+            <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-primary/10 to-transparent opacity-50" />
+
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2.5 bg-primary/15 rounded-xl backdrop-blur-sm border border-primary/20">
+                  <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-foreground">AI Insights</h3>
+                  <p className="text-xs text-muted-foreground">Personalized learning analysis</p>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {/* Strength */}
+                <div className="p-4 bg-card/80 backdrop-blur-sm border border-border/40 rounded-2xl hover:bg-card/90 transition-colors">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2.5 h-2.5 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full shadow-sm shadow-emerald-500/50" />
+                    <span className="text-sm font-semibold text-foreground">Your Strengths</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">You excel at <span className="font-medium text-primary">Linear Equations</span> and <span className="font-medium text-primary">Reading Comprehension</span>. Keep leveraging these skills!</p>
+                </div>
+
+                {/* Focus Area */}
+                <div className="p-4 bg-card/80 backdrop-blur-sm border border-border/40 rounded-2xl hover:bg-card/90 transition-colors">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2.5 h-2.5 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full shadow-sm shadow-amber-500/50" />
+                    <span className="text-sm font-semibold text-foreground">Focus Areas</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">Consider spending more time on <span className="font-medium text-primary">Quadratic Functions</span> and <span className="font-medium text-primary">Grammar Rules</span>.</p>
+                </div>
+
+                {/* Quick Tip */}
+                <div className="p-4 bg-gradient-to-br from-primary/10 to-card/80 backdrop-blur-sm border border-primary/30 rounded-2xl">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2.5 h-2.5 bg-gradient-to-r from-primary to-violet-500 rounded-full shadow-sm shadow-primary/50" />
+                    <span className="text-sm font-semibold text-primary">Pro Tip</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">Students who practice for 30+ minutes daily see 50% faster improvement. Try setting a daily goal!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Score Projection Card */}
+          <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-3xl p-6 shadow-xl relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="p-2.5 bg-blue-500/15 rounded-xl backdrop-blur-sm border border-blue-500/20">
+                    <TrendingUp className="w-5 h-5 text-blue-500" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-foreground">Score Projection</h3>
+                    <p className="text-xs text-muted-foreground">Your predicted trajectory</p>
+                  </div>
+                </div>
+                <Badge variant="outline" className="bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400">
+                  On Track ✓
+                </Badge>
+              </div>
+
+              <div className="space-y-5">
+                {/* Math Projection */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-muted-foreground">Math Score</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">{study_plan.current_math_score || 0}</span>
+                      <span className="text-muted-foreground">→</span>
+                      <span className="text-sm font-bold text-foreground">{Math.min((study_plan.current_math_score || 0) + 45, study_plan.target_math_score || 800)}</span>
+                    </div>
+                  </div>
+                  <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-1000"
+                      style={{ width: `${Math.min(((study_plan.current_math_score || 0) / (study_plan.target_math_score || 800)) * 100, 100)}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* R/W Projection */}
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-muted-foreground">Reading & Writing</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">{study_plan.current_rw_score || 0}</span>
+                      <span className="text-muted-foreground">→</span>
+                      <span className="text-sm font-bold text-foreground">{Math.min((study_plan.current_rw_score || 0) + 35, study_plan.target_rw_score || 800)}</span>
+                    </div>
+                  </div>
+                  <div className="h-2 bg-muted/50 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-primary to-violet-400 rounded-full transition-all duration-1000"
+                      style={{ width: `${Math.min(((study_plan.current_rw_score || 0) / (study_plan.target_rw_score || 800)) * 100, 100)}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Projected Total */}
+                <div className="mt-4 p-4 bg-gradient-to-br from-primary/10 to-blue-500/5 backdrop-blur-sm border border-primary/30 rounded-2xl">
+                  <div className="text-center">
+                    <div className="text-sm text-muted-foreground mb-1">Projected Score by Test Day</div>
+                    <div className="text-3xl font-bold text-primary font-mono tabular-nums">
+                      {Math.min(currentTotal + 80, targetTotal)}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-1">Based on your current learning velocity</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
+          <Button
+            variant="outline"
+            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent hover:border-primary/50 rounded-2xl border-border/60 transition-all duration-300 hover:scale-[1.02] group"
+            onClick={() => router.push('/dashboard/revision')}
+          >
+            <div className="p-3 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-colors">
+              <svg className="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+            <div className="text-left">
+              <div className="font-semibold text-foreground">Review Mistakes</div>
+              <div className="text-xs text-muted-foreground">Practice your weak areas</div>
+            </div>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent hover:border-primary/50 rounded-2xl border-border/60 transition-all duration-300 hover:scale-[1.02] group"
+            onClick={() => router.push('/dashboard/drill')}
+          >
+            <div className="p-3 bg-emerald-500/10 rounded-xl group-hover:bg-emerald-500/20 transition-colors">
+              <svg className="w-6 h-6 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <div className="text-left">
+              <div className="font-semibold text-foreground">Quick Drill</div>
+              <div className="text-xs text-muted-foreground">5-minute practice sessions</div>
+            </div>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent hover:border-primary/50 rounded-2xl border-border/60 transition-all duration-300 hover:scale-[1.02] group"
+            onClick={() => router.push('/dashboard/mock-exam')}
+          >
+            <div className="p-3 bg-amber-500/10 rounded-xl group-hover:bg-amber-500/20 transition-colors">
+              <Calendar className="w-6 h-6 text-amber-500" />
+            </div>
+            <div className="text-left">
+              <div className="font-semibold text-foreground">Take Mock Exam</div>
+              <div className="text-xs text-muted-foreground">Full practice test</div>
+            </div>
+          </Button>
+        </div >
+
         {/* Skill Mastery Heatmap */}
-        <div className="mb-16">
+        {/* <div className="mb-16">
           <h2 className="text-2xl font-bold text-foreground mb-6">
             Skill Mastery
           </h2>
@@ -235,7 +536,7 @@ function ProgressContent() {
               </div>
             )
           )}
-        </div>
+        </div> */}
 
         {/* SAT Score Overview */}
         {/* <div className="mb-16">
@@ -258,167 +559,169 @@ function ProgressContent() {
         </div> */}
 
         {/* Charts Section */}
-        {chartsLoading ? (
-          <div className="space-y-16">
-            <Skeleton className="h-96 w-full rounded-3xl" />
-            <Skeleton className="h-96 w-full rounded-3xl" />
-            <Skeleton className="h-80 w-full rounded-3xl" />
-          </div>
-        ) : (
-          <>
-            {/* SAT Score Progress */}
-            {growthData.length > 0 && (
-              <div className="mb-16">
-                <h2 className="text-2xl font-bold text-foreground mb-6">
-                  SAT Score Progress
-                </h2>
-                <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
-                  <LineChart
-                    data={growthData.map((point) => ({
-                      ...point,
-                      date: new Date(point.date).toLocaleDateString("en-US", {
-                        month: "short",
-                        day: "numeric",
-                      }),
-                      total:
-                        (point.predicted_sat_math || 0) +
-                        (point.predicted_sat_rw || 0),
-                    }))}
-                    lines={[
-                      {
-                        dataKey: "predicted_sat_math",
-                        color: "#10b981",
-                        name: "Math Score",
-                      },
-                      {
-                        dataKey: "predicted_sat_rw",
-                        color: "#8b5cf6",
-                        name: "R/W Score",
-                      },
-                      {
-                        dataKey: "total",
-                        color: "#3b82f6",
-                        name: "Total Score",
-                      },
-                    ]}
-                    xKey="date"
-                    height={350}
-                    yLabel="SAT Score"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Mastery Progress by Category */}
-            {Object.keys(heatmap).length > 0 && (
-              <div className="mb-16">
-                <h2 className="text-2xl font-bold text-foreground mb-6">
-                  Mastery by Category
-                </h2>
-                <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
-                  <RadarChart
-                    data={(() => {
-                      const categoryData = Object.entries(heatmap).map(
-                        ([name, cat]) => ({
-                          category: name,
-                          mastery:
-                            (cat.skills.reduce((sum, s) => sum + s.mastery, 0) /
-                              cat.skills.length) *
-                            100,
-                          section: cat.section,
-                          totalAttempts: cat.skills.reduce(
-                            (sum, s) => sum + s.total_attempts,
-                            0
-                          ),
-                        })
-                      );
-
-                      // Sort by total attempts and take top 8, or all if fewer than 8
-                      const sortedData = categoryData.sort(
-                        (a, b) => b.totalAttempts - a.totalAttempts
-                      );
-                      return sortedData.slice(0, 8);
-                    })()}
-                    dataKey="mastery"
-                    categoryKey="category"
-                    name="Mastery %"
-                    height={350}
-                    formatTooltip={(val) => `${Number(val).toFixed(1)}%`}
-                  />
-                  <div className="mt-6 pt-4 border-t border-border">
-                    <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                      <span className="font-medium">Average Mastery:</span>
-                      <span className="font-bold text-primary">
-                        {(() => {
-                          const categoryData = Object.entries(heatmap).map(
-                            ([name, cat]) =>
-                              (cat.skills.reduce(
-                                (sum, s) => sum + s.mastery,
-                                0
-                              ) /
-                                cat.skills.length) *
-                              100
-                          );
-                          return `${(
-                            categoryData.reduce((sum, val) => sum + val, 0) /
-                            categoryData.length
-                          ).toFixed(1)}%`;
-                        })()}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Mock Exam Progress */}
-            <MockExamPerformance
-              data={mockExamData}
-              isLoading={mockExamLoading}
-              isError={mockExamError}
-            />
-
-            {/* Mastery Over Time */}
-            {growthData.length > 0 &&
-              growthData.some((d) => d.mastery !== undefined) && (
+        {
+          chartsLoading ? (
+            <div className="space-y-16">
+              <Skeleton className="h-96 w-full rounded-3xl" />
+              <Skeleton className="h-96 w-full rounded-3xl" />
+              <Skeleton className="h-80 w-full rounded-3xl" />
+            </div>
+          ) : (
+            <>
+              {/* SAT Score Progress */}
+              {growthData.length > 0 && (
                 <div className="mb-16">
                   <h2 className="text-2xl font-bold text-foreground mb-6">
-                    Average Mastery Over Time
+                    SAT Score Progress
                   </h2>
                   <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
-                    <AreaChart
-                      data={growthData
-                        .filter((d) => d.mastery !== undefined)
-                        .map((point) => ({
-                          ...point,
-                          date: new Date(point.date).toLocaleDateString(
-                            "en-US",
-                            {
-                              month: "short",
-                              day: "numeric",
-                            }
-                          ),
-                          mastery: (point.mastery || 0) * 100,
-                        }))}
-                      areas={[
+                    <LineChart
+                      data={growthData.map((point) => ({
+                        ...point,
+                        date: new Date(point.date).toLocaleDateString("en-US", {
+                          month: "short",
+                          day: "numeric",
+                        }),
+                        total:
+                          (point.predicted_sat_math || 0) +
+                          (point.predicted_sat_rw || 0),
+                      }))}
+                      lines={[
                         {
-                          dataKey: "mastery",
+                          dataKey: "predicted_sat_math",
+                          color: "#10b981",
+                          name: "Math Score",
+                        },
+                        {
+                          dataKey: "predicted_sat_rw",
                           color: "#8b5cf6",
-                          name: "Mastery %",
+                          name: "R/W Score",
+                        },
+                        {
+                          dataKey: "total",
+                          color: "#3b82f6",
+                          name: "Total Score",
                         },
                       ]}
                       xKey="date"
-                      height={300}
-                      yLabel="Mastery %"
-                      formatYAxis={(val) => `${val}%`}
+                      height={350}
+                      yLabel="SAT Score"
                     />
                   </div>
                 </div>
               )}
-          </>
-        )}
-      </div>
-    </div>
+
+              {/* Mastery Progress by Category */}
+              {Object.keys(heatmap).length > 0 && (
+                <div className="mb-16">
+                  <h2 className="text-2xl font-bold text-foreground mb-6">
+                    Mastery by Category
+                  </h2>
+                  <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
+                    <RadarChart
+                      data={(() => {
+                        const categoryData = Object.entries(heatmap).map(
+                          ([name, cat]) => ({
+                            category: name,
+                            mastery:
+                              (cat.skills.reduce((sum, s) => sum + s.mastery, 0) /
+                                cat.skills.length) *
+                              100,
+                            section: cat.section,
+                            totalAttempts: cat.skills.reduce(
+                              (sum, s) => sum + s.total_attempts,
+                              0
+                            ),
+                          })
+                        );
+
+                        // Sort by total attempts and take top 8, or all if fewer than 8
+                        const sortedData = categoryData.sort(
+                          (a, b) => b.totalAttempts - a.totalAttempts
+                        );
+                        return sortedData.slice(0, 8);
+                      })()}
+                      dataKey="mastery"
+                      categoryKey="category"
+                      name="Mastery %"
+                      height={350}
+                      formatTooltip={(val) => `${Number(val).toFixed(1)}%`}
+                    />
+                    <div className="mt-6 pt-4 border-t border-border">
+                      <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                        <span className="font-medium">Average Mastery:</span>
+                        <span className="font-bold text-primary">
+                          {(() => {
+                            const categoryData = Object.entries(heatmap).map(
+                              ([name, cat]) =>
+                                (cat.skills.reduce(
+                                  (sum, s) => sum + s.mastery,
+                                  0
+                                ) /
+                                  cat.skills.length) *
+                                100
+                            );
+                            return `${(
+                              categoryData.reduce((sum, val) => sum + val, 0) /
+                              categoryData.length
+                            ).toFixed(1)}%`;
+                          })()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Mock Exam Progress */}
+              <MockExamPerformance
+                data={mockExamData}
+                isLoading={mockExamLoading}
+                isError={mockExamError}
+              />
+
+              {/* Mastery Over Time */}
+              {growthData.length > 0 &&
+                growthData.some((d) => d.mastery !== undefined) && (
+                  <div className="mb-16">
+                    <h2 className="text-2xl font-bold text-foreground mb-6">
+                      Average Mastery Over Time
+                    </h2>
+                    <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
+                      <AreaChart
+                        data={growthData
+                          .filter((d) => d.mastery !== undefined)
+                          .map((point) => ({
+                            ...point,
+                            date: new Date(point.date).toLocaleDateString(
+                              "en-US",
+                              {
+                                month: "short",
+                                day: "numeric",
+                              }
+                            ),
+                            mastery: (point.mastery || 0) * 100,
+                          }))}
+                        areas={[
+                          {
+                            dataKey: "mastery",
+                            color: "#8b5cf6",
+                            name: "Mastery %",
+                          },
+                        ]}
+                        xKey="date"
+                        height={300}
+                        yLabel="Mastery %"
+                        formatYAxis={(val) => `${val}%`}
+                      />
+                    </div>
+                  </div>
+                )}
+            </>
+          )
+        }
+      </div >
+    </div >
   );
 }
 

@@ -5,6 +5,7 @@ import {
   X,
   Pin,
   ChevronRight,
+  ChevronLeft,
   ChevronDown,
   ArrowUp,
   Square,
@@ -804,20 +805,28 @@ export function AIExplanationPanel({
 
                             <div className="flex items-center gap-3 pt-4">
                                 <button
-                  onClick={() =>
-                    setCurrentStep(Math.min(currentStep + 1, steps.length))
-                  }
-                                    disabled={currentStep >= steps.length}
-                                    className="flex items-center gap-2 px-5 py-2.5 bg-muted hover:bg-muted/80 rounded-xl text-foreground text-sm font-medium transition-all disabled:opacity-50"
+                                    onClick={() =>
+                                        setCurrentStep(Math.max(currentStep - 1, 1))
+                                    }
+                                    disabled={currentStep <= 1}
+                                    className="flex items-center justify-center px-5 py-2.5 bg-muted hover:bg-muted/80 rounded-xl text-foreground text-sm font-medium transition-all disabled:opacity-50"
                                 >
-                                    Next Step
+                                    <ChevronLeft className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() =>
+                                        setCurrentStep(Math.min(currentStep + 1, steps.length))
+                                    }
+                                    disabled={currentStep >= steps.length}
+                                    className="flex items-center justify-center px-5 py-2.5 bg-muted hover:bg-muted/80 rounded-xl text-foreground text-sm font-medium transition-all disabled:opacity-50"
+                                >
                                     <ChevronRight className="w-4 h-4" />
                                 </button>
                                 <button
                                     onClick={() => setExplanationMode("full")}
                                     className="px-5 py-2.5 bg-background hover:bg-muted border border-border rounded-xl text-muted-foreground text-sm font-medium transition-all"
                                 >
-                                    Show all steps
+                                    Show Answer
                                 </button>
                             </div>
                         </div>
@@ -826,7 +835,7 @@ export function AIExplanationPanel({
                         <div className="space-y-6">
                             {questionContext?.rationale ? (
                                 <div
-                                    className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground leading-relaxed"
+                                    className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground leading-relaxed [&>p]:py-3 [&>p]:px-4 [&>p]:pl-8 [&>p]:rounded-lg [&>p]:bg-muted/30 [&>p]:mb-4 [&>p]:transition-all [&>p:hover]:bg-muted/50 [&>p]:relative [&>p:first-child]:before:content-[''] [&>p:first-child]:before:absolute [&>p:first-child]:before:left-3 [&>p:first-child]:before:top-5 [&>p:first-child]:before:w-2 [&>p:first-child]:before:h-2 [&>p:first-child]:before:rounded-full [&>p:first-child]:before:bg-green-500 [&>p:not(:first-child)]:before:content-[''] [&>p:not(:first-child)]:before:absolute [&>p:not(:first-child)]:before:left-3 [&>p:not(:first-child)]:before:top-5 [&>p:not(:first-child)]:before:w-2 [&>p:not(:first-child)]:before:h-2 [&>p:not(:first-child)]:before:rounded-full [&>p:not(:first-child)]:before:bg-red-500"
                   dangerouslySetInnerHTML={{
                     __html: questionContext.rationale,
                   }}
@@ -841,7 +850,7 @@ export function AIExplanationPanel({
                                                     Step {i + 1}: {step.title}
                                                 </h3>
                                             </div>
-                      <p className="text-muted-foreground ml-6">
+                      <p className={`text-muted-foreground ml-6 py-3 px-4 pl-8 rounded-lg bg-muted/30 mb-4 transition-all hover:bg-muted/50 relative before:content-[''] before:absolute before:left-3 before:top-5 before:w-2 before:h-2 before:rounded-full ${i === 0 ? 'before:bg-green-500' : 'before:bg-red-500'}`}>
                         {step.content}
                       </p>
                                             {step.bullets && (

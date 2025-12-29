@@ -24,6 +24,9 @@ import {
   UserPlus,
   LogIn,
   Shield,
+  BookMarked,
+  XCircle,
+  Bookmark,
 } from "lucide-react";
 import { motion } from "framer-motion";
 // import { StatisticsPanel } from "@/components/dashboard/StatisticsPanel";
@@ -143,7 +146,7 @@ export default function DashboardLayout({
   ];
 
   const dashboardItems = [
-    { name: "Overview", href: "/dashboard", icon: Home },
+    { name: "Home", href: "/dashboard", icon: Home },
     {
       name: "Study Plan",
       href: "/dashboard/study-plan",
@@ -176,6 +179,21 @@ export default function DashboardLayout({
       name: "Progress",
       href: "/dashboard/progress",
       icon: TrendingUp,
+    },
+    {
+      name: "Vocab",
+      href: "/dashboard/vocab",
+      icon: BookMarked,
+    },
+    {
+      name: "Missed Questions",
+      href: "/dashboard/missed",
+      icon: XCircle,
+    },
+    {
+      name: "Saved Questions",
+      href: "/dashboard/saved",
+      icon: Bookmark,
     },
     // { name: "Manim", href: "/dashboard/manim", icon: Video },
     // { name: "Notebook", href: "/dashboard/notebook", icon: Notebook },
@@ -363,7 +381,7 @@ export default function DashboardLayout({
                               isActive
                                 ? "bg-primary/10 text-primary font-semibold"
                                 : "hover:bg-muted/60 text-muted-foreground hover:text-foreground font-medium"
-                            } gap-3 py-3 px-4 mx-auto ${
+                            } gap-3 py-2 px-4 mx-auto ${
                               isMobile ? "py-4" : ""
                             } text-[15px]`}
                           >
@@ -387,7 +405,7 @@ export default function DashboardLayout({
 
                         {/* Sub-items */}
                         {!isSidebarCollapsed && isExpanded && item.subItems && (
-                          <div className="mt-1 space-y-1 relative">
+                          <div className="mt-1 space-y-0 relative">
                             {/* Vertical line for hierarchy */}
                             <div className="absolute left-[26px] top-0 bottom-2 w-px bg-border/60" />
 
@@ -437,7 +455,7 @@ export default function DashboardLayout({
                       } ${
                         isSidebarCollapsed
                           ? "justify-center p-3 mx-auto w-12 h-12"
-                          : `gap-3 py-3 px-4 ${
+                          : `gap-3 py-1.5 px-4 ${
                               isMobile ? "py-4" : ""
                             } text-[15px]`
                       }`}
@@ -504,10 +522,53 @@ export default function DashboardLayout({
             </div>
 
             {/* Account section */}
-            <div className="space-y-3 pb-6">
+            <div className="space-y-3 pb-3">
               {!isSidebarCollapsed && (
                 <div className="h-px bg-border/50 mx-4 mb-2" />
               )}
+
+              {/* Theme Switcher */}
+              <div
+                className={`flex items-center rounded-2xl transition-all duration-200 group ${
+                  isSidebarCollapsed
+                    ? "justify-center p-3 mx-auto w-12 h-12"
+                    : `gap-3 pt-1 px-4 ${isMobile ? "py-1" : ""} text-[15px]`
+                }`}
+              >
+                {!isSidebarCollapsed && (
+                  <>
+                    {isDarkMode ? (
+                      <Moon
+                        className={`flex-shrink-0 transition-colors text-muted-foreground ${navIconSize}`}
+                      />
+                    ) : (
+                      <Sun
+                        className={`flex-shrink-0 transition-colors text-muted-foreground ${navIconSize}`}
+                      />
+                    )}
+                    <span className="whitespace-nowrap text-muted-foreground font-medium flex-1">
+                      {isDarkMode ? "Dark" : "Light"}
+                    </span>
+                  </>
+                )}
+                <Switch
+                  checked={isDarkMode}
+                  onCheckedChange={(checked) =>
+                    setTheme(checked ? "dark" : "light")
+                  }
+                  className={isSidebarCollapsed ? "" : "ml-auto"}
+                >
+                  {isSidebarCollapsed && (
+                    <>
+                      {isDarkMode ? (
+                        <Moon className="h-3 w-3 text-muted-foreground" />
+                      ) : (
+                        <Sun className="h-3 w-3 text-muted-foreground" />
+                      )}
+                    </>
+                  )}
+                </Switch>
+              </div>
 
               {/* Account Menu Items */}
               {accountItems.map((item) => {
@@ -524,7 +585,7 @@ export default function DashboardLayout({
                     } ${
                       isSidebarCollapsed
                         ? "justify-center p-3 mx-auto w-12 h-12"
-                        : `gap-3 py-3 px-4 ${
+                        : `gap-3 py-1 px-4 ${
                             isMobile ? "py-4" : ""
                           } text-[15px]`
                     }`}

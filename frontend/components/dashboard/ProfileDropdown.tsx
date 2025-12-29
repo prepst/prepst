@@ -184,12 +184,12 @@ export function ProfileDropdown({
   }
 
   return (
-    <div className="pb-2">
+    <div className="pb-0">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="ghost"
-            className={`flex items-center rounded-2xl transition-all duration-200 hover:bg-muted/60 text-foreground gap-3 py-3 px-4 w-full justify-between group ${className}`}
+            className={`flex items-center rounded-2xl transition-all duration-200 hover:bg-muted/60 text-foreground gap-3 py-0 px-4 w-full justify-between group ${className}`}
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-border/50 shadow-sm">

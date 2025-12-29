@@ -219,7 +219,7 @@ export default function QuestionOfTheDayCard() {
                 </div>
               </div>
               <div className="mt-6 flex items-center justify-end">
-                <div className="w-10 h-10 rounded-full bg-primary/20 backdrop-blur-md border border-primary/30 flex items-center justify-center text-primary opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+                <div className="w-10 h-10 rounded-full bg-primary/20 backdrop-blur-md border border-primary/30 flex items-center justify-center text-primary transition-all duration-300">
                   <ArrowRight className="w-5 h-5" />
                 </div>
               </div>

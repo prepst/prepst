@@ -69,7 +69,7 @@ async def get_session_questions(
         # Fetch all questions for the session
         questions_response = db.table("session_questions").select(
             "id, session_id, question_id, topic_id, display_order, status, user_answer, is_saved, "
-            "questions(id, stimulus, stem, difficulty, question_type, answer_options, correct_answer), "
+            "questions(id, stimulus, stem, difficulty, question_type, answer_options, correct_answer, rationale), "
             "topics(id, name, category_id, weight_in_category)"
         ).eq("session_id", session_id).order("display_order").execute()
 

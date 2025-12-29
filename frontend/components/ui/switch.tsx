@@ -8,10 +8,11 @@ interface SwitchProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {
   checked?: boolean;
   onCheckedChange?: (checked: boolean) => void;
+  children?: React.ReactNode;
 }
 
 const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
-  ({ className, checked, onCheckedChange, ...props }, ref) => {
+  ({ className, checked, onCheckedChange, children, ...props }, ref) => {
     return (
       <label className="inline-flex items-center cursor-pointer">
         <input
@@ -33,10 +34,12 @@ const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
         >
           <span
             className={cn(
-              "inline-block h-5 w-5 transform rounded-full bg-white shadow-md transition-transform",
+              "inline-flex items-center justify-center h-5 w-5 transform rounded-full bg-white shadow-md transition-transform",
               checked ? "translate-x-5" : "translate-x-0.5"
             )}
-          />
+          >
+            {children}
+          </span>
         </div>
       </label>
     );

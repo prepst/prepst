@@ -20,15 +20,19 @@ export default function QuickActionsGrid() {
       label: "Quick Practice",
       icon: Zap,
       href: "/dashboard/study-plan",
-      color: "text-yellow-500",
-      bg: "bg-yellow-500/10",
+      gradient: "from-amber-500/20 via-orange-500/10 to-transparent",
+      iconGlow: "drop-shadow(0 0 8px rgba(245, 158, 11, 0.5))",
+      iconColor: "text-amber-400",
+      bg: "bg-amber-500/10",
       desc: "5 min drill",
     },
     {
       label: "Mock Exam",
       icon: Target,
       href: "/dashboard/mock-exam",
-      color: "text-blue-500",
+      gradient: "from-blue-500/20 via-cyan-500/10 to-transparent",
+      iconGlow: "drop-shadow(0 0 8px rgba(59, 130, 246, 0.5))",
+      iconColor: "text-blue-400",
       bg: "bg-blue-500/10",
       desc: "Full length test",
     },
@@ -36,7 +40,9 @@ export default function QuickActionsGrid() {
       label: "Analytics",
       icon: BarChart3,
       href: "/dashboard/progress",
-      color: "text-purple-500",
+      gradient: "from-purple-500/20 via-violet-500/10 to-transparent",
+      iconGlow: "drop-shadow(0 0 8px rgba(168, 85, 247, 0.5))",
+      iconColor: "text-purple-400",
       bg: "bg-purple-500/10",
       desc: "Check stats",
     },
@@ -44,8 +50,10 @@ export default function QuickActionsGrid() {
       label: "Study Plan",
       icon: FileText,
       href: "/study-plan",
-      color: "text-green-500",
-      bg: "bg-green-500/10",
+      gradient: "from-emerald-500/20 via-green-500/10 to-transparent",
+      iconGlow: "drop-shadow(0 0 8px rgba(16, 185, 129, 0.5))",
+      iconColor: "text-emerald-400",
+      bg: "bg-emerald-500/10",
       desc: "View schedule",
     },
   ];
@@ -56,23 +64,34 @@ export default function QuickActionsGrid() {
         <motion.button
           key={action.label}
           onClick={() => router.push(action.href)}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: index * 0.1 }}
-          className="group relative flex flex-col items-start p-4 rounded-2xl bg-card border-2 border-border/50 hover:bg-muted/50 transition-all hover:shadow-lg hover:-translate-y-1 text-left"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.08, duration: 0.4 }}
+          className="group relative flex flex-col items-start p-4 rounded-2xl bg-card border-2 border-border/50 hover:bg-muted/50 transition-all hover:shadow-lg hover:-translate-y-1 text-left overflow-hidden"
         >
+          {/* Gradient overlay on hover */}
+          <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${action.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+
+          {/* Icon container */}
           <div
-            className={`p-2.5 rounded-xl ${action.bg} ${action.color} mb-3 group-hover:scale-110 transition-transform`}
+            className={`relative z-10 p-2.5 rounded-xl ${action.bg} mb-3 group-hover:scale-110 transition-transform`}
+            style={{ filter: action.iconGlow }}
           >
-            <action.icon className="w-5 h-5" />
+            <action.icon className={`w-5 h-5 ${action.iconColor}`} />
           </div>
 
-          <div className="space-y-1">
-            <h3 className="font-semibold text-sm text-foreground flex items-center gap-1">
+          {/* Content */}
+          <div className="relative z-10 space-y-1">
+            <h3 className="font-semibold text-sm text-foreground flex items-center gap-1.5">
               {action.label}
-              <ArrowUpRight className="w-3 h-3 opacity-0 group-hover:opacity-50 transition-opacity" />
+              <ArrowUpRight className="w-3.5 h-3.5 opacity-0 -translate-y-0.5 translate-x-0.5 group-hover:opacity-60 group-hover:translate-y-0 group-hover:translate-x-0 transition-all duration-300" />
             </h3>
-            <p className="text-xs text-muted-foreground">{action.desc}</p>
+            <p className="text-xs text-muted-foreground/70 group-hover:text-muted-foreground transition-colors">{action.desc}</p>
+          </div>
+
+          {/* Subtle shine effect on hover */}
+          <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
           </div>
         </motion.button>
       ))}

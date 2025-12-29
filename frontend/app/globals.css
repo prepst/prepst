@@ -45,7 +45,6 @@
   --animate-shimmer: shimmer 2s ease-in-out infinite;
 
   @keyframes blink-cursor {
-
     0%,
     49% {
       opacity: 1;

@@ -111,6 +111,7 @@ class Question(BaseModel):
     external_id: Optional[str] = None
     source_uid: Optional[UUID] = None
     is_active: Optional[bool] = None
+    is_flagged: Optional[bool] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 

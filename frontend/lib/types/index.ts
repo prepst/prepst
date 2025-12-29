@@ -1,9 +1,13 @@
 import { components } from "./api.generated";
 
 // Re-export generated types from OpenAPI
-export type Question = components["schemas"]["Question"];
+export type Question = components["schemas"]["Question"] & {
+  is_flagged?: boolean;
+};
 export type Topic = components["schemas"]["Topic"];
-export type SessionQuestion = components["schemas"]["SessionQuestion"];
+export type SessionQuestion = Omit<components["schemas"]["SessionQuestion"], "question"> & {
+  question: Question;
+};
 export type StudyPlan = components["schemas"]["StudyPlan"];
 export type PracticeSession = components["schemas"]["PracticeSession"];
 export type StudyPlanResponse = components["schemas"]["StudyPlanResponse"];

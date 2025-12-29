@@ -15,9 +15,13 @@ router = APIRouter(prefix="/admin/questions", tags=["admin-questions"])
 
 class QuestionUpdate(BaseModel):
     """Model for updating question fields"""
+    stem: Optional[str] = None
+    stimulus: Optional[str] = None
+    answer_options: Optional[Dict[str, Any]] = None
     correct_answer: Optional[List[str]] = None
     acceptable_answers: Optional[List[str]] = None
     is_active: Optional[bool] = None
+    is_flagged: Optional[bool] = None
     difficulty: Optional[str] = None
     topic_id: Optional[str] = None
     rationale: Optional[str] = None
@@ -105,8 +109,11 @@ async def list_questions(
     difficulty: Optional[str] = Query(None, description="Filter by difficulty (E/M/H)"),
     question_type: Optional[str] = Query(None, description="Filter by type (mc/spr)"),
     is_active: Optional[bool] = Query(None, description="Filter by active status"),
+    is_flagged: Optional[bool] = Query(None, description="Filter by flagged status"),
     topic_id: Optional[str] = Query(None, description="Filter by topic ID"),
     has_empty_answers: Optional[bool] = Query(None, description="Filter questions with empty answers"),
+    has_png_in_stem: Optional[bool] = Query(None, description="Filter questions with PNG images in stem"),
+    has_png_in_answers: Optional[bool] = Query(None, description="Filter questions with PNG images in answers"),
     limit: int = Query(20, description="Number of results per page", ge=1, le=100),
     offset: int = Query(0, description="Offset for pagination", ge=0),
     user_id: str = Depends(get_current_user),
@@ -143,6 +150,9 @@ async def list_questions(
         if is_active is not None:
             query = query.eq('is_active', is_active)
 
+        if is_flagged is not None:
+            query = query.eq('is_flagged', is_flagged)
+
         if topic_id:
             query = query.eq('topic_id', topic_id)
 
@@ -169,12 +179,37 @@ async def list_questions(
         result = query.order('created_at', desc=True).range(offset, offset + limit - 1).execute()
         questions = result.data
 
-        # Post-process for has_empty_answers if needed (only on current page, not all questions)
+        # Helper function to check for PNG in stem
+        def check_png_in_stem(stem):
+            if not stem:
+                return False
+            return 'data:image/png' in str(stem)
+        
+        # Helper function to check for PNG in answer options
+        def check_png_in_answer_options(answer_options):
+            if not answer_options:
+                return False
+            answer_str = str(answer_options)
+            return 'data:image/png' in answer_str
+
+        # Post-process filters that require text content checking
         if has_empty_answers is not None:
             if has_empty_answers:
                 questions = [q for q in questions if not q.get('correct_answer') or len(q.get('correct_answer', [])) == 0]
             else:
                 questions = [q for q in questions if q.get('correct_answer') and len(q.get('correct_answer', [])) > 0]
+        
+        if has_png_in_stem is not None:
+            if has_png_in_stem:
+                questions = [q for q in questions if check_png_in_stem(q.get('stem'))]
+            else:
+                questions = [q for q in questions if not check_png_in_stem(q.get('stem'))]
+        
+        if has_png_in_answers is not None:
+            if has_png_in_answers:
+                questions = [q for q in questions if check_png_in_answer_options(q.get('answer_options'))]
+            else:
+                questions = [q for q in questions if not check_png_in_answer_options(q.get('answer_options'))]
 
         # Get total count (approximate - faster than exact count for large tables)
         # For search queries, we get approximate count by just using the filter count
@@ -189,6 +224,8 @@ async def list_questions(
             count_query = count_query.eq('question_type', question_type)
         if is_active is not None:
             count_query = count_query.eq('is_active', is_active)
+        if is_flagged is not None:
+            count_query = count_query.eq('is_flagged', is_flagged)
         if topic_id:
             count_query = count_query.eq('topic_id', topic_id)
         if search:
@@ -312,12 +349,20 @@ async def update_question(
 
         # Build update dict (only include fields that were provided)
         update_data = {}
+        if updates.stem is not None:
+            update_data['stem'] = updates.stem
+        if updates.stimulus is not None:
+            update_data['stimulus'] = updates.stimulus
+        if updates.answer_options is not None:
+            update_data['answer_options'] = updates.answer_options
         if updates.correct_answer is not None:
             update_data['correct_answer'] = updates.correct_answer
         if updates.acceptable_answers is not None:
             update_data['acceptable_answers'] = updates.acceptable_answers
         if updates.is_active is not None:
             update_data['is_active'] = updates.is_active
+        if updates.is_flagged is not None:
+            update_data['is_flagged'] = updates.is_flagged
         if updates.difficulty is not None:
             update_data['difficulty'] = updates.difficulty
         if updates.topic_id is not None:
@@ -409,4 +454,60 @@ async def bulk_update_questions(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to bulk update questions: {str(e)}"
+        )
+
+
+@router.post("/{question_id}/toggle-flag")
+async def toggle_question_flag(
+    question_id: str,
+    user_id: str = Depends(get_current_user),
+    db: Client = Depends(get_authenticated_client)
+):
+    """
+    Toggle the flagged status of a question.
+    Admin only endpoint.
+    """
+    try:
+        user_is_admin = await is_admin(user_id, db)
+
+        if not user_is_admin:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Admin access required"
+            )
+
+        # Get current flag status
+        result = db.table('questions').select('is_flagged').eq('id', question_id).execute()
+        
+        if not result.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Question not found"
+            )
+
+        current_flag_status = result.data[0].get('is_flagged', False)
+        new_flag_status = not current_flag_status
+
+        # Update flag status
+        update_result = db.table('questions').update({'is_flagged': new_flag_status}).eq('id', question_id).execute()
+
+        if not update_result.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Question not found"
+            )
+
+        return {
+            'message': 'Question flag status updated successfully',
+            'question_id': question_id,
+            'is_flagged': new_flag_status
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error toggling question flag: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to toggle question flag: {str(e)}"
         )

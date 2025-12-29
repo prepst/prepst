@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,18 +11,81 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Eye, ChevronLeft, ChevronRight, Power, PowerOff } from "lucide-react";
-import { useAdminQuestions, useToggleQuestionStatus } from "@/hooks/queries/useAdminQuestions";
+import {
+  Search,
+  Eye,
+  ChevronLeft,
+  ChevronRight,
+  Power,
+  PowerOff,
+} from "lucide-react";
+import {
+  useAdminQuestions,
+  useToggleQuestionStatus,
+} from "@/hooks/queries/useAdminQuestions";
 
 export default function AdminQuestionsPage() {
   const router = useRouter();
-  const [search, setSearch] = useState("");
-  const [module, setModule] = useState<string>("all");
-  const [difficulty, setDifficulty] = useState<string>("all");
-  const [questionType, setQuestionType] = useState<string>("all");
-  const [isActive, setIsActive] = useState<string>("all");
-  const [page, setPage] = useState(0);
+  const searchParams = useSearchParams();
+
+  // Initialize state from URL params
+  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const [module, setModule] = useState<string>(
+    searchParams.get("module") || "all"
+  );
+  const [difficulty, setDifficulty] = useState<string>(
+    searchParams.get("difficulty") || "all"
+  );
+  const [questionType, setQuestionType] = useState<string>(
+    searchParams.get("questionType") || "all"
+  );
+  const [isActive, setIsActive] = useState<string>(
+    searchParams.get("isActive") || "all"
+  );
+  const [isFlagged, setIsFlagged] = useState<string>(
+    searchParams.get("isFlagged") || "all"
+  );
+  const [hasPngInStem, setHasPngInStem] = useState<string>(
+    searchParams.get("hasPngInStem") || "all"
+  );
+  const [hasPngInAnswers, setHasPngInAnswers] = useState<string>(
+    searchParams.get("hasPngInAnswers") || "all"
+  );
+  const [page, setPage] = useState(
+    parseInt(searchParams.get("page") || "0", 10)
+  );
   const limit = 20;
+
+  // Update URL when filters change
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (search) params.set("search", search);
+    if (module !== "all") params.set("module", module);
+    if (difficulty !== "all") params.set("difficulty", difficulty);
+    if (questionType !== "all") params.set("questionType", questionType);
+    if (isActive !== "all") params.set("isActive", isActive);
+    if (isFlagged !== "all") params.set("isFlagged", isFlagged);
+    if (hasPngInStem !== "all") params.set("hasPngInStem", hasPngInStem);
+    if (hasPngInAnswers !== "all")
+      params.set("hasPngInAnswers", hasPngInAnswers);
+    if (page > 0) params.set("page", page.toString());
+
+    const newUrl = params.toString()
+      ? `?${params.toString()}`
+      : "/admin/questions";
+    router.replace(newUrl, { scroll: false });
+  }, [
+    search,
+    module,
+    difficulty,
+    questionType,
+    isActive,
+    isFlagged,
+    hasPngInStem,
+    hasPngInAnswers,
+    page,
+    router,
+  ]);
 
   // Fetch questions with current filters
   const { data, isLoading, error } = useAdminQuestions({
@@ -31,6 +94,11 @@ export default function AdminQuestionsPage() {
     difficulty,
     question_type: questionType,
     is_active: isActive === "all" ? undefined : isActive === "true",
+    is_flagged: isFlagged === "all" ? undefined : isFlagged === "true",
+    has_png_in_stem:
+      hasPngInStem === "all" ? undefined : hasPngInStem === "true",
+    has_png_in_answers:
+      hasPngInAnswers === "all" ? undefined : hasPngInAnswers === "true",
     limit,
     offset: page * limit,
   });
@@ -82,7 +150,13 @@ export default function AdminQuestionsPage() {
         {/* Filters - Compact Layout */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Module Filter */}
-          <Select value={module} onValueChange={(v) => { setModule(v); setPage(0); }}>
+          <Select
+            value={module}
+            onValueChange={(v) => {
+              setModule(v);
+              setPage(0);
+            }}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="All Modules" />
             </SelectTrigger>
@@ -94,7 +168,13 @@ export default function AdminQuestionsPage() {
           </Select>
 
           {/* Difficulty Filter */}
-          <Select value={difficulty} onValueChange={(v) => { setDifficulty(v); setPage(0); }}>
+          <Select
+            value={difficulty}
+            onValueChange={(v) => {
+              setDifficulty(v);
+              setPage(0);
+            }}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="All Difficulties" />
             </SelectTrigger>
@@ -107,7 +187,13 @@ export default function AdminQuestionsPage() {
           </Select>
 
           {/* Type Filter */}
-          <Select value={questionType} onValueChange={(v) => { setQuestionType(v); setPage(0); }}>
+          <Select
+            value={questionType}
+            onValueChange={(v) => {
+              setQuestionType(v);
+              setPage(0);
+            }}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="All Types" />
             </SelectTrigger>
@@ -119,7 +205,13 @@ export default function AdminQuestionsPage() {
           </Select>
 
           {/* Status Filter */}
-          <Select value={isActive} onValueChange={(v) => { setIsActive(v); setPage(0); }}>
+          <Select
+            value={isActive}
+            onValueChange={(v) => {
+              setIsActive(v);
+              setPage(0);
+            }}
+          >
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="All Status" />
             </SelectTrigger>
@@ -127,6 +219,60 @@ export default function AdminQuestionsPage() {
               <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="true">Active</SelectItem>
               <SelectItem value="false">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Flagged Filter */}
+          <Select
+            value={isFlagged}
+            onValueChange={(v) => {
+              setIsFlagged(v);
+              setPage(0);
+            }}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Flag?" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Flag</SelectItem>
+              <SelectItem value="true">Flagged</SelectItem>
+              <SelectItem value="false">Not Flagged</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* PNG in Question Filter */}
+          <Select
+            value={hasPngInStem}
+            onValueChange={(v) => {
+              setHasPngInStem(v);
+              setPage(0);
+            }}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="PNG in Question" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Png in Question</SelectItem>
+              <SelectItem value="true">Has PNG in Question</SelectItem>
+              <SelectItem value="false">No PNG in Question</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* PNG in Answers Filter */}
+          <Select
+            value={hasPngInAnswers}
+            onValueChange={(v) => {
+              setHasPngInAnswers(v);
+              setPage(0);
+            }}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="PNG in Answers" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">PNG in Answers</SelectItem>
+              <SelectItem value="true">Has PNG in Answers</SelectItem>
+              <SelectItem value="false">No PNG in Answers</SelectItem>
             </SelectContent>
           </Select>
 
@@ -139,6 +285,9 @@ export default function AdminQuestionsPage() {
               setDifficulty("all");
               setQuestionType("all");
               setIsActive("all");
+              setIsFlagged("all");
+              setHasPngInStem("all");
+              setHasPngInAnswers("all");
               setPage(0);
             }}
             className="ml-auto"
@@ -194,19 +343,30 @@ export default function AdminQuestionsPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                   {questions.map((question: any) => {
-                    let questionText = question.stem || question.prompt || "No question text";
+                    let questionText =
+                      question.stem || question.prompt || "No question text";
 
                     // Strip common prefixes from similar questions
                     questionText = questionText
-                      .replace(/<p>\s*This is a similar question to help you practice the same concept\.\s*/gi, "<p>")
-                      .replace(/^\s*This is a similar question to help you practice the same concept\.\s*/gi, "")
+                      .replace(
+                        /<p>\s*This is a similar question to help you practice the same concept\.\s*/gi,
+                        "<p>"
+                      )
+                      .replace(
+                        /^\s*This is a similar question to help you practice the same concept\.\s*/gi,
+                        ""
+                      )
                       .trim();
 
                     // Strip HTML tags for preview
-                    const textOnly = questionText.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
-                    const truncated = textOnly.length > 100
-                      ? textOnly.substring(0, 100) + "..."
-                      : textOnly;
+                    const textOnly = questionText
+                      .replace(/<[^>]*>/g, " ")
+                      .replace(/\s+/g, " ")
+                      .trim();
+                    const truncated =
+                      textOnly.length > 100
+                        ? textOnly.substring(0, 100) + "..."
+                        : textOnly;
 
                     return (
                       <tr
@@ -215,12 +375,12 @@ export default function AdminQuestionsPage() {
                       >
                         <td className="px-6 py-4 max-w-md">
                           <div className="text-sm text-gray-900 dark:text-gray-100">
-                            <div className="line-clamp-2">
-                              {truncated}
-                            </div>
+                            <div className="line-clamp-2">{truncated}</div>
                           </div>
                           <div className="text-xs text-gray-500 mt-1">
-                            ID: {question.external_id || question.id.substring(0, 8)}
+                            ID:{" "}
+                            {question.external_id ||
+                              question.id.substring(0, 8)}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
@@ -271,9 +431,18 @@ export default function AdminQuestionsPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleToggleActive(question.id, question.is_active)}
+                              onClick={() =>
+                                handleToggleActive(
+                                  question.id,
+                                  question.is_active
+                                )
+                              }
                               disabled={toggleActiveMutation.isPending}
-                              title={question.is_active ? "Disable question" : "Enable question"}
+                              title={
+                                question.is_active
+                                  ? "Disable question"
+                                  : "Enable question"
+                              }
                             >
                               {question.is_active ? (
                                 <PowerOff className="w-4 h-4 text-orange-500" />
@@ -284,7 +453,37 @@ export default function AdminQuestionsPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => router.push(`/admin/questions/${question.id}`)}
+                              onClick={() => {
+                                // Preserve current filters in URL when navigating to question detail
+                                const params = new URLSearchParams();
+                                if (search) params.set("search", search);
+                                if (module !== "all")
+                                  params.set("module", module);
+                                if (difficulty !== "all")
+                                  params.set("difficulty", difficulty);
+                                if (questionType !== "all")
+                                  params.set("questionType", questionType);
+                                if (isActive !== "all")
+                                  params.set("isActive", isActive);
+                                if (isFlagged !== "all")
+                                  params.set("isFlagged", isFlagged);
+                                if (hasPngInStem !== "all")
+                                  params.set("hasPngInStem", hasPngInStem);
+                                if (hasPngInAnswers !== "all")
+                                  params.set(
+                                    "hasPngInAnswers",
+                                    hasPngInAnswers
+                                  );
+                                if (page > 0)
+                                  params.set("page", page.toString());
+
+                                const queryString = params.toString();
+                                router.push(
+                                  `/admin/questions/${question.id}${
+                                    queryString ? `?${queryString}` : ""
+                                  }`
+                                );
+                              }}
                             >
                               <Eye className="w-4 h-4 mr-1" />
                               Test
@@ -301,8 +500,9 @@ export default function AdminQuestionsPage() {
             {/* Pagination */}
             <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between">
               <div className="text-sm text-gray-600 dark:text-gray-400">
-                Showing {page * limit + 1} to {Math.min((page + 1) * limit, totalCount)} of{" "}
-                {totalCount} questions
+                Showing {page * limit + 1} to{" "}
+                {Math.min((page + 1) * limit, totalCount)} of {totalCount}{" "}
+                questions
               </div>
               <div className="flex gap-2">
                 <Button

@@ -6,6 +6,7 @@ import {
   Lightbulb,
   ChevronDown,
   Sparkles,
+  Flag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { QuestionNavigatorPopup } from "./QuestionNavigatorPopup";
@@ -15,6 +16,8 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
+import { useToggleQuestionFlag } from "@/hooks/queries/useAdminQuestions";
+import { useState, useEffect } from "react";
 
 interface PracticeFooterProps {
   showFeedback: boolean;
@@ -35,6 +38,10 @@ interface PracticeFooterProps {
   onShowExplanation?: () => void;
   hasRationale?: boolean;
   isPinned?: boolean;
+  questionId?: string;
+  isAdmin?: boolean;
+  isFlagged?: boolean;
+  onQuestionFlagUpdate?: (questionId: string, isFlagged: boolean) => void;
 }
 
 export function PracticeFooter({
@@ -56,6 +63,10 @@ export function PracticeFooter({
   onShowExplanation,
   hasRationale = false,
   isPinned = false,
+  questionId,
+  isAdmin = false,
+  isFlagged = false,
+  onQuestionFlagUpdate,
 }: PracticeFooterProps) {
   const handleNavigate = (index: number) => {
     if (onNavigate) {
@@ -63,12 +74,37 @@ export function PracticeFooter({
     }
   };
 
+  const toggleFlagMutation = useToggleQuestionFlag();
+  const [localIsFlagged, setLocalIsFlagged] = useState(isFlagged);
+
+  // Reset local state when questionId or isFlagged changes
+  useEffect(() => {
+    setLocalIsFlagged(isFlagged);
+  }, [isFlagged, questionId]);
+
+  const handleToggleFlag = async () => {
+    if (!questionId) return;
+    try {
+      const result = await toggleFlagMutation.mutateAsync(questionId);
+      // Use the result from the API instead of toggling local state
+      setLocalIsFlagged(result.is_flagged);
+      // Update the question in the parent's questions array
+      if (onQuestionFlagUpdate) {
+        onQuestionFlagUpdate(questionId, result.is_flagged);
+      }
+    } catch (error) {
+      console.error("Failed to toggle flag:", error);
+    }
+  };
+
   return (
     <div className="relative z-50 bg-background/80 backdrop-blur-xl border-t border-border/40 supports-[backdrop-filter]:bg-background/60">
-      <div className={cn(
-        "flex items-center justify-between h-16",
-        isPinned ? "px-8" : "pl-[250px] pr-[250px]"
-      )}>
+      <div
+        className={cn(
+          "flex items-center justify-between h-16",
+          isPinned ? "px-8" : "pl-[250px] pr-[250px]"
+        )}
+      >
         {/* Left: Question Counter - Clickable */}
         <div className="flex items-center gap-3">
           {questions.length > 0 ? (
@@ -118,6 +154,24 @@ export function PracticeFooter({
 
         {/* Right: AI Explanation / Explanation / Check / Back / Next */}
         <div className="flex items-center gap-3">
+          {/* Admin Flag Button */}
+          {isAdmin && questionId && (
+            <Button
+              onClick={handleToggleFlag}
+              disabled={toggleFlagMutation.isPending}
+              className="h-10 px-4 font-semibold transition-all shadow-sm text-base flex items-center gap-2"
+              style={{
+                backgroundColor: localIsFlagged
+                  ? "rgba(239, 68, 68, 0.2)"
+                  : "rgba(239, 68, 68, 0.1)",
+                color: "#ef4444",
+              }}
+            >
+              <Flag className="size-4" />
+              {localIsFlagged ? "Flagged" : "Flag"}
+            </Button>
+          )}
+
           {/* AI Explanation Button */}
           {onGetFeedback && (
             <Button

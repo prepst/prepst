@@ -17,6 +17,7 @@ import { useTimer } from "@/hooks/useTimer";
 import { useQuestionNavigation } from "@/hooks/useQuestionNavigation";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
 import confetti from "canvas-confetti";
 import {
   Dialog,
@@ -32,6 +33,7 @@ import "./practice-session.css";
 function PracticeSessionContent() {
   const params = useParams();
   const router = useRouter();
+  const { user } = useAuth();
 
   // Safe access to sessionId, handling potential JSON stringification from previous bugs
   const rawSessionId = params.sessionId as string;
@@ -70,6 +72,7 @@ function PracticeSessionContent() {
     clearAiFeedback,
     resetQuestionTimer,
     getTimeSpent,
+    updateQuestionFlag,
   } = usePracticeSession(sessionId);
 
   const timer = useTimer(sessionId);
@@ -85,6 +88,11 @@ function PracticeSessionContent() {
     handleNext: navHandleNext,
     handlePrevious: navHandlePrevious,
   } = useQuestionNavigation(questions, answers);
+
+  // Check if user is admin
+  const isAdmin =
+    user?.user_metadata?.role === "admin" ||
+    user?.app_metadata?.role === "admin";
 
   // Local UI state
   const [showQuestionList, setShowQuestionList] = useState(false);
@@ -681,6 +689,10 @@ function PracticeSessionContent() {
           onShowExplanation={handleShowExplanation}
           hasRationale={!!currentQuestion?.question.rationale}
           isPinned={isAIPanelPinned && showAIPanel}
+          questionId={currentQuestion?.question.id}
+          isAdmin={isAdmin}
+          isFlagged={currentQuestion?.question.is_flagged || false}
+          onQuestionFlagUpdate={updateQuestionFlag}
         />
       </div>
 

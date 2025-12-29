@@ -1275,8 +1275,11 @@ export const api = {
     difficulty?: string;
     question_type?: string;
     is_active?: boolean;
+    is_flagged?: boolean;
     topic_id?: string;
     has_empty_answers?: boolean;
+    has_png_in_stem?: boolean;
+    has_png_in_answers?: boolean;
     limit?: number;
     offset?: number;
   }): Promise<any> {
@@ -1318,6 +1321,9 @@ export const api = {
   async updateQuestion(
     questionId: string,
     updates: {
+      stem?: string;
+      stimulus?: string;
+      answer_options?: Record<string, string> | any;
       correct_answer?: string[];
       acceptable_answers?: string[];
       is_active?: boolean;
@@ -1362,6 +1368,24 @@ export const api = {
 
     if (!response.ok) {
       throw new Error("Failed to bulk update questions");
+    }
+
+    return response.json();
+  },
+
+  async toggleQuestionFlag(questionId: string): Promise<any> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${config.apiUrl}/api/admin/questions/${questionId}/toggle-flag`,
+      {
+        method: "POST",
+        headers,
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Failed to toggle question flag" }));
+      throw new Error(error.detail || "Failed to toggle question flag");
     }
 
     return response.json();

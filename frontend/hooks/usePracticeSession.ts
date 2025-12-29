@@ -330,6 +330,25 @@ export function usePracticeSession(sessionId: string) {
     [sessionId]
   );
 
+  const updateQuestionFlag = useCallback(
+    (questionId: string, isFlagged: boolean) => {
+      setQuestions((prevQuestions) =>
+        prevQuestions.map((q) =>
+          q.question.id === questionId
+            ? {
+                ...q,
+                question: {
+                  ...q.question,
+                  is_flagged: isFlagged,
+                },
+              }
+            : q
+        )
+      );
+    },
+    []
+  );
+
   return {
     questions,
     answers,
@@ -346,5 +365,6 @@ export function usePracticeSession(sessionId: string) {
     clearAiFeedback,
     resetQuestionTimer,
     getTimeSpent,
+    updateQuestionFlag,
   };
 }

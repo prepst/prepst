@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { QuestionPanel } from "@/components/practice/QuestionPanel";
 import { AnswerPanel } from "@/components/practice/AnswerPanel";
@@ -28,7 +28,14 @@ import { useAdminQuestionDetail, useUpdateQuestion } from "@/hooks/queries/useAd
 export default function AdminQuestionTestPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const questionId = params.id as string;
+
+  // Get filter params from URL to preserve when going back
+  const getBackUrl = () => {
+    const filterParams = searchParams.toString();
+    return `/admin/questions${filterParams ? `?${filterParams}` : ""}`;
+  };
 
   const [answer, setAnswer] = useState<AnswerState | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
@@ -40,15 +47,6 @@ export default function AdminQuestionTestPage() {
 
   // Update mutation
   const updateMutation = useUpdateQuestion(questionId);
-
-  const handleSaveEdit = () => {
-    updateMutation.mutate(editedData, {
-      onSuccess: () => {
-        setIsEditMode(false);
-        setEditedData({});
-      },
-    });
-  };
 
   if (isLoading) {
     return (
@@ -66,7 +64,7 @@ export default function AdminQuestionTestPage() {
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600">Question not found</p>
-          <Button onClick={() => router.push("/admin/questions")} className="mt-4">
+          <Button onClick={() => router.push(getBackUrl())} className="mt-4">
             Back to Questions
           </Button>
         </div>
@@ -129,7 +127,12 @@ export default function AdminQuestionTestPage() {
   };
 
   const handleSave = () => {
-    updateMutation.mutate(editedData);
+    updateMutation.mutate(editedData, {
+      onSuccess: () => {
+        setIsEditMode(false);
+        setEditedData({});
+      },
+    });
   };
 
   return (
@@ -141,7 +144,7 @@ export default function AdminQuestionTestPage() {
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
-                onClick={() => router.push("/admin/questions")}
+                onClick={() => router.push(getBackUrl())}
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Questions
@@ -250,15 +253,146 @@ export default function AdminQuestionTestPage() {
 
       {/* Edit Metadata Modal */}
       <Dialog open={isEditMode} onOpenChange={setIsEditMode}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Edit Question Metadata</DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-4 overflow-y-auto flex-1 min-h-0">
+            {/* Stimulus (for English questions) */}
+            {adminQuestion.module === "english" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Stimulus (Reading Passage)
+                </label>
+                <Textarea
+                  value={editedData.stimulus ?? adminQuestion.stimulus ?? ""}
+                  onChange={(e) => handleEditChange("stimulus", e.target.value)}
+                  rows={6}
+                  placeholder="Enter the reading passage or context..."
+                  className="font-mono text-sm"
+                />
+              </div>
+            )}
+
+            {/* Answer Options (for Multiple Choice) */}
+            {adminQuestion.question_type === "mc" && adminQuestion.answer_options && (
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  Answer Options
+                </label>
+                {(() => {
+                  // Normalize answer_options to object format
+                  const currentOptions = editedData.answer_options ?? adminQuestion.answer_options;
+                  let optionsObj: Record<string, string> = {};
+                  
+                  if (Array.isArray(currentOptions)) {
+                    // Convert array format to object
+                    currentOptions.forEach((opt: any, idx: number) => {
+                      const label = ["A", "B", "C", "D", "E", "F"][idx];
+                      if (opt.content) {
+                        optionsObj[label] = opt.content;
+                      } else if (typeof opt === "string") {
+                        optionsObj[label] = opt;
+                      } else if (Array.isArray(opt) && opt.length > 1) {
+                        optionsObj[label] = String(opt[1]);
+                      }
+                    });
+                  } else if (typeof currentOptions === "object") {
+                    optionsObj = currentOptions;
+                  }
+
+                  // Get current correct answer
+                  const currentCorrect = editedData.correct_answer?.[0] ?? adminQuestion.correct_answer?.[0] ?? "";
+                  
+                  return (
+                    <>
+                      {["A", "B", "C", "D", "E", "F"].map((label) => {
+                        if (!optionsObj[label] && Object.keys(optionsObj).length === 0) return null;
+                        return (
+                          <div key={label} className="flex items-start gap-2">
+                            <div className="flex items-center gap-2 flex-1">
+                              <span className="font-semibold text-sm w-6">{label}</span>
+                              <Input
+                                value={editedData.answer_options?.[label] ?? optionsObj[label] ?? ""}
+                                onChange={(e) => {
+                                  const newOptions = {
+                                    ...(editedData.answer_options ?? optionsObj),
+                                    [label]: e.target.value,
+                                  };
+                                  handleEditChange("answer_options", newOptions);
+                                }}
+                                placeholder={`Option ${label}...`}
+                                className="flex-1"
+                              />
+                            </div>
+                            <Button
+                              type="button"
+                              variant={currentCorrect === label ? "default" : "outline"}
+                              size="sm"
+                              onClick={() => {
+                                handleEditChange("correct_answer", [label]);
+                              }}
+                              className="shrink-0"
+                            >
+                              {currentCorrect === label ? "✓ Correct" : "Set Correct"}
+                            </Button>
+                          </div>
+                        );
+                      })}
+                    </>
+                  );
+                })()}
+              </div>
+            )}
+
+            {/* Correct Answer (for SPR) */}
+            {adminQuestion.question_type === "spr" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Correct Answer
+                </label>
+                <Input
+                  value={
+                    editedData.correct_answer?.[0] ||
+                    adminQuestion.correct_answer?.[0] ||
+                    ""
+                  }
+                  onChange={(e) =>
+                    handleEditChange("correct_answer", [e.target.value])
+                  }
+                  placeholder="Enter correct answer..."
+                />
+              </div>
+            )}
+
+            {/* Acceptable Answers (for SPR) */}
+            {adminQuestion.question_type === "spr" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Acceptable Answers (comma-separated)
+                </label>
+                <Input
+                  value={
+                    editedData.acceptable_answers?.join(", ") ||
+                    (adminQuestion.acceptable_answers || []).join(", ") ||
+                    ""
+                  }
+                  onChange={(e) => {
+                    const values = e.target.value
+                      .split(",")
+                      .map((v) => v.trim())
+                      .filter((v) => v.length > 0);
+                    handleEditChange("acceptable_answers", values);
+                  }}
+                  placeholder="e.g., 42, 42.0, forty-two"
+                />
+              </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Difficulty
                 </label>
                 <Select
@@ -277,7 +411,7 @@ export default function AdminQuestionTestPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Status
                 </label>
                 <Select
@@ -293,28 +427,25 @@ export default function AdminQuestionTestPage() {
                   </SelectContent>
                 </Select>
               </div>
-
-              {adminQuestion.question_type === "spr" && (
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Correct Answer
-                  </label>
-                  <Input
-                    value={
-                      editedData.correct_answer?.[0] ||
-                      adminQuestion.correct_answer?.[0] ||
-                      ""
-                    }
-                    onChange={(e) =>
-                      handleEditChange("correct_answer", [e.target.value])
-                    }
-                  />
-                </div>
-              )}
             </div>
 
+            {/* Question Stem */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Question Stem
+              </label>
+              <Textarea
+                value={editedData.stem ?? adminQuestion.stem ?? ""}
+                onChange={(e) => handleEditChange("stem", e.target.value)}
+                rows={4}
+                placeholder="Enter the question text..."
+                className="font-mono text-sm"
+              />
+            </div>
+
+            {/* Rationale */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Rationale
               </label>
               <Textarea
@@ -326,7 +457,7 @@ export default function AdminQuestionTestPage() {
             </div>
           </div>
 
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 pt-4 border-t">
             <Button
               variant="outline"
               onClick={() => {

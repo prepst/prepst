@@ -67,17 +67,34 @@ async def get_session_questions(
         session["topics"] = []
 
         # Fetch all questions for the session
-        questions_response = db.table("session_questions").select(
-            "id, session_id, question_id, topic_id, display_order, status, user_answer, is_saved, "
-            "questions(id, stimulus, stem, difficulty, question_type, answer_options, correct_answer, rationale), "
-            "topics(id, name, category_id, weight_in_category)"
-        ).eq("session_id", session_id).order("display_order").execute()
+        # Try with is_flagged first, fall back if column doesn't exist yet
+        try:
+            questions_response = db.table("session_questions").select(
+                "id, session_id, question_id, topic_id, display_order, status, user_answer, is_saved, "
+                "questions(id, stimulus, stem, difficulty, question_type, answer_options, correct_answer, rationale, is_flagged), "
+                "topics(id, name, category_id, weight_in_category)"
+            ).eq("session_id", session_id).order("display_order").execute()
+        except Exception as e:
+            # If is_flagged column doesn't exist yet, query without it
+            if "is_flagged" in str(e) or "column" in str(e).lower():
+                questions_response = db.table("session_questions").select(
+                    "id, session_id, question_id, topic_id, display_order, status, user_answer, is_saved, "
+                    "questions(id, stimulus, stem, difficulty, question_type, answer_options, correct_answer, rationale), "
+                    "topics(id, name, category_id, weight_in_category)"
+                ).eq("session_id", session_id).order("display_order").execute()
+            else:
+                raise
 
         questions = []
         for sq in questions_response.data:
+            question_data = sq["questions"]
+            # Ensure is_flagged exists in question data (default to False if not present)
+            if "is_flagged" not in question_data:
+                question_data["is_flagged"] = False
+            
             questions.append({
                 "session_question_id": sq["id"],
-                "question": sq["questions"],
+                "question": question_data,
                 "topic": sq["topics"],
                 "status": sq["status"],
                 "display_order": sq["display_order"],

@@ -8,6 +8,9 @@ interface UseAdminQuestionsParams {
   difficulty?: string;
   question_type?: string;
   is_active?: boolean;
+  is_flagged?: boolean;
+  has_png_in_stem?: boolean;
+  has_png_in_answers?: boolean;
   limit?: number;
   offset?: number;
 }
@@ -24,6 +27,9 @@ export function useAdminQuestions(params: UseAdminQuestionsParams) {
       difficulty: params.difficulty === "all" ? undefined : params.difficulty,
       question_type: params.question_type === "all" ? undefined : params.question_type,
       is_active: params.is_active === undefined ? undefined : params.is_active,
+      is_flagged: params.is_flagged === undefined ? undefined : params.is_flagged,
+      has_png_in_stem: params.has_png_in_stem === undefined ? undefined : params.has_png_in_stem,
+      has_png_in_answers: params.has_png_in_answers === undefined ? undefined : params.has_png_in_answers,
       limit: params.limit,
       offset: params.offset,
     }),
@@ -64,6 +70,26 @@ export function useAdminQuestionDetail(questionId: string) {
 }
 
 /**
+ * Hook to toggle question flag status
+ */
+export function useToggleQuestionFlag() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (questionId: string) => api.toggleQuestionFlag(questionId),
+    onSuccess: (data) => {
+      // Invalidate both admin questions and practice session queries
+      queryClient.invalidateQueries({ queryKey: ["admin-questions"] });
+      queryClient.invalidateQueries({ queryKey: ["practice-session"] });
+    },
+    onError: (error) => {
+      toast.error("Failed to toggle question flag");
+      console.error("Error toggling question flag:", error);
+    },
+  });
+}
+
+/**
  * Hook to update question
  */
 export function useUpdateQuestion(questionId: string) {
@@ -71,9 +97,12 @@ export function useUpdateQuestion(questionId: string) {
 
   return useMutation({
     mutationFn: (updates: any) => api.updateQuestion(questionId, updates),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin-questions"] });
-      queryClient.invalidateQueries({ queryKey: ["admin-question-detail", questionId] });
+    onSuccess: async () => {
+      // Invalidate and refetch queries to ensure UI updates
+      await queryClient.invalidateQueries({ queryKey: ["admin-questions"] });
+      await queryClient.invalidateQueries({ queryKey: ["admin-question-detail", questionId] });
+      // Force refetch the question detail to ensure latest data
+      await queryClient.refetchQueries({ queryKey: ["admin-question-detail", questionId] });
       toast.success("Question updated successfully");
     },
     onError: (error) => {

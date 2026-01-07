@@ -12,6 +12,14 @@ from datetime import datetime
 
 settings = get_settings()
 
+# Try to import Modal (only available if deployed to production)
+try:
+    import modal
+    MODAL_AVAILABLE = True
+except ImportError:
+    MODAL_AVAILABLE = False
+    modal = None
+
 
 class ManimService:
     """Service for generating Manim videos from natural language questions"""
@@ -22,6 +30,24 @@ class ManimService:
         self.output_dir = Path(__file__).parent.parent.parent / "manim_output"
         self.output_dir.mkdir(exist_ok=True)
         self.db = db
+        
+        # Try to connect to Modal function if available
+        self.modal_function = None
+        self.use_modal = False
+        if MODAL_AVAILABLE:
+            try:
+                # Import the deployed Modal app
+                from modal import Cls
+                # Reference the deployed function
+                generate_video_fn = modal.Function.from_name("manim-video-generator", "generate_video")
+                self.modal_function = generate_video_fn
+                self.use_modal = True
+                print("✅ Modal function found - using serverless generation")
+            except Exception as e:
+                print(f"⚠️  Modal function not found - falling back to local generation: {str(e)}")
+                self.use_modal = False
+        else:
+            print("ℹ️  Modal not installed - using local generation")
 
     def _slugify(self, text: str) -> str:
         """Convert text to URL-friendly slug
@@ -106,7 +132,7 @@ Use the exact category and topic names from the list above. If the question does
     ) -> Dict[str, Any]:
         """
         Generate a Manim video from a natural language math question.
-        Retries with error feedback if generation fails.
+        Uses Modal serverless function in production, falls back to local generation in development.
 
         Args:
             question: Natural language question (e.g., "How to find slope?")
@@ -116,6 +142,19 @@ Use the exact category and topic names from the list above. If the question does
         Returns:
             Dictionary with video URL and metadata
         """
+        # Use Modal serverless function if available
+        if self.use_modal and self.modal_function:
+            try:
+                print(f"🚀 Generating video via Modal: {question}")
+                result = await self.modal_function.remote.aio(question, max_retries)
+                print(f"✅ Modal generation completed: {result.get('videoUrl')}")
+                return result
+            except Exception as e:
+                print(f"❌ Modal generation failed: {str(e)}")
+                print("⚠️  Falling back to local generation")
+                # Fall through to local generation
+        
+        # Local generation (development mode or Modal fallback)
         try:
             # Classify question into category and topic
             category_slug, topic_slug = await self._classify_question(question)
@@ -397,6 +436,9 @@ Do not include any explanations or markdown formatting, just the code."""
             env = os.environ.copy()
             backend_dir = str(Path(__file__).parent.parent.parent)
             env['PYTHONPATH'] = backend_dir + os.pathsep + env.get('PYTHONPATH', '')
+            # Explicitly set OPENAI_API_KEY for subprocess (VoiceoverService needs it)
+            if settings.openai_api_key:
+                env['OPENAI_API_KEY'] = settings.openai_api_key
 
             result = subprocess.run(
                 cmd,

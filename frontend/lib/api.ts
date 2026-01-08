@@ -1390,4 +1390,81 @@ export const api = {
 
     return response.json();
   },
+
+  // Question Pool API (user-facing browse)
+  async browseQuestions(params: {
+    section?: 'math' | 'reading_writing';
+    difficulty?: 'E' | 'M' | 'H';
+    topicId?: string;
+    categoryId?: string;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{
+    questions: Array<{
+      id: string;
+      stem: string;
+      stimulus?: string;
+      difficulty: string;
+      question_type: string;
+      answer_options?: Record<string, any>;
+      correct_answer?: string[];
+      rationale?: string;
+      topic?: { id: string; name: string };
+      category?: { id: string; name: string; section: string };
+    }>;
+    total: number;
+    limit: number;
+    offset: number;
+    has_more: boolean;
+  }> {
+    const headers = await getAuthHeaders();
+    const queryParams = new URLSearchParams();
+
+    if (params.section) queryParams.append('section', params.section);
+    if (params.difficulty) queryParams.append('difficulty', params.difficulty);
+    if (params.topicId) queryParams.append('topic_id', params.topicId);
+    if (params.categoryId) queryParams.append('category_id', params.categoryId);
+    if (params.search) queryParams.append('search', params.search);
+    if (params.limit) queryParams.append('limit', String(params.limit));
+    if (params.offset) queryParams.append('offset', String(params.offset));
+
+    const response = await fetch(
+      `${config.apiUrl}/api/questions/browse?${queryParams}`,
+      { headers }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to browse questions");
+    }
+
+    return response.json();
+  },
+
+  async getTopicsSummary(section?: 'math' | 'reading_writing'): Promise<Array<{
+    topic_id: string;
+    topic_name: string;
+    category_id: string;
+    category_name: string;
+    section: string;
+    total_questions: number;
+    easy_count: number;
+    medium_count: number;
+    hard_count: number;
+  }>> {
+    const headers = await getAuthHeaders();
+    const queryParams = new URLSearchParams();
+    if (section) queryParams.append('section', section);
+
+    const response = await fetch(
+      `${config.apiUrl}/api/questions/topics-summary?${queryParams}`,
+      { headers }
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to get topics summary");
+    }
+
+    return response.json();
+  },
 };

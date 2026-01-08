@@ -39,3 +39,6 @@ export {
   useAdminQuestionDetail,
   useUpdateQuestion,
 } from './useAdminQuestions';
+
+// Question Pool
+export { useQuestionPool, useTopicsSummary } from './useQuestionPool';

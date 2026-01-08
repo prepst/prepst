@@ -193,18 +193,18 @@ export default function DrillPage() {
           {/* Header */}
           <div className="flex flex-col gap-8">
             {/* Title Section */}
-            <div className="text-center space-y-4">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 w-fit mx-auto">
-                <Zap className="w-4 h-4 text-primary" />
-                <span className="text-sm font-semibold text-primary uppercase tracking-wide">
-                  AI-Powered Practice
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 w-fit">
+                <Zap className="w-3.5 h-3.5 text-primary" />
+                <span className="text-xs font-semibold text-primary uppercase tracking-wide">
+                  Targeted Practice
                 </span>
               </div>
-              <h1 className="text-5xl font-extrabold tracking-tight text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
-                Skill Builder
+              <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+                Drill Session
               </h1>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Precision practice to accelerate your learning. Select topics and watch your skills sharpen.
+              <p className="text-lg text-muted-foreground max-w-2xl">
+                Master specific skills with targeted practice sets
               </p>
             </div>
 

@@ -13,9 +13,9 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Default to dark unless the user explicitly picked something else.
-  const [theme, setTheme] = useState<Theme>("dark");
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  // Default to system preference unless the user explicitly picked something else.
+  const [theme, setTheme] = useState<Theme>("auto");
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [mounted, setMounted] = useState(false);
 
   // Initialize from localStorage on client mount
@@ -23,6 +23,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const savedTheme = localStorage.getItem("ui-theme") as Theme;
     if (savedTheme && ["light", "dark", "auto"].includes(savedTheme)) {
       setTheme(savedTheme);
+    } else {
+      // If no saved theme, check system preference for initial state
+      const systemPrefersDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+      setIsDarkMode(systemPrefersDark);
+      document.documentElement.classList.toggle("dark", systemPrefersDark);
     }
     setMounted(true);
   }, []);

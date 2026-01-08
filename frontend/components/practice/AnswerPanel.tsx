@@ -1,6 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Check, X, RefreshCcw, Bookmark } from "lucide-react";
+import { Check, X, RefreshCcw, Bookmark, Ban, RotateCcw } from "lucide-react";
+import { useState, useEffect } from "react";
 import { AIFeedbackDisplay } from "./AIFeedbackDisplay";
 import { ConfidenceRating } from "./ConfidenceRating";
 import { toast } from "sonner";
@@ -43,6 +44,23 @@ export function AnswerPanel({
   compact = false,
   isPinned = false,
 }: AnswerPanelProps) {
+  const [eliminatedOptions, setEliminatedOptions] = useState<Set<string>>(new Set());
+
+  // Reset eliminated options when question changes
+  useEffect(() => {
+    setEliminatedOptions(new Set());
+  }, [question.question.id]);
+
+  const toggleElimination = (optionId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const newEliminated = new Set(eliminatedOptions);
+    if (newEliminated.has(optionId)) {
+      newEliminated.delete(optionId);
+    } else {
+      newEliminated.add(optionId);
+    }
+    setEliminatedOptions(newEliminated);
+  };
   return (
     <div
       className={`flex-1 overflow-y-auto bg-background ${compact ? "p-6" : isPinned ? "py-8 px-8" : "pt-8 pb-8 pl-8 pr-[250px]"
@@ -155,7 +173,10 @@ export function AnswerPanel({
                     return correctAnswerStr === optionLabel;
                   })();
 
-                return (
+                return (() => {
+                  const isEliminated = eliminatedOptions.has(optionId);
+
+                  return (
                   <div
                     key={optionId}
                     className={`
@@ -168,10 +189,16 @@ export function AnswerPanel({
                             ? "border-green-500 bg-green-500/10 ring-1 ring-green-500/20 border-dashed"
                             : isSelected
                               ? "border-primary bg-primary/5 ring-1 ring-primary/20 scale-[1.01] shadow-sm"
-                              : "border-border bg-card hover:border-primary/50 hover:bg-accent hover:scale-[1.005]"
+                              : isEliminated
+                                ? "border-border/50 bg-muted/50 opacity-60"
+                                : "border-border bg-card hover:border-primary/50 hover:bg-accent hover:scale-[1.005]"
                       }
                     `}
-                    onClick={() => !showFeedback && onAnswerChange(optionId)}
+                    onClick={() => {
+                      if (!showFeedback && !isEliminated) {
+                        onAnswerChange(optionId);
+                      }
+                    }}
                   >
                     {/* Label Badge */}
                     <div
@@ -185,7 +212,9 @@ export function AnswerPanel({
                               ? "border-transparent bg-green-500 text-white"
                               : isSelected
                                 ? "border-transparent bg-primary text-primary-foreground"
-                                : "border-border bg-muted text-muted-foreground group-hover:bg-background"
+                                : isEliminated
+                                  ? "border-border/50 bg-muted text-muted-foreground/50"
+                                  : "border-border bg-muted text-muted-foreground group-hover:bg-background"
                         }
                     `}
                     >
@@ -193,7 +222,7 @@ export function AnswerPanel({
                     </div>
 
                     {/* Answer Content */}
-                    <div className="flex-1 text-foreground font-medium">
+                    <div className={`flex-1 text-foreground font-medium ${isEliminated ? "line-through text-muted-foreground" : ""}`}>
                       <span
                         dangerouslySetInnerHTML={{
                           __html: String(optionContent),
@@ -201,11 +230,30 @@ export function AnswerPanel({
                       />
                     </div>
 
+                    {/* Elimination Button (Only show when not in feedback mode) */}
+                    {!showFeedback && (
+                      <button
+                        onClick={(e) => toggleElimination(optionId, e)}
+                        className={`
+                          p-2 rounded-full transition-colors hover:bg-background/80
+                          ${isEliminated ? "text-primary" : "text-muted-foreground/50 hover:text-muted-foreground"}
+                        `}
+                        title={isEliminated ? "Restore answer" : "Eliminate answer"}
+                      >
+                        {isEliminated ? (
+                          <RotateCcw className="w-5 h-5" />
+                        ) : (
+                          <Ban className="w-5 h-5" />
+                        )}
+                      </button>
+                    )}
+
                     {/* Feedback Icon */}
                     {isCorrect && <Check className="w-5 h-5 text-green-500" />}
                     {isWrong && <X className="w-5 h-5 text-red-500" />}
                   </div>
-                );
+                  );
+                })();
               });
             })()}
           </div>

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useStudyPlan, useMockExamAnalytics } from "@/hooks/queries";
 import { useAuth } from "@/contexts/AuthContext";
 import { useProfile } from "@/lib/hooks/useProfile";
-import { ProgressOverview } from "@/components/dashboard/ProgressOverview";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -383,7 +382,7 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Quick Actions Grid */}
+          {/* Stats Overview */}
           <div className="mb-8">
             <QuickActionsGrid />
           </div>
@@ -421,15 +420,6 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
-          </div>
-
-          {/* Analytics Section */}
-          <div className="pt-8">
-            <ProgressOverview
-              studyPlan={studyPlan}
-              mockExamPerformance={mockExamPerformance}
-              mockExamData={mockExamData}
-            />
           </div>
         </div>
       </div>

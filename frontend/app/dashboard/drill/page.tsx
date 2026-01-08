@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { useCompletedSessions, useSkillHeatmap, useTopicPerformance } from "@/hooks/queries";
+import { useCompletedSessions, useSkillHeatmap } from "@/hooks/queries";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import { SkillRadialChart } from "@/components/charts/SkillRadialChart";
@@ -41,7 +41,6 @@ export default function DrillPage() {
 
   const { data: heatmapData, isLoading: heatmapLoading } = useSkillHeatmap();
   const heatmap = heatmapData?.heatmap || {};
-  const { data: topicPerformance } = useTopicPerformance();
 
   // Fetch recent drill sessions
   const { data: completedSessions, isLoading: loadingSessions } =
@@ -92,7 +91,7 @@ export default function DrillPage() {
     load();
   }, []);
 
-  // Group topics by section and category with performance data
+  // Group topics by section and category
   const topicsBySection = useMemo(() => {
     if (!categories) return { math: [], reading_writing: [] };
 
@@ -101,23 +100,14 @@ export default function DrillPage() {
         categoryId: category.id,
         categoryName: category.name,
         section,
-        topics: (category.topics || []).map((topic: any) => {
-          const performance = topicPerformance?.find((p: any) => p.topic_id === topic.id);
-          return {
-            id: topic.id,
-            name: topic.name,
-            categoryName: category.name,
-            section,
-            performance: performance ? {
-              accuracy: performance.accuracy,
-              totalQuestions: performance.total_questions,
-              lastPracticed: performance.last_practiced_at,
-              mastery: performance.mastery_level
-            } : null,
-            difficulty: Math.random() > 0.7 ? "hard" : Math.random() > 0.4 ? "medium" : "easy", // Mock difficulty
-            questionCount: Math.floor(Math.random() * 50) + 10 // Mock question count
-          };
-        }),
+        topics: (category.topics || []).map((topic: any) => ({
+          id: topic.id,
+          name: topic.name,
+          categoryName: category.name,
+          section,
+          difficulty: Math.random() > 0.7 ? "hard" : Math.random() > 0.4 ? "medium" : "easy", // Mock difficulty
+          questionCount: Math.floor(Math.random() * 50) + 10 // Mock question count
+        })),
       }));
 
     return {
@@ -126,7 +116,7 @@ export default function DrillPage() {
         ? processTopics(categories.reading_writing, "reading_writing")
         : [],
     };
-  }, [categories, topicPerformance]);
+  }, [categories]);
 
   // Filter topics based on search and section
   const filteredTopics = useMemo(() => {
@@ -141,23 +131,17 @@ export default function DrillPage() {
     });
   }, [topicsBySection, searchQuery, selectedSection]);
 
-  // Smart recommendations based on performance
+  // Smart recommendations (mocked for now - could be enhanced with real performance data)
   const recommendations = useMemo(() => {
-    if (!topicPerformance) return [];
+    // For now, show a random selection of topics as recommendations
+    const allTopics = [...topicsBySection.math, ...topicsBySection.reading_writing]
+      .flatMap(cat => cat.topics);
 
-    // Get topics with low performance (< 70% accuracy) or not practiced recently
-    const weakTopics = topicPerformance
-      .filter((p: any) => p.accuracy < 0.7 || !p.last_practiced_at)
-      .sort((a: any, b: any) => a.accuracy - b.accuracy)
+    // Shuffle and take first 5 as "recommended"
+    return allTopics
+      .sort(() => Math.random() - 0.5)
       .slice(0, 5);
-
-    return weakTopics.map((p: any) => {
-      const topic = [...topicsBySection.math, ...topicsBySection.reading_writing]
-        .flatMap(cat => cat.topics)
-        .find(t => t.id === p.topic_id);
-      return topic;
-    }).filter(Boolean);
-  }, [topicPerformance, topicsBySection]);
+  }, [topicsBySection]);
 
   const handleTopicToggle = (topicId: string) => {
     setSelectedTopics((prev) => {
@@ -354,29 +338,21 @@ export default function DrillPage() {
                       </div>
                     </div>
 
-                    {/* Performance Indicator */}
-                    {topic.performance && (
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center text-xs">
-                          <span className="text-muted-foreground">Accuracy</span>
-                          <span className={`font-medium ${
-                            topic.performance.accuracy >= 0.8 ? 'text-green-600' :
-                            topic.performance.accuracy >= 0.6 ? 'text-yellow-600' : 'text-red-600'
-                          }`}>
-                            {Math.round(topic.performance.accuracy * 100)}%
-                          </span>
-                        </div>
-                        <div className="w-full bg-muted rounded-full h-1.5">
-                          <div
-                            className={`h-1.5 rounded-full transition-all ${
-                              topic.performance.accuracy >= 0.8 ? 'bg-green-500' :
-                              topic.performance.accuracy >= 0.6 ? 'bg-yellow-500' : 'bg-red-500'
-                            }`}
-                            style={{ width: `${topic.performance.accuracy * 100}%` }}
-                          />
-                        </div>
+                    {/* Question Count Indicator */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center text-xs">
+                        <span className="text-muted-foreground">Questions</span>
+                        <span className="font-medium text-primary">
+                          {topic.questionCount}
+                        </span>
                       </div>
-                    )}
+                      <div className="w-full bg-muted rounded-full h-1.5">
+                        <div
+                          className="h-1.5 rounded-full bg-primary/20 transition-all"
+                          style={{ width: '60%' }}
+                        />
+                      </div>
+                    </div>
 
                     <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/20 to-primary/10" />
                   </div>
@@ -490,42 +466,24 @@ export default function DrillPage() {
                         </Badge>
                       </div>
 
-                      {/* Performance Indicator */}
-                      {topic.performance && (
-                        <div className="space-y-2">
-                          <div className="flex justify-between items-center text-xs">
-                            <span className="text-muted-foreground flex items-center gap-1">
-                              <TrendingUp className="w-3 h-3" />
-                              Accuracy
-                            </span>
-                            <span className={`font-medium ${
-                              topic.performance.accuracy >= 0.8 ? 'text-green-600 dark:text-green-400' :
-                              topic.performance.accuracy >= 0.6 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'
-                            }`}>
-                              {Math.round(topic.performance.accuracy * 100)}%
-                            </span>
-                          </div>
-                          <div className="w-full bg-muted rounded-full h-1.5">
-                            <div
-                              className={`h-1.5 rounded-full transition-all duration-500 ${
-                                topic.performance.accuracy >= 0.8 ? 'bg-green-500' :
-                                topic.performance.accuracy >= 0.6 ? 'bg-yellow-500' : 'bg-red-500'
-                              }`}
-                              style={{ width: `${topic.performance.accuracy * 100}%` }}
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Last Practiced */}
-                      {topic.performance?.lastPracticed && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Clock className="w-3 h-3" />
-                          <span>
-                            {formatDistanceToNow(new Date(topic.performance.lastPracticed), { addSuffix: true })}
+                      {/* Question Count Indicator */}
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-muted-foreground flex items-center gap-1">
+                            <BookOpen className="w-3 h-3" />
+                            Questions
+                          </span>
+                          <span className="font-medium text-primary">
+                            {topic.questionCount}
                           </span>
                         </div>
-                      )}
+                        <div className="w-full bg-muted rounded-full h-1.5">
+                          <div
+                            className="h-1.5 rounded-full bg-primary/20 transition-all"
+                            style={{ width: '60%' }}
+                          />
+                        </div>
+                      </div>
 
                       {/* Section Indicator */}
                       <div className={`absolute bottom-0 left-0 right-0 h-1 ${

@@ -4,7 +4,7 @@ import os
 import sys
 import time
 import logging
-from app.api import study_plans, practice_sessions, auth, mock_exams, analytics, profile, ai_feedback, diagnostic_test, admin_questions, manim, webhooks
+from app.api import study_plans, practice_sessions, auth, mock_exams, analytics, profile, ai_feedback, diagnostic_test, admin_questions, manim, webhooks, questions
 from app.config import get_settings
 
 settings = get_settings()
@@ -75,6 +75,7 @@ app.include_router(analytics.router, prefix="/api")
 app.include_router(profile.router, prefix="/api")
 app.include_router(ai_feedback.router, prefix="/api")
 app.include_router(admin_questions.router, prefix="/api")
+app.include_router(questions.router, prefix="/api")
 
 # Include manim router
 # If MANIM_SERVICE_URL is set (Vercel), manim router will proxy requests to Railway

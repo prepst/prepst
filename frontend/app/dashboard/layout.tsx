@@ -184,16 +184,16 @@ export default function DashboardLayout({
       href: "/dashboard/vocab",
       icon: BookMarked,
     },
-    {
-      name: "Missed Questions",
-      href: "/dashboard/missed",
-      icon: XCircle,
-    },
-    {
-      name: "Saved Questions",
-      href: "/dashboard/saved",
-      icon: Bookmark,
-    },
+    // {
+    //   name: "Missed Questions",
+    //   href: "/dashboard/missed",
+    //   icon: XCircle,
+    // },
+    // {
+    //   name: "Saved Questions",
+    //   href: "/dashboard/saved",
+    //   icon: Bookmark,
+    // },
     {
       name: "Progress",
       href: "/dashboard/progress",

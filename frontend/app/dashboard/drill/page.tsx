@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import type { CategoriesAndTopicsResponse } from "@/lib/types";
@@ -8,11 +8,25 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useCompletedSessions, useSkillHeatmap } from "@/hooks/queries";
+import { Input } from "@/components/ui/input";
+import { useCompletedSessions, useSkillHeatmap, useTopicPerformance } from "@/hooks/queries";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 import { SkillRadialChart } from "@/components/charts/SkillRadialChart";
-import { Zap } from "lucide-react";
+import {
+  Zap,
+  Search,
+  Target,
+  TrendingUp,
+  BookOpen,
+  Sparkles,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  Star,
+  Filter,
+  X
+} from "lucide-react";
 
 export default function DrillPage() {
   const router = useRouter();
@@ -21,8 +35,13 @@ export default function DrillPage() {
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [isCreatingSession, setIsCreatingSession] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedSection, setSelectedSection] = useState<"all" | "math" | "reading_writing">("all");
+  const [showRecommendations, setShowRecommendations] = useState(true);
+
   const { data: heatmapData, isLoading: heatmapLoading } = useSkillHeatmap();
   const heatmap = heatmapData?.heatmap || {};
+  const { data: topicPerformance } = useTopicPerformance();
 
   // Fetch recent drill sessions
   const { data: completedSessions, isLoading: loadingSessions } =
@@ -73,37 +92,72 @@ export default function DrillPage() {
     load();
   }, []);
 
-  // Group topics by section and category
-  const topicsBySection = categories
-    ? {
-        math: Array.isArray(categories.math)
-          ? categories.math.map((category) => ({
-              categoryId: category.id,
-              categoryName: category.name,
-              section: "math",
-              topics: (category.topics || []).map((topic) => ({
-                id: topic.id,
-                name: topic.name,
-                categoryName: category.name,
-                section: "math",
-              })),
-            }))
-          : [],
-        reading_writing: Array.isArray(categories.reading_writing)
-          ? categories.reading_writing.map((category) => ({
-              categoryId: category.id,
-              categoryName: category.name,
-              section: "reading_writing",
-              topics: (category.topics || []).map((topic) => ({
-                id: topic.id,
-                name: topic.name,
-                categoryName: category.name,
-                section: "reading_writing",
-              })),
-            }))
-          : [],
-      }
-    : { math: [], reading_writing: [] };
+  // Group topics by section and category with performance data
+  const topicsBySection = useMemo(() => {
+    if (!categories) return { math: [], reading_writing: [] };
+
+    const processTopics = (sectionTopics: any[], section: string) =>
+      sectionTopics.map((category) => ({
+        categoryId: category.id,
+        categoryName: category.name,
+        section,
+        topics: (category.topics || []).map((topic: any) => {
+          const performance = topicPerformance?.find((p: any) => p.topic_id === topic.id);
+          return {
+            id: topic.id,
+            name: topic.name,
+            categoryName: category.name,
+            section,
+            performance: performance ? {
+              accuracy: performance.accuracy,
+              totalQuestions: performance.total_questions,
+              lastPracticed: performance.last_practiced_at,
+              mastery: performance.mastery_level
+            } : null,
+            difficulty: Math.random() > 0.7 ? "hard" : Math.random() > 0.4 ? "medium" : "easy", // Mock difficulty
+            questionCount: Math.floor(Math.random() * 50) + 10 // Mock question count
+          };
+        }),
+      }));
+
+    return {
+      math: Array.isArray(categories.math) ? processTopics(categories.math, "math") : [],
+      reading_writing: Array.isArray(categories.reading_writing)
+        ? processTopics(categories.reading_writing, "reading_writing")
+        : [],
+    };
+  }, [categories, topicPerformance]);
+
+  // Filter topics based on search and section
+  const filteredTopics = useMemo(() => {
+    const allTopics = [...topicsBySection.math, ...topicsBySection.reading_writing]
+      .flatMap(category => category.topics);
+
+    return allTopics.filter(topic => {
+      const matchesSearch = topic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                           topic.categoryName.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesSection = selectedSection === "all" || topic.section === selectedSection;
+      return matchesSearch && matchesSection;
+    });
+  }, [topicsBySection, searchQuery, selectedSection]);
+
+  // Smart recommendations based on performance
+  const recommendations = useMemo(() => {
+    if (!topicPerformance) return [];
+
+    // Get topics with low performance (< 70% accuracy) or not practiced recently
+    const weakTopics = topicPerformance
+      .filter((p: any) => p.accuracy < 0.7 || !p.last_practiced_at)
+      .sort((a: any, b: any) => a.accuracy - b.accuracy)
+      .slice(0, 5);
+
+    return weakTopics.map((p: any) => {
+      const topic = [...topicsBySection.math, ...topicsBySection.reading_writing]
+        .flatMap(cat => cat.topics)
+        .find(t => t.id === p.topic_id);
+      return topic;
+    }).filter(Boolean);
+  }, [topicPerformance, topicsBySection]);
 
   const handleTopicToggle = (topicId: string) => {
     setSelectedTopics((prev) => {
@@ -114,9 +168,38 @@ export default function DrillPage() {
           toast.error("Maximum 5 topics allowed");
           return prev;
         }
+        toast.success(`Added ${filteredTopics.find(t => t.id === topicId)?.name}`);
         return [...prev, topicId];
       }
     });
+  };
+
+  const quickSelectRecommendations = () => {
+    const availableRecommendations = recommendations
+      .filter(rec => !selectedTopics.includes(rec.id))
+      .slice(0, 5 - selectedTopics.length);
+
+    if (availableRecommendations.length === 0) {
+      toast.info("No more recommendations available or already selected");
+      return;
+    }
+
+    setSelectedTopics(prev => [...prev, ...availableRecommendations.map(r => r.id)]);
+    toast.success(`Added ${availableRecommendations.length} recommended topics`);
+  };
+
+  const clearSelection = () => {
+    setSelectedTopics([]);
+    toast.info("Selection cleared");
+  };
+
+  const getTopicDifficultyColor = (difficulty: string) => {
+    switch (difficulty) {
+      case "easy": return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+      case "medium": return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
+      case "hard": return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
+      default: return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
+    }
   };
 
   return (
@@ -124,176 +207,343 @@ export default function DrillPage() {
       <div className="flex justify-center">
         <div className="w-full max-w-6xl px-6 py-12 space-y-12">
           {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 w-fit">
-                <Zap className="w-3.5 h-3.5 text-primary" />
-                <span className="text-xs font-semibold text-primary uppercase tracking-wide">
-                  Targeted Practice
+          <div className="flex flex-col gap-8">
+            {/* Title Section */}
+            <div className="text-center space-y-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 w-fit mx-auto">
+                <Zap className="w-4 h-4 text-primary" />
+                <span className="text-sm font-semibold text-primary uppercase tracking-wide">
+                  AI-Powered Practice
                 </span>
               </div>
-              <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
-                Drill Session
+              <h1 className="text-5xl font-extrabold tracking-tight text-foreground bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text">
+                Skill Builder
               </h1>
-              <p className="text-lg text-muted-foreground">
-                Master specific skills with targeted practice sets
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Precision practice to accelerate your learning. Select topics and watch your skills sharpen.
               </p>
             </div>
-            <Button
-              onClick={handleStartDrill}
-              disabled={selectedTopics.length === 0 || isCreatingSession}
-              size="lg"
-              className="bg-[#866ffe] hover:bg-[#7a5ffe] text-white font-semibold shadow-lg shadow-primary/25 h-12 px-8 transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
-            >
-              {isCreatingSession ? "Creating..." : "Start Practice Drill"}
-            </Button>
+
+            {/* Selection Status & Actions */}
+            <div className="bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2">
+                    <Target className="w-5 h-5 text-primary" />
+                    <span className="font-semibold text-foreground">
+                      {selectedTopics.length} of 5 topics selected
+                    </span>
+                  </div>
+                  {selectedTopics.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearSelection}
+                      className="text-muted-foreground hover:text-destructive"
+                    >
+                      <X className="w-4 h-4 mr-1" />
+                      Clear
+                    </Button>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {recommendations.length > 0 && selectedTopics.length < 5 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={quickSelectRecommendations}
+                      className="border-primary/20 hover:bg-primary/5"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Quick Select ({Math.min(recommendations.length, 5 - selectedTopics.length)})
+                    </Button>
+                  )}
+                  <Button
+                    onClick={handleStartDrill}
+                    disabled={selectedTopics.length === 0 || isCreatingSession}
+                    size="lg"
+                    className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold shadow-lg shadow-primary/25 px-8 transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                  >
+                    {isCreatingSession ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="w-4 h-4 mr-2" />
+                        Start Practice ({selectedTopics.length * 3} questions)
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="mt-4">
+                <div className="flex justify-between text-sm text-muted-foreground mb-2">
+                  <span>Progress</span>
+                  <span>{selectedTopics.length}/5 topics</span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div
+                    className="bg-gradient-to-r from-primary to-primary/80 h-2 rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${(selectedTopics.length / 5) * 100}%` }}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
 
+          {/* Smart Recommendations */}
+          {showRecommendations && recommendations.length > 0 && (
+            <section className="space-y-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+                    <Sparkles className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-foreground">Recommended for You</h2>
+                    <p className="text-muted-foreground">Topics to focus on based on your performance</p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowRecommendations(false)}
+                  className="text-muted-foreground"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {recommendations.slice(0, 6).map((topic) => (
+                  <div
+                    key={topic.id}
+                    className={`
+                      relative group cursor-pointer p-5 rounded-xl border-2 transition-all duration-300 ease-out overflow-hidden
+                      ${selectedTopics.includes(topic.id)
+                        ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-lg"
+                        : "border-border bg-card hover:border-primary/50 hover:shadow-md hover:-translate-y-1"
+                      }
+                    `}
+                    onClick={() => handleTopicToggle(topic.id)}
+                  >
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-foreground leading-tight mb-1">
+                          {topic.name}
+                        </h3>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                          {topic.categoryName}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        {selectedTopics.includes(topic.id) && (
+                          <CheckCircle className="w-5 h-5 text-primary" />
+                        )}
+                        <Badge
+                          variant="secondary"
+                          className={`text-xs px-2 py-0.5 ${getTopicDifficultyColor(topic.difficulty)}`}
+                        >
+                          {topic.difficulty}
+                        </Badge>
+                      </div>
+                    </div>
+
+                    {/* Performance Indicator */}
+                    {topic.performance && (
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center text-xs">
+                          <span className="text-muted-foreground">Accuracy</span>
+                          <span className={`font-medium ${
+                            topic.performance.accuracy >= 0.8 ? 'text-green-600' :
+                            topic.performance.accuracy >= 0.6 ? 'text-yellow-600' : 'text-red-600'
+                          }`}>
+                            {Math.round(topic.performance.accuracy * 100)}%
+                          </span>
+                        </div>
+                        <div className="w-full bg-muted rounded-full h-1.5">
+                          <div
+                            className={`h-1.5 rounded-full transition-all ${
+                              topic.performance.accuracy >= 0.8 ? 'bg-green-500' :
+                              topic.performance.accuracy >= 0.6 ? 'bg-yellow-500' : 'bg-red-500'
+                            }`}
+                            style={{ width: `${topic.performance.accuracy * 100}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/20 to-primary/10" />
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* Topics Selection */}
-          <section>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-foreground">
-                Select Topics
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {selectedTopics.length} selected (max 5)
-              </p>
+          <section className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground">Browse All Topics</h2>
+                <p className="text-muted-foreground">Choose from our comprehensive topic library</p>
+              </div>
+
+              {/* Search & Filters */}
+              <div className="flex items-center gap-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search topics..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9 w-64"
+                  />
+                </div>
+
+                <div className="flex rounded-lg border border-border p-1">
+                  <Button
+                    variant={selectedSection === "all" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setSelectedSection("all")}
+                    className="px-3"
+                  >
+                    All
+                  </Button>
+                  <Button
+                    variant={selectedSection === "math" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setSelectedSection("math")}
+                    className="px-3"
+                  >
+                    Math
+                  </Button>
+                  <Button
+                    variant={selectedSection === "reading_writing" ? "default" : "ghost"}
+                    size="sm"
+                    onClick={() => setSelectedSection("reading_writing")}
+                    className="px-3"
+                  >
+                    Reading
+                  </Button>
+                </div>
+              </div>
             </div>
 
             {loadingCategories ? (
-              <div className="space-y-8">
-                <Skeleton className="h-48 rounded-xl" />
-                <Skeleton className="h-48 rounded-xl" />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <Skeleton key={i} className="h-32 rounded-xl" />
+                ))}
               </div>
             ) : (
-              <div className="space-y-8">
-                {/* Math Section */}
-                {topicsBySection.math.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-xl font-bold text-foreground">
-                        Math
-                      </h3>
-                      <Badge
-                        variant="secondary"
-                        className="text-muted-foreground bg-muted font-medium"
-                      >
-                        {topicsBySection.math.reduce(
-                          (acc, cat) => acc + cat.topics.length,
-                          0
-                        )}{" "}
-                        topics
-                      </Badge>
-                    </div>
-
-                    {topicsBySection.math.map((category) => (
-                      <div key={category.categoryId} className="space-y-3">
-                        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                          {category.categoryName}
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {category.topics.map((topic) => (
-                            <div
-                              key={topic.id}
-                              className={`
-                                relative group cursor-pointer p-5 pb-0 rounded-xl border-2 transition-all duration-200 ease-out overflow-hidden
-                                ${
-                                  selectedTopics.includes(topic.id)
-                                    ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                                    : "border-border bg-card hover:border-primary/50 hover:bg-accent/50"
-                                }
-                              `}
-                              onClick={() => handleTopicToggle(topic.id)}
-                            >
-                              <div className="flex justify-between items-start mb-5 px-0">
-                                <div className="pr-8">
-                                  <h3 className="font-semibold text-foreground leading-tight">
-                                    {topic.name}
-                                  </h3>
-                                </div>
-                                <Checkbox
-                                  checked={selectedTopics.includes(topic.id)}
-                                  onCheckedChange={() =>
-                                    handleTopicToggle(topic.id)
-                                  }
-                                  className="w-5 h-5"
-                                />
-                              </div>
-
-                              <div className="absolute bottom-0 left-0 right-0 h-1.5">
-                                <div className="h-full w-full bg-amber-500" />
-                              </div>
-                            </div>
-                          ))}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                {filteredTopics.map((topic) => (
+                  <div
+                    key={topic.id}
+                    className={`
+                      relative group cursor-pointer p-5 rounded-xl border-2 transition-all duration-300 ease-out overflow-hidden hover:shadow-lg
+                      ${selectedTopics.includes(topic.id)
+                        ? "border-primary bg-primary/5 ring-2 ring-primary/20 shadow-lg scale-105"
+                        : "border-border bg-card hover:border-primary/50 hover:shadow-md hover:-translate-y-1"
+                      }
+                    `}
+                    onClick={() => handleTopicToggle(topic.id)}
+                  >
+                    {/* Selection Indicator */}
+                    {selectedTopics.includes(topic.id) && (
+                      <div className="absolute top-3 right-3 z-10">
+                        <div className="bg-primary text-white rounded-full p-1">
+                          <CheckCircle className="w-4 h-4" />
                         </div>
                       </div>
-                    ))}
-                  </div>
-                )}
+                    )}
 
-                {/* Reading & Writing Section */}
-                {topicsBySection.reading_writing.length > 0 && (
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <h3 className="text-xl font-bold text-foreground">
-                        Reading & Writing
-                      </h3>
-                      <Badge
-                        variant="secondary"
-                        className="text-muted-foreground bg-muted font-medium"
-                      >
-                        {topicsBySection.reading_writing.reduce(
-                          (acc, cat) => acc + cat.topics.length,
-                          0
-                        )}{" "}
-                        topics
-                      </Badge>
-                    </div>
-
-                    {topicsBySection.reading_writing.map((category) => (
-                      <div key={category.categoryId} className="space-y-3">
-                        <h4 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
-                          {category.categoryName}
-                        </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {category.topics.map((topic) => (
-                            <div
-                              key={topic.id}
-                              className={`
-                                relative group cursor-pointer p-5 pb-0 rounded-xl border-2 transition-all duration-200 ease-out overflow-hidden h-24
-                                ${
-                                  selectedTopics.includes(topic.id)
-                                    ? "border-primary bg-primary/5 ring-1 ring-primary/20"
-                                    : "border-border bg-card hover:border-primary/50 hover:bg-accent/50"
-                                }
-                              `}
-                              onClick={() => handleTopicToggle(topic.id)}
-                            >
-                              <div className="flex justify-between items-start mb-5 px-0">
-                                <div className="pr-8">
-                                  <h3 className="font-semibold text-foreground leading-tight">
-                                    {topic.name}
-                                  </h3>
-                                </div>
-                                <Checkbox
-                                  checked={selectedTopics.includes(topic.id)}
-                                  onCheckedChange={() =>
-                                    handleTopicToggle(topic.id)
-                                  }
-                                  className="w-5 h-5"
-                                />
-                              </div>
-
-                              <div className="absolute bottom-0 left-0 right-0 h-1.5">
-                                <div className="h-full w-full bg-rose-500" />
-                              </div>
-                            </div>
-                          ))}
+                    <div className="space-y-3">
+                      {/* Topic Header */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-foreground leading-tight mb-1 line-clamp-2">
+                            {topic.name}
+                          </h3>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                            {topic.categoryName}
+                          </p>
                         </div>
                       </div>
-                    ))}
+
+                      {/* Topic Stats */}
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1">
+                          <BookOpen className="w-3 h-3 text-muted-foreground" />
+                          <span className="text-muted-foreground">{topic.questionCount} questions</span>
+                        </div>
+                        <Badge
+                          variant="secondary"
+                          className={`text-xs px-2 py-0.5 ${getTopicDifficultyColor(topic.difficulty)}`}
+                        >
+                          {topic.difficulty}
+                        </Badge>
+                      </div>
+
+                      {/* Performance Indicator */}
+                      {topic.performance && (
+                        <div className="space-y-2">
+                          <div className="flex justify-between items-center text-xs">
+                            <span className="text-muted-foreground flex items-center gap-1">
+                              <TrendingUp className="w-3 h-3" />
+                              Accuracy
+                            </span>
+                            <span className={`font-medium ${
+                              topic.performance.accuracy >= 0.8 ? 'text-green-600 dark:text-green-400' :
+                              topic.performance.accuracy >= 0.6 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-600 dark:text-red-400'
+                            }`}>
+                              {Math.round(topic.performance.accuracy * 100)}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-muted rounded-full h-1.5">
+                            <div
+                              className={`h-1.5 rounded-full transition-all duration-500 ${
+                                topic.performance.accuracy >= 0.8 ? 'bg-green-500' :
+                                topic.performance.accuracy >= 0.6 ? 'bg-yellow-500' : 'bg-red-500'
+                              }`}
+                              style={{ width: `${topic.performance.accuracy * 100}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Last Practiced */}
+                      {topic.performance?.lastPracticed && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <Clock className="w-3 h-3" />
+                          <span>
+                            {formatDistanceToNow(new Date(topic.performance.lastPracticed), { addSuffix: true })}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* Section Indicator */}
+                      <div className={`absolute bottom-0 left-0 right-0 h-1 ${
+                        topic.section === 'math' ? 'bg-gradient-to-r from-amber-400 to-orange-400' : 'bg-gradient-to-r from-rose-400 to-pink-400'
+                      }`} />
+                    </div>
                   </div>
-                )}
+                ))}
+              </div>
+            )}
+
+            {filteredTopics.length === 0 && !loadingCategories && (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Search className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">No topics found</h3>
+                <p className="text-muted-foreground">Try adjusting your search or filters</p>
               </div>
             )}
           </section>

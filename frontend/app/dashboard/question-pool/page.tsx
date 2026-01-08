@@ -2,10 +2,28 @@
 
 import { useState, useMemo } from "react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { Database, Bookmark, BookOpen, XCircle } from "lucide-react";
-import { useSavedQuestions, useWrongAnswers } from "@/hooks/queries";
+import {
+  Database,
+  Bookmark,
+  BookOpen,
+  Search,
+  ChevronDown,
+  ChevronRight,
+  Filter,
+  Calculator,
+  BookText,
+  Sparkles,
+} from "lucide-react";
+import {
+  useSavedQuestions,
+  useWrongAnswers,
+  useTopicsSummary,
+  useQuestionPool,
+} from "@/hooks/queries";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { QuestionPracticePopup } from "@/components/revision/QuestionPracticePopup";
 import {
   Select,
@@ -17,19 +35,50 @@ import {
 import { processQuestionBlanks, formatTopicName } from "@/lib/question-utils";
 import type { SavedQuestion, WrongAnswer } from "@/lib/types";
 import type { SessionQuestion } from "@/lib/types";
+import { cn } from "@/lib/utils";
+
+type SectionTab = "all" | "reading_writing" | "math";
+type DifficultyFilter = "all" | "E" | "M" | "H";
 
 function QuestionPoolContent() {
+  // Existing hooks for saved/missed questions
   const { data: savedQuestions = [], isLoading: loadingSavedQuestions } =
     useSavedQuestions(20);
   const { data: wrongAnswers = [], isLoading: loadingWrongAnswers } =
     useWrongAnswers(20);
 
+  // Section filter state
+  const [activeSection, setActiveSection] = useState<SectionTab>("all");
+  const [difficultyFilter, setDifficultyFilter] =
+    useState<DifficultyFilter>("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set());
+  const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
+
+  // Fetch topics summary
+  const { data: topicsSummary = [], isLoading: loadingTopics } =
+    useTopicsSummary(activeSection === "all" ? undefined : activeSection);
+
+  // Fetch questions for selected topic
+  const { data: topicQuestions, isLoading: loadingQuestions } = useQuestionPool(
+    {
+      section: activeSection === "all" ? undefined : activeSection,
+      difficulty: difficultyFilter === "all" ? undefined : difficultyFilter,
+      topicId: selectedTopicId || undefined,
+      search: searchQuery || undefined,
+      limit: 50,
+    }
+  );
+
+  // Question practice popup state
   const [selectedQuestion, setSelectedQuestion] =
     useState<SessionQuestion | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [correctlyAnsweredIds, setCorrectlyAnsweredIds] = useState<Set<string>>(
     new Set()
   );
+
+  // Saved/Missed questions state
   const [savedQuestionsSort, setSavedQuestionsSort] =
     useState<string>("recent");
   const [wrongAnswersSort, setWrongAnswersSort] = useState<string>("recent");
@@ -38,11 +87,117 @@ function QuestionPoolContent() {
   const [visibleSavedQuestionsCount, setVisibleSavedQuestionsCount] =
     useState(5);
   const [visibleWrongAnswersCount, setVisibleWrongAnswersCount] = useState(5);
+  const [savedCollapsed, setSavedCollapsed] = useState(true);
+  const [missedCollapsed, setMissedCollapsed] = useState(true);
 
   // Process question text for proper HTML/MathML rendering
   const processQuestionText = (text?: string | null): string => {
     if (!text) return "";
     return processQuestionBlanks(text);
+  };
+
+  // Group topics by category
+  const topicsByCategory = useMemo(() => {
+    const grouped: Record<
+      string,
+      {
+        categoryId: string;
+        categoryName: string;
+        section: string;
+        topics: typeof topicsSummary;
+      }
+    > = {};
+
+    for (const topic of topicsSummary) {
+      if (!grouped[topic.category_id]) {
+        grouped[topic.category_id] = {
+          categoryId: topic.category_id,
+          categoryName: topic.category_name,
+          section: topic.section,
+          topics: [],
+        };
+      }
+      grouped[topic.category_id].topics.push(topic);
+    }
+
+    return Object.values(grouped).sort((a, b) => {
+      // Sort by section first (reading_writing before math), then by category name
+      if (a.section !== b.section) {
+        return a.section === "reading_writing" ? -1 : 1;
+      }
+      return a.categoryName.localeCompare(b.categoryName);
+    });
+  }, [topicsSummary]);
+
+  // Filter topics by section
+  const filteredCategories = useMemo(() => {
+    if (activeSection === "all") return topicsByCategory;
+    return topicsByCategory.filter((cat) => cat.section === activeSection);
+  }, [topicsByCategory, activeSection]);
+
+  // Calculate totals
+  const totalQuestions = useMemo(() => {
+    return topicsSummary.reduce((acc, t) => acc + t.total_questions, 0);
+  }, [topicsSummary]);
+
+  const sectionCounts = useMemo(() => {
+    const counts = { reading_writing: 0, math: 0 };
+    for (const topic of topicsSummary) {
+      if (topic.section === "reading_writing") {
+        counts.reading_writing += topic.total_questions;
+      } else if (topic.section === "math") {
+        counts.math += topic.total_questions;
+      }
+    }
+    return counts;
+  }, [topicsSummary]);
+
+  // Toggle topic expansion
+  const toggleTopic = (topicId: string) => {
+    const newExpanded = new Set(expandedTopics);
+    if (newExpanded.has(topicId)) {
+      newExpanded.delete(topicId);
+      if (selectedTopicId === topicId) {
+        setSelectedTopicId(null);
+      }
+    } else {
+      newExpanded.add(topicId);
+      setSelectedTopicId(topicId);
+    }
+    setExpandedTopics(newExpanded);
+  };
+
+  // Transform a pool question to SessionQuestion for practice
+  const transformPoolQuestion = (q: any): SessionQuestion => {
+    return {
+      session_question_id: q.id, // Use question ID as session_question_id
+      question: {
+        id: q.id,
+        stem: q.stem,
+        stimulus: q.stimulus,
+        difficulty: q.difficulty,
+        question_type: q.question_type,
+        answer_options: q.answer_options,
+        correct_answer: q.correct_answer,
+        rationale: q.rationale,
+      } as any,
+      topic: {
+        id: q.topic?.id || "",
+        name: q.topic?.name || "",
+        category_id: q.category?.id || "",
+        weight_in_category: 0,
+      } as any,
+      status: "not_started",
+      display_order: 0,
+      is_saved: false,
+    } as SessionQuestion;
+  };
+
+  // Handle question click from pool
+  const handlePoolQuestionClick = (question: any) => {
+    const sessionQuestion = transformPoolQuestion(question);
+    setSelectedQuestion(sessionQuestion);
+    setIsPopupOpen(true);
   };
 
   // Transform SavedQuestion to SessionQuestion format
@@ -113,7 +268,7 @@ function QuestionPoolContent() {
     }
   };
 
-  // Deduplicate wrong answers by question_id, keeping the most recent one
+  // Deduplicate wrong answers by question_id
   const deduplicatedWrongAnswers = useMemo(() => {
     return wrongAnswers.reduce((acc, wrongAnswer) => {
       const questionId = wrongAnswer.question_id;
@@ -122,7 +277,6 @@ function QuestionPoolContent() {
       if (!existing) {
         acc.set(questionId, wrongAnswer);
       } else {
-        // Keep the one with the most recent answered_at date
         const existingDate = existing.answered_at
           ? new Date(existing.answered_at).getTime()
           : 0;
@@ -143,7 +297,6 @@ function QuestionPoolContent() {
   const sortedSavedQuestions = useMemo(() => {
     let filtered = [...savedQuestions];
 
-    // Apply time range filter
     if (timeRange !== "all" && filtered.length > 0) {
       const now = new Date().getTime();
       let daysAgo = 0;
@@ -159,7 +312,6 @@ function QuestionPoolContent() {
       });
     }
 
-    // Apply category filter
     if (categoryFilter !== "all" && filtered.length > 0) {
       filtered = filtered.filter((savedQuestion) => {
         const section = savedQuestion.topic?.section;
@@ -208,7 +360,6 @@ function QuestionPoolContent() {
       (wrongAnswer) => !correctlyAnsweredIds.has(wrongAnswer.question_id)
     );
 
-    // Apply time range filter
     if (timeRange !== "all" && filtered.length > 0) {
       const now = new Date().getTime();
       let daysAgo = 0;
@@ -224,7 +375,6 @@ function QuestionPoolContent() {
       });
     }
 
-    // Apply category filter
     if (categoryFilter !== "all" && filtered.length > 0) {
       filtered = filtered.filter((wrongAnswer) => {
         const section = wrongAnswer.topic?.section;
@@ -257,12 +407,44 @@ function QuestionPoolContent() {
       });
     }
     return filtered;
-  }, [deduplicatedWrongAnswers, correctlyAnsweredIds, wrongAnswersSort, timeRange, categoryFilter]);
+  }, [
+    deduplicatedWrongAnswers,
+    correctlyAnsweredIds,
+    wrongAnswersSort,
+    timeRange,
+    categoryFilter,
+  ]);
+
+  // Get difficulty badge color
+  const getDifficultyBadge = (difficulty: string) => {
+    switch (difficulty) {
+      case "E":
+        return (
+          <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-0 font-medium text-xs">
+            Easy
+          </Badge>
+        );
+      case "M":
+        return (
+          <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-0 font-medium text-xs">
+            Medium
+          </Badge>
+        );
+      case "H":
+        return (
+          <Badge className="bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 border-0 font-medium text-xs">
+            Hard
+          </Badge>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="flex justify-center">
-        <div className="w-full max-w-6xl px-6 py-12 space-y-12">
+        <div className="w-full max-w-6xl px-6 py-12 space-y-8">
           {/* Header */}
           <div className="flex flex-col gap-4">
             <div className="space-y-3">
@@ -276,374 +458,456 @@ function QuestionPoolContent() {
                 Question Pool
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl">
-                Browse and manage the complete database of practice questions.
+                Browse and practice from {totalQuestions.toLocaleString()}{" "}
+                questions across all SAT topics.
               </p>
             </div>
           </div>
 
-          {/* Saved Questions Section */}
-          <div className="bg-card rounded-3xl p-8 border border-border shadow-sm">
-            <div className="flex items-start justify-between mb-8">
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Bookmark className="w-6 h-6 text-primary" />
-                  </div>
-                  Saved Questions
-                </h2>
-                <p className="text-muted-foreground text-sm mt-1 ml-14">
-                  Questions you've bookmarked for later review.
-                </p>
+          {/* Section Tabs & Filters */}
+          <div className="bg-card rounded-2xl p-4 border border-border shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              {/* Section Tabs */}
+              <div className="flex items-center gap-1 p-1 bg-muted/50 rounded-xl">
+                <button
+                  onClick={() => setActiveSection("all")}
+                  className={cn(
+                    "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                    activeSection === "all"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    All
+                    <span className="text-xs text-muted-foreground">
+                      ({totalQuestions})
+                    </span>
+                  </span>
+                </button>
+                <button
+                  onClick={() => setActiveSection("reading_writing")}
+                  className={cn(
+                    "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                    activeSection === "reading_writing"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <BookText className="w-4 h-4" />
+                    Reading & Writing
+                    <span className="text-xs text-muted-foreground">
+                      ({sectionCounts.reading_writing})
+                    </span>
+                  </span>
+                </button>
+                <button
+                  onClick={() => setActiveSection("math")}
+                  className={cn(
+                    "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                    activeSection === "math"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <Calculator className="w-4 h-4" />
+                    Math
+                    <span className="text-xs text-muted-foreground">
+                      ({sectionCounts.math})
+                    </span>
+                  </span>
+                </button>
               </div>
-              <div className="flex items-center gap-3">
-                <Select
-                  value={categoryFilter}
-                  onValueChange={setCategoryFilter}
-                >
-                  <SelectTrigger className="w-[120px]">
-                    <SelectValue placeholder="Category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="rw">RW</SelectItem>
-                    <SelectItem value="math">Math</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select
-                  value={timeRange}
-                  onValueChange={setTimeRange}
-                >
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Time range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Time</SelectItem>
-                    <SelectItem value="7">Last 7 Days</SelectItem>
-                    <SelectItem value="30">Last 30 Days</SelectItem>
-                    <SelectItem value="90">Last 90 Days</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select
-                  value={savedQuestionsSort}
-                  onValueChange={setSavedQuestionsSort}
-                >
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="recent">Most Recent</SelectItem>
-                    <SelectItem value="oldest">Oldest First</SelectItem>
-                    <SelectItem value="topic">By Topic</SelectItem>
-                  </SelectContent>
-                </Select>
+
+              {/* Difficulty Filter */}
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-muted-foreground" />
+                <div className="flex items-center gap-1 p-1 bg-muted/50 rounded-lg">
+                  {(["all", "E", "M", "H"] as const).map((diff) => (
+                    <button
+                      key={diff}
+                      onClick={() => setDifficultyFilter(diff)}
+                      className={cn(
+                        "px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+                        difficultyFilter === diff
+                          ? diff === "E"
+                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                            : diff === "M"
+                              ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                              : diff === "H"
+                                ? "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
+                                : "bg-background text-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      {diff === "all"
+                        ? "All"
+                        : diff === "E"
+                          ? "Easy"
+                          : diff === "M"
+                            ? "Medium"
+                            : "Hard"}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="space-y-4">
-              {loadingSavedQuestions ? (
-                <div className="space-y-4">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="border border-border rounded-2xl p-6 bg-background"
-                    >
-                      <Skeleton className="h-6 w-3/4 mb-4" />
-                      <div className="flex gap-4">
-                        <Skeleton className="h-4 w-24" />
-                        <Skeleton className="h-4 w-24" />
-                      </div>
+            {/* Search */}
+            <div className="mt-4 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search questions..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-background"
+              />
+            </div>
+          </div>
+
+          {/* Topics Browser */}
+          <div className="bg-card rounded-3xl border border-border shadow-sm overflow-hidden">
+            <div className="p-6 border-b border-border">
+              <h2 className="text-xl font-bold text-foreground">
+                Browse by Topic
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Select a topic to view and practice questions
+              </p>
+            </div>
+
+            {loadingTopics ? (
+              <div className="p-6 space-y-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="h-16 rounded-xl" />
+                ))}
+              </div>
+            ) : filteredCategories.length === 0 ? (
+              <div className="p-12 text-center text-muted-foreground">
+                <Database className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                <p>No topics found</p>
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {filteredCategories.map((category) => (
+                  <div key={category.categoryId} className="p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div
+                        className={cn(
+                          "w-1.5 h-6 rounded-full",
+                          category.section === "reading_writing"
+                            ? "bg-rose-500"
+                            : "bg-amber-500"
+                        )}
+                      />
+                      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
+                        {category.categoryName}
+                      </h3>
+                      <Badge variant="secondary" className="text-xs">
+                        {category.topics.reduce(
+                          (acc, t) => acc + t.total_questions,
+                          0
+                        )}{" "}
+                        Qs
+                      </Badge>
                     </div>
-                  ))}
-                </div>
-              ) : sortedSavedQuestions.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-12 text-center bg-muted/10 border-2 border-dashed border-border rounded-3xl">
-                  <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-6">
-                    <Bookmark className="w-10 h-10 text-muted-foreground/50" />
+
+                    <div className="space-y-2 ml-4">
+                      {category.topics.map((topic) => (
+                        <div key={topic.topic_id}>
+                          {/* Topic Row */}
+                          <button
+                            onClick={() => toggleTopic(topic.topic_id)}
+                            className={cn(
+                              "w-full flex items-center justify-between p-4 rounded-xl transition-all",
+                              expandedTopics.has(topic.topic_id)
+                                ? "bg-primary/5 border border-primary/20"
+                                : "bg-muted/30 hover:bg-muted/50 border border-transparent"
+                            )}
+                          >
+                            <div className="flex items-center gap-4">
+                              {expandedTopics.has(topic.topic_id) ? (
+                                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                              ) : (
+                                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                              )}
+                              <span className="font-medium text-foreground">
+                                {topic.topic_name}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                              {/* Difficulty distribution */}
+                              <div className="flex items-center gap-1">
+                                {topic.easy_count > 0 && (
+                                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                    {topic.easy_count}E
+                                  </span>
+                                )}
+                                {topic.medium_count > 0 && (
+                                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                    {topic.medium_count}M
+                                  </span>
+                                )}
+                                {topic.hard_count > 0 && (
+                                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400">
+                                    {topic.hard_count}H
+                                  </span>
+                                )}
+                              </div>
+                              <Badge
+                                variant="outline"
+                                className="text-xs font-semibold"
+                              >
+                                {topic.total_questions} Questions
+                              </Badge>
+                            </div>
+                          </button>
+
+                          {/* Expanded Questions */}
+                          {expandedTopics.has(topic.topic_id) &&
+                            selectedTopicId === topic.topic_id && (
+                              <div className="mt-2 ml-8 space-y-2">
+                                {loadingQuestions ? (
+                                  <div className="space-y-2">
+                                    {Array.from({ length: 3 }).map((_, i) => (
+                                      <Skeleton
+                                        key={i}
+                                        className="h-20 rounded-lg"
+                                      />
+                                    ))}
+                                  </div>
+                                ) : topicQuestions?.questions?.length === 0 ? (
+                                  <p className="text-sm text-muted-foreground py-4">
+                                    No questions match your filters
+                                  </p>
+                                ) : (
+                                  topicQuestions?.questions
+                                    ?.slice(0, 10)
+                                    .map((q) => (
+                                      <button
+                                        key={q.id}
+                                        onClick={() =>
+                                          handlePoolQuestionClick(q)
+                                        }
+                                        className="w-full text-left p-4 rounded-lg bg-background border border-border hover:border-primary/50 hover:shadow-sm transition-all group"
+                                      >
+                                        <div className="flex items-start justify-between gap-4">
+                                          <div className="flex-1 min-w-0">
+                                            <div
+                                              className="text-sm text-foreground line-clamp-2 prose prose-sm dark:prose-invert max-w-none"
+                                              dangerouslySetInnerHTML={{
+                                                __html: processQuestionText(
+                                                  q.stem
+                                                ),
+                                              }}
+                                            />
+                                          </div>
+                                          <div className="flex items-center gap-2 shrink-0">
+                                            {getDifficultyBadge(q.difficulty)}
+                                            <Badge
+                                              variant="outline"
+                                              className="text-xs"
+                                            >
+                                              {q.question_type === "mc"
+                                                ? "Multiple Choice"
+                                                : "Free Response"}
+                                            </Badge>
+                                            <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                                          </div>
+                                        </div>
+                                      </button>
+                                    ))
+                                )}
+                                {topicQuestions?.questions &&
+                                  topicQuestions.questions.length > 10 && (
+                                    <p className="text-sm text-muted-foreground text-center py-2">
+                                      +{topicQuestions.questions.length - 10}{" "}
+                                      more questions
+                                    </p>
+                                  )}
+                              </div>
+                            )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">
-                    No Saved Questions
-                  </h3>
-                  <p className="text-muted-foreground max-w-md">
-                    Bookmark questions during practice sessions to review them
-                    later.
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Saved Questions Section (Collapsible) */}
+          <div className="bg-card rounded-3xl border border-border shadow-sm overflow-hidden">
+            <button
+              onClick={() => setSavedCollapsed(!savedCollapsed)}
+              className="w-full p-6 flex items-center justify-between hover:bg-muted/30 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Bookmark className="w-5 h-5 text-primary" />
+                </div>
+                <div className="text-left">
+                  <h2 className="text-lg font-bold text-foreground">
+                    Saved Questions
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    {sortedSavedQuestions.length} bookmarked for review
                   </p>
                 </div>
+              </div>
+              {savedCollapsed ? (
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
               ) : (
-                <>
-                  <div className="grid gap-4">
+                <ChevronDown className="w-5 h-5 text-muted-foreground" />
+              )}
+            </button>
+
+            {!savedCollapsed && (
+              <div className="p-6 pt-0 space-y-4">
+                {loadingSavedQuestions ? (
+                  <div className="space-y-3">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <Skeleton key={i} className="h-20 rounded-xl" />
+                    ))}
+                  </div>
+                ) : sortedSavedQuestions.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Bookmark className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                    <p>No saved questions yet</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
                     {sortedSavedQuestions
                       .slice(0, visibleSavedQuestionsCount)
                       .map((savedQuestion: any) => (
                         <button
                           key={savedQuestion.session_question_id}
-                          className="group relative w-full text-left bg-background border border-border rounded-2xl p-6 hover:border-primary/50 hover:shadow-md transition-all duration-300"
-                          onClick={() => handleSavedQuestionClick(savedQuestion)}
+                          onClick={() =>
+                            handleSavedQuestionClick(savedQuestion)
+                          }
+                          className="w-full text-left p-4 rounded-xl bg-muted/30 hover:bg-muted/50 border border-transparent hover:border-primary/30 transition-all"
                         >
-                          <div className="flex justify-between items-start gap-4">
-                            <div className="flex-1">
-                              {/* Show stimulus (graphs/tables) if available */}
-                              {(savedQuestion.question as any)?.stimulus && (
-                                <div
-                                  className="mb-3 prose prose-sm dark:prose-invert max-w-none [&_svg]:max-h-[120px] [&_img]:max-h-[120px] [&_table]:text-sm"
-                                  dangerouslySetInnerHTML={{
-                                    __html: processQuestionText(
-                                      (savedQuestion.question as any).stimulus
-                                    ),
-                                  }}
-                                />
+                          <div
+                            className="text-sm font-medium text-foreground line-clamp-2 prose prose-sm dark:prose-invert max-w-none"
+                            dangerouslySetInnerHTML={{
+                              __html: processQuestionText(
+                                savedQuestion.question?.stem
+                              ),
+                            }}
+                          />
+                          <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                            <span className="px-2 py-0.5 bg-muted rounded">
+                              {formatTopicName(
+                                savedQuestion.topic?.name || "Unknown"
                               )}
-                              <div
-                                className="text-lg font-medium text-foreground line-clamp-2 leading-relaxed mb-3 group-hover:text-primary transition-colors prose prose-sm dark:prose-invert max-w-none"
-                                dangerouslySetInnerHTML={{
-                                  __html: processQuestionText(
-                                    savedQuestion.question?.stem
-                                  ),
-                                }}
-                              />
-                              <div className="flex items-center gap-3 text-xs text-muted-foreground font-medium uppercase tracking-wide">
-                                <span
-                                  className="px-2 py-1 bg-muted rounded-md truncate max-w-[200px]"
-                                  title={
-                                    savedQuestion.topic?.name ||
-                                    "Unknown Topic"
-                                  }
-                                >
-                                  {formatTopicName(
-                                    savedQuestion.topic?.name ||
-                                      "Unknown Topic"
-                                  )}
-                                </span>
-                                <span>•</span>
-                                <span>
-                                  {savedQuestion.session?.created_at
-                                    ? new Date(
-                                        savedQuestion.session.created_at
-                                      ).toLocaleDateString()
-                                    : "Unknown Date"}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                              <svg
-                                className="w-4 h-4"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M9 5l7 7-7 7"
-                                />
-                              </svg>
-                            </div>
+                            </span>
                           </div>
                         </button>
                       ))}
-                  </div>
-                  {visibleSavedQuestionsCount <
-                    sortedSavedQuestions.length && (
-                      <div className="flex justify-center pt-4">
-                        <Button
-                          variant="outline"
-                          onClick={() =>
-                            setVisibleSavedQuestionsCount((prev) =>
-                              Math.min(prev + 5, sortedSavedQuestions.length)
-                            )
-                          }
-                          className="border-border hover:bg-accent text-foreground"
-                        >
-                          Show More
-                        </Button>
-                      </div>
+                    {sortedSavedQuestions.length > visibleSavedQuestionsCount && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          setVisibleSavedQuestionsCount((prev) => prev + 5)
+                        }
+                        className="w-full"
+                      >
+                        Show more
+                      </Button>
                     )}
-                </>
-              )}
-            </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
-          {/* Missed Questions Section */}
-          <div className="bg-card rounded-3xl p-8 border border-border shadow-sm">
-            <div className="flex items-start justify-between mb-8">
-              <div className="flex-1">
-                <h2 className="text-2xl font-bold text-foreground flex items-center gap-3">
-                  <div className="p-2 bg-destructive/10 rounded-lg">
-                    <BookOpen className="w-6 h-6 text-destructive" />
-                  </div>
-                  Missed Questions
-                </h2>
-                <p className="text-muted-foreground text-sm mt-1 ml-14">
-                  Questions you answered incorrectly. Select one to practice
-                  similar.
-                </p>
-              </div>
+          {/* Missed Questions Section (Collapsible) */}
+          <div className="bg-card rounded-3xl border border-border shadow-sm overflow-hidden">
+            <button
+              onClick={() => setMissedCollapsed(!missedCollapsed)}
+              className="w-full p-6 flex items-center justify-between hover:bg-muted/30 transition-colors"
+            >
               <div className="flex items-center gap-3">
-                <Select
-                  value={categoryFilter}
-                  onValueChange={setCategoryFilter}
-                >
-                  <SelectTrigger className="w-[120px]">
-                    <SelectValue placeholder="Category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="rw">RW</SelectItem>
-                    <SelectItem value="math">Math</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select
-                  value={timeRange}
-                  onValueChange={setTimeRange}
-                >
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Time range" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Time</SelectItem>
-                    <SelectItem value="7">Last 7 Days</SelectItem>
-                    <SelectItem value="30">Last 30 Days</SelectItem>
-                    <SelectItem value="90">Last 90 Days</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select
-                  value={wrongAnswersSort}
-                  onValueChange={setWrongAnswersSort}
-                >
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="recent">Most Recent</SelectItem>
-                    <SelectItem value="oldest">Oldest First</SelectItem>
-                    <SelectItem value="topic">By Topic</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {loadingWrongAnswers ? (
-                <div className="space-y-4">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="border border-border rounded-2xl p-6 bg-background"
-                    >
-                      <Skeleton className="h-6 w-3/4 mb-4" />
-                      <div className="flex gap-4">
-                        <Skeleton className="h-4 w-24" />
-                        <Skeleton className="h-4 w-24" />
-                      </div>
-                    </div>
-                  ))}
+                <div className="p-2 bg-destructive/10 rounded-lg">
+                  <BookOpen className="w-5 h-5 text-destructive" />
                 </div>
-              ) : sortedWrongAnswers.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-12 text-center bg-muted/10 border-2 border-dashed border-border rounded-3xl">
-                  <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mb-6">
-                    <BookOpen className="w-10 h-10 text-muted-foreground/50" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">
-                    {deduplicatedWrongAnswers.size === 0
-                      ? "No Wrong Answers Yet"
-                      : "All Questions Answered Correctly!"}
-                  </h3>
-                  <p className="text-muted-foreground max-w-md">
-                    {deduplicatedWrongAnswers.size === 0
-                      ? "Great job! Start practicing to see questions you need to review here."
-                      : "Excellent work! You've answered all missed questions correctly. Keep practicing to maintain your progress."}
+                <div className="text-left">
+                  <h2 className="text-lg font-bold text-foreground">
+                    Missed Questions
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    {sortedWrongAnswers.length} questions to review
                   </p>
                 </div>
+              </div>
+              {missedCollapsed ? (
+                <ChevronRight className="w-5 h-5 text-muted-foreground" />
               ) : (
-                <>
-                  <div className="grid gap-4">
+                <ChevronDown className="w-5 h-5 text-muted-foreground" />
+              )}
+            </button>
+
+            {!missedCollapsed && (
+              <div className="p-6 pt-0 space-y-4">
+                {loadingWrongAnswers ? (
+                  <div className="space-y-3">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <Skeleton key={i} className="h-20 rounded-xl" />
+                    ))}
+                  </div>
+                ) : sortedWrongAnswers.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <BookOpen className="w-10 h-10 mx-auto mb-3 opacity-50" />
+                    <p>No missed questions</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
                     {sortedWrongAnswers
                       .slice(0, visibleWrongAnswersCount)
                       .map((wrongAnswer) => (
                         <button
                           key={wrongAnswer.question_id}
-                          className="group relative w-full text-left bg-background border border-border rounded-2xl p-6 hover:border-primary/50 hover:shadow-md transition-all duration-300"
                           onClick={() => handleWrongQuestionClick(wrongAnswer)}
+                          className="w-full text-left p-4 rounded-xl bg-muted/30 hover:bg-muted/50 border border-transparent hover:border-primary/30 transition-all"
                         >
-                          <div className="flex justify-between items-start gap-4">
-                            <div className="flex-1">
-                              {/* Show stimulus (graphs/tables) if available */}
-                              {(wrongAnswer.question as any)?.stimulus && (
-                                <div
-                                  className="mb-3 prose prose-sm dark:prose-invert max-w-none [&_svg]:max-h-[120px] [&_img]:max-h-[120px] [&_table]:text-sm"
-                                  dangerouslySetInnerHTML={{
-                                    __html: processQuestionText(
-                                      (wrongAnswer.question as any).stimulus
-                                    ),
-                                  }}
-                                />
+                          <div
+                            className="text-sm font-medium text-foreground line-clamp-2 prose prose-sm dark:prose-invert max-w-none"
+                            dangerouslySetInnerHTML={{
+                              __html: processQuestionText(
+                                wrongAnswer.question?.stem
+                              ),
+                            }}
+                          />
+                          <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                            <span className="px-2 py-0.5 bg-muted rounded">
+                              {formatTopicName(
+                                wrongAnswer.topic?.name || "Unknown"
                               )}
-                              <div
-                                className="text-lg font-medium text-foreground line-clamp-2 leading-relaxed mb-3 group-hover:text-primary transition-colors prose prose-sm dark:prose-invert max-w-none"
-                                dangerouslySetInnerHTML={{
-                                  __html: processQuestionText(
-                                    wrongAnswer.question?.stem
-                                  ),
-                                }}
-                              />
-                              <div className="flex items-center gap-3 text-xs text-muted-foreground font-medium uppercase tracking-wide">
-                                <span
-                                  className="px-2 py-1 bg-muted rounded-md truncate max-w-[200px]"
-                                  title={
-                                    wrongAnswer.topic?.name || "Unknown Topic"
-                                  }
-                                >
-                                  {formatTopicName(
-                                    wrongAnswer.topic?.name || "Unknown Topic"
-                                  )}
-                                </span>
-                                <span>•</span>
-                                <span>
-                                  {wrongAnswer.session?.created_at
-                                    ? new Date(
-                                        wrongAnswer.session.created_at
-                                      ).toLocaleDateString()
-                                    : "Unknown Date"}
-                                </span>
-                              </div>
-                            </div>
-                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
-                              <svg
-                                className="w-4 h-4"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M9 5l7 7-7 7"
-                                />
-                              </svg>
-                            </div>
+                            </span>
                           </div>
                         </button>
                       ))}
-                  </div>
-                  {visibleWrongAnswersCount < sortedWrongAnswers.length && (
-                    <div className="flex justify-center pt-4">
+                    {sortedWrongAnswers.length > visibleWrongAnswersCount && (
                       <Button
-                        variant="outline"
+                        variant="ghost"
+                        size="sm"
                         onClick={() =>
-                          setVisibleWrongAnswersCount((prev) =>
-                            Math.min(prev + 5, sortedWrongAnswers.length)
-                          )
+                          setVisibleWrongAnswersCount((prev) => prev + 5)
                         }
-                        className="border-border hover:bg-accent text-foreground"
+                        className="w-full"
                       >
-                        Show More
+                        Show more
                       </Button>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -656,8 +920,6 @@ function QuestionPoolContent() {
           question={selectedQuestion}
           onComplete={(isCorrect) => {
             if (isCorrect && selectedQuestion) {
-              // Remove correctly answered question from the list
-              // Use question.id instead of session_question_id to handle deduplication
               const questionId = selectedQuestion.question?.id;
               if (questionId) {
                 setCorrectlyAnsweredIds((prev) => {
@@ -675,9 +937,9 @@ function QuestionPoolContent() {
 }
 
 export default function QuestionPoolPage() {
-    return (
-        <ProtectedRoute>
-            <QuestionPoolContent />
-        </ProtectedRoute>
-    );
+  return (
+    <ProtectedRoute>
+      <QuestionPoolContent />
+    </ProtectedRoute>
+  );
 }

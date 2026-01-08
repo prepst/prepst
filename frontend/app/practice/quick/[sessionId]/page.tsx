@@ -658,6 +658,7 @@ function QuickPracticeContent() {
           loadingFeedback={loadingFeedback}
           onShowExplanation={() => setShowExplanation(true)}
           hasRationale={!!currentQuestion?.rationale}
+          showAiExplanation={false}
         />
       )}
 

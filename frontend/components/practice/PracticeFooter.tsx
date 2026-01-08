@@ -42,6 +42,7 @@ interface PracticeFooterProps {
   isAdmin?: boolean;
   isFlagged?: boolean;
   onQuestionFlagUpdate?: (questionId: string, isFlagged: boolean) => void;
+  showAiExplanation?: boolean;
 }
 
 export function PracticeFooter({
@@ -67,6 +68,7 @@ export function PracticeFooter({
   isAdmin = false,
   isFlagged = false,
   onQuestionFlagUpdate,
+  showAiExplanation = true,
 }: PracticeFooterProps) {
   const handleNavigate = (index: number) => {
     if (onNavigate) {
@@ -173,7 +175,7 @@ export function PracticeFooter({
           )}
 
           {/* AI Explanation Button */}
-          {onGetFeedback && (
+          {onGetFeedback && showAiExplanation && (
             <Button
               onClick={onGetFeedback}
               disabled={loadingFeedback}

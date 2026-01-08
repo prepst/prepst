@@ -890,55 +890,21 @@ async def create_drill_session(
         
         # Create drill session record
         from datetime import date
-        
-        # Use a more robust approach to generate unique session numbers
-        # Try to insert with a generated session number, retry if there's a conflict
-        max_retries = 5
-        session_response = None
-        
-        for attempt in range(max_retries):
-            try:
-                # Get the next available negative session number for drill sessions
-                last_drill_response = db.table("practice_sessions").select("session_number").eq(
-                    "study_plan_id", study_plan_id
-                ).lt("session_number", 0).order("session_number", desc=True).limit(1).execute()
-                
-                if last_drill_response.data:
-                    next_drill_number = last_drill_response.data[0]["session_number"] - 1
-                else:
-                    next_drill_number = -1  # First drill session
-                
-                # Add a small random offset to reduce collision probability
-                import time
-                random_offset = int(time.time() * 1000) % 1000  # Use milliseconds for uniqueness
-                next_drill_number = next_drill_number - (random_offset % 10)  # Small offset
-                
-                session_response = db.table("practice_sessions").insert({
-                    "study_plan_id": study_plan_id,
-                    "session_type": "drill",
-                    "scheduled_date": date.today().isoformat(),  # Required field
-                    "session_number": next_drill_number,  # Use negative numbers for drill sessions
-                    "status": "pending",
-                    "created_at": "now()"
-                }).execute()
-                
-                break  # Success, exit the retry loop
-                
-            except Exception as e:
-                if "duplicate key value violates unique constraint" in str(e) and attempt < max_retries - 1:
-                    # Wait a bit and retry with a different number
-                    import time
-                    time.sleep(0.1 * (attempt + 1))  # Exponential backoff
-                    continue
-                else:
-                    # Re-raise the exception if it's not a constraint violation or we've exhausted retries
-                    raise e
-        
-        if session_response is None:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="Failed to create drill session after multiple attempts"
-            )
+        import time
+
+        # Generate a unique negative session number for drill sessions using timestamp
+        # This ensures uniqueness without requiring database queries or retries
+        # Format: -<timestamp_in_microseconds> (always negative and unique)
+        unique_session_number = -int(time.time() * 1_000_000)
+
+        session_response = db.table("practice_sessions").insert({
+            "study_plan_id": study_plan_id,
+            "session_type": "drill",
+            "scheduled_date": date.today().isoformat(),  # Required field
+            "session_number": unique_session_number,  # Use timestamp-based negative numbers for drill sessions
+            "status": "pending",
+            "created_at": "now()"
+        }).execute()
         
         session_id = session_response.data[0]["id"]
 

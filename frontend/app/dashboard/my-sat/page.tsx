@@ -2,12 +2,30 @@
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Sparkles } from "lucide-react";
+import { useStudyPlan } from "@/hooks/queries";
+import { TestDateCountdown } from "@/components/my-sat/TestDateCountdown";
+import { ScoreCalculator } from "@/components/my-sat/ScoreCalculator";
+import { SpecialPractice } from "@/components/my-sat/SpecialPractice";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useRouter } from "next/navigation";
 
 function MySATContent() {
+    const router = useRouter();
+    const { data: studyPlan, isLoading } = useStudyPlan();
+
+    const testDate = studyPlan?.study_plan?.test_date
+        ? new Date(studyPlan.study_plan.test_date)
+        : null;
+
+    const handleEditDate = () => {
+        // Navigate to onboarding to update test date
+        router.push("/onboard");
+    };
+
     return (
         <div className="min-h-screen bg-background pb-20">
             <div className="flex justify-center">
-                <div className="w-full max-w-6xl px-6 py-12 space-y-12">
+                <div className="w-full max-w-6xl px-6 py-12 space-y-8">
                     {/* Header */}
                     <div className="flex flex-col gap-4">
                         <div className="space-y-3">
@@ -21,14 +39,32 @@ function MySATContent() {
                                 My SAT Dashboard
                             </h1>
                             <p className="text-lg text-muted-foreground max-w-2xl">
-                                Your personalized SAT preparation hub.
+                                Your personalized SAT preparation hub with tools to practice, calculate scores, and track your progress.
                             </p>
                         </div>
                     </div>
 
-                    {/* Content Placeholder */}
-                    <div className="bg-card rounded-3xl p-8 border border-border shadow-sm min-h-[400px] flex items-center justify-center">
-                        <p className="text-muted-foreground">Content coming soon...</p>
+                    {/* Special Practice with Peppa - TOP */}
+                    <SpecialPractice />
+
+                    {/* Countdown + Score Calculator Grid */}
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Test Date Countdown - smaller */}
+                        <div className="lg:col-span-1">
+                            {isLoading ? (
+                                <Skeleton className="h-[400px] rounded-2xl" />
+                            ) : (
+                                <TestDateCountdown
+                                    testDate={testDate}
+                                    onEditClick={handleEditDate}
+                                />
+                            )}
+                        </div>
+
+                        {/* Score Calculator - larger */}
+                        <div className="lg:col-span-2">
+                            <ScoreCalculator />
+                        </div>
                     </div>
                 </div>
             </div>

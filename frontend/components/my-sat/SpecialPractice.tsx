@@ -1,18 +1,27 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sparkles, Send, ArrowRight, Loader2, Zap, Target, Brain, BookOpen } from "lucide-react";
+import { Sparkles, Send, ArrowRight, Loader2, Zap, Target, Brain, BookOpen, Clock, RotateCcw, Trash2, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
 
 interface ExamplePrompt {
     icon: React.ElementType;
     title: string;
     description: string;
     prompt: string;
+}
+
+interface PeppaSession {
+    id: string;
+    prompt: string;
+    title: string;
+    createdAt: string;
+    timesCompleted: number;
 }
 
 const examplePrompts: ExamplePrompt[] = [
@@ -42,7 +51,6 @@ const examplePrompts: ExamplePrompt[] = [
     },
 ];
 
-// Loading messages for the session creation
 const loadingMessages = [
     "Analyzing your mastery levels across topics...",
     "Reviewing your recent practice performance...",
@@ -52,7 +60,23 @@ const loadingMessages = [
     "Curating the perfect practice session...",
 ];
 
-// Elegant Peppa avatar - minimal, premium
+const STORAGE_KEY = "peppa-sessions";
+
+// Generate a session title from the prompt
+const generateSessionTitle = (prompt: string): string => {
+    const words = prompt.toLowerCase();
+    if (words.includes("math") && words.includes("hard")) return "Hard Math Drill";
+    if (words.includes("math")) return "Math Practice";
+    if (words.includes("reading") && words.includes("easy")) return "Easy Reading Warmup";
+    if (words.includes("reading")) return "Reading Practice";
+    if (words.includes("geometry")) return "Geometry Focus";
+    if (words.includes("algebra")) return "Algebra Session";
+    if (words.includes("weak")) return "Weakness Review";
+    if (words.includes("mixed") || words.includes("challenge")) return "Mixed Challenge";
+    return "Custom Practice";
+};
+
+// Peppa avatar component
 const PeppaAvatar = ({ size = "lg", animate = false }: { size?: "sm" | "lg"; animate?: boolean }) => {
     const sizeClasses = size === "lg" ? "w-14 h-14" : "w-10 h-10";
     const svgSize = size === "lg" ? "w-10 h-10" : "w-7 h-7";
@@ -61,7 +85,7 @@ const PeppaAvatar = ({ size = "lg", animate = false }: { size?: "sm" | "lg"; ani
         <div
             className={cn(
                 sizeClasses,
-                "rounded-2xl flex items-center justify-center",
+                "rounded-2xl flex items-center justify-center shrink-0",
                 "bg-[#fce4ec] dark:bg-[#3d2a2f]",
                 "shadow-[0_4px_12px_-2px_rgba(0,0,0,0.08),0_2px_4px_-1px_rgba(0,0,0,0.04),inset_0_1px_0_0_rgba(255,255,255,0.5)]",
                 "dark:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.3),0_2px_4px_-1px_rgba(0,0,0,0.2),inset_0_1px_0_0_rgba(255,255,255,0.1)]",
@@ -92,20 +116,37 @@ export function SpecialPractice() {
     const [isCreating, setIsCreating] = useState(false);
     const [showChat, setShowChat] = useState(false);
     const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+    const [peppaSessions, setPeppaSessions] = useState<PeppaSession[]>([]);
+    const [showAllSessions, setShowAllSessions] = useState(false);
 
-    // Rotate loading messages when creating
+    // Load sessions from localStorage
+    useEffect(() => {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            try {
+                setPeppaSessions(JSON.parse(stored));
+            } catch {
+                setPeppaSessions([]);
+            }
+        }
+    }, []);
+
+    // Rotate loading messages
     useEffect(() => {
         if (!isCreating) {
             setLoadingMessageIndex(0);
             return;
         }
-
         const interval = setInterval(() => {
             setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length);
         }, 1200);
-
         return () => clearInterval(interval);
     }, [isCreating]);
+
+    const saveSessions = (sessions: PeppaSession[]) => {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(sessions));
+        setPeppaSessions(sessions);
+    };
 
     const handlePromptClick = (prompt: string) => {
         setUserPrompt(prompt);
@@ -120,13 +161,46 @@ export function SpecialPractice() {
 
         setIsCreating(true);
 
-        // Wait for loading messages to cycle through a few times
+        // Create new session
+        const newSession: PeppaSession = {
+            id: Date.now().toString(),
+            prompt: userPrompt,
+            title: generateSessionTitle(userPrompt),
+            createdAt: new Date().toISOString(),
+            timesCompleted: 0,
+        };
+
         setTimeout(() => {
+            // Save session
+            const updatedSessions = [newSession, ...peppaSessions];
+            saveSessions(updatedSessions);
+
             router.push("/dashboard/drill");
-            toast.success("Custom session ready!");
+            toast.success("Peppa Session created!");
             setIsCreating(false);
+            setUserPrompt("");
+            setShowChat(false);
         }, 5000);
     };
+
+    const handleRedoSession = (session: PeppaSession) => {
+        // Update times completed
+        const updated = peppaSessions.map((s) =>
+            s.id === session.id ? { ...s, timesCompleted: s.timesCompleted + 1 } : s
+        );
+        saveSessions(updated);
+
+        toast.success(`Starting "${session.title}"`);
+        router.push("/dashboard/drill");
+    };
+
+    const handleDeleteSession = (sessionId: string) => {
+        const updated = peppaSessions.filter((s) => s.id !== sessionId);
+        saveSessions(updated);
+        toast.success("Session deleted");
+    };
+
+    const visibleSessions = showAllSessions ? peppaSessions : peppaSessions.slice(0, 3);
 
     return (
         <div
@@ -159,7 +233,7 @@ export function SpecialPractice() {
             </div>
 
             <div className="p-6 space-y-6">
-                {/* Loading State - Full screen takeover */}
+                {/* Loading State */}
                 {isCreating ? (
                     <div className="py-8 space-y-6 animate-in fade-in duration-300">
                         <div className="flex items-start gap-3">
@@ -179,8 +253,6 @@ export function SpecialPractice() {
                                 </div>
                             </div>
                         </div>
-
-                        {/* Progress dots */}
                         <div className="flex justify-center gap-1.5">
                             {loadingMessages.map((_, i) => (
                                 <div
@@ -196,8 +268,6 @@ export function SpecialPractice() {
                                 />
                             ))}
                         </div>
-
-                        {/* User's request echo */}
                         <div className="px-4 py-3 bg-muted/30 rounded-xl border border-border/50">
                             <p className="text-xs text-muted-foreground mb-1">Your request:</p>
                             <p className="text-sm text-foreground line-clamp-2">{userPrompt}</p>
@@ -205,6 +275,83 @@ export function SpecialPractice() {
                     </div>
                 ) : (
                     <>
+                        {/* Saved Peppa Sessions */}
+                        {peppaSessions.length > 0 && (
+                            <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+                                        <Clock className="w-3.5 h-3.5" />
+                                        Your Peppa Sessions
+                                    </p>
+                                    <span className="text-xs text-muted-foreground">
+                                        {peppaSessions.length} saved
+                                    </span>
+                                </div>
+
+                                <div className="space-y-2">
+                                    {visibleSessions.map((session) => (
+                                        <div
+                                            key={session.id}
+                                            className={cn(
+                                                "group p-4 rounded-xl transition-all duration-200",
+                                                "bg-background border border-border",
+                                                "shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05)]",
+                                                "hover:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.08)]"
+                                            )}
+                                        >
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-lg bg-[#fce4ec] dark:bg-[#3d2a2f] flex items-center justify-center shrink-0">
+                                                    <Sparkles className="w-4 h-4 text-[#ad1457]" />
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <h4 className="font-medium text-sm text-foreground truncate">
+                                                        {session.title}
+                                                    </h4>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {formatDistanceToNow(new Date(session.createdAt), { addSuffix: true })}
+                                                        {session.timesCompleted > 0 && (
+                                                            <span className="ml-2">• Completed {session.timesCompleted}x</span>
+                                                        )}
+                                                    </p>
+                                                </div>
+                                                <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleRedoSession(session)}
+                                                        className="h-8 px-2 text-xs"
+                                                    >
+                                                        <RotateCcw className="w-3.5 h-3.5 mr-1" />
+                                                        Redo
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        onClick={() => handleDeleteSession(session.id)}
+                                                        className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                {peppaSessions.length > 3 && (
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => setShowAllSessions(!showAllSessions)}
+                                        className="w-full text-xs text-muted-foreground"
+                                    >
+                                        <ChevronDown className={cn("w-4 h-4 mr-1 transition-transform", showAllSessions && "rotate-180")} />
+                                        {showAllSessions ? "Show less" : `Show ${peppaSessions.length - 3} more`}
+                                    </Button>
+                                )}
+                            </div>
+                        )}
+
                         {/* Peppa Chat Bubble */}
                         <div className="flex items-start gap-3">
                             <PeppaAvatar size="sm" />
@@ -216,9 +363,10 @@ export function SpecialPractice() {
                                 )}
                             >
                                 <p className="text-sm text-foreground leading-relaxed">
-                                    Hi! I'm <span className="font-semibold">Peppa</span>!
-                                    Tell me what you'd like to practice and I'll create a custom session for you.
-                                    You can specify topics, difficulty, and number of questions.
+                                    {peppaSessions.length > 0
+                                        ? "Want to create another session? Tell me what you'd like to practice!"
+                                        : "Hi! I'm Peppa! Tell me what you'd like to practice and I'll create a custom session for you."
+                                    }
                                 </p>
                             </div>
                         </div>
@@ -281,12 +429,11 @@ export function SpecialPractice() {
                                         "bg-background border-border",
                                         "focus:ring-1 focus:ring-primary/20"
                                     )}
-                                    disabled={isCreating}
                                 />
                                 <div className="flex justify-end">
                                     <Button
                                         onClick={handleSubmit}
-                                        disabled={isCreating || !userPrompt.trim()}
+                                        disabled={!userPrompt.trim()}
                                         className={cn(
                                             "font-medium",
                                             "shadow-[0_2px_8px_-2px_rgba(0,0,0,0.1)]",
@@ -301,7 +448,7 @@ export function SpecialPractice() {
                             </div>
                         )}
 
-                        {/* Show input trigger if hidden */}
+                        {/* Show input trigger */}
                         {!showChat && !userPrompt && (
                             <Button
                                 variant="outline"
@@ -314,7 +461,7 @@ export function SpecialPractice() {
                                 onClick={() => setShowChat(true)}
                             >
                                 <Sparkles className="w-4 h-4 mr-2" />
-                                Create Custom Practice
+                                Create New Peppa Session
                             </Button>
                         )}
                     </>

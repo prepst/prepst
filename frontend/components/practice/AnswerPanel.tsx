@@ -252,7 +252,7 @@ export function AnswerPanel({
                     {/* Cross-out effect when AI explanation is active */}
                     {(loadingFeedback || aiFeedback) && (
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="w-full h-0.5 bg-destructive rotate-12 transform scale-110 opacity-80 shadow-sm" />
+                        <div className="w-full h-0.5 bg-destructive opacity-80 shadow-sm" />
                       </div>
                     )}
 

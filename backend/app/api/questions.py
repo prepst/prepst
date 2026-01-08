@@ -155,22 +155,33 @@ async def get_topics_summary(
     Useful for showing available topics in the question pool UI.
     """
     try:
-        # Get all active questions with topic info
-        query = db.table('questions').select(
-            'difficulty, topic_id, '
-            'topics!inner(id, name, category_id, categories!inner(id, name, section))'
-        ).eq('is_active', True)
+        # Paginate through all active questions to get accurate counts
+        # Supabase defaults to 1000 rows, so we need to paginate
+        all_questions = []
+        page_size = 1000
+        offset = 0
         
-        # Apply section filter if provided
-        if section:
-            query = query.eq('topics.categories.section', section)
-        
-        result = query.execute()
+        while True:
+            query = db.table('questions').select(
+                'difficulty, topic_id, '
+                'topics!inner(id, name, category_id, categories!inner(id, name, section))'
+            ).eq('is_active', True)
+            
+            # Apply section filter if provided
+            if section:
+                query = query.eq('topics.categories.section', section)
+            
+            result = query.range(offset, offset + page_size - 1).execute()
+            all_questions.extend(result.data)
+            
+            if len(result.data) < page_size:
+                break
+            offset += page_size
         
         # Aggregate by topic
         topic_counts: Dict[str, Dict[str, Any]] = {}
         
-        for q in result.data:
+        for q in all_questions:
             topic = q.get('topics', {})
             category = topic.get('categories', {}) if topic else {}
             topic_id = topic.get('id')

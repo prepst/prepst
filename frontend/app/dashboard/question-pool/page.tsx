@@ -6,7 +6,6 @@ import {
   Database,
   Bookmark,
   BookOpen,
-  Search,
   ChevronDown,
   ChevronRight,
   Filter,
@@ -51,13 +50,19 @@ function QuestionPoolContent() {
   const [activeSection, setActiveSection] = useState<SectionTab>("all");
   const [difficultyFilter, setDifficultyFilter] =
     useState<DifficultyFilter>("all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery] = useState(""); // Kept for API compatibility, but UI removed
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set());
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
 
-  // Fetch topics summary
-  const { data: topicsSummary = [], isLoading: loadingTopics } =
-    useTopicsSummary(activeSection === "all" ? undefined : activeSection);
+  // Fetch ALL topics summary (for accurate counts in tabs)
+  const { data: allTopicsSummary = [], isLoading: loadingTopics } =
+    useTopicsSummary(); // Always fetch all - no filter
+
+  // Filter topics based on active section for display
+  const topicsSummary = useMemo(() => {
+    if (activeSection === "all") return allTopicsSummary;
+    return allTopicsSummary.filter((t) => t.section === activeSection);
+  }, [allTopicsSummary, activeSection]);
 
   // Fetch questions for selected topic
   const { data: topicQuestions, isLoading: loadingQuestions } = useQuestionPool(
@@ -135,14 +140,14 @@ function QuestionPoolContent() {
     return topicsByCategory.filter((cat) => cat.section === activeSection);
   }, [topicsByCategory, activeSection]);
 
-  // Calculate totals
+  // Calculate totals (always from ALL topics, not filtered)
   const totalQuestions = useMemo(() => {
-    return topicsSummary.reduce((acc, t) => acc + t.total_questions, 0);
-  }, [topicsSummary]);
+    return allTopicsSummary.reduce((acc, t) => acc + t.total_questions, 0);
+  }, [allTopicsSummary]);
 
   const sectionCounts = useMemo(() => {
     const counts = { reading_writing: 0, math: 0 };
-    for (const topic of topicsSummary) {
+    for (const topic of allTopicsSummary) {
       if (topic.section === "reading_writing") {
         counts.reading_writing += topic.total_questions;
       } else if (topic.section === "math") {
@@ -150,7 +155,7 @@ function QuestionPoolContent() {
       }
     }
     return counts;
-  }, [topicsSummary]);
+  }, [allTopicsSummary]);
 
   // Toggle topic expansion
   const toggleTopic = (topicId: string) => {
@@ -554,17 +559,6 @@ function QuestionPoolContent() {
                   ))}
                 </div>
               </div>
-            </div>
-
-            {/* Search */}
-            <div className="mt-4 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search questions..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-background"
-              />
             </div>
           </div>
 

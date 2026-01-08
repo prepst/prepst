@@ -193,9 +193,10 @@ export function AnswerPanel({
                                 ? "border-border/50 bg-muted/50 opacity-60"
                                 : "border-border bg-card hover:border-primary/50 hover:bg-accent hover:scale-[1.005]"
                       }
+                      ${(loadingFeedback || aiFeedback) && !showFeedback ? "pointer-events-none opacity-75" : ""}
                     `}
                     onClick={() => {
-                      if (!showFeedback && !isEliminated) {
+                      if (!showFeedback && !isEliminated && !(loadingFeedback || aiFeedback)) {
                         onAnswerChange(optionId);
                       }
                     }}
@@ -236,7 +237,7 @@ export function AnswerPanel({
                         onClick={(e) => toggleElimination(optionId, e)}
                         className={`
                           p-2 rounded-full transition-colors hover:bg-background/80
-                          ${isEliminated ? "text-primary" : "text-muted-foreground/50 hover:text-muted-foreground"}
+                          ${isEliminated ? "text-primary" : "text-purple-500/70 hover:text-purple-600"}
                         `}
                         title={isEliminated ? "Restore answer" : "Eliminate answer"}
                       >
@@ -246,6 +247,13 @@ export function AnswerPanel({
                           <Ban className="w-5 h-5" />
                         )}
                       </button>
+                    )}
+
+                    {/* Cross-out effect when AI explanation is active */}
+                    {(loadingFeedback || aiFeedback) && !showFeedback && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="w-full h-0.5 bg-destructive rotate-12 transform scale-110 opacity-80 shadow-sm" />
+                      </div>
                     )}
 
                     {/* Feedback Icon */}

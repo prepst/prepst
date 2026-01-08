@@ -262,8 +262,8 @@ export default function DashboardLayout({
       ? 0
       : 240
     : isSidebarCollapsed
-      ? 80
-      : 240;
+    ? 80
+    : 240;
   const navIconSize = isSidebarCollapsed ? "w-6 h-6" : "w-5 h-5";
 
   return (
@@ -282,24 +282,28 @@ export default function DashboardLayout({
           animate={{ width: targetSidebarWidth }}
           initial={false}
           transition={{ duration: 0.25, ease: "easeInOut" }}
-          className={`sticky top-0 h-screen flex-shrink-0 bg-card border-r border-border z-30 will-change-[width] ${isMobile
-            ? isSidebarCollapsed
-              ? "overflow-hidden border-none"
-              : `fixed left-0 z-50 shadow-2xl ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-              }`
-            : ""
-            }`}
+          className={`sticky top-0 h-screen flex-shrink-0 bg-card border-r border-border z-30 will-change-[width] ${
+            isMobile
+              ? isSidebarCollapsed
+                ? "overflow-hidden border-none"
+                : `fixed left-0 z-50 shadow-2xl ${
+                    isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+                  }`
+              : ""
+          }`}
           style={{ width: targetSidebarWidth }}
         >
           <div
-            className={`flex flex-col h-full ${isMobile ? "px-4 pt-6" : "px-4 pt-8"
-              }`}
+            className={`flex flex-col h-full ${
+              isMobile ? "px-4 pt-6" : "px-4 pt-8"
+            }`}
           >
             {/* Toggle button aligned with menu items */}
             <button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className={`absolute -right-3 top-8 w-8 h-8 bg-background rounded-full flex items-center justify-center hover:bg-muted transition-all duration-300 shadow-sm z-50 group ${isMobile ? "hidden" : "flex"
-                }`}
+              className={`absolute -right-3 top-8 w-8 h-8 bg-background rounded-full flex items-center justify-center hover:bg-muted transition-all duration-300 shadow-sm z-50 group ${
+                isMobile ? "hidden" : "flex"
+              }`}
               style={{
                 border: "1px solid #866ffe",
               }}
@@ -323,8 +327,9 @@ export default function DashboardLayout({
               <div className="space-y-2">
                 {/* Dashboard Label */}
                 <p
-                  className={`text-xs font-bold text-muted-foreground/70 uppercase tracking-widest px-4 mb-4 transition-opacity duration-200 ${isSidebarCollapsed ? "opacity-0 invisible" : "opacity-100"
-                    }`}
+                  className={`text-xs font-bold text-muted-foreground/70 uppercase tracking-widest px-4 mb-4 transition-opacity duration-200 ${
+                    isSidebarCollapsed ? "opacity-0 invisible" : "opacity-100"
+                  }`}
                 >
                   Dashboard
                 </p>
@@ -343,14 +348,14 @@ export default function DashboardLayout({
                       item.name === "Study Plan"
                         ? isStudyPlanExpanded
                         : item.name === "Mock Exam"
-                          ? isMockExamExpanded
-                          : isProgressExpanded;
+                        ? isMockExamExpanded
+                        : isProgressExpanded;
                     const setExpanded =
                       item.name === "Study Plan"
                         ? setIsStudyPlanExpanded
                         : item.name === "Mock Exam"
-                          ? setIsMockExamExpanded
-                          : setIsProgressExpanded;
+                        ? setIsMockExamExpanded
+                        : setIsProgressExpanded;
 
                     return (
                       <div key={item.name} className="space-y-1">
@@ -358,33 +363,38 @@ export default function DashboardLayout({
                         {isSidebarCollapsed ? (
                           <Link
                             href={item.href}
-                            className={`w-full flex items-center rounded-2xl transition-all duration-200 group ${isActive
-                              ? "bg-primary/10 text-primary font-semibold"
-                              : "hover:bg-muted/60 text-muted-foreground hover:text-foreground font-medium"
-                              } justify-center p-3 mx-auto w-12 h-12`}
+                            className={`w-full flex items-center rounded-2xl transition-all duration-200 group ${
+                              isActive
+                                ? "bg-primary/10 text-primary font-semibold"
+                                : "hover:bg-muted/60 text-muted-foreground hover:text-foreground font-medium"
+                            } justify-center p-3 mx-auto w-12 h-12`}
                             title={item.name}
                           >
                             <Icon
-                              className={`flex-shrink-0 transition-colors ${isActive
-                                ? "text-primary"
-                                : "text-muted-foreground group-hover:text-foreground"
-                                } ${navIconSize}`}
+                              className={`flex-shrink-0 transition-colors ${
+                                isActive
+                                  ? "text-primary"
+                                  : "text-muted-foreground group-hover:text-foreground"
+                              } ${navIconSize}`}
                             />
                           </Link>
                         ) : (
                           <button
                             onClick={() => setExpanded(!isExpanded)}
-                            className={`w-full flex items-center rounded-2xl transition-all duration-200 group ${isActive
-                              ? "bg-primary/10 text-primary font-semibold"
-                              : "hover:bg-muted/60 text-muted-foreground hover:text-foreground font-medium"
-                              } gap-3 py-2 px-4 mx-auto ${isMobile ? "py-4" : ""
-                              } text-[15px]`}
+                            className={`w-full flex items-center rounded-2xl transition-all duration-200 group ${
+                              isActive
+                                ? "bg-primary/10 text-primary font-semibold"
+                                : "hover:bg-muted/60 text-muted-foreground hover:text-foreground font-medium"
+                            } gap-3 py-2 px-4 mx-auto ${
+                              isMobile ? "py-4" : ""
+                            } text-[15px]`}
                           >
                             <Icon
-                              className={`flex-shrink-0 transition-colors ${isActive
-                                ? "text-primary"
-                                : "text-muted-foreground group-hover:text-foreground"
-                                } ${navIconSize}`}
+                              className={`flex-shrink-0 transition-colors ${
+                                isActive
+                                  ? "text-primary"
+                                  : "text-muted-foreground group-hover:text-foreground"
+                              } ${navIconSize}`}
                             />
                             <span className="whitespace-nowrap flex-1 text-left">
                               {item.name}
@@ -410,17 +420,20 @@ export default function DashboardLayout({
                                 <Link
                                   key={subItem.href}
                                   href={subItem.href}
-                                  className={`flex items-center rounded-xl transition-all duration-200 relative z-10 ml-3 mr-2 ${isSubActive
-                                    ? "bg-primary/5 text-primary font-medium"
-                                    : "hover:bg-muted/50 hover:text-foreground text-muted-foreground"
-                                    } gap-3 py-2.5 px-4 text-sm ${isMobile ? "py-3" : ""
-                                    }`}
+                                  className={`flex items-center rounded-xl transition-all duration-200 relative z-10 ml-3 mr-2 ${
+                                    isSubActive
+                                      ? "bg-primary/5 text-primary font-medium"
+                                      : "hover:bg-muted/50 hover:text-foreground text-muted-foreground"
+                                  } gap-3 py-2.5 px-4 text-sm ${
+                                    isMobile ? "py-3" : ""
+                                  }`}
                                 >
                                   <span
-                                    className={`w-1.5 h-1.5 rounded-full ${isSubActive
-                                      ? "bg-primary"
-                                      : "bg-muted-foreground/40"
-                                      } flex-shrink-0`}
+                                    className={`w-1.5 h-1.5 rounded-full ${
+                                      isSubActive
+                                        ? "bg-primary"
+                                        : "bg-muted-foreground/40"
+                                    } flex-shrink-0`}
                                   />
                                   <span className="whitespace-nowrap">
                                     {subItem.name}
@@ -439,21 +452,25 @@ export default function DashboardLayout({
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`flex items-center rounded-2xl transition-all duration-200 group ${isActive
-                        ? "bg-primary/10 text-primary font-semibold"
-                        : "hover:bg-muted/60 hover:text-foreground text-muted-foreground font-medium"
-                        } ${isSidebarCollapsed
+                      className={`flex items-center rounded-2xl transition-all duration-200 group ${
+                        isActive
+                          ? "bg-primary/10 text-primary font-semibold"
+                          : "hover:bg-muted/60 hover:text-foreground text-muted-foreground font-medium"
+                      } ${
+                        isSidebarCollapsed
                           ? "justify-center p-3 mx-auto w-12 h-12"
-                          : `gap-3 py-1.5 px-4 ${isMobile ? "py-4" : ""
-                          } text-[15px]`
-                        }`}
+                          : `gap-3 py-1.5 px-4 ${
+                              isMobile ? "py-4" : ""
+                            } text-[15px]`
+                      }`}
                       title={isSidebarCollapsed ? item.name : undefined}
                     >
                       <Icon
-                        className={`flex-shrink-0 transition-colors ${isActive
-                          ? "text-primary"
-                          : "text-muted-foreground group-hover:text-foreground"
-                          } ${navIconSize}`}
+                        className={`flex-shrink-0 transition-colors ${
+                          isActive
+                            ? "text-primary"
+                            : "text-muted-foreground group-hover:text-foreground"
+                        } ${navIconSize}`}
                       />
                       {!isSidebarCollapsed && (
                         <span className="whitespace-nowrap">{item.name}</span>
@@ -476,23 +493,27 @@ export default function DashboardLayout({
                       <Link
                         key={item.href}
                         href={item.href}
-                        className={`flex items-center rounded-2xl transition-all duration-200 group ${isActive
-                          ? "bg-primary/10 text-primary font-semibold"
-                          : item.name === "Mind Map"
+                        className={`flex items-center rounded-2xl transition-all duration-200 group ${
+                          isActive
+                            ? "bg-primary/10 text-primary font-semibold"
+                            : item.name === "Mind Map"
                             ? "hover:bg-accent text-purple-500"
                             : "hover:bg-muted/60 hover:text-foreground text-muted-foreground font-medium"
-                          } ${isSidebarCollapsed
+                        } ${
+                          isSidebarCollapsed
                             ? "justify-center p-3 mx-auto w-12 h-12"
-                            : `gap-3 py-3 px-4 ${isMobile ? "py-4" : ""
-                            } text-[15px]`
-                          }`}
+                            : `gap-3 py-3 px-4 ${
+                                isMobile ? "py-4" : ""
+                              } text-[15px]`
+                        }`}
                         title={isSidebarCollapsed ? item.name : undefined}
                       >
                         <Icon
-                          className={`flex-shrink-0 transition-colors ${isActive
-                            ? "text-primary"
-                            : "text-muted-foreground group-hover:text-foreground"
-                            } ${navIconSize}`}
+                          className={`flex-shrink-0 transition-colors ${
+                            isActive
+                              ? "text-primary"
+                              : "text-muted-foreground group-hover:text-foreground"
+                          } ${navIconSize}`}
                         />
                         {!isSidebarCollapsed && (
                           <span className="whitespace-nowrap">{item.name}</span>
@@ -512,10 +533,11 @@ export default function DashboardLayout({
 
               {/* Theme Switcher */}
               <div
-                className={`flex items-center rounded-2xl transition-all duration-200 group ${isSidebarCollapsed
-                  ? "justify-center p-3 mx-auto w-12 h-12"
-                  : `gap-3 pt-1 px-4 ${isMobile ? "py-1" : ""} text-[15px]`
-                  }`}
+                className={`flex items-center rounded-2xl transition-all duration-200 group ${
+                  isSidebarCollapsed
+                    ? "justify-center p-3 mx-auto w-12 h-12"
+                    : `gap-3 pt-1 px-4 ${isMobile ? "py-1" : ""} text-[15px]`
+                }`}
               >
                 {!isSidebarCollapsed && (
                   <>
@@ -560,21 +582,25 @@ export default function DashboardLayout({
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`flex items-center rounded-2xl transition-all duration-200 group ${isActive
-                      ? "bg-primary/10 text-primary font-semibold"
-                      : "hover:bg-muted/60 hover:text-foreground text-muted-foreground font-medium"
-                      } ${isSidebarCollapsed
+                    className={`flex items-center rounded-2xl transition-all duration-200 group ${
+                      isActive
+                        ? "bg-primary/10 text-primary font-semibold"
+                        : "hover:bg-muted/60 hover:text-foreground text-muted-foreground font-medium"
+                    } ${
+                      isSidebarCollapsed
                         ? "justify-center p-3 mx-auto w-12 h-12"
-                        : `gap-3 py-1 px-4 ${isMobile ? "py-4" : ""
-                        } text-[15px]`
-                      }`}
+                        : `gap-3 py-1 px-4 ${
+                            isMobile ? "py-4" : ""
+                          } text-[15px]`
+                    }`}
                     title={isSidebarCollapsed ? item.name : undefined}
                   >
                     <Icon
-                      className={`flex-shrink-0 transition-colors ${isActive
-                        ? "text-primary"
-                        : "text-muted-foreground group-hover:text-foreground"
-                        } ${navIconSize}`}
+                      className={`flex-shrink-0 transition-colors ${
+                        isActive
+                          ? "text-primary"
+                          : "text-muted-foreground group-hover:text-foreground"
+                      } ${navIconSize}`}
                     />
                     {!isSidebarCollapsed && (
                       <span className="whitespace-nowrap">{item.name}</span>
@@ -588,10 +614,11 @@ export default function DashboardLayout({
                 <div className={`mt-2 ${isSidebarCollapsed ? "mx-auto" : ""}`}>
                   <Link
                     href="/admin"
-                    className={`flex items-center rounded-2xl transition-all duration-200 group hover:bg-muted/60 ${isSidebarCollapsed
-                      ? "justify-center p-3 mx-auto w-12 h-12"
-                      : "gap-3 py-3 px-4 text-[15px]"
-                      }`}
+                    className={`flex items-center rounded-2xl transition-all duration-200 group hover:bg-muted/60 ${
+                      isSidebarCollapsed
+                        ? "justify-center p-3 mx-auto w-12 h-12"
+                        : "gap-3 py-3 px-4 text-[15px]"
+                    }`}
                     title={isSidebarCollapsed ? "Admin Dashboard" : undefined}
                   >
                     <Shield className="flex-shrink-0 text-amber-500 group-hover:text-amber-600 w-5 h-5" />
@@ -617,10 +644,11 @@ export default function DashboardLayout({
               <div className="space-y-3 pb-6 px-2">
                 <Link href="/signup" className="block">
                   <Button
-                    className={`w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 rounded-xl ${isSidebarCollapsed
-                      ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center"
-                      : "h-11"
-                      }`}
+                    className={`w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 rounded-xl ${
+                      isSidebarCollapsed
+                        ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center"
+                        : "h-11"
+                    }`}
                     size="sm"
                   >
                     {isSidebarCollapsed ? (
@@ -633,10 +661,11 @@ export default function DashboardLayout({
                 <Link href="/login" className="block">
                   <Button
                     variant="outline"
-                    className={`w-full border-border hover:bg-muted/50 rounded-xl ${isSidebarCollapsed
-                      ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center"
-                      : "h-11"
-                      }`}
+                    className={`w-full border-border hover:bg-muted/50 rounded-xl ${
+                      isSidebarCollapsed
+                        ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center"
+                        : "h-11"
+                    }`}
                     size="sm"
                   >
                     {isSidebarCollapsed ? (
@@ -653,10 +682,11 @@ export default function DashboardLayout({
 
         {/* Main Content Area */}
         <main
-          className={`flex-1 min-w-0 overflow-x-hidden ${isMobile
-            ? "pt-4 px-4"
-            : "pt-6 px-6 lg:max-w-5xl xl:max-w-6xl mx-auto w-full"
-            }`}
+          className={`flex-1 min-w-0 overflow-x-hidden ${
+            isMobile
+              ? "pt-4 px-4"
+              : "pt-6 px-6 lg:max-w-5xl xl:max-w-6xl mx-auto w-full"
+          }`}
         >
           {children}
         </main>

@@ -150,7 +150,6 @@ export default function DashboardLayout({
   const dashboardItems = [
     { name: "Home", href: "/dashboard", icon: Home },
     { name: "My SAT", href: "/dashboard/my-sat", icon: Sparkles },
-    { name: "Question Pool", href: "/dashboard/question-pool", icon: Database },
     {
       name: "Study Plan",
       href: "/dashboard/study-plan",
@@ -174,6 +173,7 @@ export default function DashboardLayout({
         },
       ],
     },
+    { name: "Question Pool", href: "/dashboard/question-pool", icon: Database },
     {
       name: "Mock Exam",
       href: "/dashboard/mock-exam",

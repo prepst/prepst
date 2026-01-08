@@ -193,10 +193,10 @@ export function AnswerPanel({
                                 ? "border-border/50 bg-muted/50 opacity-60"
                                 : "border-border bg-card hover:border-primary/50 hover:bg-accent hover:scale-[1.005]"
                       }
-                      ${(loadingFeedback || aiFeedback) && !showFeedback ? "pointer-events-none opacity-75" : ""}
+                      ${(loadingFeedback || aiFeedback) ? "pointer-events-none opacity-75" : ""}
                     `}
                     onClick={() => {
-                      if (!showFeedback && !isEliminated && !(loadingFeedback || aiFeedback)) {
+                      if (!isEliminated && !(loadingFeedback || aiFeedback)) {
                         onAnswerChange(optionId);
                       }
                     }}
@@ -250,7 +250,7 @@ export function AnswerPanel({
                     )}
 
                     {/* Cross-out effect when AI explanation is active */}
-                    {(loadingFeedback || aiFeedback) && !showFeedback && (
+                    {(loadingFeedback || aiFeedback) && (
                       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                         <div className="w-full h-0.5 bg-destructive rotate-12 transform scale-110 opacity-80 shadow-sm" />
                       </div>

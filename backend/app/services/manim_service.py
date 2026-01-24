@@ -355,9 +355,17 @@ Requirements:
 9. Keep animations concise (20-40 seconds)
 10. IMPORTANT - Spatial positioning: Carefully position elements to avoid overlap. Use positioning methods like .next_to(), .to_edge(), .shift(), and .move_to() to create clean, well-organized layouts. Plan the vertical and horizontal spacing between elements before placing them.
 
+TTS Pronunciation Guidelines (IMPORTANT - for voiceover text):
+- Write "S.A.T." (with periods) instead of "SAT" so it's spelled out
+- For coordinates like (1, 1), say "the point one one" not "one comma one"
+- For fractions like 1/2, say "one half" not "one slash two"
+- Spell out acronyms with periods: "G.P.A.", "A.P."
+- Write algebraic expressions phonetically: "2x + 3" as "two x plus three"
+- Avoid reading punctuation literally in spoken text
+
 SAT-Specific Guidelines:
-- Mention this is a common question on the SAT when introducing the concept
-- End with: "Want to master more SAT math? Check out our practice questions."
+- Mention this is a common question on the S.A.T. when introducing the concept
+- End with: "Want to master more S.A.T. math? Check out our practice questions."
 - Keep the tone encouraging and student-friendly
 
 Return ONLY the Python code, starting with "from manim import *" and ending with the class definition.

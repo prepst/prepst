@@ -1,5 +1,7 @@
+import { useEffect, useRef } from "react";
 import type { SessionQuestion } from "@/lib/types";
 import { processQuestionBlanks, formatTopicName } from "@/lib/question-utils";
+import { useTextHighlighter } from "@/hooks/useTextHighlighter";
 import { Badge } from "@/components/ui/badge";
 import { Tag } from "lucide-react";
 
@@ -14,10 +16,31 @@ export function QuestionPanel({
   compact = false,
   isPinned = false,
 }: QuestionPanelProps) {
+  const stimulusContentRef = useRef<HTMLDivElement | null>(null);
+  const stemContentRef = useRef<HTMLDivElement | null>(null);
+
+  const { containerRef } = useTextHighlighter({
+    questionId: question.question.id,
+    enabled: true,
+  });
+
   const processedStem = processQuestionBlanks(question.question.stem || "");
   const processedStimulus = processQuestionBlanks(
     question.question.stimulus || ""
   );
+
+  // Set innerHTML once using refs to avoid destroying web-highlighter's elements
+  useEffect(() => {
+    if (stemContentRef.current && processedStem) {
+      stemContentRef.current.innerHTML = processedStem;
+    }
+  }, [processedStem]);
+
+  useEffect(() => {
+    if (stimulusContentRef.current && processedStimulus) {
+      stimulusContentRef.current.innerHTML = processedStimulus;
+    }
+  }, [processedStimulus]);
 
   const difficultyColor =
     question.question.difficulty === "E"
@@ -39,6 +62,7 @@ export function QuestionPanel({
         }`}
     >
       <div
+        ref={containerRef}
         className={`${compact ? "max-w-full" : "max-w-3xl"} mx-auto space-y-8`}
       >
         {/* Question Meta */}
@@ -65,20 +89,16 @@ export function QuestionPanel({
         {processedStimulus && (
           <div className="relative pl-6 border-l-4 border-primary/20">
             <div
+              ref={stimulusContentRef}
               className="prose prose-lg dark:prose-invert max-w-none text-muted-foreground leading-relaxed"
-              dangerouslySetInnerHTML={{
-                __html: processedStimulus,
-              }}
             />
           </div>
         )}
 
         {/* Question Stem */}
         <div
+          ref={stemContentRef}
           className="prose prose-xl dark:prose-invert max-w-none text-foreground font-medium leading-relaxed tracking-tight"
-          dangerouslySetInnerHTML={{
-            __html: processedStem,
-          }}
         />
       </div>
     </div>

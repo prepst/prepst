@@ -317,3 +317,26 @@
 .dark .question-table th {
   background-color: rgba(255, 255, 255, 0.1);
 }
+
+/* Text highlight styling for student annotations */
+.text-highlight {
+  background-color: rgb(254 240 138); /* yellow-200 */
+  border-radius: 2px;
+  padding: 0 2px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  user-select: text; /* Allow text selection through highlights */
+}
+
+.text-highlight:hover {
+  background-color: rgb(254 215 170); /* yellow-300 */
+}
+
+.dark .text-highlight {
+  background-color: rgb(113 63 18); /* yellow-900 */
+  color: rgb(254 249 195); /* yellow-100 */
+}
+
+.dark .text-highlight:hover {
+  background-color: rgb(133 77 14); /* yellow-800 */
+}

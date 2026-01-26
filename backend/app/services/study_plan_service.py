@@ -14,7 +14,8 @@ class StudyPlanService:
     async def _assign_questions_to_session(
         self,
         session_id: str,
-        topics: List[Dict]
+        topics: List[Dict],
+        study_plan_id: str
     ):
         """
         Assign specific questions to a practice session.
@@ -24,6 +25,13 @@ class StudyPlanService:
         """
         display_order = 1  # Track global display order across all topics
         batch_inserts = []  # Collect all inserts for this session
+
+        # Get all question IDs already used in this study plan to prevent reuse
+        used_questions_response = self.db.table("session_questions").select(
+            "question_id, practice_sessions!inner(study_plan_id)"
+        ).eq("practice_sessions.study_plan_id", study_plan_id).execute()
+
+        used_question_ids = {q["question_id"] for q in used_questions_response.data}
 
         for topic_info in topics:
             topic_id = topic_info["topic_id"]
@@ -38,10 +46,14 @@ class StudyPlanService:
                 "topic_id", topic_id
             ).eq("is_active", True).limit(num_questions * 3).execute()
 
-            available_questions = questions_response.data
+            # Filter out questions already used in this study plan
+            available_questions = [
+                q for q in questions_response.data
+                if q["id"] not in used_question_ids
+            ]
 
             if not available_questions:
-                # No questions available for this topic, skip
+                # No unused questions available for this topic, skip
                 continue
 
             # Distribute questions by difficulty (33% E, 33% M, 33% H)
@@ -422,7 +434,7 @@ class StudyPlanService:
             session_id = session_record.data[0]["id"]
 
             # Assign questions to session
-            await self._assign_questions_to_session(session_id, session["topics"])
+            await self._assign_questions_to_session(session_id, session["topics"], study_plan_id)
 
             created_count += 1
 

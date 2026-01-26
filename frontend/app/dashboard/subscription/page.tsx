@@ -52,7 +52,7 @@ function PremiumPageContent() {
       duration: "week",
       price: 4.99,
       perDay: "$0.71/day",
-      total: "$4.99 total",
+      total: "$4.99/month",
     },
     {
       id: "month",
@@ -60,7 +60,7 @@ function PremiumPageContent() {
       duration: "month",
       price: 14.99,
       perDay: "$0.50/day",
-      total: "$14.99 total",
+      total: "$14.99/month",
       popular: true,
     },
     {
@@ -182,10 +182,11 @@ function PremiumPageContent() {
               <button
                 key={plan.id}
                 onClick={() => setSelectedPlan(plan.id)}
-                className={`relative rounded-2xl p-5 text-center transition-all duration-200 ${selectedPlan === plan.id
+                className={`relative rounded-2xl p-5 text-center transition-all duration-200 ${
+                  selectedPlan === plan.id
                     ? "bg-gradient-to-br from-[#9184ff]/15 to-purple-500/10 border-2 border-[#9184ff] shadow-lg scale-105"
                     : "bg-card border border-border hover:border-[#9184ff]/50"
-                  }`}
+                }`}
               >
                 {plan.savings && (
                   <div className="absolute -top-2 left-1/2 -translate-x-1/2">

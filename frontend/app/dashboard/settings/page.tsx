@@ -17,6 +17,8 @@ import {
   LogOut,
   RefreshCw,
   AlertTriangle,
+  Zap,
+  Crown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,6 +42,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { PremiumUpgradeDialog } from "@/components/premium/PremiumUpgradeDialog";
 
 function SettingsContent() {
   const router = useRouter();
@@ -50,6 +53,10 @@ function SettingsContent() {
   const [activeTab, setActiveTab] = useState("account");
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [isResetting, setIsResetting] = useState(false);
+  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
+
+  // TODO: Replace with actual premium status check from user profile
+  const isPremium = false;
 
   const handleThemeChange = (newTheme: "light" | "dark" | "auto") => {
     setTheme(newTheme);
@@ -72,6 +79,7 @@ function SettingsContent() {
 
   const tabs = [
     { id: "account", label: "Account", icon: User },
+    { id: "subscription", label: "Subscription", icon: Crown },
     { id: "appearance", label: "Appearance", icon: Palette },
     { id: "study", label: "Study Plan", icon: BookOpen },
   ];
@@ -156,7 +164,7 @@ function SettingsContent() {
                         Your email is managed by your login provider.
                       </p>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label htmlFor="role" className="text-foreground">Account Role</Label>
                       <div className="flex items-center gap-2 p-3 rounded-md border border-border bg-card">
@@ -179,6 +187,68 @@ function SettingsContent() {
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out
                   </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* Subscription Tab */}
+            <TabsContent value="subscription" className="space-y-6">
+              <Card className="bg-card border-border">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-foreground">
+                    <Crown className="w-5 h-5" />
+                    Your Subscription
+                  </CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    Manage your PrepSt+ subscription
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {isPremium ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
+                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
+                          <Zap className="h-6 w-6 text-primary-foreground" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-foreground">PrepSt+ Active</h4>
+                          <p className="text-sm text-muted-foreground">$14.99/month</p>
+                        </div>
+                      </div>
+                      <Button variant="outline" className="w-full">
+                        Manage Subscription
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/30 border border-border">
+                        <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center">
+                          <User className="h-6 w-6 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-foreground">Free Plan</h4>
+                          <p className="text-sm text-muted-foreground">Basic features included</p>
+                        </div>
+                      </div>
+
+                      <div className="p-4 rounded-xl bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border border-primary/20">
+                        <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                          <Zap className="h-4 w-4 text-primary" />
+                          Upgrade to PrepSt+
+                        </h4>
+                        <p className="text-sm text-muted-foreground mb-4">
+                          Unlock Peppa Sessions, Progress Analytics, Unlimited AI Help, and more for just $14.99/month.
+                        </p>
+                        <Button
+                          onClick={() => setShowUpgradeDialog(true)}
+                          className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
+                        >
+                          <Zap className="h-4 w-4 mr-2" />
+                          Upgrade Now
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>
@@ -262,7 +332,7 @@ function SettingsContent() {
                         Your past practice history and stats will be preserved.
                       </p>
                     </div>
-                    
+
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button variant="outline" className="shrink-0 ml-4">
@@ -278,9 +348,9 @@ function SettingsContent() {
                           </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
-                          <Button variant="outline" onClick={() => {}}>Cancel</Button>
-                          <Button 
-                            variant="destructive" 
+                          <Button variant="outline" onClick={() => { }}>Cancel</Button>
+                          <Button
+                            variant="destructive"
                             onClick={handleResetStudyPlan}
                             disabled={isResetting}
                           >
@@ -296,6 +366,11 @@ function SettingsContent() {
           </Tabs>
         </div>
       </div>
+
+      <PremiumUpgradeDialog
+        isOpen={showUpgradeDialog}
+        onClose={() => setShowUpgradeDialog(false)}
+      />
     </div>
   );
 }

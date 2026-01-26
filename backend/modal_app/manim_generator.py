@@ -146,7 +146,9 @@ Requirements:
 8. Use appropriate colors and visual elements
 9. Make it educational and easy to understand
 10. Keep animations concise (20-40 seconds)
-11. IMPORTANT - Spatial positioning: Carefully position elements to avoid overlap. Use positioning methods like .next_to(), .to_edge(), .shift(), and .move_to() to create clean, well-organized layouts. Plan the vertical and horizontal spacing between elements before placing them.
+11. IMPORTANT - Spatial positioning: Use .next_to(obj, direction, buff=0.5) for relative positioning, .to_edge(direction) for screen edges, .to_corner(UL/UR/DL/DR) for corners. Always use buff parameter to control spacing and avoid crowding.
+12. CRITICAL - Frame boundaries: ALL elements must stay within the visible frame. Scale down text/objects if needed to fit. Standard text sizes: title=1.5, subtitle=1.0, body=0.8. Use .scale() to ensure nothing is cut off.
+13. CRITICAL - Text management: Never overlap text. Use self.play(FadeOut(old_text)) to remove previous text before adding new text. Use VGroup() to group related elements for easier positioning and removal. Keep the scene clean.
 
 TTS Pronunciation Guidelines (IMPORTANT - for voiceover text):
 - Write "S.A.T." (with periods) instead of "SAT" so it's spelled out

@@ -622,7 +622,11 @@ function PracticeSessionContent() {
             <div className="absolute top-4 right-4 z-30">
               <SATToolsToolbar />
             </div>
-            <QuestionPanel question={currentQuestion} isPinned={isAIPanelPinned && showAIPanel} />
+            <QuestionPanel 
+              key={currentQuestion.session_question_id}
+              question={currentQuestion} 
+              isPinned={isAIPanelPinned && showAIPanel} 
+            />
           </div>
 
           {/* Draggable Divider */}

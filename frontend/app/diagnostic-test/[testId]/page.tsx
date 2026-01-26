@@ -608,7 +608,10 @@ function DiagnosticTestContent() {
 
         {/* Question Panel */}
         <div className="flex-1 flex flex-col min-w-0">
-          <QuestionPanel question={currentTransformedQuestion} />
+          <QuestionPanel 
+          key={currentTransformedQuestion.session_question_id}
+          question={currentTransformedQuestion} 
+        />
         </div>
 
         {/* Draggable Divider */}

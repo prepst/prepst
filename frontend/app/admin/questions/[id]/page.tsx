@@ -205,7 +205,10 @@ export default function AdminQuestionTestPage() {
       <div className="flex-1 flex overflow-hidden">
         {/* Left Panel - Question */}
         <div className="flex-1 flex flex-col min-w-0">
-          <QuestionPanel question={sessionQuestion} />
+        <QuestionPanel 
+          key={sessionQuestion.session_question_id}
+          question={sessionQuestion} 
+        />
         </div>
 
         {/* Divider */}

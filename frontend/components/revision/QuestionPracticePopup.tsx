@@ -448,7 +448,11 @@ export function QuestionPracticePopup({
           <div className="flex-1 flex flex-col min-w-[300px] overflow-hidden">
             <div className="flex-1 overflow-y-auto bg-background">
               {question && question.question ? (
-                <QuestionPanel question={question} compact={true} />
+                <QuestionPanel 
+                  key={question.session_question_id}
+                  question={question} 
+                  compact={true} 
+                />
               ) : (
                 <div className="p-8 text-center text-muted-foreground">
                   Question not available

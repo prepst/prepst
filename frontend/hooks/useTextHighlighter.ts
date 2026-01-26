@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import Highlighter from "web-highlighter";
+import type Highlighter from "web-highlighter";
 
 const HIGHLIGHT_STORAGE_PREFIX = "prepst-highlights-";
 
@@ -26,6 +26,7 @@ export function useTextHighlighter({
   const currentQuestionIdRef = useRef<string | null>(null);
   const [selectionInfo, setSelectionInfo] = useState<SelectionInfo | null>(null);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isReady, setIsReady] = useState(false);
 
   // Extract context sentence from text content
   const getContextSentenceFromText = useCallback((fullText: string, word: string): string => {
@@ -137,50 +138,71 @@ export function useTextHighlighter({
   useEffect(() => {
     if (!enabled || !containerRef.current) return;
 
-    const highlighter = new Highlighter({
-      $root: containerRef.current,
-      style: {
-        className: "text-highlight",
-      },
-    });
+    let instance: Highlighter | null = null;
+    let isMounted = true;
 
-    highlighter.run();
+    const initHighlighter = async () => {
+      try {
+        const { default: HighlighterClass } = await import("web-highlighter");
+        if (!isMounted || !containerRef.current) return;
 
-    // Save highlights to localStorage when created
-    highlighter.on(Highlighter.event.CREATE, ({ sources }) => {
-      if (!currentQuestionIdRef.current) return;
-      const key = `${HIGHLIGHT_STORAGE_PREFIX}${currentQuestionIdRef.current}`;
+        const highlighter = new HighlighterClass({
+          $root: containerRef.current,
+          style: {
+            className: "text-highlight",
+          },
+        });
 
-      const existingStr = localStorage.getItem(key);
-      const existing = existingStr ? JSON.parse(existingStr) : [];
+        highlighter.run();
 
-      const updated = [...existing, ...sources];
-      localStorage.setItem(key, JSON.stringify(updated));
-    });
+        // Save highlights to localStorage when created
+        highlighter.on(HighlighterClass.event.CREATE, ({ sources }) => {
+          if (!currentQuestionIdRef.current) return;
+          const key = `${HIGHLIGHT_STORAGE_PREFIX}${currentQuestionIdRef.current}`;
 
-    // Remove from localStorage when deleted
-    highlighter.on(Highlighter.event.REMOVE, ({ ids }) => {
-      if (!currentQuestionIdRef.current) return;
-      const key = `${HIGHLIGHT_STORAGE_PREFIX}${currentQuestionIdRef.current}`;
+          const existingStr = localStorage.getItem(key);
+          const existing = existingStr ? JSON.parse(existingStr) : [];
 
-      const existingStr = localStorage.getItem(key);
-      if (!existingStr) return;
+          const updated = [...existing, ...sources];
+          localStorage.setItem(key, JSON.stringify(updated));
+        });
 
-      const existing = JSON.parse(existingStr);
-      const filtered = existing.filter((h: any) => !ids.includes(h.id));
-      localStorage.setItem(key, JSON.stringify(filtered));
-    });
+        // Remove from localStorage when deleted
+        highlighter.on(HighlighterClass.event.REMOVE, ({ ids }) => {
+          if (!currentQuestionIdRef.current) return;
+          const key = `${HIGHLIGHT_STORAGE_PREFIX}${currentQuestionIdRef.current}`;
 
-    // Click to remove highlights
-    highlighter.on(Highlighter.event.CLICK, ({ id }) => {
-      highlighter.remove(id);
-    });
+          const existingStr = localStorage.getItem(key);
+          if (!existingStr) return;
 
-    highlighterRef.current = highlighter;
+          const existing = JSON.parse(existingStr);
+          const filtered = existing.filter((h: any) => !ids.includes(h.id));
+          localStorage.setItem(key, JSON.stringify(filtered));
+        });
+
+        // Click to remove highlights
+        highlighter.on(HighlighterClass.event.CLICK, ({ id }) => {
+          highlighter.remove(id);
+        });
+
+        instance = highlighter;
+        highlighterRef.current = highlighter;
+        setIsReady(true);
+      } catch (error) {
+        console.error("Failed to initialize highlighter:", error);
+      }
+    };
+
+    initHighlighter();
 
     return () => {
-      highlighter.dispose();
+      isMounted = false;
+      if (instance) {
+        instance.dispose();
+      }
       highlighterRef.current = null;
+      currentQuestionIdRef.current = null; // Reset to force reload when re-initialized
+      setIsReady(false);
     };
   }, [enabled]);
 
@@ -208,7 +230,7 @@ export function useTextHighlighter({
 
   // Load highlights when question changes
   useEffect(() => {
-    if (!enabled || currentQuestionIdRef.current === questionId) return;
+    if (!enabled || !isReady || currentQuestionIdRef.current === questionId) return;
 
     currentQuestionIdRef.current = questionId;
 
@@ -235,7 +257,7 @@ export function useTextHighlighter({
         console.error("Failed to load highlights:", e);
       }
     }
-  }, [questionId, enabled]);
+  }, [questionId, enabled, isReady]);
 
   return { 
     containerRef, 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,28 @@ import {
   Clock,
   Star,
 } from "lucide-react";
+
+// Floating pig decoration component
+interface FloatingPigProps {
+  src: string;
+  className: string;
+  size?: number;
+  delay?: number;
+}
+
+function FloatingPig({ src, className, size = 80 }: FloatingPigProps) {
+  return (
+    <div className={`absolute pointer-events-none select-none z-10 ${className}`}>
+      <Image
+        src={src}
+        alt="Cute pig mascot"
+        width={size}
+        height={size}
+        className="drop-shadow-lg"
+      />
+    </div>
+  );
+}
 
 const STRIPE_PAYMENT_LINKS = {
   week:
@@ -132,8 +155,45 @@ function PremiumPageContent() {
   const selectedPlanData = plans.find((p) => p.id === selectedPlan)!;
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-12">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Floating Pigs - All 8 cute decorative elements */}
+      <FloatingPig
+        src="/pig1.png"
+        className="top-20 left-[5%] hidden md:block"
+        size={85}
+      />
+      <FloatingPig
+        src="/pig2.png"
+        className="top-28 right-[6%] hidden md:block"
+        size={75}
+      />
+      <FloatingPig
+        src="/pig4.png"
+        className="top-[380px] right-[4%] hidden lg:block"
+        size={65}
+      />
+      <FloatingPig
+        src="/pig5.png"
+        className="top-[550px] left-[4%] hidden lg:block"
+        size={75}
+      />
+      <FloatingPig
+        src="/pig6.png"
+        className="top-[620px] right-[3%] hidden lg:block"
+        size={70}
+      />
+      <FloatingPig
+        src="/pig7.png"
+        className="bottom-[280px] left-[6%] hidden xl:block"
+        size={80}
+      />
+      <FloatingPig
+        src="/pig8.png"
+        className="bottom-[200px] right-[5%] hidden xl:block"
+        size={75}
+      />
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-12 relative z-20">
         {/* Hero Section */}
         <div className="text-center mb-16">
           <Badge className="mb-4 bg-amber-500/10 text-amber-500 border-amber-500/20 hover:bg-amber-500/10">
@@ -182,11 +242,10 @@ function PremiumPageContent() {
               <button
                 key={plan.id}
                 onClick={() => setSelectedPlan(plan.id)}
-                className={`relative rounded-2xl p-5 text-center transition-all duration-200 ${
-                  selectedPlan === plan.id
-                    ? "bg-gradient-to-br from-[#9184ff]/15 to-purple-500/10 border-2 border-[#9184ff] shadow-lg scale-105"
-                    : "bg-card border border-border hover:border-[#9184ff]/50"
-                }`}
+                className={`relative rounded-2xl p-5 text-center transition-all duration-200 ${selectedPlan === plan.id
+                  ? "bg-gradient-to-br from-[#9184ff]/15 to-purple-500/10 border-2 border-[#9184ff] shadow-lg scale-105"
+                  : "bg-card border border-border hover:border-[#9184ff]/50"
+                  }`}
               >
                 {plan.savings && (
                   <div className="absolute -top-2 left-1/2 -translate-x-1/2">

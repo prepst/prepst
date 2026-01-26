@@ -63,13 +63,41 @@ export function usePracticeSession(sessionId: string) {
             ? correctAnswer
             : [String(correctAnswer)];
 
+          // Map user_answer labels (A, B, C, D) to option values for comparison
+          // user_answer is stored as labels but correct_answer is stored as values
+          let userAnswerValues = q.user_answer || [];
+          if (hasUserAnswer && q.question.answer_options) {
+            const options = Array.isArray(q.question.answer_options)
+              ? q.question.answer_options
+              : Object.entries(q.question.answer_options);
+            const labels = ["A", "B", "C", "D", "E", "F"];
+
+            userAnswerValues = (q.user_answer || []).map((answer: string) => {
+              const upperAnswer = String(answer).toUpperCase().trim();
+              // If answer is a label (A-F), find the corresponding option value
+              const labelIndex = labels.indexOf(upperAnswer);
+              if (labelIndex >= 0 && labelIndex < options.length) {
+                const option = options[labelIndex];
+                // Handle both array [id, text] and object {id, text} formats
+                const optArray = option as unknown[];
+                const optObj = option as Record<string, unknown>;
+                return String(optObj.id || optArray[0]);
+              }
+              // Return original if not a label
+              return answer;
+            });
+          }
+
+          // Normalize both for comparison (lowercase, trim)
+          const normalizedUser = userAnswerValues.map((a: string) => String(a).toLowerCase().trim()).sort();
+          const normalizedCorrect = correctAnswerArray.map((a: string) => String(a).toLowerCase().trim()).sort();
+
           initialAnswers[q.question.id] = {
             userAnswer: q.user_answer || [],
             status: q.status,
             isCorrect:
               hasUserAnswer && q.status === "answered"
-                ? JSON.stringify(q.user_answer?.sort()) ===
-                  JSON.stringify(correctAnswerArray.sort())
+                ? JSON.stringify(normalizedUser) === JSON.stringify(normalizedCorrect)
                 : undefined,
           };
         }
@@ -185,7 +213,7 @@ export function usePracticeSession(sessionId: string) {
       const preservedOptionId =
         existingAnswer?.optionId ||
         (answerToStore[0] &&
-        !labels.includes(String(answerToStore[0]).toUpperCase().trim())
+          !labels.includes(String(answerToStore[0]).toUpperCase().trim())
           ? answerToStore[0]
           : undefined);
 
@@ -336,12 +364,12 @@ export function usePracticeSession(sessionId: string) {
         prevQuestions.map((q) =>
           q.question.id === questionId
             ? {
-                ...q,
-                question: {
-                  ...q.question,
-                  is_flagged: isFlagged,
-                },
-              }
+              ...q,
+              question: {
+                ...q.question,
+                is_flagged: isFlagged,
+              },
+            }
             : q
         )
       );

@@ -88,4 +88,13 @@ export const queryKeys = {
     performance: (limit: number = 10) => 
       [...queryKeys.mockExam.all, 'performance', { limit }] as const,
   },
+
+  // Vocabulary
+  vocabulary: {
+    all: ['vocabulary'] as const,
+    list: (params?: { mastered?: boolean; source?: string; search?: string; limit?: number; offset?: number }) =>
+      [...queryKeys.vocabulary.all, 'list', params] as const,
+    popular: (params?: { difficulty?: string; search?: string; limit?: number; offset?: number }) =>
+      [...queryKeys.vocabulary.all, 'popular', params] as const,
+  },
 } as const;

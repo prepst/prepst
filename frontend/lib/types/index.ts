@@ -502,3 +502,64 @@ export interface SavedQuestion {
     study_plan_name: string | null;
   } | null;
 }
+
+// Vocabulary types
+export type VocabSource = "practice_session" | "manual" | "suggested";
+export type DifficultyLevel = "E" | "M" | "H";
+
+export interface VocabularyWord {
+  id: string;
+  user_id: string;
+  word: string;
+  definition: string;
+  example_usage: string | null;
+  context_sentence: string | null;
+  session_question_id: string | null;
+  source: VocabSource;
+  is_mastered: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PopularVocabWord {
+  id: string;
+  word: string;
+  definition: string;
+  example_usage: string | null;
+  frequency_rank: number;
+  difficulty_level: DifficultyLevel;
+}
+
+export interface AddVocabManualRequest {
+  word: string;
+  definition: string;
+  example_usage?: string;
+}
+
+export interface AddVocabFromSelectionRequest {
+  word: string;
+  context_sentence?: string;
+  session_question_id?: string;
+}
+
+export interface AddVocabFromPopularRequest {
+  word: string;
+  definition: string;
+  example_usage?: string;
+}
+
+export interface UpdateVocabRequest {
+  is_mastered?: boolean;
+  definition?: string;
+  example_usage?: string;
+}
+
+export interface VocabularyListResponse {
+  words: VocabularyWord[];
+  total: number;
+}
+
+export interface PopularVocabListResponse {
+  words: PopularVocabWord[];
+  total: number;
+}

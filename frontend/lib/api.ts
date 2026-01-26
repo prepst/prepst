@@ -24,6 +24,14 @@ import type {
   ChatResponse,
   ChatMessageAPI,
   SessionSummaryResponse,
+  VocabularyListResponse,
+  PopularVocabListResponse,
+  VocabularyWord,
+  AddVocabManualRequest,
+  AddVocabFromSelectionRequest,
+  AddVocabFromPopularRequest,
+  UpdateVocabRequest,
+  VocabSource,
 } from "./types";
 
 async function getAuthHeaders() {
@@ -1463,6 +1471,142 @@ export const api = {
 
     if (!response.ok) {
       throw new Error("Failed to get topics summary");
+    }
+
+    return response.json();
+  },
+
+  // Vocabulary API methods
+  async getVocabulary(params?: {
+    mastered?: boolean;
+    source?: VocabSource;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<VocabularyListResponse> {
+    const headers = await getAuthHeaders();
+    const queryParams = new URLSearchParams();
+
+    if (params?.mastered !== undefined) queryParams.append('mastered', String(params.mastered));
+    if (params?.source) queryParams.append('source', params.source);
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.limit) queryParams.append('limit', String(params.limit));
+    if (params?.offset) queryParams.append('offset', String(params.offset));
+
+    const response = await fetch(
+      `${config.apiUrl}/api/vocabulary/?${queryParams}`,
+      { headers }
+    );
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Failed to fetch vocabulary" }));
+      throw new Error(error.detail || "Failed to fetch vocabulary");
+    }
+
+    return response.json();
+  },
+
+  async addVocabManually(data: AddVocabManualRequest): Promise<VocabularyWord> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${config.apiUrl}/api/vocabulary/`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Failed to add vocabulary word" }));
+      throw new Error(error.detail || "Failed to add vocabulary word");
+    }
+
+    return response.json();
+  },
+
+  async addVocabFromSelection(data: AddVocabFromSelectionRequest): Promise<VocabularyWord> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${config.apiUrl}/api/vocabulary/from-selection`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Failed to add vocabulary word" }));
+      throw new Error(error.detail || "Failed to add vocabulary word");
+    }
+
+    return response.json();
+  },
+
+  async addVocabFromPopular(data: AddVocabFromPopularRequest): Promise<VocabularyWord> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${config.apiUrl}/api/vocabulary/from-popular`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Failed to add vocabulary word" }));
+      throw new Error(error.detail || "Failed to add vocabulary word");
+    }
+
+    return response.json();
+  },
+
+  async updateVocab(wordId: string, data: UpdateVocabRequest): Promise<VocabularyWord> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${config.apiUrl}/api/vocabulary/${wordId}`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify(data),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Failed to update vocabulary word" }));
+      throw new Error(error.detail || "Failed to update vocabulary word");
+    }
+
+    return response.json();
+  },
+
+  async deleteVocab(wordId: string): Promise<{ success: boolean; deleted_id: string }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(`${config.apiUrl}/api/vocabulary/${wordId}`, {
+      method: "DELETE",
+      headers,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Failed to delete vocabulary word" }));
+      throw new Error(error.detail || "Failed to delete vocabulary word");
+    }
+
+    return response.json();
+  },
+
+  async getPopularVocab(params?: {
+    difficulty?: 'E' | 'M' | 'H';
+    search?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<PopularVocabListResponse> {
+    const headers = await getAuthHeaders();
+    const queryParams = new URLSearchParams();
+
+    if (params?.difficulty) queryParams.append('difficulty', params.difficulty);
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.limit) queryParams.append('limit', String(params.limit));
+    if (params?.offset) queryParams.append('offset', String(params.offset));
+
+    const response = await fetch(
+      `${config.apiUrl}/api/vocabulary/popular?${queryParams}`,
+      { headers }
+    );
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Failed to fetch popular vocabulary" }));
+      throw new Error(error.detail || "Failed to fetch popular vocabulary");
     }
 
     return response.json();

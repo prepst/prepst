@@ -340,3 +340,20 @@
 .dark .text-highlight:hover {
   background-color: rgb(133 77 14); /* yellow-800 */
 }
+
+/* 3D flip card animations for vocabulary modal */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}

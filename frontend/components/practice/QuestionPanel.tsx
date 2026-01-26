@@ -2,8 +2,10 @@ import { useEffect, useRef } from "react";
 import type { SessionQuestion } from "@/lib/types";
 import { processQuestionBlanks, formatTopicName } from "@/lib/question-utils";
 import { useTextHighlighter } from "@/hooks/useTextHighlighter";
+import { useAddVocabFromSelection } from "@/hooks/mutations/useVocabularyMutations";
 import { Badge } from "@/components/ui/badge";
-import { Tag } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tag, BookMarked, Loader2 } from "lucide-react";
 
 interface QuestionPanelProps {
   question: SessionQuestion;
@@ -19,9 +21,20 @@ export function QuestionPanel({
   const stimulusContentRef = useRef<HTMLDivElement | null>(null);
   const stemContentRef = useRef<HTMLDivElement | null>(null);
 
-  const { containerRef } = useTextHighlighter({
+  const addVocab = useAddVocabFromSelection();
+
+  const handleSaveToVocab = (word: string, contextSentence: string) => {
+    addVocab.mutate({
+      word,
+      context_sentence: contextSentence,
+      session_question_id: question.session_question_id,
+    });
+  };
+
+  const { containerRef, selectionInfo, handleSaveToVocab: saveToVocab, clearSelection, cancelHideTimeout } = useTextHighlighter({
     questionId: question.question.id,
     enabled: true,
+    onSaveToVocab: handleSaveToVocab,
   });
 
   const processedStem = processQuestionBlanks(question.question.stem || "");
@@ -101,6 +114,33 @@ export function QuestionPanel({
           className="prose prose-xl dark:prose-invert max-w-none text-foreground font-medium leading-relaxed tracking-tight"
         />
       </div>
+
+      {/* Floating Vocab Save Button */}
+      {selectionInfo && (
+        <div
+          data-vocab-button
+          className="fixed z-50 transform -translate-x-1/2 -translate-y-full"
+          style={{
+            left: selectionInfo.position.x,
+            top: selectionInfo.position.y,
+          }}
+          onMouseEnter={cancelHideTimeout}
+        >
+          <Button
+            size="sm"
+            className="shadow-lg gap-1.5 text-xs"
+            onClick={saveToVocab}
+            disabled={addVocab.isPending}
+          >
+            {addVocab.isPending ? (
+              <Loader2 className="w-3 h-3 animate-spin" />
+            ) : (
+              <BookMarked className="w-3 h-3" />
+            )}
+            Save to Vocab
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -196,7 +196,11 @@ export function AnswerPanel({
                     `}
                     onClick={() => {
                       if (!showFeedback && !isEliminated) {
-                        onAnswerChange(optionId);
+                        if (isSelected) {
+                          onAnswerChange("");
+                        } else {
+                          onAnswerChange(optionId);
+                        }
                       }
                     }}
                   >

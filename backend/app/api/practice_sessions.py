@@ -892,10 +892,9 @@ async def create_drill_session(
         from datetime import date
         import time
 
-        # Generate a unique negative session number for drill sessions using timestamp
-        # This ensures uniqueness without requiring database queries or retries
-        # Format: -<timestamp_in_microseconds> (always negative and unique)
-        unique_session_number = -int(time.time() * 1_000_000)
+        # Generate a unique negative session number for drill sessions
+        # Use last 9 digits of timestamp in microseconds to fit in 32-bit integer (max ~2.1B)
+        unique_session_number = -int(time.time() * 1_000_000) % 1_000_000_000
 
         session_response = db.table("practice_sessions").insert({
             "study_plan_id": study_plan_id,

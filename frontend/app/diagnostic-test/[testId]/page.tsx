@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { PageLoader } from "@/components/ui/page-loader";
@@ -9,6 +9,7 @@ import { QuestionPanel } from "@/components/practice/QuestionPanel";
 import { AnswerPanel } from "@/components/practice/AnswerPanel";
 import { QuestionListSidebar } from "@/components/practice/QuestionListSidebar";
 import { MockExamFooter } from "@/components/practice/MockExamFooter";
+import { SATToolsToolbar } from "@/components/practice/SATToolsToolbar";
 import { supabase } from "@/lib/supabase";
 import { config } from "@/lib/config";
 import { components } from "@/lib/types/api.generated";
@@ -18,7 +19,6 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  Flag,
   List,
   CheckCircle2,
 } from "lucide-react";
@@ -54,11 +54,24 @@ function DiagnosticTestContent() {
   const [testData, setTestData] = useState<DiagnosticTest | null>(null);
   const [showQuestionList, setShowQuestionList] = useState(false);
 
-  // Draggable divider state
-  const [dividerPosition, setDividerPosition] = useState(480);
+  // Container ref for calculating middle position
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Draggable divider state - initialize to middle of viewport
+  const [dividerPosition, setDividerPosition] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth / 2;
+    }
+    return 480;
+  });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartX, setDragStartX] = useState(0);
-  const [dragStartPosition, setDragStartPosition] = useState(480);
+  const [dragStartPosition, setDragStartPosition] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth / 2;
+    }
+    return 480;
+  });
 
   const currentQuestion = questions[currentIndex];
 
@@ -338,6 +351,33 @@ function DiagnosticTestContent() {
     setIsDragging(false);
   };
 
+  // Calculate middle position for divider on mount
+  useEffect(() => {
+    const calculateMiddlePosition = () => {
+      if (containerRef.current) {
+        const containerWidth =
+          containerRef.current.offsetWidth || containerRef.current.clientWidth;
+        if (containerWidth > 0) {
+          const middlePosition = containerWidth / 2;
+          setDividerPosition(middlePosition);
+          setDragStartPosition(middlePosition);
+        }
+      }
+    };
+
+    // Wait for next tick to ensure container is rendered
+    const timeoutId = setTimeout(() => {
+      calculateMiddlePosition();
+    }, 100);
+
+    // Also recalculate on window resize
+    window.addEventListener("resize", calculateMiddlePosition);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", calculateMiddlePosition);
+    };
+  }, []);
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -375,8 +415,8 @@ function DiagnosticTestContent() {
         const options = Array.isArray(answerOptions)
           ? answerOptions
           : answerOptions
-          ? Object.entries(answerOptions)
-          : [];
+            ? Object.entries(answerOptions)
+            : [];
 
         let selectedOptionId: string | undefined;
 
@@ -468,7 +508,7 @@ function DiagnosticTestContent() {
     >
       {/* Header */}
       <div className="relative z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center justify-between px-6 h-16">
+        <div className="flex items-center justify-between pl-[250px] pr-[250px] h-16">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-3">
               <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -506,20 +546,17 @@ function DiagnosticTestContent() {
                   {questions.length}
                 </span>
               </Badge>
-              <span className="text-xs text-muted-foreground ml-2">
-                {answeredCount} answered
-              </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
             <Button
-              onClick={() => router.push("/dashboard")}
               variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 gap-2"
+              size="icon"
+              onClick={() => router.push("/dashboard")}
+              className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              title="Exit Test"
             >
-              <span className="hidden sm:inline text-xs font-medium">Exit</span>
               <X className="w-4 h-4" />
             </Button>
           </div>
@@ -594,7 +631,13 @@ function DiagnosticTestContent() {
         </div>
       </div>
 
-      <div className="flex-1 flex overflow-hidden">
+      <div
+        ref={containerRef}
+        className="flex-1 flex overflow-hidden"
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+      >
         {/* Question List Sidebar */}
         {showQuestionList && (
           <QuestionListSidebar
@@ -607,18 +650,21 @@ function DiagnosticTestContent() {
         )}
 
         {/* Question Panel */}
-        <div className="flex-1 flex flex-col min-w-0">
-          <QuestionPanel 
-          key={currentTransformedQuestion.session_question_id}
-          question={currentTransformedQuestion} 
-        />
+        <div className="flex-1 flex flex-col min-w-0 relative pr-[5px]">
+          {/* SAT Tools Toolbar - positioned at top-right of question area */}
+          <div className="absolute top-4 right-4 z-30">
+            <SATToolsToolbar />
+          </div>
+          <QuestionPanel
+            key={currentTransformedQuestion.session_question_id}
+            question={currentTransformedQuestion}
+          />
         </div>
 
         {/* Draggable Divider */}
         <div
-          className={`w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ${
-            isDragging ? "bg-primary" : ""
-          }`}
+          className={`w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ${isDragging ? "bg-primary" : ""
+            }`}
           onMouseDown={handleMouseDown}
           style={{
             userSelect: "none",
@@ -638,30 +684,10 @@ function DiagnosticTestContent() {
             aiFeedback={null}
             loadingFeedback={false}
             onAnswerChange={handleAnswerChange}
-            onGetFeedback={() => {}}
+            onGetFeedback={() => { }}
             onGetSimilarQuestion={undefined}
             onSaveQuestion={undefined}
           />
-
-          {/* Mark for Review Button */}
-          <div className="p-6 border-t border-border bg-card/50 backdrop-blur-sm">
-            <Button
-              variant="outline"
-              onClick={toggleMarkForReview}
-              className={`w-full h-12 border-border/60 bg-background/50 hover:bg-accent transition-all text-base font-semibold ${
-                isCurrentMarked
-                  ? "bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400"
-                  : ""
-              }`}
-            >
-              <Flag
-                className={`w-4 h-4 mr-2 ${
-                  isCurrentMarked ? "fill-orange-500 text-orange-500" : ""
-                }`}
-              />
-              {isCurrentMarked ? "Marked for Review" : "Mark for Review"}
-            </Button>
-          </div>
         </div>
       </div>
 
@@ -680,6 +706,8 @@ function DiagnosticTestContent() {
         onNext={handleNext}
         onPrevious={handlePrevious}
         onNavigate={handleQuestionNavigation}
+        onToggleMarkForReview={toggleMarkForReview}
+        isMarkedForReview={isCurrentMarked}
       />
     </div>
   );

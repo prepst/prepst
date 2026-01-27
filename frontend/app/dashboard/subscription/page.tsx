@@ -160,37 +160,37 @@ function PremiumPageContent() {
       <FloatingPig
         src="/pig1.png"
         className="top-20 left-[5%] hidden md:block"
-        size={85}
+        size={120}
       />
       <FloatingPig
         src="/pig2.png"
         className="top-28 right-[6%] hidden md:block"
-        size={75}
+        size={110}
       />
       <FloatingPig
         src="/pig4.png"
         className="top-[380px] right-[4%] hidden lg:block"
-        size={65}
+        size={100}
       />
       <FloatingPig
         src="/pig5.png"
         className="top-[550px] left-[4%] hidden lg:block"
-        size={75}
+        size={110}
       />
       <FloatingPig
         src="/pig6.png"
         className="top-[620px] right-[3%] hidden lg:block"
-        size={70}
+        size={105}
       />
       <FloatingPig
         src="/pig7.png"
         className="bottom-[280px] left-[6%] hidden xl:block"
-        size={80}
+        size={115}
       />
       <FloatingPig
         src="/pig8.png"
         className="bottom-[200px] right-[5%] hidden xl:block"
-        size={75}
+        size={110}
       />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-12 relative z-20">

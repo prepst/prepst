@@ -35,6 +35,8 @@ import { processQuestionBlanks, formatTopicName } from "@/lib/question-utils";
 import type { SavedQuestion, WrongAnswer } from "@/lib/types";
 import type { SessionQuestion } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
+import { ONBOARDING_CONTENT } from "@/lib/onboardingContent";
 
 type SectionTab = "all" | "reading_writing" | "math";
 type DifficultyFilter = "all" | "E" | "M" | "H";
@@ -934,6 +936,7 @@ export default function QuestionPoolPage() {
   return (
     <ProtectedRoute>
       <QuestionPoolContent />
+      <OnboardingModal pageId="question-pool" steps={ONBOARDING_CONTENT["question-pool"]} />
     </ProtectedRoute>
   );
 }

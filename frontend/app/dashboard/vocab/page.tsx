@@ -42,6 +42,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { VocabularyWord, PopularVocabWord, VocabSource, DifficultyLevel } from "@/lib/types";
 import { VocabCardModal } from "@/components/vocab/VocabCardModal";
+import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
+import { ONBOARDING_CONTENT } from "@/lib/onboardingContent";
 
 type MasteredFilter = "mastered" | "not_mastered";
 
@@ -51,13 +53,13 @@ function VocabContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [popularCollapsed, setPopularCollapsed] = useState(false);
   const [popularDifficulty, setPopularDifficulty] = useState<DifficultyLevel | undefined>();
-  
+
   // Add word dialog state
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [newWord, setNewWord] = useState("");
   const [newDefinition, setNewDefinition] = useState("");
   const [newExample, setNewExample] = useState("");
-  
+
   // Modal state
   const [selectedWord, setSelectedWord] = useState<VocabularyWord | null>(null);
 
@@ -88,7 +90,7 @@ function VocabContent() {
   // Handle add word manually
   const handleAddWord = () => {
     if (!newWord.trim() || !newDefinition.trim()) return;
-    
+
     addManually.mutate({
       word: newWord.trim(),
       definition: newDefinition.trim(),
@@ -465,7 +467,7 @@ function VocabContent() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     {popularData.words.map((word) => {
                       const alreadyAdded = userWordSet.has(word.word.toLowerCase());
-                      
+
                       return (
                         <div
                           key={word.id}
@@ -542,6 +544,7 @@ export default function VocabPage() {
   return (
     <ProtectedRoute>
       <VocabContent />
+      <OnboardingModal pageId="vocab" steps={ONBOARDING_CONTENT.vocab} />
     </ProtectedRoute>
   );
 }

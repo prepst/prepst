@@ -4,6 +4,7 @@ import "./globals.css";
 import "katex/dist/katex.min.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { OnboardingProvider } from "@/contexts/OnboardingContext";
 import { QueryProvider } from "@/contexts/QueryProvider";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/next";
@@ -36,9 +37,11 @@ export default function RootLayout({
         <QueryProvider>
           <ThemeProvider>
             <AuthProvider>
-              {children}
-              <Toaster position="top-right" richColors />
-              <Analytics />
+              <OnboardingProvider>
+                {children}
+                <Toaster position="top-right" richColors />
+                <Analytics />
+              </OnboardingProvider>
             </AuthProvider>
           </ThemeProvider>
         </QueryProvider>

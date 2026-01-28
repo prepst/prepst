@@ -6,6 +6,7 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useProfile } from "@/hooks/queries";
 import { useUpdatePreferences } from "@/hooks/mutations";
 import { useAuth } from "@/contexts/AuthContext";
+import { useOnboarding } from "@/contexts/OnboardingContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { api } from "@/lib/api";
 import {
@@ -19,6 +20,7 @@ import {
   AlertTriangle,
   Zap,
   Crown,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -50,6 +52,7 @@ function SettingsContent() {
   const { theme, setTheme } = useTheme();
   const updatePreferencesMutation = useUpdatePreferences();
   const { signOut } = useAuth();
+  const { resetAllOnboarding } = useOnboarding();
   const [activeTab, setActiveTab] = useState("account");
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [isResetting, setIsResetting] = useState(false);
@@ -307,6 +310,41 @@ function SettingsContent() {
                       </label>
                     </div>
                   </RadioGroup>
+                </CardContent>
+              </Card>
+
+              {/* Reset Onboarding */}
+              <Card className="bg-card border-border">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-foreground">
+                    <Eye className="w-5 h-5" />
+                    Onboarding Guides
+                  </CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    Re-enable feature guides throughout the app
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between p-4 border border-border rounded-lg bg-muted/30">
+                    <div className="space-y-1">
+                      <h4 className="text-sm font-medium text-foreground">Reset Onboarding</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Show all feature guides again on each page
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        resetAllOnboarding();
+                        setSaveStatus("Onboarding guides reset successfully");
+                        setTimeout(() => setSaveStatus(null), 3000);
+                      }}
+                      className="shrink-0 ml-4"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      Reset Guides
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>

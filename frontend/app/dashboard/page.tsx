@@ -24,6 +24,8 @@ import { motion } from "framer-motion";
 import { useTheme } from "@/contexts/ThemeContext";
 import { FeedbackButton } from "@/components/FeedbackButton";
 import { QuestionPracticePopup } from "@/components/revision/QuestionPracticePopup";
+import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
+import { ONBOARDING_CONTENT } from "@/lib/onboardingContent";
 import type { SessionQuestion } from "@/lib/types";
 
 const timeOptions = [
@@ -485,6 +487,7 @@ export default function DashboardPage() {
         />
       )}
 
+      <OnboardingModal pageId="dashboard" steps={ONBOARDING_CONTENT.dashboard} />
       <FeedbackButton />
     </div>
   );

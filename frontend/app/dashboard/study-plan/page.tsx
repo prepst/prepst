@@ -28,6 +28,8 @@ import {
 import { TodoSection } from "@/components/study-plan/todo-section";
 import { Skeleton } from "@/components/ui/skeleton";
 import { FeedbackButton } from "@/components/FeedbackButton";
+import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
+import { ONBOARDING_CONTENT } from "@/lib/onboardingContent";
 
 // Helper function to sort sessions within a section
 function sortSessionsInSection(sessions: TodoSession[]): TodoSession[] {
@@ -99,8 +101,8 @@ function categorizeSessions(
       exam.status === "completed"
         ? "completed"
         : exam.status === "in_progress"
-        ? "in-progress"
-        : "upcoming",
+          ? "in-progress"
+          : "upcoming",
     started_at: exam.started_at,
     completed_at: exam.completed_at,
     created_at: exam.created_at,
@@ -384,9 +386,9 @@ function StudyPlanContent() {
                 const filteredTodos =
                   activeFilter === "completed"
                     ? section.todos.filter((todo) => {
-                        const status = getSessionStatus(todo);
-                        return status === "completed";
-                      })
+                      const status = getSessionStatus(todo);
+                      return status === "completed";
+                    })
                     : section.todos;
 
                 // Only show section if it has todos after filtering
@@ -412,6 +414,7 @@ function StudyPlanContent() {
       </div>
 
       <FeedbackButton />
+      <OnboardingModal pageId="study-plan" steps={ONBOARDING_CONTENT["study-plan"]} />
 
       <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
         <DialogContent className="sm:max-w-md rounded-3xl border-border">

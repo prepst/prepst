@@ -24,6 +24,8 @@ import {
 import { processQuestionBlanks, formatTopicName } from "@/lib/question-utils";
 import type { SavedQuestion } from "@/lib/types";
 import type { SessionQuestion } from "@/lib/types";
+import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
+import { ONBOARDING_CONTENT } from "@/lib/onboardingContent";
 
 function SavedQuestionsContent() {
   const { data: savedQuestions = [], isLoading: loadingSavedQuestions } =
@@ -293,15 +295,15 @@ function SavedQuestionsContent() {
                                 >
                                   {formatTopicName(
                                     savedQuestion.topic?.name ||
-                                      "Unknown Topic"
+                                    "Unknown Topic"
                                   )}
                                 </span>
                                 <span>•</span>
                                 <span>
                                   {savedQuestion.session?.created_at
                                     ? new Date(
-                                        savedQuestion.session.created_at
-                                      ).toLocaleDateString()
+                                      savedQuestion.session.created_at
+                                    ).toLocaleDateString()
                                     : "Unknown Date"}
                                 </span>
                               </div>
@@ -367,6 +369,7 @@ export default function SavedQuestionsPage() {
   return (
     <ProtectedRoute>
       <SavedQuestionsContent />
+      <OnboardingModal pageId="saved" steps={ONBOARDING_CONTENT.saved} />
     </ProtectedRoute>
   );
 }

@@ -31,11 +31,11 @@ export default function QuickActionsGrid() {
   const averageScore = mockExamData?.avg_total_score
     ? Math.round(mockExamData.avg_total_score)
     : mockExamPerformance && mockExamPerformance.length > 0
-    ? Math.round(
+      ? Math.round(
         mockExamPerformance.reduce((sum, exam) => sum + exam.total_score, 0) /
-          mockExamPerformance.length
+        mockExamPerformance.length
       )
-    : 0;
+      : 0;
 
   // Calculate days until test
   const testDate = studyPlan?.study_plan?.test_date
@@ -43,8 +43,8 @@ export default function QuickActionsGrid() {
     : null;
   const daysUntilTest = testDate
     ? Math.ceil(
-        (testDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
-      )
+      (testDate.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)
+    )
     : 0;
 
   const stats = [
@@ -117,12 +117,10 @@ export default function QuickActionsGrid() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.08, duration: 0.4 }}
-          className={`group relative flex flex-row items-start p-3 rounded-xl border hover:shadow-lg hover:-translate-y-0.5 transition-all text-left overflow-hidden bg-gradient-to-br ${
-            stat.gradient ||
+          className={`group relative flex flex-row items-start p-3 rounded-xl border hover:shadow-lg hover:-translate-y-0.5 transition-all text-left overflow-hidden bg-gradient-to-br ${stat.gradient ||
             "from-purple-500/20 via-purple-500/10 to-transparent"
-          } ${
-            stat.label === "Study Plan" || stat.label === "Mock Exams" || stat.label === "Test Date" || stat.label === "Overall" ? "cursor-pointer" : ""
-          } ${isDarkMode ? "border-border/30" : "border-border/50"}`}
+            } ${stat.label === "Study Plan" || stat.label === "Mock Exams" || stat.label === "Test Date" || stat.label === "Overall" ? "cursor-pointer" : ""
+            } ${isDarkMode ? "border-border/30" : "border-border/50"}`}
           onClick={() => handleCardClick(stat)}
         >
           {/* Icon container */}
@@ -137,23 +135,20 @@ export default function QuickActionsGrid() {
           <div className="relative z-10 flex-1 min-w-0">
             <div className="space-y-0.5">
               <h3
-                className={`font-semibold text-xs ${
-                  isDarkMode ? "text-white" : "text-gray-900"
-                }`}
+                className={`font-semibold text-xs ${isDarkMode ? "text-white" : "text-gray-900"
+                  }`}
               >
                 {stat.label}
               </h3>
               <p
-                className={`text-lg font-bold ${
-                  isDarkMode ? "text-white" : "text-gray-900"
-                }`}
+                className={`text-lg font-bold ${isDarkMode ? "text-white" : "text-gray-900"
+                  }`}
               >
                 {stat.value}
               </p>
               <p
-                className={`text-xs ${
-                  isDarkMode ? "text-white/90" : "text-gray-700"
-                }`}
+                className={`text-xs ${isDarkMode ? "text-white/90" : "text-gray-700"
+                  }`}
               >
                 {stat.desc}
               </p>
@@ -166,21 +161,18 @@ export default function QuickActionsGrid() {
               <div className="flex flex-col items-center space-y-1">
                 {/* Custom Vertical Progress Bar */}
                 <div
-                  className={`h-11 w-2 rounded-full ${
-                    isDarkMode ? "bg-white/20" : stat.progressBg
-                  } relative overflow-hidden`}
+                  className={`h-11 w-2 rounded-full ${isDarkMode ? "bg-white/20" : stat.progressBg
+                    } relative overflow-hidden`}
                 >
                   <div
-                    className={`absolute bottom-0 left-0 right-0 rounded-full transition-all duration-300 ${
-                      isDarkMode ? "bg-white" : stat.progressColor
-                    }`}
+                    className={`absolute bottom-0 left-0 right-0 rounded-full transition-all duration-300 ${isDarkMode ? "bg-white" : stat.progressColor
+                      }`}
                     style={{ height: `${stat.progress}%` }}
                   />
                 </div>
                 <p
-                  className={`text-xs ${
-                    isDarkMode ? "text-white" : "text-gray-800"
-                  } text-center`}
+                  className={`text-xs ${isDarkMode ? "text-white" : "text-gray-800"
+                    } text-center`}
                 >
                   {Math.round(stat.progress)}%
                 </p>
@@ -191,9 +183,8 @@ export default function QuickActionsGrid() {
           {/* Subtle shine effect on hover */}
           <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none overflow-hidden">
             <div
-              className={`absolute inset-0 bg-gradient-to-r from-transparent ${
-                isDarkMode ? "via-white/10" : "via-white/5"
-              } to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700`}
+              className={`absolute inset-0 bg-gradient-to-r from-transparent ${isDarkMode ? "via-white/10" : "via-white/5"
+                } to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700`}
             />
           </div>
         </motion.div>

@@ -4,6 +4,8 @@ import { useSkillHeatmap } from "@/hooks/queries";
 import { RadarChart } from "@/components/charts/RadarChart";
 import BentoGrid from "@/components/ui/bento-grid";
 import { TopicGraphView } from "@/components/charts/TopicGraphView";
+import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
+import { ONBOARDING_CONTENT } from "@/lib/onboardingContent";
 
 export default function MindMapPage() {
   // Use TanStack Query hook for data fetching
@@ -46,7 +48,7 @@ export default function MindMapPage() {
                   <p>
                     We model your brain, identify your unique cognitive blocks, optimize your learning, and help you be good at everything.
                   </p>
-                  
+
                   <div className="border-l-4 border-gray-400 pl-4 py-2 bg-gray-50">
                     <p className="font-medium text-gray-900">
                       Our competitors are in the content business.
@@ -111,7 +113,7 @@ export default function MindMapPage() {
         {/* Introduction Text */}
         <div className="mb-8">
           <p className="text-gray-700 leading-relaxed">
-            The human brain is capable of near-continuous improvement if given the right stimulus, at the right time, in the right way. 
+            The human brain is capable of near-continuous improvement if given the right stimulus, at the right time, in the right way.
             We model your brain, identify your unique cognitive blocks, optimize your learning, and help you be good at everything.
           </p>
         </div>
@@ -119,6 +121,7 @@ export default function MindMapPage() {
         {/* Bento Grid */}
         <BentoGrid />
       </div>
+      <OnboardingModal pageId="mind-map" steps={ONBOARDING_CONTENT["mind-map"]} />
     </div>
   );
 }

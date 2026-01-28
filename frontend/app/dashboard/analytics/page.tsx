@@ -24,6 +24,8 @@ import {
 import { LineChart } from "@/components/charts/LineChart";
 import { BarChart } from "@/components/charts/BarChart";
 import { LearningVelocityCard } from "@/components/analytics/LearningVelocityCard";
+import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
+import { ONBOARDING_CONTENT } from "@/lib/onboardingContent";
 
 function AnalyticsContent() {
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
@@ -38,14 +40,14 @@ function AnalyticsContent() {
   const velocityStatsQuery = useLearningVelocity();
 
   // Derive loading and error states
-  const isLoading = 
-    growthCurveQuery.isLoading || 
-    heatmapQuery.isLoading || 
+  const isLoading =
+    growthCurveQuery.isLoading ||
+    heatmapQuery.isLoading ||
     snapshotsQuery.isLoading;
-  
-  const error = 
-    growthCurveQuery.error || 
-    heatmapQuery.error || 
+
+  const error =
+    growthCurveQuery.error ||
+    heatmapQuery.error ||
     snapshotsQuery.error;
 
   // Extract data from queries
@@ -165,8 +167,8 @@ function AnalyticsContent() {
                   <p className="text-2xl font-bold text-orange-600">
                     {latestSnapshot.cognitive_efficiency_score
                       ? Math.round(
-                          latestSnapshot.cognitive_efficiency_score * 100
-                        )
+                        latestSnapshot.cognitive_efficiency_score * 100
+                      )
                       : "N/A"}
                     {latestSnapshot.cognitive_efficiency_score && "%"}
                   </p>
@@ -219,49 +221,49 @@ function AnalyticsContent() {
             {Object.values(heatmap)
               .flatMap((cat) => cat.skills)
               .filter((s) => s.plateau).length > 0 && (
-              <div className="bg-white rounded-lg p-4 border-2 border-orange-100">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-orange-600 mt-1" />
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      Learning Plateau Detected
-                    </p>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {
-                        Object.values(heatmap)
-                          .flatMap((cat) => cat.skills)
-                          .filter((s) => s.plateau).length
-                      }{" "}
-                      skills need a new learning approach
-                    </p>
+                <div className="bg-white rounded-lg p-4 border-2 border-orange-100">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="w-5 h-5 text-orange-600 mt-1" />
+                    <div>
+                      <p className="font-semibold text-gray-800">
+                        Learning Plateau Detected
+                      </p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {
+                          Object.values(heatmap)
+                            .flatMap((cat) => cat.skills)
+                            .filter((s) => s.plateau).length
+                        }{" "}
+                        skills need a new learning approach
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Fast Improvement */}
             {Object.values(heatmap)
               .flatMap((cat) => cat.skills)
               .filter((s) => s.velocity > 0.05).length > 0 && (
-              <div className="bg-white rounded-lg p-4 border-2 border-green-100">
-                <div className="flex items-start gap-3">
-                  <TrendingUp className="w-5 h-5 text-green-600 mt-1" />
-                  <div>
-                    <p className="font-semibold text-gray-800">
-                      Great Progress!
-                    </p>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {
-                        Object.values(heatmap)
-                          .flatMap((cat) => cat.skills)
-                          .filter((s) => s.velocity > 0.05).length
-                      }{" "}
-                      skills showing rapid improvement
-                    </p>
+                <div className="bg-white rounded-lg p-4 border-2 border-green-100">
+                  <div className="flex items-start gap-3">
+                    <TrendingUp className="w-5 h-5 text-green-600 mt-1" />
+                    <div>
+                      <p className="font-semibold text-gray-800">
+                        Great Progress!
+                      </p>
+                      <p className="text-sm text-gray-600 mt-1">
+                        {
+                          Object.values(heatmap)
+                            .flatMap((cat) => cat.skills)
+                            .filter((s) => s.velocity > 0.05).length
+                        }{" "}
+                        skills showing rapid improvement
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
+              )}
 
             {/* Confidence Calibration */}
             {cognitiveStats &&
@@ -507,11 +509,10 @@ function AnalyticsContent() {
                 {cognitiveStats.confidence_accuracy_map.map((conf, idx) => (
                   <div
                     key={idx}
-                    className={`p-3 rounded-lg text-center ${
-                      Math.abs(conf.calibration_gap) > 10
+                    className={`p-3 rounded-lg text-center ${Math.abs(conf.calibration_gap) > 10
                         ? "bg-orange-50 border-2 border-orange-200"
                         : "bg-gray-50 border-2 border-gray-200"
-                    }`}
+                      }`}
                   >
                     <p className="text-xs text-gray-600">
                       Confidence {conf.confidence_level}
@@ -520,11 +521,10 @@ function AnalyticsContent() {
                       {conf.actual_accuracy}%
                     </p>
                     <p
-                      className={`text-xs ${
-                        conf.calibration_gap > 0
+                      className={`text-xs ${conf.calibration_gap > 0
                           ? "text-orange-600"
                           : "text-blue-600"
-                      }`}
+                        }`}
                     >
                       {conf.calibration_gap > 0 ? "↓" : "↑"}{" "}
                       {Math.abs(conf.calibration_gap)}%
@@ -667,6 +667,7 @@ export default function AnalyticsPage() {
   return (
     <ProtectedRoute>
       <AnalyticsContent />
+      <OnboardingModal pageId="analytics" steps={ONBOARDING_CONTENT.analytics} />
     </ProtectedRoute>
   );
 }

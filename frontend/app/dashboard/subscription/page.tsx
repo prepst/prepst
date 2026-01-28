@@ -12,6 +12,8 @@ import {
   Clock,
   Gift,
 } from "lucide-react";
+import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
+import { ONBOARDING_CONTENT } from "@/lib/onboardingContent";
 
 // Floating pig decoration component
 interface FloatingPigProps {
@@ -465,6 +467,7 @@ export default function PremiumPage() {
   return (
     <ProtectedRoute>
       <PremiumPageContent />
+      <OnboardingModal pageId="subscription" steps={ONBOARDING_CONTENT.subscription} />
     </ProtectedRoute>
   );
 }

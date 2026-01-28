@@ -8,6 +8,8 @@ import { ScoreCalculator } from "@/components/my-sat/ScoreCalculator";
 import { SpecialPractice } from "@/components/my-sat/SpecialPractice";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useRouter } from "next/navigation";
+import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
+import { ONBOARDING_CONTENT } from "@/lib/onboardingContent";
 
 function MySATContent() {
     const router = useRouter();
@@ -76,6 +78,7 @@ export default function MySATPage() {
     return (
         <ProtectedRoute>
             <MySATContent />
+            <OnboardingModal pageId="my-sat" steps={ONBOARDING_CONTENT["my-sat"]} />
         </ProtectedRoute>
     );
 }

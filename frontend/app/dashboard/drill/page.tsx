@@ -27,8 +27,10 @@ import {
   Filter,
   X
 } from "lucide-react";
+import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
+import { ONBOARDING_CONTENT } from "@/lib/onboardingContent";
 
-export default function DrillPage() {
+function DrillPage() {
   const router = useRouter();
   const [categories, setCategories] =
     useState<CategoriesAndTopicsResponse | null>(null);
@@ -125,7 +127,7 @@ export default function DrillPage() {
 
     return allTopics.filter(topic => {
       const matchesSearch = topic.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           topic.categoryName.toLowerCase().includes(searchQuery.toLowerCase());
+        topic.categoryName.toLowerCase().includes(searchQuery.toLowerCase());
       const matchesSection = selectedSection === "all" || topic.section === selectedSection;
       return matchesSearch && matchesSection;
     });
@@ -486,9 +488,8 @@ export default function DrillPage() {
                       </div>
 
                       {/* Section Indicator */}
-                      <div className={`absolute bottom-0 left-0 right-0 h-1 ${
-                        topic.section === 'math' ? 'bg-gradient-to-r from-amber-400 to-orange-400' : 'bg-gradient-to-r from-rose-400 to-pink-400'
-                      }`} />
+                      <div className={`absolute bottom-0 left-0 right-0 h-1 ${topic.section === 'math' ? 'bg-gradient-to-r from-amber-400 to-orange-400' : 'bg-gradient-to-r from-rose-400 to-pink-400'
+                        }`} />
                     </div>
                   </div>
                 ))}
@@ -597,8 +598,8 @@ export default function DrillPage() {
                         {session.session_type === "drill"
                           ? "Targeted Drill"
                           : session.session_type === "revision"
-                          ? "Revision Session"
-                          : "Practice Session"}
+                            ? "Revision Session"
+                            : "Practice Session"}
                       </h4>
                       <p className="text-sm text-muted-foreground flex items-center gap-2">
                         <span>
@@ -613,18 +614,17 @@ export default function DrillPage() {
 
                     <div className="text-right">
                       <div
-                        className={`text-xl font-bold ${
-                          session.correct_count / session.total_questions >= 0.8
-                            ? "text-green-600 dark:text-green-400"
-                            : session.correct_count / session.total_questions >=
-                              0.6
+                        className={`text-xl font-bold ${session.correct_count / session.total_questions >= 0.8
+                          ? "text-green-600 dark:text-green-400"
+                          : session.correct_count / session.total_questions >=
+                            0.6
                             ? "text-blue-600 dark:text-blue-400"
                             : "text-orange-600 dark:text-orange-400"
-                        }`}
+                          }`}
                       >
                         {Math.round(
                           (session.correct_count / session.total_questions) *
-                            100
+                          100
                         )}
                         %
                       </div>
@@ -640,5 +640,14 @@ export default function DrillPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function DrillPageWrapper() {
+  return (
+    <>
+      <DrillPage />
+      <OnboardingModal pageId="drill" steps={ONBOARDING_CONTENT.drill} />
+    </>
   );
 }

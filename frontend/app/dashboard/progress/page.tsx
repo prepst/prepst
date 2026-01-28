@@ -21,6 +21,8 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { TrendingUp, Calendar, Zap } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
+import { ONBOARDING_CONTENT } from "@/lib/onboardingContent";
 
 function ProgressContent() {
   const router = useRouter();
@@ -136,9 +138,8 @@ function ProgressContent() {
     {
       color: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)", // Mint-pink gradient for current total (BIG CARD)
       title: currentTotal.toString(),
-      description: `Current Total Score • ${
-        improvement > 0 ? `+${improvement} to go` : "Target reached!"
-      }`,
+      description: `Current Total Score • ${improvement > 0 ? `+${improvement} to go` : "Target reached!"
+        }`,
       label: "Current Total",
     },
     {
@@ -211,13 +212,13 @@ function ProgressContent() {
                   <div className="text-3xl font-bold text-primary font-mono tabular-nums">
                     {study_plan.test_date
                       ? Math.max(
-                          0,
-                          Math.ceil(
-                            (new Date(study_plan.test_date).getTime() -
-                              Date.now()) /
-                              (1000 * 60 * 60 * 24)
-                          )
+                        0,
+                        Math.ceil(
+                          (new Date(study_plan.test_date).getTime() -
+                            Date.now()) /
+                          (1000 * 60 * 60 * 24)
                         )
+                      )
                       : "—"}
                   </div>
                 </div>
@@ -261,9 +262,8 @@ function ProgressContent() {
                         stroke="url(#progressGradient)"
                         strokeWidth="8"
                         strokeLinecap="round"
-                        strokeDasharray={`${
-                          (currentTotal / targetTotal) * 251.2
-                        } 251.2`}
+                        strokeDasharray={`${(currentTotal / targetTotal) * 251.2
+                          } 251.2`}
                         className="transition-all duration-1000 ease-out"
                       />
                       <defs>
@@ -414,19 +414,17 @@ function ProgressContent() {
                     <div className="text-2xl font-bold text-foreground font-mono">
                       {profileData?.stats?.accuracy_percentage
                         ? `${Math.round(
-                            profileData.stats.accuracy_percentage
-                          )}%`
+                          profileData.stats.accuracy_percentage
+                        )}%`
                         : "0%"}
                     </div>
                   </div>
                 </div>
                 <div className="text-xs text-muted-foreground leading-relaxed">
                   {profileData?.stats?.total_questions_answered
-                    ? `${
-                        profileData.stats.total_correct_answers || 0
-                      } correct out of ${
-                        profileData.stats.total_questions_answered
-                      } answered`
+                    ? `${profileData.stats.total_correct_answers || 0
+                    } correct out of ${profileData.stats.total_questions_answered
+                    } answered`
                     : "Answer questions to see your accuracy!"}
                 </div>
               </div>
@@ -582,11 +580,10 @@ function ProgressContent() {
                         stroke="url(#mathGradient)"
                         strokeWidth="8"
                         strokeLinecap="round"
-                        strokeDasharray={`${
-                          ((study_plan.current_math_score || 0) /
+                        strokeDasharray={`${((study_plan.current_math_score || 0) /
                             (study_plan.target_math_score || 800)) *
                           251.2
-                        } 251.2`}
+                          } 251.2`}
                         className="transition-all duration-1000 ease-out"
                       />
                       <defs>
@@ -618,7 +615,7 @@ function ProgressContent() {
                       {Math.min(
                         45,
                         (study_plan.target_math_score || 800) -
-                          (study_plan.current_math_score || 0)
+                        (study_plan.current_math_score || 0)
                       )}{" "}
                       projected
                     </span>
@@ -649,11 +646,10 @@ function ProgressContent() {
                         stroke="url(#rwGradient)"
                         strokeWidth="8"
                         strokeLinecap="round"
-                        strokeDasharray={`${
-                          ((study_plan.current_rw_score || 0) /
+                        strokeDasharray={`${((study_plan.current_rw_score || 0) /
                             (study_plan.target_rw_score || 800)) *
                           251.2
-                        } 251.2`}
+                          } 251.2`}
                         className="transition-all duration-1000 ease-out"
                       />
                       <defs>
@@ -685,7 +681,7 @@ function ProgressContent() {
                       {Math.min(
                         35,
                         (study_plan.target_rw_score || 800) -
-                          (study_plan.current_rw_score || 0)
+                        (study_plan.current_rw_score || 0)
                       )}{" "}
                       projected
                     </span>
@@ -1103,6 +1099,7 @@ export default function ProgressPage() {
     <ProtectedRoute>
       <ErrorBoundary>
         <ProgressContent />
+        <OnboardingModal pageId="progress" steps={ONBOARDING_CONTENT.progress} />
       </ErrorBoundary>
     </ProtectedRoute>
   );

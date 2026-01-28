@@ -16,6 +16,7 @@ import {
 import { supabase } from "@/lib/supabase";
 import { Play, Target, Sparkles, ArrowRight, Clock } from "lucide-react";
 import MissionCard from "@/components/dashboard/MissionCard";
+import { MarchSATBanner } from "@/components/dashboard/MarchSATBanner";
 import QuickActionsGrid from "@/components/dashboard/QuickActionsGrid";
 import RecommendationCard from "@/components/dashboard/RecommendationCard";
 import QuestionOfTheDayCard from "@/components/dashboard/QuestionOfTheDayCard";
@@ -214,30 +215,30 @@ export default function DashboardPage() {
 
   const nextSession: SessionForMissionCard | undefined = nextSessionRaw
     ? ({
-        id: nextSessionRaw.id,
-        topic_name:
-          nextSessionRaw.session_name ||
-          `Session ${nextSessionRaw.session_number}`,
-        scheduled_date: nextSessionRaw.scheduled_date,
-        duration_minutes: (() => {
-          const qCount =
-            nextSessionRaw.total_questions ||
-            nextSessionRaw.topics?.reduce(
-              (sum: number, t: any) => sum + (t.num_questions || 0),
-              0
-            ) ||
-            0;
-          return qCount ? Math.round(qCount * 2) : 30;
-        })(),
-        status: nextSessionRaw.status,
-        num_questions:
+      id: nextSessionRaw.id,
+      topic_name:
+        nextSessionRaw.session_name ||
+        `Session ${nextSessionRaw.session_number}`,
+      scheduled_date: nextSessionRaw.scheduled_date,
+      duration_minutes: (() => {
+        const qCount =
           nextSessionRaw.total_questions ||
           nextSessionRaw.topics?.reduce(
             (sum: number, t: any) => sum + (t.num_questions || 0),
             0
           ) ||
-          0,
-      } as SessionForMissionCard)
+          0;
+        return qCount ? Math.round(qCount * 2) : 30;
+      })(),
+      status: nextSessionRaw.status,
+      num_questions:
+        nextSessionRaw.total_questions ||
+        nextSessionRaw.topics?.reduce(
+          (sum: number, t: any) => sum + (t.num_questions || 0),
+          0
+        ) ||
+        0,
+    } as SessionForMissionCard)
     : undefined;
 
   // Mock stats (replace with real data calculations if available)
@@ -255,6 +256,9 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background/50">
       <div className="flex justify-center">
         <div className="w-full max-w-7xl px-4 py-8 space-y-8">
+          {/* March SAT Campaign Banner */}
+          <MarchSATBanner />
+
           {/* Hero Section with Question of the Day */}
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-stretch">
             {/* Hero Section */}
@@ -349,7 +353,7 @@ export default function DashboardPage() {
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                     <span className="text-3xl font-bold relative">
                       {profileData?.stats?.target_math_score &&
-                      profileData?.stats?.target_rw_score ? (
+                        profileData?.stats?.target_rw_score ? (
                         profileData.stats.target_math_score +
                         profileData.stats.target_rw_score
                       ) : studyPlan?.study_plan?.target_math_score &&

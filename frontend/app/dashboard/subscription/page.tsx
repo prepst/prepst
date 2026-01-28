@@ -7,14 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   Zap,
-  Check,
   Sparkles,
-  Brain,
-  BarChart3,
-  Target,
   Shield,
   Clock,
-  Star,
+  Gift,
 } from "lucide-react";
 
 // Floating pig decoration component
@@ -99,32 +95,36 @@ function PremiumPageContent() {
 
   const features = [
     {
-      icon: Sparkles,
+      image: "/icon-sessions.png",
       title: "Peppa Sessions",
       description:
-        "Unlock special AI-powered practice sessions with personalized feedback and adaptive difficulty.",
+        "Personalized 20-minute sessions that adapt to your skill level in real-time",
       color: "from-purple-500 to-pink-500",
+      stats: "800+ questions",
     },
     {
-      icon: BarChart3,
+      image: "/icon-analytics.png",
       title: "Progress Analytics",
       description:
-        "Get granular insights into your learning pathway with detailed performance tracking and trend analysis.",
+        "Track your score trajectory and identify weak spots before test day",
       color: "from-blue-500 to-cyan-500",
+      stats: "Topic-by-topic",
     },
     {
-      icon: Brain,
+      image: "/icon-ai-help.png",
       title: "Unlimited Peppa AI",
       description:
-        "Access step-by-step explanations and guidance from our AI assistant without any limits.",
+        "Get instant explanations for any question — ask unlimited follow-ups",
       color: "from-green-500 to-emerald-500",
+      stats: "24/7 help",
     },
     {
-      icon: Target,
+      image: "/icon-drilling.png",
       title: "Unlimited Drilling",
       description:
-        "Practice specific topics as much as you need with our drill feature - no daily limits.",
+        "Master any concept with focused topic drills — no daily limits",
       color: "from-orange-500 to-amber-500",
+      stats: "All topics",
     },
   ];
 
@@ -194,6 +194,35 @@ function PremiumPageContent() {
       />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-12 relative z-20">
+        {/* March SAT Campaign Banner */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-emerald-500/15 via-primary/15 to-amber-500/15 border border-emerald-500/30 backdrop-blur-sm mb-10">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute -top-10 -left-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-3xl" />
+            <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-amber-500/20 rounded-full blur-3xl" />
+          </div>
+          <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-4 p-6">
+            <div className="flex items-center gap-4">
+              <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-emerald-500 to-primary flex items-center justify-center shadow-lg shadow-primary/30">
+                <Gift className="h-7 w-7 text-white" />
+              </div>
+              <div className="text-center sm:text-left">
+                <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
+                  <Sparkles className="h-4 w-4 text-amber-500" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                    Limited Time
+                  </span>
+                </div>
+                <h2 className="text-2xl font-bold text-foreground">
+                  <span className="text-emerald-600 dark:text-emerald-400">FREE</span> until March 14th!
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  Access all premium features at no cost until the next SAT test day
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Hero Section */}
         <div className="text-center mb-16">
           <Badge className="mb-4 bg-amber-500/10 text-amber-500 border-amber-500/20 hover:bg-amber-500/10">
@@ -205,8 +234,7 @@ function PremiumPageContent() {
             <span className="text-primary">PrepSt+</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Join thousands of students who improved their SAT scores by 500+
-            points with our premium features.
+            Join thousands of students who improved their SAT scores with our premium features.
           </p>
         </div>
 
@@ -218,15 +246,26 @@ function PremiumPageContent() {
               className="group relative rounded-2xl border border-border bg-card p-6 hover:border-primary/50 transition-all duration-300"
             >
               <div className="flex items-start gap-4">
-                <div
-                  className={`h-12 w-12 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center shrink-0 shadow-lg`}
-                >
-                  <feature.icon className="h-6 w-6 text-white" />
+                <div className="h-16 w-16 rounded-xl overflow-hidden shrink-0 shadow-lg bg-white">
+                  <Image
+                    src={feature.image}
+                    alt={feature.title}
+                    width={64}
+                    height={64}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    {feature.title}
-                  </h3>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-lg font-semibold text-foreground">
+                      {feature.title}
+                    </h3>
+                    {feature.stats && (
+                      <span className="text-xs font-medium px-2 py-1 rounded-full bg-primary/10 text-primary">
+                        {feature.stats}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-muted-foreground">{feature.description}</p>
                 </div>
               </div>

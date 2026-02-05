@@ -111,11 +111,11 @@ export function PremiumUpgradeDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[900px] p-0 gap-0 overflow-hidden max-h-[90vh] border-0 flex flex-col">
         {/* Header */}
-        <div className="relative overflow-hidden bg-white px-6 pt-3 pb-0 shrink-0">
+        <div className="relative overflow-hidden bg-background px-6 pt-3 pb-0 shrink-0">
           <div className="relative z-10 flex items-center justify-between">
             <div className="flex-1"></div>
             <div className="flex-1 flex justify-center">
-              <h2 className="text-2xl font-bold text-black whitespace-nowrap">
+              <h2 className="text-2xl font-bold text-foreground whitespace-nowrap">
                 PrepSt+ users score{" "}
                 <span className="text-[#9184ff]">400+ points higher</span>
               </h2>
@@ -124,7 +124,7 @@ export function PremiumUpgradeDialog({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 rounded-full hover:bg-gray-100 text-gray-600"
+                className="h-10 w-10 rounded-full hover:bg-muted text-muted-foreground"
                 onClick={onClose}
               >
                 <X className="h-5 w-5" />
@@ -257,7 +257,11 @@ export function PremiumUpgradeDialog({
                   )}
                   <div className="mb-2">
                     <span
-                      className={`text-sm font-semibold ${selectedPlan === plan.id ? "text-[#9184ff]" : "text-foreground"}`}
+                      className={`text-sm font-semibold ${
+                        selectedPlan === plan.id
+                          ? "text-[#9184ff]"
+                          : "text-foreground"
+                      }`}
                     >
                       {plan.name}
                     </span>

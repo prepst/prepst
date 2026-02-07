@@ -17,6 +17,7 @@ import { supabase } from "@/lib/supabase";
 import { Play, Target, Sparkles, ArrowRight, Clock } from "lucide-react";
 import MissionCard from "@/components/dashboard/MissionCard";
 import { MarchSATBanner } from "@/components/dashboard/MarchSATBanner";
+import { SpecialPractice } from "@/components/my-sat/SpecialPractice";
 import QuickActionsGrid from "@/components/dashboard/QuickActionsGrid";
 import RecommendationCard from "@/components/dashboard/RecommendationCard";
 import QuestionOfTheDayCard from "@/components/dashboard/QuestionOfTheDayCard";
@@ -217,30 +218,30 @@ export default function DashboardPage() {
 
   const nextSession: SessionForMissionCard | undefined = nextSessionRaw
     ? ({
-      id: nextSessionRaw.id,
-      topic_name:
-        nextSessionRaw.session_name ||
-        `Session ${nextSessionRaw.session_number}`,
-      scheduled_date: nextSessionRaw.scheduled_date,
-      duration_minutes: (() => {
-        const qCount =
+        id: nextSessionRaw.id,
+        topic_name:
+          nextSessionRaw.session_name ||
+          `Session ${nextSessionRaw.session_number}`,
+        scheduled_date: nextSessionRaw.scheduled_date,
+        duration_minutes: (() => {
+          const qCount =
+            nextSessionRaw.total_questions ||
+            nextSessionRaw.topics?.reduce(
+              (sum: number, t: any) => sum + (t.num_questions || 0),
+              0
+            ) ||
+            0;
+          return qCount ? Math.round(qCount * 2) : 30;
+        })(),
+        status: nextSessionRaw.status,
+        num_questions:
           nextSessionRaw.total_questions ||
           nextSessionRaw.topics?.reduce(
             (sum: number, t: any) => sum + (t.num_questions || 0),
             0
           ) ||
-          0;
-        return qCount ? Math.round(qCount * 2) : 30;
-      })(),
-      status: nextSessionRaw.status,
-      num_questions:
-        nextSessionRaw.total_questions ||
-        nextSessionRaw.topics?.reduce(
-          (sum: number, t: any) => sum + (t.num_questions || 0),
-          0
-        ) ||
-        0,
-    } as SessionForMissionCard)
+          0,
+      } as SessionForMissionCard)
     : undefined;
 
   // Mock stats (replace with real data calculations if available)
@@ -355,7 +356,7 @@ export default function DashboardPage() {
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                     <span className="text-3xl font-bold relative">
                       {profileData?.stats?.target_math_score &&
-                        profileData?.stats?.target_rw_score ? (
+                      profileData?.stats?.target_rw_score ? (
                         profileData.stats.target_math_score +
                         profileData.stats.target_rw_score
                       ) : studyPlan?.study_plan?.target_math_score &&
@@ -427,6 +428,9 @@ export default function DashboardPage() {
               </div>
             </div>
           </div>
+
+          {/* Special Practice with Peppa */}
+          <SpecialPractice />
         </div>
       </div>
 
@@ -487,7 +491,10 @@ export default function DashboardPage() {
         />
       )}
 
-      <OnboardingModal pageId="dashboard" steps={ONBOARDING_CONTENT.dashboard} />
+      <OnboardingModal
+        pageId="dashboard"
+        steps={ONBOARDING_CONTENT.dashboard}
+      />
       <FeedbackButton />
     </div>
   );

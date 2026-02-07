@@ -201,14 +201,11 @@ export function ProfileDropdown({
                   className="object-cover"
                 />
               </div>
-              <div className="flex flex-col items-start flex-1">
+              {/* <div className="flex flex-col items-start flex-1">
                 <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
                   {displayName}
                 </span>
-                <span className="text-xs text-muted-foreground">
-                  {user?.email?.split("@")[0]}
-                </span>
-              </div>
+              </div> */}
             </div>
             <ChevronDown className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
           </Button>

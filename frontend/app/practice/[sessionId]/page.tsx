@@ -102,6 +102,15 @@ function PracticeSessionContent() {
   const [aiPanelTab, setAiPanelTab] = useState<"ask" | "explanation">("ask");
   const [isAIPanelPinned, setIsAIPanelPinned] = useState(false);
 
+  // Mobile detection
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   // Container ref for calculating middle position
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -600,7 +609,7 @@ function PracticeSessionContent() {
 
         <div
           ref={containerRef}
-          className="flex-1 flex overflow-hidden"
+          className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden"
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseUp}
@@ -617,7 +626,7 @@ function PracticeSessionContent() {
           )}
 
           {/* Question Panel - Flexible width */}
-          <div className="flex-1 flex flex-col min-w-0 relative">
+          <div className="flex-1 flex flex-col min-w-0 relative lg:h-full shrink-0 lg:shrink">
             {/* SAT Tools Toolbar - positioned at top-right of question area */}
             <div className="absolute top-4 right-4 z-30">
               <SATToolsToolbar />
@@ -631,7 +640,7 @@ function PracticeSessionContent() {
 
           {/* Draggable Divider */}
           <div
-            className={`group relative w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ml-5 ${isDragging ? "bg-primary" : ""
+            className={`hidden lg:block group relative w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ml-5 ${isDragging ? "bg-primary" : ""
               }`}
             onMouseDown={handleMouseDown}
             style={{
@@ -649,8 +658,8 @@ function PracticeSessionContent() {
 
           {/* Right Panel - Answer Choices & Feedback - Dynamic width */}
           <div
-            className="border-l border-border bg-card/50 backdrop-blur-sm flex flex-col"
-            style={{ width: `${dividerPosition}px` }}
+            className="border-t lg:border-t-0 lg:border-l border-border bg-card/50 backdrop-blur-sm flex flex-col shrink-0 lg:shrink"
+            style={{ width: isMobile ? '100%' : `${dividerPosition}px` }}
           >
             <AnswerPanel
               question={currentQuestion}

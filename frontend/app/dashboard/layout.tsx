@@ -31,7 +31,6 @@ import {
   Database,
 } from "lucide-react";
 import { motion } from "framer-motion";
-import Image from "next/image";
 // import { StatisticsPanel } from "@/components/dashboard/StatisticsPanel";
 import { ProfileDropdown } from "@/components/dashboard/ProfileDropdown";
 import { useState, useEffect } from "react";
@@ -141,12 +140,10 @@ export default function DashboardLayout({
     name: string;
     href: string;
     icon: React.ComponentType<{ className?: string }>;
-    iconImage?: string;
   };
 
   type DashboardNavItem = NavItem & {
     isCollapsible?: boolean;
-    iconImage?: string;
     subItems?: {
       name: string;
       href: string;
@@ -160,23 +157,21 @@ export default function DashboardLayout({
   ];
 
   const dashboardItems: DashboardNavItem[] = [
-    { name: "Home", href: "/dashboard", icon: Home, iconImage: "/icons/home.png" },
-    { name: "My SAT", href: "/dashboard/my-sat", icon: Sparkles, iconImage: "/icons/my-sat.png" },
-    { name: "Study Plan", href: "/dashboard/study-plan", icon: BookOpen, iconImage: "/icons/study-plan.png" },
-    { name: "Revision", href: "/dashboard/revision", icon: RotateCcw, iconImage: "/icons/revision.png" },
-    { name: "Drill", href: "/dashboard/drill", icon: Brain, iconImage: "/icons/drill.png" },
-    { name: "Question Pool", href: "/dashboard/question-pool", icon: Database, iconImage: "/icons/question-pool.png" },
+    { name: "Home", href: "/dashboard", icon: Home },
+    { name: "My SAT", href: "/dashboard/my-sat", icon: Sparkles },
+    { name: "Study Plan", href: "/dashboard/study-plan", icon: BookOpen },
+    { name: "Revision", href: "/dashboard/revision", icon: RotateCcw },
+    { name: "Drill", href: "/dashboard/drill", icon: Brain },
+    { name: "Question Pool", href: "/dashboard/question-pool", icon: Database },
     {
       name: "Mock Exam",
       href: "/dashboard/mock-exam",
       icon: FileText,
-      iconImage: "/icons/mock-exam.png",
     },
     {
       name: "Vocab",
       href: "/dashboard/vocab",
       icon: BookMarked,
-      iconImage: "/icons/vocab.png",
     },
     // {
     //   name: "Missed Questions",
@@ -192,7 +187,6 @@ export default function DashboardLayout({
       name: "Progress",
       href: "/dashboard/progress",
       icon: TrendingUp,
-      iconImage: "/icons/progress.png",
     },
     // { name: "Manim", href: "/dashboard/manim", icon: Video },
     // { name: "Notebook", href: "/dashboard/notebook", icon: Notebook },
@@ -212,16 +206,10 @@ export default function DashboardLayout({
     name: string;
     href: string;
     icon: React.ComponentType<{ className?: string }>;
-    external?: boolean;
   }[] = [
-    {
-      name: "Discord",
-      href: "https://discord.gg/A6xqzcvjvZ",
-      icon: MessageCircle,
-      external: true,
-    },
-    // { name: "Settings", href: "/dashboard/settings", icon: Settings },
-  ];
+      // { name: "Chat", href: "/dashboard/chat", icon: MessageCircle },
+      // { name: "Settings", href: "/dashboard/settings", icon: Settings },
+    ];
 
   const getDisplayName = () => {
     // Don't show anything until profile is loaded
@@ -268,7 +256,7 @@ export default function DashboardLayout({
       : 100
     : isSidebarCollapsed
       ? 72
-      : 160;
+      : 120;
   const navIconSize = "w-6 h-6";
 
   return (
@@ -288,11 +276,11 @@ export default function DashboardLayout({
           initial={false}
           transition={{ duration: 0.25, ease: "easeInOut" }}
           className={`sticky top-0 h-screen flex-shrink-0 bg-card border-r border-border z-30 will-change-[width] ${isMobile
-            ? isSidebarCollapsed
-              ? "overflow-hidden border-none"
-              : `fixed left-0 z-50 shadow-2xl ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-              }`
-            : ""
+              ? isSidebarCollapsed
+                ? "overflow-hidden border-none"
+                : `fixed left-0 z-50 shadow-2xl ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+                }`
+              : ""
             }`}
           style={{ width: targetSidebarWidth }}
         >
@@ -335,7 +323,7 @@ export default function DashboardLayout({
             </button>
 
             {/* Main Navigation Section */}
-            <div className="flex flex-col justify-center space-y-6 flex-1 overflow-y-auto scrollbar-hide py-5">
+            <div className="flex flex-col justify-start space-y-6 flex-1 overflow-y-auto scrollbar-hide py-5">
               {/* Dashboard Section */}
               <div className="space-y-2">
                 {/* Dashboard Label */}
@@ -376,52 +364,32 @@ export default function DashboardLayout({
                           <Link
                             href={item.href}
                             className={`w-full flex items-center rounded-2xl transition-all duration-200 group ${isActive
-                              ? "bg-primary/10 text-primary font-semibold"
-                              : "hover:bg-muted/60 text-muted-foreground hover:text-foreground font-medium"
+                                ? "bg-primary/10 text-primary font-semibold"
+                                : "hover:bg-muted/60 text-muted-foreground hover:text-foreground font-medium"
                               } justify-center p-3 mx-auto w-12 h-12`}
                             title={item.name}
                           >
-                            {item.iconImage ? (
-                              <Image
-                                src={item.iconImage}
-                                alt={item.name}
-                                width={28}
-                                height={28}
-                                className="flex-shrink-0 rounded-md"
-                              />
-                            ) : (
-                              <Icon
-                                className={`flex-shrink-0 transition-colors ${isActive
+                            <Icon
+                              className={`flex-shrink-0 transition-colors ${isActive
                                   ? "text-primary"
                                   : "text-muted-foreground group-hover:text-foreground"
-                                  } ${navIconSize}`}
-                              />
-                            )}
+                                } ${navIconSize}`}
+                            />
                           </Link>
                         ) : (
                           <button
                             onClick={() => setExpanded(!isExpanded)}
                             className={`w-full flex flex-col items-center gap-1 rounded-2xl transition-all duration-200 group ${isActive
-                              ? "bg-primary/10 text-primary font-semibold"
-                              : "hover:bg-muted/60 text-muted-foreground hover:text-foreground font-medium"
+                                ? "bg-primary/10 text-primary font-semibold"
+                                : "hover:bg-muted/60 text-muted-foreground hover:text-foreground font-medium"
                               } py-3 px-3 mx-auto ${isMobile ? "py-4" : ""}`}
                           >
-                            {item.iconImage ? (
-                              <Image
-                                src={item.iconImage}
-                                alt={item.name}
-                                width={28}
-                                height={28}
-                                className="flex-shrink-0 rounded-md"
-                              />
-                            ) : (
-                              <Icon
-                                className={`flex-shrink-0 transition-colors ${isActive
+                            <Icon
+                              className={`flex-shrink-0 transition-colors ${isActive
                                   ? "text-primary"
                                   : "text-muted-foreground group-hover:text-foreground"
-                                  } ${navIconSize}`}
-                              />
-                            )}
+                                } ${navIconSize}`}
+                            />
                             <span className="text-xs whitespace-nowrap">
                               {item.name}
                             </span>
@@ -447,15 +415,15 @@ export default function DashboardLayout({
                                   key={subItem.href}
                                   href={subItem.href}
                                   className={`flex items-center rounded-xl transition-all duration-200 relative z-10 ml-3 mr-2 ${isSubActive
-                                    ? "bg-primary/5 text-primary font-medium"
-                                    : "hover:bg-muted/50 hover:text-foreground text-muted-foreground"
+                                      ? "bg-primary/5 text-primary font-medium"
+                                      : "hover:bg-muted/50 hover:text-foreground text-muted-foreground"
                                     } gap-3 py-2.5 px-4 text-sm ${isMobile ? "py-3" : ""
                                     }`}
                                 >
                                   <span
                                     className={`w-1.5 h-1.5 rounded-full ${isSubActive
-                                      ? "bg-primary"
-                                      : "bg-muted-foreground/40"
+                                        ? "bg-primary"
+                                        : "bg-muted-foreground/40"
                                       } flex-shrink-0`}
                                   />
                                   <span className="whitespace-nowrap">
@@ -476,8 +444,8 @@ export default function DashboardLayout({
                       key={item.href}
                       href={item.href}
                       className={`rounded-2xl transition-all duration-200 group ${isActive
-                        ? "bg-primary/10 text-primary font-semibold"
-                        : "hover:bg-muted/60 hover:text-foreground text-muted-foreground font-medium"
+                          ? "bg-primary/10 text-primary font-semibold"
+                          : "hover:bg-muted/60 hover:text-foreground text-muted-foreground font-medium"
                         } ${isSidebarCollapsed
                           ? "flex justify-center p-3 mx-auto w-12 h-12"
                           : `flex flex-col items-center gap-1 py-3 px-3 ${isMobile ? "py-4" : ""
@@ -485,22 +453,12 @@ export default function DashboardLayout({
                         }`}
                       title={isSidebarCollapsed ? item.name : undefined}
                     >
-                      {item.iconImage ? (
-                        <Image
-                          src={item.iconImage}
-                          alt={item.name}
-                          width={28}
-                          height={28}
-                          className="flex-shrink-0 rounded-md"
-                        />
-                      ) : (
-                        <Icon
-                          className={`flex-shrink-0 transition-colors ${isActive
+                      <Icon
+                        className={`flex-shrink-0 transition-colors ${isActive
                             ? "text-primary"
                             : "text-muted-foreground group-hover:text-foreground"
-                            } ${navIconSize}`}
-                        />
-                      )}
+                          } ${navIconSize}`}
+                      />
                       {!isSidebarCollapsed && (
                         <span className="text-xs whitespace-nowrap">
                           {item.name}
@@ -525,10 +483,10 @@ export default function DashboardLayout({
                         key={item.href}
                         href={item.href}
                         className={`rounded-2xl transition-all duration-200 group ${isActive
-                          ? "bg-primary/10 text-primary font-semibold"
-                          : item.name === "Mind Map"
-                            ? "hover:bg-accent text-purple-500"
-                            : "hover:bg-muted/60 hover:text-foreground text-muted-foreground font-medium"
+                            ? "bg-primary/10 text-primary font-semibold"
+                            : item.name === "Mind Map"
+                              ? "hover:bg-accent text-purple-500"
+                              : "hover:bg-muted/60 hover:text-foreground text-muted-foreground font-medium"
                           } ${isSidebarCollapsed
                             ? "flex justify-center p-3 mx-auto w-12 h-12"
                             : `flex flex-col items-center gap-1 py-3 px-3 ${isMobile ? "py-4" : ""
@@ -538,8 +496,8 @@ export default function DashboardLayout({
                       >
                         <Icon
                           className={`flex-shrink-0 transition-colors ${isActive
-                            ? "text-primary"
-                            : "text-muted-foreground group-hover:text-foreground"
+                              ? "text-primary"
+                              : "text-muted-foreground group-hover:text-foreground"
                             } ${navIconSize}`}
                         />
                         {!isSidebarCollapsed && (
@@ -584,11 +542,9 @@ export default function DashboardLayout({
                   <Link
                     key={item.href}
                     href={item.href}
-                    target={item.external ? "_blank" : undefined}
-                    rel={item.external ? "noreferrer" : undefined}
                     className={`rounded-2xl transition-all duration-200 group ${isActive
-                      ? "bg-primary/10 text-primary font-semibold"
-                      : "hover:bg-muted/60 hover:text-foreground text-muted-foreground font-medium"
+                        ? "bg-primary/10 text-primary font-semibold"
+                        : "hover:bg-muted/60 hover:text-foreground text-muted-foreground font-medium"
                       } ${isSidebarCollapsed
                         ? "flex justify-center p-3 mx-auto w-12 h-12"
                         : `flex flex-col items-center gap-1 py-3 px-3 ${isMobile ? "py-4" : ""
@@ -598,8 +554,8 @@ export default function DashboardLayout({
                   >
                     <Icon
                       className={`flex-shrink-0 transition-colors ${isActive
-                        ? "text-primary"
-                        : "text-muted-foreground group-hover:text-foreground"
+                          ? "text-primary"
+                          : "text-muted-foreground group-hover:text-foreground"
                         } ${navIconSize}`}
                     />
                     {!isSidebarCollapsed && (
@@ -617,8 +573,8 @@ export default function DashboardLayout({
                   <Link
                     href="/admin"
                     className={`flex items-center rounded-2xl transition-all duration-200 group hover:bg-muted/60 ${isSidebarCollapsed
-                      ? "justify-center p-3 mx-auto w-12 h-12"
-                      : "gap-3 py-3 px-4 text-[15px]"
+                        ? "justify-center p-3 mx-auto w-12 h-12"
+                        : "gap-3 py-3 px-4 text-[15px]"
                       }`}
                     title={isSidebarCollapsed ? "Admin Dashboard" : undefined}
                   >
@@ -646,8 +602,8 @@ export default function DashboardLayout({
                 <Link href="/signup" className="block">
                   <Button
                     className={`w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 rounded-xl ${isSidebarCollapsed
-                      ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center"
-                      : "h-11"
+                        ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center"
+                        : "h-11"
                       }`}
                     size="sm"
                   >
@@ -662,8 +618,8 @@ export default function DashboardLayout({
                   <Button
                     variant="outline"
                     className={`w-full border-border hover:bg-muted/50 rounded-xl ${isSidebarCollapsed
-                      ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center"
-                      : "h-11"
+                        ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center"
+                        : "h-11"
                       }`}
                     size="sm"
                   >
@@ -682,8 +638,8 @@ export default function DashboardLayout({
         {/* Main Content Area */}
         <main
           className={`flex-1 min-w-0 overflow-x-hidden ${isMobile
-            ? "pt-4 px-4"
-            : "pt-6 px-6 lg:max-w-5xl xl:max-w-6xl mx-auto w-full"
+              ? "pt-4 px-4"
+              : "pt-6 px-6 lg:max-w-5xl xl:max-w-6xl mx-auto w-full"
             }`}
         >
           {children}
@@ -703,6 +659,7 @@ export default function DashboardLayout({
         </div>
         */}
       </div>
+
     </div>
   );
 }

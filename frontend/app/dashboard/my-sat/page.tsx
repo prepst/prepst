@@ -1,11 +1,12 @@
 "use client";
 
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { Sparkles } from "lucide-react";
+import { MessageCircle, Sparkles } from "lucide-react";
 import { useStudyPlan } from "@/hooks/queries";
 import { TestDateCountdown } from "@/components/my-sat/TestDateCountdown";
 import { ScoreCalculator } from "@/components/my-sat/ScoreCalculator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 import { ONBOARDING_CONTENT } from "@/lib/onboardingContent";
@@ -43,6 +44,16 @@ function MySATContent() {
                 Your personalized SAT preparation hub with tools to practice,
                 calculate scores, and track your progress.
               </p>
+              <Button asChild className="w-fit">
+                <a
+                  href="https://discord.gg/A6xqzcvjvZ"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Join Discord
+                </a>
+              </Button>
             </div>
           </div>
 

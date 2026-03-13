@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Sparkles, Gift, MessageCircle } from "lucide-react";
+import { X, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const BANNER_DISMISSED_KEY = "prepst-free-banner-dismissed";
@@ -22,28 +22,23 @@ export function MarchSATBanner() {
   if (isDismissed) return null;
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-gradient-to-r from-emerald-500/10 via-primary/10 to-cyan-500/10 backdrop-blur-sm">
+    <div className="relative overflow-hidden rounded-2xl border border-violet-500/20 bg-gradient-to-r from-violet-500/18 via-purple-500/12 to-fuchsia-500/10 shadow-sm">
       {/* Decorative blur effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-10 -left-10 w-32 h-32 rounded-full bg-emerald-500/20 blur-3xl" />
-        <div className="absolute -bottom-10 -right-10 w-32 h-32 rounded-full bg-cyan-500/20 blur-3xl" />
+        <div className="absolute -top-16 right-8 h-32 w-32 rounded-full bg-violet-500/20 blur-3xl" />
+        <div className="absolute -bottom-16 left-12 h-28 w-28 rounded-full bg-purple-500/14 blur-3xl" />
       </div>
 
       <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4 p-4 sm:p-5">
         <div className="flex items-center gap-4">
-          <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-primary shadow-lg shadow-emerald-500/20 sm:flex">
-            <Gift className="h-6 w-6 text-white" />
-          </div>
-
           <div className="text-center sm:text-left">
-            <div className="flex items-center justify-center sm:justify-start gap-2 mb-1">
-              <Sparkles className="h-4 w-4 text-emerald-500" />
-              <span className="text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                Full Access
+            <div className="mb-1">
+              <span className="inline-flex rounded-full border border-violet-500/20 bg-violet-500/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-wide text-violet-600 dark:text-violet-400">
+                Free Access
               </span>
             </div>
             <h3 className="text-lg font-bold text-foreground">
-              Prep St is <span className="text-emerald-600 dark:text-emerald-400">free</span>.
+              Prep St is <span className="text-violet-600 dark:text-violet-400">free</span>.
             </h3>
             <p className="text-sm text-muted-foreground">
               Every student gets full access right now. Join the Discord for updates,
@@ -58,7 +53,7 @@ export function MarchSATBanner() {
             target="_blank"
             rel="noreferrer"
           >
-            <Button className="bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white font-semibold shadow-lg shadow-violet-500/20 transition-all hover:scale-105">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shadow-sm transition-all">
               Join Discord
               <MessageCircle className="h-4 w-4 ml-2" />
             </Button>

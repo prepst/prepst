@@ -305,9 +305,9 @@ export default function DashboardPage() {
                         )}
                       </h1>
                       <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 max-w-lg">
-                        Ready to crush your SAT goals? Let's get started! Your
-                        personalized study plan is optimized for maximum score
-                        improvement.
+                        Prep St is free, so you can jump straight into practice.
+                        Your personalized study plan is optimized for maximum
+                        score improvement from day one.
                       </p>
                     </div>
 

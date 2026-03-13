@@ -82,19 +82,6 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
         },
     ],
 
-    subscription: [
-        {
-            illustration: "/pig1.png",
-            title: "PrepSt+ Premium",
-            description: "Unlock unlimited AI help, advanced analytics, and personalized Peppa Sessions.",
-        },
-        {
-            illustration: "/pig2.png",
-            title: "Free Until March 14th!",
-            description: "Try all premium features at no cost until the next SAT test day. No credit card required.",
-        },
-    ],
-
     "question-pool": [
         {
             illustration: "/pig4.png",

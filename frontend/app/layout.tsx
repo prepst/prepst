@@ -22,6 +22,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Prep St",
   description: "AI-powered personalized SAT practice",
+  icons: {
+    icon: "/prepst.svg",
+  },
 };
 
 export default function RootLayout({

@@ -18,9 +18,9 @@ import {
   LogOut,
   RefreshCw,
   AlertTriangle,
-  Zap,
-  Crown,
   Eye,
+  Sparkles,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -44,7 +44,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { PremiumUpgradeDialog } from "@/components/premium/PremiumUpgradeDialog";
 
 function SettingsContent() {
   const router = useRouter();
@@ -56,10 +55,6 @@ function SettingsContent() {
   const [activeTab, setActiveTab] = useState("account");
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [isResetting, setIsResetting] = useState(false);
-  const [showUpgradeDialog, setShowUpgradeDialog] = useState(false);
-
-  // TODO: Replace with actual premium status check from user profile
-  const isPremium = false;
 
   const handleThemeChange = (newTheme: "light" | "dark" | "auto") => {
     setTheme(newTheme);
@@ -82,7 +77,7 @@ function SettingsContent() {
 
   const tabs = [
     { id: "account", label: "Account", icon: User },
-    { id: "subscription", label: "Subscription", icon: Crown },
+    { id: "access", label: "Free Access", icon: Sparkles },
     { id: "appearance", label: "Appearance", icon: Palette },
     { id: "study", label: "Study Plan", icon: BookOpen },
   ];
@@ -194,64 +189,49 @@ function SettingsContent() {
               </Card>
             </TabsContent>
 
-            {/* Subscription Tab */}
-            <TabsContent value="subscription" className="space-y-6">
+            {/* Free Access Tab */}
+            <TabsContent value="access" className="space-y-6">
               <Card className="bg-card border-border">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-foreground">
-                    <Crown className="w-5 h-5" />
-                    Your Subscription
+                    <Sparkles className="w-5 h-5" />
+                    Prep St Is Free
                   </CardTitle>
                   <CardDescription className="text-muted-foreground">
-                    Manage your PrepSt+ subscription
+                    Full access is available for every student
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  {isPremium ? (
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
-                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
-                          <Zap className="h-6 w-6 text-primary-foreground" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-foreground">PrepSt+ Active</h4>
-                          <p className="text-sm text-muted-foreground">$14.99/month</p>
-                        </div>
-                      </div>
-                      <Button variant="outline" className="w-full">
-                        Manage Subscription
-                      </Button>
+                  <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-gradient-to-r from-emerald-500/10 via-primary/5 to-cyan-500/10 p-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/15">
+                      <Sparkles className="h-6 w-6 text-emerald-600" />
                     </div>
-                  ) : (
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/30 border border-border">
-                        <div className="h-12 w-12 rounded-xl bg-muted flex items-center justify-center">
-                          <User className="h-6 w-6 text-muted-foreground" />
-                        </div>
-                        <div>
-                          <h4 className="font-semibold text-foreground">Free Plan</h4>
-                          <p className="text-sm text-muted-foreground">Basic features included</p>
-                        </div>
-                      </div>
+                    <div>
+                      <h4 className="font-semibold text-foreground">Everything is free</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Practice, study plans, drills, and mock exams are open to everyone.
+                      </p>
+                    </div>
+                  </div>
 
-                      <div className="p-4 rounded-xl bg-gradient-to-r from-primary/5 via-primary/10 to-primary/5 border border-primary/20">
-                        <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                          <Zap className="h-4 w-4 text-primary" />
-                          Upgrade to PrepSt+
-                        </h4>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          Unlock Peppa Sessions, Progress Analytics, Unlimited AI Help, and more for just $14.99/month.
-                        </p>
-                        <Button
-                          onClick={() => setShowUpgradeDialog(true)}
-                          className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary"
-                        >
-                          <Zap className="h-4 w-4 mr-2" />
-                          Upgrade Now
-                        </Button>
-                      </div>
-                    </div>
-                  )}
+                  <div className="rounded-xl border border-border bg-muted/30 p-4">
+                    <h4 className="font-semibold text-foreground mb-2">
+                      Want updates or help?
+                    </h4>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Join the Prep St Discord to ask questions, share feedback, and hear about new features first.
+                    </p>
+                    <Button asChild className="w-full sm:w-auto">
+                      <a
+                        href="https://discord.gg/A6xqzcvjvZ"
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Join Discord
+                      </a>
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -405,10 +385,6 @@ function SettingsContent() {
         </div>
       </div>
 
-      <PremiumUpgradeDialog
-        isOpen={showUpgradeDialog}
-        onClose={() => setShowUpgradeDialog(false)}
-      />
     </div>
   );
 }

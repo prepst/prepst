@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useProfile } from "@/hooks/queries";
+import { useDiagnosticTests, useProfile } from "@/hooks/queries";
 import { useUpdateProfile, useUploadProfilePhoto } from "@/hooks/mutations";
 import type { components } from "@/lib/types/api.generated";
 import { useAuth } from "@/contexts/AuthContext";
@@ -23,6 +23,7 @@ import {
   Clock,
   Zap,
   Calendar,
+  ClipboardCheck,
 } from "lucide-react";
 import {
   ALLOWED_IMAGE_TYPES,
@@ -38,6 +39,7 @@ type UserProfileUpdate = components["schemas"]["UserProfileUpdate"];
 export default function ProfilePage() {
   const { user } = useAuth();
   const { data: profileData, isLoading, error } = useProfile();
+  const diagnosticTestsQuery = useDiagnosticTests();
   const updateProfileMutation = useUpdateProfile();
   const uploadPhotoMutation = useUploadProfilePhoto();
   const router = useRouter();
@@ -49,6 +51,13 @@ export default function ProfilePage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const latestCompletedDiagnostic = diagnosticTestsQuery.data?.tests
+    ?.filter((test) => test.status === "completed")
+    .sort((a, b) => {
+      const aDate = new Date(a.completed_at || a.created_at).getTime();
+      const bDate = new Date(b.completed_at || b.created_at).getTime();
+      return bDate - aDate;
+    })[0];
 
   // Helper functions
   const getDisplayName = () => {
@@ -356,6 +365,20 @@ export default function ProfilePage() {
                   <Calendar className="w-5 h-5 mr-3 text-blue-500" />
                   View Study Plan
                 </Button>
+                {latestCompletedDiagnostic && (
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start h-12 text-base font-medium border-border/50 hover:bg-accent/50"
+                    onClick={() =>
+                      router.push(
+                        `/diagnostic-test/${latestCompletedDiagnostic.id}/results`
+                      )
+                    }
+                  >
+                    <ClipboardCheck className="w-5 h-5 mr-3 text-violet-500" />
+                    View Diagnostic Results
+                  </Button>
+                )}
               </div>
             </div>
           </motion.div>

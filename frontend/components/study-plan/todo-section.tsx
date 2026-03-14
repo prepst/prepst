@@ -77,8 +77,8 @@ export function TodoSection({
                   🎯
                 </div>
                 <div>
-                   <div className="font-bold text-foreground">Mock Test Coming Soon</div>
-                   <div className="text-xs text-muted-foreground mt-1">Complete practice sessions to unlock</div>
+                   <div className="font-bold text-foreground">Take a Mock Exam</div>
+                   <div className="text-xs text-muted-foreground mt-1">Practice with a full-length SAT simulation</div>
                 </div>
               </div>
             ) : (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo, useRef, useLayoutEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { PageLoader } from "@/components/ui/page-loader";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -28,11 +28,13 @@ import {
 import { Lightbulb } from "lucide-react";
 import { AIExplanationPanel } from "@/components/practice/AIExplanationPanel";
 import { cn } from "@/lib/utils";
+import { resolvePracticeReturnPath } from "@/lib/practice-navigation";
 import "./practice-session.css";
 
 function PracticeSessionContent() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user } = useAuth();
 
   // Safe access to sessionId, handling potential JSON stringification from previous bugs
@@ -377,6 +379,14 @@ function PracticeSessionContent() {
     navHandlePrevious();
   };
 
+  const handleExit = () => {
+    const returnTo = resolvePracticeReturnPath(
+      searchParams.get("returnTo"),
+      "/dashboard/study-plan"
+    );
+    router.push(returnTo);
+  };
+
   const handleQuestionNavigation = (questionIndex: number) => {
     clearAiFeedback();
     resetQuestionTimer();
@@ -594,7 +604,7 @@ function PracticeSessionContent() {
           onPauseResume={timer.handlePauseResume}
           onReset={timer.handleReset}
           onCloseTimer={timer.handleCloseTimer}
-          onExit={() => router.push("/dashboard/study-plan")}
+          onExit={handleExit}
           isPinned={isAIPanelPinned && showAIPanel}
         />
 

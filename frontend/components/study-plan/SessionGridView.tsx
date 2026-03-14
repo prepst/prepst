@@ -49,13 +49,35 @@ function categorizeSessions(
   const thisWeekSessions = sortedSessions.slice(0, firstHalfCount);
   const nextWeekSessions = sortedSessions.slice(firstHalfCount);
 
-  // Process mock exams
+  // Process mock exams - distribute across both mock sections
   const hasRealMockExams = mockExams.length > 0;
-  const mockTodos = hasRealMockExams
-    ? mockExams
+
+  // Split real mock exams between sections, or create placeholders
+  const firstMockTodos = hasRealMockExams
+    ? mockExams.slice(0, Math.ceil(mockExams.length / 2))
     : [
         {
           id: "mock-test",
+          study_plan_id: sessions[0]?.study_plan_id || "",
+          scheduled_date: new Date().toISOString(),
+          session_number: 0,
+          status: "upcoming" as const,
+          started_at: null,
+          completed_at: null,
+          created_at: null,
+          updated_at: null,
+          topics: [],
+          total_questions: 98,
+          completed_questions: 0,
+          examType: "mock-exam" as const,
+        },
+      ];
+
+  const secondMockTodos = hasRealMockExams
+    ? mockExams.slice(Math.ceil(mockExams.length / 2))
+    : [
+        {
+          id: "mock-test-2",
           study_plan_id: sessions[0]?.study_plan_id || "",
           scheduled_date: new Date().toISOString(),
           session_number: 0,
@@ -82,7 +104,7 @@ function categorizeSessions(
       id: "mock-1",
       title: "Mock Test",
       icon: "🎯",
-      todos: mockTodos,
+      todos: firstMockTodos,
     },
     {
       id: "next-week",
@@ -90,28 +112,17 @@ function categorizeSessions(
       icon: "📆",
       todos: nextWeekSessions,
     },
-    {
-      id: "mock-2",
-      title: "Mock Test",
-      icon: "🎯",
-      todos: [
-        {
-          id: "mock-test-2",
-          study_plan_id: sessions[0]?.study_plan_id || "",
-          scheduled_date: new Date().toISOString(),
-          session_number: 0,
-          status: "upcoming" as const,
-          started_at: null,
-          completed_at: null,
-          created_at: null,
-          updated_at: null,
-          topics: [],
-          total_questions: 98,
-          completed_questions: 0,
-          examType: "mock-exam" as const,
-        },
-      ],
-    },
+    // Only show second mock section if there are exams to distribute
+    ...(secondMockTodos.length > 0
+      ? [
+          {
+            id: "mock-2",
+            title: "Mock Test",
+            icon: "🎯",
+            todos: secondMockTodos,
+          },
+        ]
+      : []),
   ];
 }
 

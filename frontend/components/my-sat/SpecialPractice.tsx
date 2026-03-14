@@ -1,13 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sparkles, Send, ArrowRight, Loader2, Zap, Target, Brain, BookOpen } from "lucide-react";
+import {
+    Sparkles, Send, ArrowRight, Loader2, Zap, Target, Brain, BookOpen,
+    Clock, ChevronRight, CheckCircle, Play, RotateCcw
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { api } from "@/lib/api";
+import { formatDistanceToNow } from "date-fns";
+import { buildPracticeSessionPath } from "@/lib/practice-navigation";
+import { useRecentDrills } from "@/hooks/queries";
+
+// ─── Types ──────────────────────────────────────────────────────────────────
 
 interface ExamplePrompt {
     icon: React.ElementType;
@@ -16,30 +25,45 @@ interface ExamplePrompt {
     prompt: string;
 }
 
+export interface DrillSession {
+    id: string;
+    created_at: string;
+    completed_at: string | null;
+    started_at: string | null;
+    status: string;
+    session_type: string;
+    total_questions: number;
+    correct_count: number;
+    answered_count: number;
+    topic_names: string[];
+}
+
+// ─── Constants ──────────────────────────────────────────────────────────────
+
 const examplePrompts: ExamplePrompt[] = [
     {
         icon: Zap,
         title: "Quick Math Drill",
-        description: "5 hard questions on Quadratics",
-        prompt: "Create a session with 5 hard Math questions focusing on Quadratic Functions and Linear Equations",
+        description: "5 questions on Quadratics",
+        prompt: "Create a session with 5 Math questions focusing on Quadratic Functions and Linear Equations",
     },
     {
         icon: BookOpen,
         title: "Reading Warmup",
-        description: "10 easy Reading & Writing questions",
-        prompt: "Create a warmup session with 10 easy Reading & Writing questions covering Text Structure and Main Ideas",
+        description: "10 R&W questions",
+        prompt: "Create a warmup session with 10 Reading & Writing questions covering Text Structure and Main Ideas",
     },
     {
         icon: Target,
         title: "Mixed Challenge",
-        description: "Medium & Hard Geometry and Algebra",
-        prompt: "Create a mixed session with 8 medium and hard questions from Geometry, Circles, and Algebraic Expressions",
+        description: "Geometry and Algebra mix",
+        prompt: "Create a mixed session with 8 questions from Geometry, Circles, and Algebraic Expressions",
     },
     {
         icon: Brain,
         title: "Focus on Weaknesses",
-        description: "Target topics I need to improve",
-        prompt: "Create a personalized session focusing on my weakest topics based on my performance data. Include 10 questions of varying difficulty",
+        description: "Target weak topics",
+        prompt: "Create a personalized session focusing on my weakest topics. Include 10 questions of varying difficulty",
     },
 ];
 
@@ -51,7 +75,8 @@ const loadingMessages = [
     "Almost ready...",
 ];
 
-// Peppa avatar component
+// ─── Peppa Avatar ───────────────────────────────────────────────────────────
+
 const PeppaAvatar = ({ size = "lg", animate = false }: { size?: "sm" | "lg"; animate?: boolean }) => {
     const sizeClasses = size === "lg" ? "w-14 h-14" : "w-10 h-10";
     const svgSize = size === "lg" ? "w-10 h-10" : "w-7 h-7";
@@ -85,12 +110,134 @@ const PeppaAvatar = ({ size = "lg", animate = false }: { size?: "sm" | "lg"; ani
     );
 };
 
+// ─── Session History Item ───────────────────────────────────────────────────
+
+export function SessionHistoryItem({ session, onNavigate }: { session: DrillSession; onNavigate: (id: string) => void }) {
+    const isCompleted = session.status === "completed";
+    const isInProgress = session.status === "in_progress" || (session.answered_count > 0 && !isCompleted);
+    const isPending = !isCompleted && !isInProgress;
+
+    const accuracy = isCompleted && session.total_questions > 0
+        ? Math.round((session.correct_count / session.total_questions) * 100)
+        : null;
+
+    const progress = session.total_questions > 0
+        ? Math.round((session.answered_count / session.total_questions) * 100)
+        : 0;
+
+    const timeAgo = session.created_at
+        ? formatDistanceToNow(new Date(session.created_at), { addSuffix: true })
+        : "Recently";
+
+    return (
+        <button
+            onClick={() => onNavigate(session.id)}
+            className={cn(
+                "w-full text-left p-4 rounded-xl transition-all duration-200",
+                "border group",
+                isInProgress
+                    ? "bg-primary/[0.03] border-primary/20 hover:border-primary/40"
+                    : "bg-background border-border hover:border-border/80",
+                "hover:shadow-[0_4px_12px_-4px_rgba(0,0,0,0.08)]",
+                "active:scale-[0.99]"
+            )}
+        >
+            <div className="flex items-center gap-3">
+                {/* Status icon */}
+                <div className={cn(
+                    "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110",
+                    isCompleted && "bg-green-100 dark:bg-green-900/30",
+                    isInProgress && "bg-primary/10",
+                    isPending && "bg-muted"
+                )}>
+                    {isCompleted && <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />}
+                    {isInProgress && <Play className="w-4 h-4 text-primary fill-primary" />}
+                    {isPending && <Clock className="w-4 h-4 text-muted-foreground" />}
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                    {/* Topic tags */}
+                    <div className="flex items-center gap-1.5 flex-wrap mb-1">
+                        {session.topic_names.length > 0 ? (
+                            session.topic_names.map((name, i) => (
+                                <span key={i} className="text-xs font-medium text-foreground truncate max-w-[140px]">
+                                    {i > 0 && <span className="text-muted-foreground mx-0.5">·</span>}
+                                    {name}
+                                </span>
+                            ))
+                        ) : (
+                            <span className="text-xs font-medium text-foreground">Drill Session</span>
+                        )}
+                    </div>
+
+                    {/* Meta row */}
+                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                        <span>{session.total_questions} Q</span>
+                        <span className="w-0.5 h-0.5 rounded-full bg-muted-foreground/40" />
+                        <span>{timeAgo}</span>
+                    </div>
+
+                    {/* Progress bar for in-progress */}
+                    {isInProgress && progress > 0 && (
+                        <div className="mt-2 flex items-center gap-2">
+                            <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                                <div
+                                    className="h-full bg-primary rounded-full transition-all duration-500"
+                                    style={{ width: `${progress}%` }}
+                                />
+                            </div>
+                            <span className="text-[10px] font-semibold text-muted-foreground tabular-nums">
+                                {session.answered_count}/{session.total_questions}
+                            </span>
+                        </div>
+                    )}
+                </div>
+
+                {/* Right side: score or action */}
+                <div className="flex items-center gap-2 shrink-0">
+                    {isCompleted && accuracy !== null && (
+                        <div className={cn(
+                            "text-sm font-bold tabular-nums px-2.5 py-1 rounded-lg",
+                            accuracy >= 80
+                                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                : accuracy >= 60
+                                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                                    : "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
+                        )}>
+                            {accuracy}%
+                        </div>
+                    )}
+                    {isInProgress && (
+                        <Badge variant="outline" className="text-[10px] font-semibold border-primary/30 text-primary gap-1 px-2 py-0.5">
+                            <RotateCcw className="w-3 h-3" />
+                            Resume
+                        </Badge>
+                    )}
+                    {isPending && (
+                        <Badge variant="outline" className="text-[10px] font-semibold gap-1 px-2 py-0.5">
+                            <Play className="w-3 h-3" />
+                            Start
+                        </Badge>
+                    )}
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/30 group-hover:text-foreground/50 transition-colors" />
+                </div>
+            </div>
+        </button>
+    );
+}
+
+// ─── Main Component ─────────────────────────────────────────────────────────
+
 export function SpecialPractice() {
     const router = useRouter();
     const [userPrompt, setUserPrompt] = useState("");
     const [isCreating, setIsCreating] = useState(false);
     const [showChat, setShowChat] = useState(false);
     const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+
+    // Fetch recent drill sessions for history
+    const { data: recentDrills = [] } = useRecentDrills(8);
 
     // Rotate loading messages
     useEffect(() => {
@@ -124,7 +271,9 @@ export function SpecialPractice() {
                 `Session created with ${result.num_questions} questions on ${result.topic_names.join(", ")}`
             );
 
-            router.push(`/practice/${result.session_id}`);
+            router.push(
+                buildPracticeSessionPath(result.session_id, "/dashboard")
+            );
         } catch (error) {
             console.error("Failed to create AI session:", error);
             const errorMessage =
@@ -136,6 +285,23 @@ export function SpecialPractice() {
             setIsCreating(false);
         }
     };
+
+    const handleNavigateSession = (sessionId: string) => {
+        router.push(buildPracticeSessionPath(sessionId, "/dashboard"));
+    };
+
+    // Split sessions for display
+    const inProgressSessions = recentDrills.filter(
+        (s: DrillSession) => s.status === "in_progress" || (s.answered_count > 0 && s.status !== "completed")
+    );
+    const pendingSessions = recentDrills.filter(
+        (s: DrillSession) => s.status === "pending" && s.answered_count === 0
+    );
+    const completedSessions = recentDrills.filter(
+        (s: DrillSession) => s.status === "completed"
+    );
+
+    const hasHistory = recentDrills.length > 0;
 
     return (
         <div
@@ -322,6 +488,81 @@ export function SpecialPractice() {
                     </>
                 )}
             </div>
+
+            {/* ─── Session History ────────────────────────────────────────── */}
+            {hasHistory && (
+                <div className="border-t border-border">
+                    <div className="p-6 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-bold text-foreground flex items-center gap-2">
+                                <Clock className="w-4 h-4 text-muted-foreground" />
+                                Session History
+                            </h3>
+                            {recentDrills.length > 5 && (
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-xs text-muted-foreground hover:text-foreground h-7 px-2"
+                                    onClick={() => router.push("/dashboard/sessions")}
+                                >
+                                    View All <ChevronRight className="w-3 h-3 ml-0.5" />
+                                </Button>
+                            )}
+                        </div>
+
+                        {/* In-progress / resumable sessions — highlighted at top */}
+                        {inProgressSessions.length > 0 && (
+                            <div className="space-y-2">
+                                <p className="text-[11px] font-semibold uppercase tracking-wider text-primary flex items-center gap-1.5">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                                    In Progress
+                                </p>
+                                {inProgressSessions.map((session: DrillSession) => (
+                                    <SessionHistoryItem
+                                        key={session.id}
+                                        session={session}
+                                        onNavigate={handleNavigateSession}
+                                    />
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Pending sessions — not started yet */}
+                        {pendingSessions.length > 0 && (
+                            <div className="space-y-2">
+                                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />
+                                    Not Started
+                                </p>
+                                {pendingSessions.slice(0, 3).map((session: DrillSession) => (
+                                    <SessionHistoryItem
+                                        key={session.id}
+                                        session={session}
+                                        onNavigate={handleNavigateSession}
+                                    />
+                                ))}
+                            </div>
+                        )}
+
+                        {/* Completed sessions */}
+                        {completedSessions.length > 0 && (
+                            <div className="space-y-2">
+                                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                    Completed
+                                </p>
+                                {completedSessions.slice(0, 5).map((session: DrillSession) => (
+                                    <SessionHistoryItem
+                                        key={session.id}
+                                        session={session}
+                                        onNavigate={handleNavigateSession}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

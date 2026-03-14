@@ -408,6 +408,10 @@ function QuickPracticeContent() {
   const handleExit = () => {
     // Clean up localStorage
     localStorage.removeItem(`practice-session-${sessionId}`);
+    if (typeof window !== "undefined" && (window.history.state?.idx ?? 0) > 0) {
+      router.back();
+      return;
+    }
     router.push("/dashboard");
   };
 

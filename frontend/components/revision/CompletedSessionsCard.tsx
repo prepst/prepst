@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -15,6 +15,7 @@ import { Loader2, RotateCcw, Clock, Target, CheckCircle } from "lucide-react";
 import { useCompletedSessions } from "@/hooks/queries";
 import { useCreateRevisionSession } from "@/hooks/mutations";
 import { PracticeSession } from "@/lib/types";
+import { buildPracticeSessionPath } from "@/lib/practice-navigation";
 
 interface CompletedSessionsCardProps {
   className?: string;
@@ -24,6 +25,7 @@ export function CompletedSessionsCard({
   className,
 }: CompletedSessionsCardProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [creatingRevision, setCreatingRevision] = useState<string | null>(null);
   
   // Use TanStack Query hooks
@@ -38,7 +40,7 @@ export function CompletedSessionsCard({
       {
         onSuccess: (result: any) => {
           if (result.success) {
-            router.push(`/practice/${result.session_id}`);
+            router.push(buildPracticeSessionPath(result.session_id, pathname));
           }
           setCreatingRevision(null);
         },

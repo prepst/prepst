@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 import { ONBOARDING_CONTENT } from "@/lib/onboardingContent";
+import { buildPracticeSessionPath } from "@/lib/practice-navigation";
 
 function DrillPage() {
   const router = useRouter();
@@ -65,7 +66,9 @@ function DrillPage() {
       toast.success(
         `Drill session created with ${drillSession.num_questions} questions`
       );
-      router.push(`/practice/${drillSession.session_id}`);
+      router.push(
+        buildPracticeSessionPath(drillSession.session_id, "/dashboard/drill")
+      );
     } catch (error) {
       console.error("Failed to create drill session:", error);
       const errorMessage =

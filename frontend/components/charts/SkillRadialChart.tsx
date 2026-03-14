@@ -20,6 +20,8 @@ import {
 import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/api";
+import { usePathname, useRouter } from "next/navigation";
+import { buildPracticeSessionPath } from "@/lib/practice-navigation";
 
 const chartConfig = {
   mastery: {
@@ -47,6 +49,8 @@ export function SkillRadialChart({
   plateau = false,
   skillId,
 }: SkillRadialChartProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const masteryPercentage = Math.round(mastery * 100);
 
   const chartData = [
@@ -79,8 +83,7 @@ export function SkillRadialChart({
 
     try {
       const drillSession = await api.createDrillSession([skillId], 10);
-      // Navigate to practice session
-      window.location.href = `/practice/${drillSession.session_id}`;
+      router.push(buildPracticeSessionPath(drillSession.session_id, pathname));
     } catch (error) {
       console.error("Failed to create drill session:", error);
 

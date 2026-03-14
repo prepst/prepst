@@ -21,6 +21,7 @@ export { useStudyTime } from './useStudyTime';
 
 // Profile
 export { useProfile } from './useProfile';
+export { useDiagnosticTests } from './useDiagnosticTests';
 
 // Practice Sessions
 export { useWrongAnswers } from './useWrongAnswers';
@@ -31,6 +32,7 @@ export { useCompletedSessions } from './useCompletedSessions';
 export { useMockExamPerformance } from './useMockExamPerformance';
 export { useMockExamAnalytics } from './useMockExamAnalytics';
 export { useMockExams } from './useMockExams';
+export { useRecentDrills } from './useRecentDrills';
 
 // Admin
 export {

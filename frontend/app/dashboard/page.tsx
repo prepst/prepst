@@ -14,7 +14,13 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { supabase } from "@/lib/supabase";
-import { Play, Target, Sparkles, ArrowRight, Clock } from "lucide-react";
+import {
+  Play,
+  Target,
+  Sparkles,
+  ArrowRight,
+  Clock,
+} from "lucide-react";
 import MissionCard from "@/components/dashboard/MissionCard";
 import { MarchSATBanner } from "@/components/dashboard/MarchSATBanner";
 import { SpecialPractice } from "@/components/my-sat/SpecialPractice";
@@ -244,12 +250,6 @@ export default function DashboardPage() {
       } as SessionForMissionCard)
     : undefined;
 
-  // Mock stats (replace with real data calculations if available)
-  const streak = 3; // TODO: Fetch real streak
-  const studyTime = "4h 15m"; // TODO: Fetch real study time
-  const questionsDone = 42; // TODO: Fetch real questions done
-  const mockExamsCount = mockExamPerformance.length;
-
   const heroBgClass = isDarkMode ? "bg-[#0F172A]" : "bg-[#9184ff]";
   const heroTextColorClass = isDarkMode ? "text-white" : "text-foreground";
   const heroBlursPrimary = isDarkMode ? "bg-purple-600/30" : "bg-orange-200/50";
@@ -406,7 +406,7 @@ export default function DashboardPage() {
                 <Button
                   variant="ghost"
                   className="text-muted-foreground hover:text-primary"
-                  onClick={() => router.push("/dashboard/study-plan")}
+                  onClick={() => router.push("/dashboard/sessions")}
                 >
                   View All <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>

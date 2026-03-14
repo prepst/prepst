@@ -11,7 +11,8 @@ import {
   formatTimeEstimate,
   getSessionStatus,
 } from "@/lib/utils/session-utils";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { buildPracticeSessionPath } from "@/lib/practice-navigation";
 
 interface TodoItemProps {
   todo: TodoSession;
@@ -85,6 +86,7 @@ function getSessionProgress(session: TodoSession) {
 
 export function TodoItem({ todo, onToggle }: TodoItemProps) {
   const router = useRouter();
+  const pathname = usePathname();
 
   const status = getSessionStatus(todo);
   const progress = getSessionProgress(todo);
@@ -107,7 +109,7 @@ export function TodoItem({ todo, onToggle }: TodoItemProps) {
         }
         router.push("/mock-exam");
       } else {
-        router.push(`/practice/${todo.id}`);
+        router.push(buildPracticeSessionPath(todo.id, pathname));
       }
     } else if (isMockTest && todo.score !== undefined) {
         // Allow clicking completed mock exams to view results

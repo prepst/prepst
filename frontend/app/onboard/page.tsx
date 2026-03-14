@@ -215,7 +215,7 @@ function OnboardContent() {
 
       await api.generateStudyPlan(requestData);
       await api.post("/api/complete-onboarding");
-      router.push("/dashboard");
+      window.location.assign("/dashboard");
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to create study plan";

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import {
   Database,
@@ -12,6 +13,7 @@ import {
   Calculator,
   BookText,
   Sparkles,
+  Play,
 } from "lucide-react";
 import {
   useSavedQuestions,
@@ -35,13 +37,17 @@ import { processQuestionBlanks, formatTopicName } from "@/lib/question-utils";
 import type { SavedQuestion, WrongAnswer } from "@/lib/types";
 import type { SessionQuestion } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { api } from "@/lib/api";
 import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 import { ONBOARDING_CONTENT } from "@/lib/onboardingContent";
+import { toast } from "sonner";
+import { buildPracticeSessionPath } from "@/lib/practice-navigation";
 
 type SectionTab = "all" | "reading_writing" | "math";
 type DifficultyFilter = "all" | "E" | "M" | "H";
 
 function QuestionPoolContent() {
+  const router = useRouter();
   // Existing hooks for saved/missed questions
   const { data: savedQuestions = [], isLoading: loadingSavedQuestions } =
     useSavedQuestions(20);
@@ -84,6 +90,9 @@ function QuestionPoolContent() {
   const [correctlyAnsweredIds, setCorrectlyAnsweredIds] = useState<Set<string>>(
     new Set()
   );
+  const [creatingTopicSessionId, setCreatingTopicSessionId] = useState<
+    string | null
+  >(null);
 
   // Saved/Missed questions state
   const [savedQuestionsSort, setSavedQuestionsSort] =
@@ -205,6 +214,33 @@ function QuestionPoolContent() {
     const sessionQuestion = transformPoolQuestion(question);
     setSelectedQuestion(sessionQuestion);
     setIsPopupOpen(true);
+  };
+
+  const handlePracticeTopic = async (
+    topicId: string,
+    topicName: string,
+    totalQuestions: number
+  ) => {
+    try {
+      setCreatingTopicSessionId(topicId);
+      const drillSession = await api.createDrillSession([topicId], totalQuestions);
+      toast.success(`Created ${topicName} practice with ${drillSession.num_questions} questions`);
+      router.push(
+        buildPracticeSessionPath(
+          drillSession.session_id,
+          "/dashboard/question-pool"
+        )
+      );
+    } catch (error) {
+      console.error("Failed to create topic practice session:", error);
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to create topic practice session";
+      toast.error(errorMessage);
+    } finally {
+      setCreatingTopicSessionId(null);
+    }
   };
 
   // Transform SavedQuestion to SessionQuestion format
@@ -660,6 +696,25 @@ function QuestionPoolContent() {
                               >
                                 {topic.total_questions} Questions
                               </Badge>
+                              <Button
+                                type="button"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handlePracticeTopic(
+                                    topic.topic_id,
+                                    topic.topic_name,
+                                    topic.total_questions
+                                  );
+                                }}
+                                disabled={creatingTopicSessionId === topic.topic_id}
+                                className="h-7 rounded-md border-transparent bg-[#866ffe] px-2.5 text-[11px] font-semibold text-white shadow-sm hover:bg-[#7b63fe] !text-white"
+                              >
+                                <Play className="mr-1 h-3 w-3 fill-current" />
+                                {creatingTopicSessionId === topic.topic_id
+                                  ? "Creating..."
+                                  : "Practice"}
+                              </Button>
                             </div>
                           </button>
 

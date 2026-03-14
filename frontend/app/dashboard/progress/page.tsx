@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   useStudyPlan,
   useGrowthCurve,
@@ -19,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { TrendingUp, Calendar, Zap } from "lucide-react";
+import { TrendingUp, Calendar, Zap, ClipboardList } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 import { ONBOARDING_CONTENT } from "@/lib/onboardingContent";
@@ -43,6 +44,42 @@ function ProgressContent() {
 
   // Combined loading state
   const chartsLoading = growthCurveQuery.isLoading || heatmapQuery.isLoading;
+
+  // Compute top strengths and weaknesses from heatmap
+  const { strengths, weaknesses } = useMemo(() => {
+    const allSkills: { name: string; mastery: number }[] = [];
+    for (const cat of Object.values(heatmap) as any[]) {
+      for (const skill of (cat?.skills || [])) {
+        if (skill?.name && typeof skill.mastery === "number" && skill.mastery > 0) {
+          allSkills.push({ name: skill.name, mastery: skill.mastery });
+        }
+      }
+    }
+    const sorted = [...allSkills].sort((a, b) => b.mastery - a.mastery);
+    return {
+      strengths: sorted.slice(0, 2),
+      weaknesses: sorted.length > 2 ? sorted.slice(-2).reverse() : [],
+    };
+  }, [heatmap]);
+
+  // Build trajectory data from real growth curve
+  const trajectoryBars = useMemo(() => {
+    if (growthData.length === 0) return [];
+    // Normalize growth data to 0-1 range for sparkline bars
+    const masteryValues = growthData.map((d: any) => d.mastery ?? d.avg_mastery ?? 0);
+    const maxVal = Math.max(...masteryValues, 0.01);
+    return masteryValues.map((v: number) => Math.max(0.1, v / maxVal));
+  }, [growthData]);
+
+  // Compute projected score from real improvement velocity
+  const projectedImprovement = useMemo(() => {
+    if (growthData.length < 2) return 0;
+    const first = growthData[0]?.mastery ?? growthData[0]?.avg_mastery ?? 0;
+    const last = growthData[growthData.length - 1]?.mastery ?? growthData[growthData.length - 1]?.avg_mastery ?? 0;
+    const delta = last - first;
+    // Scale mastery improvement to approximate SAT points (rough heuristic: 0.1 mastery ≈ ~50 points)
+    return Math.round(delta * 500);
+  }, [growthData]);
 
   if (studyPlanLoading) {
     return (
@@ -476,15 +513,21 @@ function ProgressContent() {
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    You excel at{" "}
-                    <span className="font-medium text-primary">
-                      Linear Equations
-                    </span>{" "}
-                    and{" "}
-                    <span className="font-medium text-primary">
-                      Reading Comprehension
-                    </span>
-                    . Keep leveraging these skills!
+                    {strengths.length > 0 ? (
+                      <>
+                        You excel at{" "}
+                        <span className="font-medium text-primary">{strengths[0].name}</span>
+                        {strengths[1] && (
+                          <>
+                            {" "}and{" "}
+                            <span className="font-medium text-primary">{strengths[1].name}</span>
+                          </>
+                        )}
+                        . Keep leveraging these skills!
+                      </>
+                    ) : (
+                      "Complete more practice sessions to discover your strengths!"
+                    )}
                   </p>
                 </div>
 
@@ -497,15 +540,21 @@ function ProgressContent() {
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Consider spending more time on{" "}
-                    <span className="font-medium text-primary">
-                      Quadratic Functions
-                    </span>{" "}
-                    and{" "}
-                    <span className="font-medium text-primary">
-                      Grammar Rules
-                    </span>
-                    .
+                    {weaknesses.length > 0 ? (
+                      <>
+                        Consider spending more time on{" "}
+                        <span className="font-medium text-primary">{weaknesses[0].name}</span>
+                        {weaknesses[1] && (
+                          <>
+                            {" "}and{" "}
+                            <span className="font-medium text-primary">{weaknesses[1].name}</span>
+                          </>
+                        )}
+                        .
+                      </>
+                    ) : (
+                      "Practice more topics to identify areas for improvement."
+                    )}
                   </p>
                 </div>
 
@@ -518,8 +567,9 @@ function ProgressContent() {
                     </span>
                   </div>
                   <p className="text-sm text-muted-foreground leading-relaxed">
-                    Students who practice for 30+ minutes daily see 50% faster
-                    improvement. Try setting a daily goal!
+                    {weaknesses.length > 0
+                      ? `Focus on ${weaknesses[0].name} during your next drill session to see the biggest score improvement.`
+                      : "Students who practice for 30+ minutes daily see 50% faster improvement. Try setting a daily goal!"}
                   </p>
                 </div>
               </div>
@@ -701,24 +751,21 @@ function ProgressContent() {
                 </div>
                 {/* Mini sparkline chart */}
                 <div className="h-16 flex items-end gap-1">
-                  {[
-                    0.6, 0.65, 0.68, 0.72, 0.75, 0.78, 0.82, 0.85, 0.88, 0.92,
-                    0.95, 1.0,
-                  ].map((value, i) => (
+                  {(trajectoryBars.length > 0 ? trajectoryBars : [0.3]).map((value: number, i: number) => (
                     <div
                       key={i}
                       className="flex-1 bg-gradient-to-t from-primary/80 to-primary/40 rounded-t transition-all duration-500"
                       style={{
-                        height: `${value * 100}%`,
-                        opacity: 0.4 + i * 0.05,
+                        height: `${Math.max(value * 100, 5)}%`,
+                        opacity: 0.4 + (i / Math.max(trajectoryBars.length, 1)) * 0.6,
                       }}
                     />
                   ))}
                 </div>
                 <div className="flex justify-between mt-2 text-[10px] text-muted-foreground">
-                  <span>Start</span>
-                  <span>Now</span>
-                  <span>Test Day</span>
+                  <span>{growthData.length > 0 ? "Start" : "No data yet"}</span>
+                  {growthData.length > 0 && <span>Now</span>}
+                  {growthData.length > 0 && <span>Test Day</span>}
                 </div>
               </div>
 
@@ -730,15 +777,19 @@ function ProgressContent() {
                       Projected Score by Test Day
                     </div>
                     <div className="text-3xl font-bold text-primary font-mono tabular-nums">
-                      {Math.min(currentTotal + 80, targetTotal)}
+                      {projectedImprovement > 0
+                        ? Math.min(currentTotal + projectedImprovement, targetTotal)
+                        : currentTotal}
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-xs text-muted-foreground mb-1">
-                      Points to gain
+                      {projectedImprovement > 0 ? "Projected gain" : "Points to gain"}
                     </div>
                     <div className="text-xl font-bold text-emerald-500 font-mono">
-                      +{Math.min(80, targetTotal - currentTotal)}
+                      {projectedImprovement > 0
+                        ? `+${Math.min(projectedImprovement, targetTotal - currentTotal)}`
+                        : `+${targetTotal - currentTotal}`}
                     </div>
                   </div>
                 </div>
@@ -766,7 +817,7 @@ function ProgressContent() {
         </div>
 
         {/* Quick Actions */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
           <Button
             variant="outline"
             className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent hover:border-primary/50 rounded-2xl border-border/60 transition-all duration-300 hover:scale-[1.02] group"
@@ -839,6 +890,24 @@ function ProgressContent() {
               </div>
               <div className="text-xs text-muted-foreground">
                 Full practice test
+              </div>
+            </div>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent hover:border-primary/50 rounded-2xl border-border/60 transition-all duration-300 hover:scale-[1.02] group"
+            onClick={() => router.push("/diagnostic-test")}
+          >
+            <div className="p-3 bg-violet-500/10 rounded-xl group-hover:bg-violet-500/20 transition-colors">
+              <ClipboardList className="w-6 h-6 text-violet-500" />
+            </div>
+            <div className="text-left">
+              <div className="font-semibold text-foreground">
+                Diagnostic Test
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Calibrate your skill levels
               </div>
             </div>
           </Button>

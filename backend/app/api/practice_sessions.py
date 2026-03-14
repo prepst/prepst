@@ -1085,6 +1085,13 @@ async def create_ai_session(
 
         unique_session_number = -int(time.time() * 1_000_000) % 1_000_000_000
 
+        # Build a descriptive name from selected topics (for response only — column not in DB)
+        topic_names = [t["name"] for t in topics]
+        if len(topic_names) <= 2:
+            ai_session_name = "AI Practice: " + " & ".join(topic_names)
+        else:
+            ai_session_name = "AI Practice: " + ", ".join(topic_names[:2]) + f" +{len(topic_names) - 2}"
+
         session_response = db.table("practice_sessions").insert({
             "study_plan_id": study_plan_id,
             "session_type": "drill",
@@ -1621,6 +1628,79 @@ async def toggle_save_question(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to toggle save status: {str(e)}"
+        )
+
+
+@router.get("/recent-drills")
+async def get_recent_drills(
+    limit: int = Query(10, ge=1, le=50),
+    db: Client = Depends(get_authenticated_client),
+    user_id: str = Depends(get_current_user)
+):
+    """
+    Get recent drill sessions (all statuses) for the current user.
+    Returns pending, in-progress, and completed drill sessions for history + resume.
+    """
+    try:
+        sessions_response = db.table("practice_sessions").select(
+            "id, created_at, completed_at, started_at, session_number, session_type, status, study_plans!inner(user_id)"
+        ).eq("study_plans.user_id", user_id).eq(
+            "session_type", "drill"
+        ).order("created_at", desc=True).limit(limit).execute()
+
+        if not sessions_response.data:
+            return []
+
+        results = []
+        for session in sessions_response.data:
+            # Count correct + total questions
+            correct_resp = db.table("session_questions").select(
+                "id", count="exact"
+            ).eq("session_id", session["id"]).eq("is_correct", True).execute()
+
+            total_resp = db.table("session_questions").select(
+                "id", count="exact"
+            ).eq("session_id", session["id"]).execute()
+
+            answered_resp = db.table("session_questions").select(
+                "id", count="exact"
+            ).eq("session_id", session["id"]).neq("status", "not_started").execute()
+
+            correct = correct_resp.count or 0
+            total = total_resp.count or 0
+            answered = answered_resp.count or 0
+
+            # Get topic names for display
+            topic_resp = db.table("session_questions").select(
+                "topic_id, topics(name)"
+            ).eq("session_id", session["id"]).execute()
+
+            topic_names = list({
+                sq["topics"]["name"]
+                for sq in (topic_resp.data or [])
+                if sq.get("topics") and sq["topics"].get("name")
+            })
+
+            results.append({
+                "id": session["id"],
+                "created_at": session["created_at"],
+                "completed_at": session["completed_at"],
+                "started_at": session["started_at"],
+                "status": session["status"],
+                "session_type": session.get("session_type", "drill"),
+                "total_questions": total,
+                "correct_count": correct,
+                "answered_count": answered,
+                "topic_names": topic_names[:3],
+            })
+
+        return results
+
+    except Exception as e:
+        print(f"Error getting recent drills: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to get recent drills: {str(e)}"
         )
 
 

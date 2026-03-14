@@ -123,8 +123,35 @@ function StudyPlanContent() {
   }, [practiceSessions, mockSessions, activeFilter]);
 
   const handleToggleTodo = (todoId: string) => {
-    // Placeholder for toggle functionality
-    console.log("Toggle todo:", todoId);
+    // Find the session and navigate to it
+    const session = [...practiceSessions, ...mockSessions].find(
+      (s) => s.id === todoId
+    );
+    if (!session) return;
+
+    const status = getSessionStatus(session);
+    const isMockTest =
+      session.examType === "mock-exam" ||
+      session.id === "mock-test" ||
+      session.id === "mock-test-2";
+
+    if (isMockTest) {
+      if (status === "completed") {
+        router.push(`/mock-exam/${todoId}/results`);
+      } else {
+        router.push(
+          todoId !== "mock-test" && todoId !== "mock-test-2"
+            ? `/mock-exam/${todoId}`
+            : "/mock-exam"
+        );
+      }
+    } else {
+      router.push(
+        status === "completed"
+          ? `/practice/${todoId}/summary`
+          : `/practice/${todoId}`
+      );
+    }
   };
 
   const handleDeletePlan = async () => {

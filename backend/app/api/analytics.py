@@ -1349,9 +1349,23 @@ async def get_cognitive_efficiency_analytics(
         import math
         overall_efficiency = accuracy / math.log(avg_time + 1) if avg_time > 0 else 0
         
-        # Speed vs accuracy correlation (simplified)
-        # In a real implementation, you'd use proper correlation calculation
-        speed_accuracy_correlation = 0.5  # Placeholder
+        # Speed vs accuracy correlation (Pearson's r)
+        paired = [
+            (sq["time_spent_seconds"], 1.0 if sq.get("status") == "correct" else 0.0)
+            for sq in sq_result.data
+            if sq.get("time_spent_seconds") and sq.get("status")
+        ]
+        if len(paired) >= 3:
+            n = len(paired)
+            sum_x = sum(p[0] for p in paired)
+            sum_y = sum(p[1] for p in paired)
+            sum_xy = sum(p[0] * p[1] for p in paired)
+            sum_x2 = sum(p[0] ** 2 for p in paired)
+            sum_y2 = sum(p[1] ** 2 for p in paired)
+            denom = math.sqrt((n * sum_x2 - sum_x ** 2) * (n * sum_y2 - sum_y ** 2))
+            speed_accuracy_correlation = (n * sum_xy - sum_x * sum_y) / denom if denom > 0 else 0.0
+        else:
+            speed_accuracy_correlation = 0.0
         
         # Time-of-day patterns
         from datetime import datetime
@@ -1412,8 +1426,30 @@ async def get_cognitive_efficiency_analytics(
                 "calibration_gap": round(calibration_gap, 1)
             })
         
-        # User efficiency (placeholder - would need proper user grouping)
+        # Per-user efficiency computed from session question data
+        user_groups: Dict[str, Dict[str, Any]] = {}
+        for sq in sq_result.data:
+            uid = sq.get("user_id", "unknown")
+            if uid not in user_groups:
+                user_groups[uid] = {"correct": 0, "total": 0, "time_sum": 0}
+            user_groups[uid]["total"] += 1
+            if sq.get("status") == "correct":
+                user_groups[uid]["correct"] += 1
+            if sq.get("time_spent_seconds"):
+                user_groups[uid]["time_sum"] += sq["time_spent_seconds"]
+
         user_efficiency = []
+        for uid, data in user_groups.items():
+            user_acc = data["correct"] / data["total"] if data["total"] > 0 else 0
+            user_avg_time = data["time_sum"] / data["total"] if data["total"] > 0 else 0
+            eff = user_acc / math.log(user_avg_time + 1) if user_avg_time > 0 else 0
+            user_efficiency.append({
+                "user_id": uid,
+                "accuracy": round(user_acc * 100, 1),
+                "avg_time": round(user_avg_time, 1),
+                "efficiency": round(eff, 3),
+                "questions_answered": data["total"],
+            })
         
         return {
             "overall_efficiency": round(overall_efficiency, 3),

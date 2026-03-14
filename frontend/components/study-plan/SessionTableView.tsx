@@ -19,7 +19,8 @@ import {
   getSessionStatus,
   sortSessionsByPriority,
 } from "@/lib/utils/session-utils";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { buildPracticeSessionPath } from "@/lib/practice-navigation";
 
 interface SessionTableViewProps {
   sessions: TodoSession[];
@@ -28,6 +29,7 @@ interface SessionTableViewProps {
 
 export function SessionTableView({ sessions, mockExams = [] }: SessionTableViewProps) {
   const router = useRouter();
+  const pathname = usePathname();
 
   // Combine and sort all sessions by priority
   const allSessions = [...sessions, ...mockExams];
@@ -48,7 +50,7 @@ export function SessionTableView({ sessions, mockExams = [] }: SessionTableViewP
       }
       router.push("/mock-exam");
     } else {
-      router.push(`/practice/${session.id}`);
+      router.push(buildPracticeSessionPath(session.id, pathname));
     }
   };
 
@@ -216,7 +218,11 @@ export function SessionTableView({ sessions, mockExams = [] }: SessionTableViewP
                     <Button
                       size="sm"
                       variant={status === "overdue" ? "destructive" : "default"}
-                      className="gap-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      className={`gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${
+                        status === "overdue"
+                          ? ""
+                          : "border-transparent bg-[#866ffe] text-white hover:bg-[#7b63fe] !text-white"
+                      }`}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSessionClick(session);
@@ -248,7 +254,11 @@ export function SessionTableView({ sessions, mockExams = [] }: SessionTableViewP
                     <Button
                       size="sm"
                       variant={status === "overdue" ? "destructive" : "default"}
-                      className="h-8 text-xs gap-1"
+                      className={`h-8 text-xs gap-1 ${
+                        status === "overdue"
+                          ? ""
+                          : "border-transparent bg-[#866ffe] text-white hover:bg-[#7b63fe] !text-white"
+                      }`}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSessionClick(session);

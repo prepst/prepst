@@ -506,6 +506,19 @@ export const api = {
     return response.json();
   },
 
+  async getRecentDrills(limit: number = 10): Promise<any[]> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${config.apiUrl}/api/practice-sessions/recent-drills?limit=${limit}`,
+      { method: "GET", headers }
+    );
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Request failed" }));
+      throw new Error(typeof error.detail === "string" ? error.detail : "Failed to fetch recent drills");
+    }
+    return response.json();
+  },
+
   // Analytics endpoints
   async getGrowthCurve(
     skillId?: string,

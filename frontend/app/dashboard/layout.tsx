@@ -9,6 +9,7 @@ import {
   ChevronRight,
   FileText,
   BarChart3,
+  History,
   Settings,
   MessageCircle,
   Sun,
@@ -159,9 +160,10 @@ export default function DashboardLayout({
   const dashboardItems: DashboardNavItem[] = [
     { name: "Home", href: "/dashboard", icon: Home },
     { name: "Study Plan", href: "/dashboard/study-plan", icon: BookOpen },
+    { name: "Sessions", href: "/dashboard/sessions", icon: History },
     { name: "Revision", href: "/dashboard/revision", icon: RotateCcw },
     { name: "Drill", href: "/dashboard/drill", icon: Brain },
-    { name: "Question Pool", href: "/dashboard/question-pool", icon: Database },
+    { name: "Questions", href: "/dashboard/question-pool", icon: Database },
     {
       name: "Mock Exam",
       href: "/dashboard/mock-exam",
@@ -284,7 +286,7 @@ export default function DashboardLayout({
           style={{ width: targetSidebarWidth }}
         >
           <div
-            className={`flex flex-col h-full ${isMobile ? "px-4 pt-6" : "px-4 pt-8"
+            className={`flex flex-col h-full overflow-hidden ${isMobile ? "px-4 pt-6" : "px-4 pt-8"
               }`}
           >
             <Link
@@ -322,7 +324,13 @@ export default function DashboardLayout({
             </button>
 
             {/* Main Navigation Section */}
-            <div className="flex flex-col justify-start space-y-6 flex-1 overflow-y-auto scrollbar-hide py-5">
+            <div
+              className="flex min-h-0 flex-col justify-start space-y-6 flex-1 overflow-x-hidden overflow-y-auto scrollbar-hide py-5"
+              style={{
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+              }}
+            >
               {/* Dashboard Section */}
               <div className="space-y-2">
                 {/* Dashboard Label */}

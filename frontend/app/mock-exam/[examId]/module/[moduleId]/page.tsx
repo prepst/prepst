@@ -257,12 +257,7 @@ function ModuleContent() {
           }
         )
           .then(async (response) => {
-            if (response.ok) {
-              const result: BatchSubmitResponse = await response.json();
-              console.log(
-                `✓ Submitted ${result.successful}/${result.total} answers`
-              );
-            } else {
+            if (!response.ok) {
               console.error("Failed to submit batch answers");
             }
           })
@@ -686,8 +681,8 @@ function ModuleContent() {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Dev: Auto-fill all B answers - Hidden in production or styled minimally */}
-            <Button
+            {/* Dev: Auto-fill all B answers - Only visible in development */}
+            {process.env.NODE_ENV === "development" && <Button
               onClick={() => {
                 const newAnswers: Record<string, AnswerState> = {};
                 for (const q of questions) {
@@ -723,7 +718,7 @@ function ModuleContent() {
               className="hidden lg:flex text-xs text-purple-600/50 hover:text-purple-600 hover:bg-purple-500/10"
             >
               Dev Fill
-            </Button>
+            </Button>}
 
             <Button
               variant="ghost"

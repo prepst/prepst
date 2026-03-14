@@ -350,6 +350,99 @@ Guidelines:
             }
 
 
+    async def parse_practice_prompt(
+        self,
+        prompt: str,
+        available_topics: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        Parse a natural-language practice request into structured topic selections.
+        
+        Args:
+            prompt: User's free-text description (e.g. "5 hard Math questions on Quadratics")
+            available_topics: List of dicts with id, name, category_name, section
+        
+        Returns:
+            Dict with topic_ids (list of str) and questions_per_topic (int)
+        """
+        # Build a compact topic catalog for the prompt
+        topic_lines = []
+        for t in available_topics:
+            topic_lines.append(
+                f"  - id: {t['id']} | name: {t['name']} | category: {t['category_name']} | section: {t['section']}"
+            )
+        topic_catalog = "\n".join(topic_lines)
+
+        system_msg = (
+            "You are an SAT practice-session planner. Given a student's request and "
+            "the available topic catalog, select the most relevant topics and decide "
+            "how many questions per topic. Always respond with valid JSON."
+        )
+
+        user_msg = f"""Student's request:
+"{prompt}"
+
+Available topics (use ONLY these IDs):
+{topic_catalog}
+
+Return JSON with this exact shape:
+{{
+    "topic_ids": ["<id1>", "<id2>", ...],
+    "questions_per_topic": <int 1-10>
+}}
+
+Rules:
+1. Select 1-5 topics that best match the student's request.
+2. If the student mentions a number of questions, distribute across selected topics (questions_per_topic = ceil(requested / num_topics), max 10).
+3. If no count is mentioned, default to 3 questions per topic.
+4. If the student mentions "weak" or "personalized", pick 3-5 diverse topics across sections.
+5. Match topics by name/category relevance — prefer exact substring matches.
+6. If no topics match well, pick the closest 2-3 topics.
+"""
+
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model,
+                messages=[
+                    {"role": "system", "content": system_msg},
+                    {"role": "user", "content": user_msg},
+                ],
+                temperature=0.3,
+                max_tokens=500,
+                response_format={"type": "json_object"},
+            )
+
+            result = json.loads(response.choices[0].message.content)
+
+            # Validate & sanitize
+            valid_ids = {t["id"] for t in available_topics}
+            topic_ids = [tid for tid in result.get("topic_ids", []) if tid in valid_ids]
+
+            if not topic_ids:
+                # Fallback: pick first 3 topics
+                topic_ids = [t["id"] for t in available_topics[:3]]
+
+            questions_per_topic = result.get("questions_per_topic", 3)
+            questions_per_topic = max(1, min(10, int(questions_per_topic)))
+
+            # Cap at 5 topics
+            topic_ids = topic_ids[:5]
+
+            return {
+                "topic_ids": topic_ids,
+                "questions_per_topic": questions_per_topic,
+            }
+
+        except Exception as e:
+            print(f"OpenAI parse_practice_prompt error: {e}")
+            # Fallback: return first 3 topics with default count
+            fallback_ids = [t["id"] for t in available_topics[:3]]
+            return {
+                "topic_ids": fallback_ids,
+                "questions_per_topic": 3,
+            }
+
+
 # Global instance
 openai_service = OpenAIService()
 

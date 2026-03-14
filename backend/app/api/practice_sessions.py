@@ -39,6 +39,10 @@ class CreateDrillSessionRequest(BaseModel):
     questions_per_topic: int = 3  # Questions per topic (default 3)
 
 
+class CreateAISessionRequest(BaseModel):
+    prompt: str  # Natural-language description of desired practice
+
+
 @router.get("/{session_id}/questions", response_model=SessionQuestionsResponse)
 async def get_session_questions(
     session_id: str,
@@ -992,6 +996,177 @@ async def create_drill_session(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to create drill session: {str(e)}"
+        )
+
+
+@router.post("/create-ai-session")
+async def create_ai_session(
+    request: CreateAISessionRequest,
+    user_id: str = Depends(get_current_user),
+    db: Client = Depends(get_authenticated_client)
+):
+    """
+    Create a practice session from a natural-language prompt using AI.
+
+    The prompt is parsed by OpenAI to select relevant topics and question count,
+    then a drill session is created using the same logic as create-drill.
+
+    Args:
+        request: Contains the user's free-text prompt
+        user_id: User ID from authentication token
+        db: Database client
+
+    Returns:
+        Created session with session_id, topic_names, and num_questions
+    """
+    try:
+        if not request.prompt or not request.prompt.strip():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Please describe what you'd like to practice"
+            )
+
+        # 1. Get user's study plan
+        study_plan_response = db.table("study_plans").select("id").eq("user_id", user_id).execute()
+        if not study_plan_response.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No study plan found. Please create a study plan first."
+            )
+        study_plan_id = study_plan_response.data[0]["id"]
+
+        # 2. Fetch all available topics with their categories
+        topics_response = db.table("topics").select(
+            "id, name, category_id, categories(name, section)"
+        ).execute()
+
+        if not topics_response.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No topics available in the database"
+            )
+
+        # Build a flat list for the AI
+        available_topics = []
+        for t in topics_response.data:
+            cat = t.get("categories") or {}
+            available_topics.append({
+                "id": t["id"],
+                "name": t["name"],
+                "category_name": cat.get("name", "Unknown"),
+                "section": cat.get("section", "unknown"),
+            })
+
+        # 3. Ask OpenAI to parse the prompt
+        parsed = await openai_service.parse_practice_prompt(
+            prompt=request.prompt.strip(),
+            available_topics=available_topics,
+        )
+
+        topic_ids = parsed["topic_ids"]
+        questions_per_topic = parsed["questions_per_topic"]
+
+        # 4. Validate selected topics exist
+        selected_topics_response = db.table("topics").select(
+            "id, name, category_id, categories(name, section)"
+        ).in_("id", topic_ids).execute()
+
+        if not selected_topics_response.data:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Could not find matching topics for your request"
+            )
+
+        topics = selected_topics_response.data
+
+        # 5. Create drill session record (reuses same logic as create-drill)
+        from datetime import date
+        import time
+
+        unique_session_number = -int(time.time() * 1_000_000) % 1_000_000_000
+
+        session_response = db.table("practice_sessions").insert({
+            "study_plan_id": study_plan_id,
+            "session_type": "drill",
+            "scheduled_date": date.today().isoformat(),
+            "session_number": unique_session_number,
+            "status": "pending",
+            "created_at": "now()"
+        }).execute()
+
+        session_id = session_response.data[0]["id"]
+
+        # 6. Get questions for selected topics
+        questions_response = db.table("questions").select("*").in_(
+            "topic_id", topic_ids
+        ).eq("is_active", True).execute()
+
+        all_questions = questions_response.data
+
+        if not all_questions:
+            db.table("practice_sessions").delete().eq("id", session_id).execute()
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No questions available for the selected topics"
+            )
+
+        # 7. Group questions by topic and select per-topic count
+        questions_by_topic = {}
+        for question in all_questions:
+            tid = question["topic_id"]
+            if tid not in questions_by_topic:
+                questions_by_topic[tid] = []
+            questions_by_topic[tid].append(question)
+
+        selected_questions = []
+        for tid in topic_ids:
+            topic_questions = questions_by_topic.get(tid, [])
+            if topic_questions:
+                num_to_select = min(questions_per_topic, len(topic_questions))
+                selected_questions.extend(random.sample(topic_questions, num_to_select))
+
+        if not selected_questions:
+            db.table("practice_sessions").delete().eq("id", session_id).execute()
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No questions available for the selected topics"
+            )
+
+        # 8. Shuffle and assign to session
+        random.shuffle(selected_questions)
+
+        session_questions = []
+        for i, question in enumerate(selected_questions):
+            session_questions.append({
+                "session_id": session_id,
+                "question_id": question["id"],
+                "topic_id": question["topic_id"],
+                "display_order": i + 1,
+                "status": "not_started",
+                "created_at": "now()"
+            })
+
+        if session_questions:
+            db.table("session_questions").insert(session_questions).execute()
+
+        topic_names = [t["name"] for t in topics]
+        session_id_str = str(session_id)
+
+        return {
+            "success": True,
+            "session_id": session_id_str,
+            "topic_names": topic_names,
+            "num_questions": len(selected_questions),
+            "questions_per_topic": questions_per_topic,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Error creating AI session: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create AI session: {str(e)}"
         )
 
 

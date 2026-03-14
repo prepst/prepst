@@ -465,6 +465,47 @@ export const api = {
     return response.json();
   },
 
+  async createAISession(
+    prompt: string
+  ): Promise<{
+    success: boolean;
+    session_id: string;
+    topic_names: string[];
+    num_questions: number;
+    questions_per_topic: number;
+  }> {
+    const headers = await getAuthHeaders();
+    const response = await fetch(
+      `${config.apiUrl}/api/practice-sessions/create-ai-session`,
+      {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ prompt }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response
+        .json()
+        .catch(() => ({ detail: "Request failed" }));
+      const errorMessage =
+        typeof error.detail === "string"
+          ? error.detail
+          : error.message ||
+          JSON.stringify(error.detail) ||
+          "Failed to create AI session";
+      console.error(
+        "AI Session Creation Error:",
+        errorMessage,
+        "Full error:",
+        error
+      );
+      throw new Error(errorMessage);
+    }
+
+    return response.json();
+  },
+
   // Analytics endpoints
   async getGrowthCurve(
     skillId?: string,

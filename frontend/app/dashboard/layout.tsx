@@ -158,7 +158,6 @@ export default function DashboardLayout({
 
   const dashboardItems: DashboardNavItem[] = [
     { name: "Home", href: "/dashboard", icon: Home },
-    { name: "My SAT", href: "/dashboard/my-sat", icon: Sparkles },
     { name: "Study Plan", href: "/dashboard/study-plan", icon: BookOpen },
     { name: "Revision", href: "/dashboard/revision", icon: RotateCcw },
     { name: "Drill", href: "/dashboard/drill", icon: Brain },
@@ -598,19 +597,19 @@ export default function DashboardLayout({
 
             {/* Auth buttons for non-signed in users */}
             {!user && (
-              <div className="space-y-3 pb-6 px-2">
+              <div className="space-y-4 pb-6 px-2 pt-2">
                 <Link href="/signup" className="block">
                   <Button
                     className={`w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 rounded-xl ${isSidebarCollapsed
                         ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center"
-                        : "h-11"
+                        : "h-12 px-4"
                       }`}
                     size="sm"
                   >
                     {isSidebarCollapsed ? (
                       <UserPlus className="w-5 h-5" />
                     ) : (
-                      "Get Started"
+                      "Sign Up"
                     )}
                   </Button>
                 </Link>
@@ -619,7 +618,7 @@ export default function DashboardLayout({
                     variant="outline"
                     className={`w-full border-border hover:bg-muted/50 rounded-xl ${isSidebarCollapsed
                         ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center"
-                        : "h-11"
+                        : "h-12 px-4"
                       }`}
                     size="sm"
                   >
@@ -639,7 +638,7 @@ export default function DashboardLayout({
         <main
           className={`flex-1 min-w-0 overflow-x-hidden ${isMobile
               ? "pt-4 px-4"
-              : "pt-6 px-6 lg:max-w-5xl xl:max-w-6xl mx-auto w-full"
+              : "pt-6 px-6 lg:max-w-6xl xl:max-w-7xl mx-auto w-full"
             }`}
         >
           {children}

@@ -66,7 +66,7 @@ function ProgressContent() {
   const trajectoryBars = useMemo(() => {
     if (growthData.length === 0) return [];
     // Normalize growth data to 0-1 range for sparkline bars
-    const masteryValues = growthData.map((d: any) => d.mastery ?? d.avg_mastery ?? 0);
+    const masteryValues = growthData.map((d) => d.mastery ?? 0);
     const maxVal = Math.max(...masteryValues, 0.01);
     return masteryValues.map((v: number) => Math.max(0.1, v / maxVal));
   }, [growthData]);
@@ -74,8 +74,8 @@ function ProgressContent() {
   // Compute projected score from real improvement velocity
   const projectedImprovement = useMemo(() => {
     if (growthData.length < 2) return 0;
-    const first = growthData[0]?.mastery ?? growthData[0]?.avg_mastery ?? 0;
-    const last = growthData[growthData.length - 1]?.mastery ?? growthData[growthData.length - 1]?.avg_mastery ?? 0;
+    const first = growthData[0]?.mastery ?? 0;
+    const last = growthData[growthData.length - 1]?.mastery ?? 0;
     const delta = last - first;
     // Scale mastery improvement to approximate SAT points (rough heuristic: 0.1 mastery ≈ ~50 points)
     return Math.round(delta * 500);

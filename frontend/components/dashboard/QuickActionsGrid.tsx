@@ -48,7 +48,6 @@ export default function QuickActionsGrid() {
       value: `${completedSessions}/${totalSessions}`,
       desc: "Sessions completed",
       icon: BookOpen,
-      bar: "bg-study",
       chip: "bg-study-soft text-study",
       progress: completionRate,
     },
@@ -57,7 +56,6 @@ export default function QuickActionsGrid() {
       value: totalMockExams.toString(),
       desc: averageScore > 0 ? `Avg: ${averageScore}` : "No scores yet",
       icon: Target,
-      bar: "bg-exam",
       chip: "bg-exam-soft text-exam",
     },
     {
@@ -65,7 +63,6 @@ export default function QuickActionsGrid() {
       value: daysUntilTest > 0 ? daysUntilTest.toString() : "N/A",
       desc: daysUntilTest > 0 ? "days remaining" : "No date set",
       icon: Calendar,
-      bar: "bg-schedule",
       chip: "bg-schedule-soft text-schedule",
     },
     {
@@ -73,7 +70,6 @@ export default function QuickActionsGrid() {
       value: `${Math.round(completionRate)}%`,
       desc: "Progress",
       icon: TrendingUp,
-      bar: "bg-progress",
       chip: "bg-progress-soft text-progress",
     },
   ];
@@ -97,10 +93,8 @@ export default function QuickActionsGrid() {
           key={stat.label}
           type="button"
           onClick={() => handleCardClick(stat)}
-          className="overflow-hidden rounded-xl border border-border bg-card text-left hover:bg-muted/40"
+          className="rounded-xl border border-border bg-card p-4 text-left hover:bg-muted/40"
         >
-          <div className={`h-1.5 ${stat.bar}`} />
-          <div className="p-4">
           <div className={`mb-3 flex h-8 w-8 items-center justify-center rounded-lg ${stat.chip}`}>
             <stat.icon className="h-4 w-4" aria-hidden="true" />
           </div>
@@ -109,7 +103,6 @@ export default function QuickActionsGrid() {
             {stat.value}
           </p>
           <p className="mt-1 text-sm text-muted-foreground">{stat.desc}</p>
-          </div>
         </button>
       ))}
     </div>

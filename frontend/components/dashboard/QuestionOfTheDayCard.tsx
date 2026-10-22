@@ -141,11 +141,10 @@ export default function QuestionOfTheDayCard() {
     <>
       <button
         type="button"
-        className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-border bg-card text-left hover:bg-muted/40"
+        className="flex h-full w-full flex-col rounded-xl border border-border bg-card p-6 text-left hover:bg-muted/40"
         onClick={handleQuestionClick}
       >
-        <div className="h-1.5 bg-schedule" />
-        <div className="flex h-full flex-col p-6">
+        <div className="flex h-full flex-col">
           <div className="mb-4 flex items-center justify-between gap-3">
             <h2 className="text-sm font-medium text-schedule">
               Question of the day

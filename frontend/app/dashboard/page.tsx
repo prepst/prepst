@@ -264,9 +264,7 @@ export default function DashboardPage() {
           {/* Hero Section with Question of the Day */}
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-stretch">
             {/* Hero Section */}
-            <section className="flex flex-1 flex-col justify-between overflow-hidden rounded-xl border border-border bg-card">
-              <div className="h-1.5 bg-study" />
-              <div className="flex flex-1 flex-col justify-between gap-8 p-6 md:p-8">
+            <section className="flex flex-1 flex-col justify-between gap-8 rounded-xl border border-border bg-card p-6 md:p-8">
               <div className="max-w-xl space-y-2">
                 <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                   {user
@@ -314,7 +312,6 @@ export default function DashboardPage() {
                     <p className="text-sm text-muted-foreground">Target score</p>
                   </div>
                 )}
-              </div>
               </div>
             </section>
 

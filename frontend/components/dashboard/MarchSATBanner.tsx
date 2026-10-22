@@ -22,8 +22,7 @@ export function MarchSATBanner() {
   if (isDismissed) return null;
 
   return (
-    <div className="overflow-hidden rounded-xl border border-study/20 bg-study-soft">
-      <div className="h-1.5 bg-study" />
+    <div className="rounded-xl border border-study/20 bg-study-soft">
       <div className="flex flex-col items-start justify-between gap-4 p-4 sm:flex-row sm:items-center sm:p-5">
         <div className="text-left">
           <h2 className="text-base font-semibold text-foreground">

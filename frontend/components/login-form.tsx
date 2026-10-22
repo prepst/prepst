@@ -293,20 +293,20 @@ export function LoginForm({
                 >
                   <path
                     d="M35 120 L35 90 L165 90 L165 120 L35 120"
-                    fill="#3b82f6"
-                    stroke="#2563eb"
+                    fill="#1d9bf0"
+                    stroke="#1a8cd8"
                     strokeWidth="1.5"
                   />
                   <path
                     d="M35 90 L50 75 L180 75 L165 90"
-                    fill="#60a5fa"
-                    stroke="#2563eb"
+                    fill="#8ecdf7"
+                    stroke="#1a8cd8"
                     strokeWidth="1.5"
                   />
                   <path
                     d="M165 90 L180 75 L180 105 L165 120"
-                    fill="#2563eb"
-                    stroke="#1e40af"
+                    fill="#1a8cd8"
+                    stroke="#0f6fa3"
                     strokeWidth="1.5"
                   />
                   {/* Book spine lines */}
@@ -315,7 +315,7 @@ export function LoginForm({
                     y1="95"
                     x2="38"
                     y2="117"
-                    stroke="#1e40af"
+                    stroke="#0f6fa3"
                     strokeWidth="1"
                   />
                   <line
@@ -323,7 +323,7 @@ export function LoginForm({
                     y1="95"
                     x2="42"
                     y2="117"
-                    stroke="#3b82f6"
+                    stroke="#1d9bf0"
                     strokeWidth="0.5"
                   />
                   {/* Book label */}
@@ -346,20 +346,20 @@ export function LoginForm({
                 >
                   <path
                     d="M30 100 L30 70 L160 70 L160 100 L30 100"
-                    fill="#10b981"
-                    stroke="#059669"
+                    fill="#00ba7c"
+                    stroke="#009e68"
                     strokeWidth="1.5"
                   />
                   <path
                     d="M30 70 L45 55 L175 55 L160 70"
-                    fill="#34d399"
-                    stroke="#059669"
+                    fill="#3dd99a"
+                    stroke="#009e68"
                     strokeWidth="1.5"
                   />
                   <path
                     d="M160 70 L175 55 L175 85 L160 100"
-                    fill="#059669"
-                    stroke="#047857"
+                    fill="#009e68"
+                    stroke="#007a52"
                     strokeWidth="1.5"
                   />
                   {/* Book label */}
@@ -382,20 +382,20 @@ export function LoginForm({
                 >
                   <path
                     d="M25 80 L25 50 L155 50 L155 80 L25 80"
-                    fill="#866ffe"
-                    stroke="#6d5dd3"
+                    fill="#1d9bf0"
+                    stroke="#1a8cd8"
                     strokeWidth="1.5"
                   />
                   <path
                     d="M25 50 L40 35 L170 35 L155 50"
-                    fill="#a78bfa"
-                    stroke="#6d5dd3"
+                    fill="#8ecdf7"
+                    stroke="#1a8cd8"
                     strokeWidth="1.5"
                   />
                   <path
                     d="M155 50 L170 35 L170 65 L155 80"
-                    fill="#6d5dd3"
-                    stroke="#5b4fc7"
+                    fill="#1a8cd8"
+                    stroke="#0f6fa3"
                     strokeWidth="1.5"
                   />
                   {/* Book label */}
@@ -419,21 +419,21 @@ export function LoginForm({
                     width="45"
                     height="8"
                     rx="1"
-                    fill="#f59e0b"
+                    fill="#ffd400"
                   />
-                  <polygon points="45,0 55,4 45,8" fill="#d97706" />
+                  <polygon points="45,0 55,4 45,8" fill="#c9a800" />
                   <rect
                     x="0"
                     y="0"
                     width="8"
                     height="8"
                     rx="1"
-                    fill="#fbbf24"
+                    fill="#ffe566"
                   />
                 </g>
 
                 {/* Sparkle effects */}
-                <g fill="#866ffe">
+                <g fill="#1d9bf0">
                   <circle cx="45" cy="25" r="2">
                     <animate
                       attributeName="opacity"

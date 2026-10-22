@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useCompactLayout } from "@/hooks/useCompactLayout";
 import { useParams, useRouter } from "next/navigation";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { PageLoader } from "@/components/ui/page-loader";
@@ -56,6 +57,7 @@ function DiagnosticTestContent() {
 
   // Container ref for calculating middle position
   const containerRef = useRef<HTMLDivElement>(null);
+  const compact = useCompactLayout();
 
   // Draggable divider state - initialize to middle of viewport
   const [dividerPosition, setDividerPosition] = useState(() => {
@@ -508,7 +510,7 @@ function DiagnosticTestContent() {
     >
       {/* Header */}
       <div className="relative z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center justify-between pl-[250px] pr-[250px] h-16">
+        <div className="flex h-14 items-center justify-between gap-2 px-3 sm:h-16 sm:px-4 lg:pl-[250px] lg:pr-[250px]">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-3">
               <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -633,7 +635,7 @@ function DiagnosticTestContent() {
 
       <div
         ref={containerRef}
-        className="flex-1 flex overflow-hidden"
+        className={compact ? "flex min-h-0 flex-1 flex-col overflow-hidden" : "flex min-h-0 flex-1 overflow-hidden"}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
@@ -650,9 +652,8 @@ function DiagnosticTestContent() {
         )}
 
         {/* Question Panel */}
-        <div className="flex-1 flex flex-col min-w-0 relative pr-[5px]">
-          {/* SAT Tools Toolbar - positioned at top-right of question area */}
-          <div className="absolute top-4 right-4 z-30">
+        <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+          <div className={compact ? "z-30 flex justify-end px-4 pt-3" : "absolute right-4 top-4 z-30"}>
             <SATToolsToolbar />
           </div>
           <QuestionPanel
@@ -662,20 +663,24 @@ function DiagnosticTestContent() {
         </div>
 
         {/* Draggable Divider */}
+        {!compact && (
         <div
-          className={`w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ${isDragging ? "bg-primary" : ""
+          className={`w-1 cursor-col-resize bg-border transition-colors hover:bg-primary ${isDragging ? "bg-primary" : ""
             }`}
           onMouseDown={handleMouseDown}
           style={{
             userSelect: "none",
-            cursor: isDragging ? "col-resize" : "col-resize",
+            cursor: "col-resize",
           }}
         />
+        )}
 
         {/* Answer Panel */}
         <div
-          className="border-l border-border bg-card/50 backdrop-blur-sm flex flex-col"
-          style={{ width: `${dividerPosition}px` }}
+          className={compact
+            ? "flex max-h-[48dvh] w-full min-h-0 flex-col border-t border-border bg-card"
+            : "flex flex-col border-l border-border bg-card/50 backdrop-blur-sm"}
+          style={compact ? undefined : { width: `${dividerPosition}px` }}
         >
           <AnswerPanel
             question={currentTransformedQuestion}

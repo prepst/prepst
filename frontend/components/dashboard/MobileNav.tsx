@@ -3,43 +3,43 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import {
-  BookOpen,
-  Brain,
-  Database,
-  FileText,
-  History,
-  Home,
-  LogOut,
-  Menu,
-  RotateCcw,
-  Settings,
-  TrendingUp,
-  User,
-  X,
-  BookMarked,
-} from "lucide-react";
+import { LogOut, Menu, Settings, User, X, type LucideIcon } from "lucide-react";
+import { ThemeIcon } from "@/components/ThemeIcon";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 
-const primaryItems = [
-  { name: "Home", href: "/dashboard", icon: Home },
-  { name: "Plan", href: "/dashboard/study-plan", icon: BookOpen },
-  { name: "Drill", href: "/dashboard/drill", icon: Brain },
-  { name: "Mock", href: "/dashboard/mock-exam", icon: FileText },
+const primaryItems: { name: string; href: string; icon: string | LucideIcon }[] = [
+  { name: "Home", href: "/dashboard", icon: "home" },
+  { name: "Plan", href: "/dashboard/study-plan", icon: "plan" },
+  { name: "Drill", href: "/dashboard/drill", icon: "drill" },
+  { name: "Mock", href: "/dashboard/mock-exam", icon: "exam" },
 ];
 
-const moreItems = [
-  { name: "Sessions", href: "/dashboard/sessions", icon: History },
-  { name: "Revision", href: "/dashboard/revision", icon: RotateCcw },
-  { name: "Questions", href: "/dashboard/question-pool", icon: Database },
-  { name: "Vocab", href: "/dashboard/vocab", icon: BookMarked },
-  { name: "Progress", href: "/dashboard/progress", icon: TrendingUp },
+const moreItems: { name: string; href: string; icon: string | LucideIcon }[] = [
+  { name: "Sessions", href: "/dashboard/sessions", icon: "review" },
+  { name: "Revision", href: "/dashboard/revision", icon: "review" },
+  { name: "Questions", href: "/dashboard/question-pool", icon: "questions" },
+  { name: "Vocab", href: "/dashboard/vocab", icon: "book" },
+  { name: "Progress", href: "/dashboard/progress", icon: "progress" },
   { name: "Profile", href: "/dashboard/profile", icon: User },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
+
+function NavMark({
+  icon,
+  className,
+}: {
+  icon: string | LucideIcon;
+  className: string;
+}) {
+  if (typeof icon === "string") {
+    return <ThemeIcon name={icon} className={className} />;
+  }
+  const Icon = icon;
+  return <Icon className={className} aria-hidden="true" />;
+}
 
 function isCurrent(pathname: string, href: string) {
   if (href === "/dashboard") return pathname === "/dashboard";
@@ -99,7 +99,7 @@ export function MobileNav() {
                     active ? "text-primary" : "text-muted-foreground"
                   }`}
                 >
-                  <item.icon className="h-5 w-5" aria-hidden="true" />
+                  <NavMark icon={item.icon} className="h-5 w-5" />
                   {item.name}
                 </Link>
               </li>
@@ -161,7 +161,7 @@ export function MobileNav() {
                         active ? "bg-primary/10 text-primary" : "hover:bg-muted"
                       }`}
                     >
-                      <item.icon className="h-5 w-5" aria-hidden="true" />
+                      <NavMark icon={item.icon} className="h-5 w-5" />
                       {item.name}
                     </Link>
                   </li>

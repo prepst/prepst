@@ -62,7 +62,7 @@ export function MockExamFooter({
 
   return (
     <div className="relative z-50 bg-background/80 backdrop-blur-xl border-t border-border/40 supports-[backdrop-filter]:bg-background/60">
-      <div className="flex items-center justify-between pl-[250px] pr-[250px] h-16">
+      <div className="flex h-auto min-h-14 items-center justify-between gap-2 px-3 py-2 sm:px-4 lg:pl-[250px] lg:pr-[250px]">
         {/* Left: Question Counter - Clickable */}
         <div className="flex items-center gap-3">
           {questions.length > 0 ? (

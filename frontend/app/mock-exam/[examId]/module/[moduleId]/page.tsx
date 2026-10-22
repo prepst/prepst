@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useCompactLayout } from "@/hooks/useCompactLayout";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,6 +69,7 @@ function ModuleContent() {
 
   // Container ref for calculating middle position
   const containerRef = useRef<HTMLDivElement>(null);
+  const compact = useCompactLayout();
 
   // Draggable divider state - initialize to middle of viewport
   const [dividerPosition, setDividerPosition] = useState(() => {
@@ -602,14 +604,14 @@ function ModuleContent() {
     <div className="h-screen bg-background flex flex-col overflow-hidden">
       {/* Header with Progress */}
       <div className="relative z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center justify-between pl-[250px] pr-[250px] h-16">
+        <div className="flex h-14 items-center justify-between gap-2 px-3 sm:h-16 sm:px-4 lg:pl-[250px] lg:pr-[250px]">
           <div className="flex items-center gap-6">
-            <div className="flex items-center gap-3">
-              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 sm:flex">
                 <span className="font-bold text-primary">M</span>
               </div>
-              <div className="flex flex-col">
-                <span className="text-sm font-semibold text-foreground leading-none">
+              <div className="flex min-w-0 flex-col">
+                <span className="truncate text-sm font-semibold leading-none text-foreground">
                   {getModuleTitle(moduleData?.module_type || "")}
                 </span>
                 <span className="text-[10px] text-muted-foreground font-medium mt-1">
@@ -647,7 +649,7 @@ function ModuleContent() {
           </div>
 
           {/* Center: Timer (Absolute Center) */}
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <div className="shrink-0 lg:absolute lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2">
             <div
               className={`flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-sm transition-all duration-300 ${
                 timeRemaining <= 300
@@ -800,7 +802,7 @@ function ModuleContent() {
 
       <div
         ref={containerRef}
-        className="flex-1 flex overflow-hidden"
+        className={compact ? "flex min-h-0 flex-1 flex-col overflow-hidden" : "flex min-h-0 flex-1 overflow-hidden"}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
@@ -886,9 +888,8 @@ function ModuleContent() {
         )}
 
         {/* Question Content - Flexible width */}
-        <div className="flex-1 overflow-y-auto pl-[250px] pr-8 lg:pr-12 pt-8 lg:pt-12 pb-8 lg:pb-12 min-w-0 relative">
-          {/* SAT Tools Toolbar */}
-          <div className="absolute top-4 right-4 z-30">
+        <div className="relative min-h-0 min-w-0 flex-1 overflow-y-auto px-4 pb-8 pt-4 lg:py-12 lg:pl-[250px] lg:pr-12">
+          <div className={compact ? "z-30 mb-3 flex justify-end" : "absolute right-4 top-4 z-30"}>
             <MockExamToolsToolbar />
           </div>
           <div className="max-w-3xl mx-auto space-y-8">
@@ -938,21 +939,25 @@ function ModuleContent() {
         </div>
 
         {/* Draggable Divider */}
+        {!compact && (
         <div
-          className={`w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ml-5 ${
+          className={`ml-5 w-1 cursor-col-resize bg-border transition-colors hover:bg-primary ${
             isDragging ? "bg-primary" : ""
           }`}
           onMouseDown={handleMouseDown}
           style={{
             userSelect: "none",
-            cursor: isDragging ? "col-resize" : "col-resize",
+            cursor: "col-resize",
           }}
         />
+        )}
 
         {/* Answer Panel - Dynamic width */}
         <div
-          className="border-l border-border bg-card/50 backdrop-blur-sm flex flex-col"
-          style={{ width: `${dividerPosition}px` }}
+          className={compact
+            ? "flex max-h-[48dvh] w-full min-h-0 flex-col border-t border-border bg-card"
+            : "flex flex-col border-l border-border bg-card/50 backdrop-blur-sm"}
+          style={compact ? undefined : { width: `${dividerPosition}px` }}
         >
           {/* Transform mock exam data to match AnswerPanel expectations */}
           <AnswerPanel

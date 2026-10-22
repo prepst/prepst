@@ -14,6 +14,7 @@ import { QuestionListSidebar } from "@/components/practice/QuestionListSidebar";
 import { SATToolsToolbar } from "@/components/practice/SATToolsToolbar";
 import { usePracticeSession } from "@/hooks/usePracticeSession";
 import { useTimer } from "@/hooks/useTimer";
+import { useCompactLayout } from "@/hooks/useCompactLayout";
 import { useQuestionNavigation } from "@/hooks/useQuestionNavigation";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
@@ -103,6 +104,7 @@ function PracticeSessionContent() {
   const [showAIPanel, setShowAIPanel] = useState(false);
   const [aiPanelTab, setAiPanelTab] = useState<"ask" | "explanation">("ask");
   const [isAIPanelPinned, setIsAIPanelPinned] = useState(false);
+  const compact = useCompactLayout();
 
   // Container ref for calculating middle position
   const containerRef = useRef<HTMLDivElement>(null);
@@ -610,10 +612,10 @@ function PracticeSessionContent() {
 
         <div
           ref={containerRef}
-          className="flex-1 flex overflow-hidden"
-          onMouseMove={handleMouseMove}
-          onMouseUp={handleMouseUp}
-          onMouseLeave={handleMouseUp}
+          className={compact ? "flex min-h-0 flex-1 flex-col overflow-hidden" : "flex min-h-0 flex-1 overflow-hidden"}
+          onMouseMove={compact ? undefined : handleMouseMove}
+          onMouseUp={compact ? undefined : handleMouseUp}
+          onMouseLeave={compact ? undefined : handleMouseUp}
         >
           {/* Left Sidebar - Question List */}
           {showQuestionList && (
@@ -627,9 +629,8 @@ function PracticeSessionContent() {
           )}
 
           {/* Question Panel - Flexible width */}
-          <div className="flex-1 flex flex-col min-w-0 relative">
-            {/* SAT Tools Toolbar - positioned at top-right of question area */}
-            <div className="absolute top-4 right-4 z-30">
+          <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+            <div className={compact ? "z-30 flex justify-end px-4 pt-3" : "absolute right-4 top-4 z-30"}>
               <SATToolsToolbar />
             </div>
             <QuestionPanel 
@@ -640,13 +641,14 @@ function PracticeSessionContent() {
           </div>
 
           {/* Draggable Divider */}
+          {!compact && (
           <div
-            className={`group relative w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ml-5 ${isDragging ? "bg-primary" : ""
+            className={`group relative ml-5 w-1 cursor-col-resize bg-border transition-colors hover:bg-primary ${isDragging ? "bg-primary" : ""
               }`}
             onMouseDown={handleMouseDown}
             style={{
               userSelect: "none",
-              cursor: isDragging ? "col-resize" : "col-resize",
+              cursor: "col-resize",
             }}
           >
             {/* Grip Handle Indicators */}
@@ -656,11 +658,14 @@ function PracticeSessionContent() {
               <div className="w-0.5 h-1.5 bg-muted-foreground/40 rounded-full" />
             </div>
           </div>
+          )}
 
           {/* Right Panel - Answer Choices & Feedback - Dynamic width */}
           <div
-            className="border-l border-border bg-card/50 backdrop-blur-sm flex flex-col"
-            style={{ width: `${dividerPosition}px` }}
+            className={compact
+              ? "flex max-h-[48dvh] w-full min-h-0 flex-col border-t border-border bg-card"
+              : "flex flex-col border-l border-border bg-card/50 backdrop-blur-sm"}
+            style={compact ? undefined : { width: `${dividerPosition}px` }}
           >
             <AnswerPanel
               question={currentQuestion}

@@ -1,24 +1,24 @@
 import Link from "next/link";
-import { BookOpen, PenLine, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeIcon } from "@/components/ThemeIcon";
 
 const work = [
   {
     title: "Study plan",
     detail: "A schedule from your test date and the topics you miss.",
-    icon: BookOpen,
+    icon: "plan",
     chip: "bg-study-soft text-study",
   },
   {
     title: "Practice",
     detail: "Short blocks when you have 15 minutes, or a full mock exam.",
-    icon: PenLine,
+    icon: "drill",
     chip: "bg-practice-soft text-practice",
   },
   {
     title: "Review",
     detail: "Explanations, vocabulary, and the questions you saved.",
-    icon: RotateCcw,
+    icon: "review",
     chip: "bg-exam-soft text-exam",
   },
 ];
@@ -64,7 +64,7 @@ export function LandingPage() {
           {work.map((item) => (
             <li key={item.title} className="rounded-xl border border-border bg-card p-5">
                 <div className={`mb-4 flex h-9 w-9 items-center justify-center rounded-lg ${item.chip}`}>
-                  <item.icon className="h-4 w-4" aria-hidden="true" />
+                  <ThemeIcon name={item.icon} className="h-4 w-4" />
                 </div>
                 <h2 className="text-lg font-semibold">{item.title}</h2>
                 <p className="mt-1 text-sm leading-relaxed text-muted-foreground">

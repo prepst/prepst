@@ -349,12 +349,12 @@ export function QuestionPracticePopup({
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent
-        className="!max-w-6xl w-[95vw] h-[90vh] p-0 flex flex-col overflow-hidden !grid-cols-1"
+        className="!max-w-6xl flex h-[100dvh] w-screen max-w-none flex-col overflow-hidden !grid-cols-1 rounded-none p-0 sm:h-[90vh] sm:w-[95vw] sm:max-w-6xl sm:rounded-lg"
         showCloseButton={false}
       >
         {/* Header */}
         <div className="relative z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/60 flex flex-col">
-          <div className="px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2 px-3 py-3 sm:px-6 sm:py-4">
             <div className="flex items-center gap-3">
               <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                 <span className="font-bold text-primary text-sm">Q</span>
@@ -395,8 +395,8 @@ export function QuestionPracticePopup({
                       className="h-8 px-3 text-xs text-muted-foreground hover:text-foreground disabled:opacity-30"
                       title="Skip question"
                     >
-                      <SkipForward className="w-3 h-3 mr-1" />
-                      Skip
+                      <SkipForward className="h-3 w-3 sm:mr-1" />
+                      <span className="hidden sm:inline">Skip</span>
                     </Button>
                   )}
 
@@ -442,9 +442,9 @@ export function QuestionPracticePopup({
         </div>
 
         {/* Content */}
-        <div className="flex-1 flex overflow-hidden min-h-0 w-full">
+        <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden lg:flex-row">
           {/* Question Panel */}
-          <div className="flex-1 flex flex-col min-w-[300px] overflow-hidden">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
             <div className="flex-1 overflow-y-auto bg-background">
               {question && question.question ? (
                 <QuestionPanel 
@@ -461,7 +461,7 @@ export function QuestionPracticePopup({
           </div>
 
           {/* Answer Panel */}
-          <div className="w-[480px] shrink-0 bg-background backdrop-blur-sm flex flex-col overflow-hidden">
+          <div className="flex max-h-[48dvh] w-full min-h-0 shrink-0 flex-col overflow-hidden border-t border-border bg-background lg:max-h-none lg:w-[480px] lg:border-l lg:border-t-0">
             <div className="flex-1 overflow-y-auto">
               <AnswerPanel
                 question={question}
@@ -498,7 +498,7 @@ export function QuestionPracticePopup({
             </div>
 
             {/* Footer Actions */}
-            <div className="p-6 border-t border-border bg-background backdrop-blur-sm space-y-3">
+            <div className="space-y-3 border-t border-border bg-background p-3 sm:p-6">
               {!showFeedback ? (
                 <>
                   {/* Check Answer Button */}

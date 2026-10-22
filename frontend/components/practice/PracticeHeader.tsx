@@ -88,20 +88,23 @@ export function PracticeHeader({
   return (
     <div className="relative z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/60">
       <div className={cn(
-        "flex items-center justify-between h-16",
-        isPinned ? "px-8" : "pl-[250px] pr-[250px]"
+        "flex items-center justify-between h-14 gap-2 sm:h-16",
+        isPinned ? "px-4 lg:px-8" : "px-3 sm:px-6 lg:pl-[250px] lg:pr-[250px]"
       )}>
         {/* Left: Branding & Session Info */}
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="hidden h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 sm:flex">
               <span className="font-bold text-primary">P</span>
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-semibold text-foreground leading-none">
-                Practice Session
+            <div className="flex min-w-0 flex-col">
+              <span className="truncate text-sm font-semibold text-foreground leading-none">
+                Practice
               </span>
-              <span className="text-[10px] text-muted-foreground font-medium mt-1">
+              <span className="mt-1 text-[10px] font-medium text-muted-foreground sm:hidden">
+                {currentIndex + 1} / {totalQuestions}
+              </span>
+              <span className="mt-1 hidden text-[10px] font-medium text-muted-foreground sm:block">
                 SAT Prep
               </span>
             </div>
@@ -131,7 +134,7 @@ export function PracticeHeader({
         </div>
 
         {/* Center: Timer (Absolute Center) */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="shrink-0 lg:absolute lg:left-1/2 lg:top-1/2 lg:-translate-x-1/2 lg:-translate-y-1/2">
           {!timerMode ? (
             <Popover open={showTimerModal} onOpenChange={onToggleTimerModal}>
               <PopoverTrigger asChild>
@@ -167,9 +170,9 @@ export function PracticeHeader({
               </PopoverContent>
             </Popover>
           ) : (
-            <div className="flex items-center gap-2 px-3 py-2 rounded-full border border-border/60 bg-background/80 backdrop-blur-sm shadow-md transition-all duration-300">
+            <div className="flex items-center gap-1 rounded-full border border-border/60 bg-background/80 px-2 py-1.5 shadow-sm sm:gap-2 sm:px-3 sm:py-2">
               {/* Timer Display */}
-              <div className="px-3 min-w-[70px] text-center">
+              <div className="min-w-[52px] px-1 text-center sm:min-w-[70px] sm:px-3">
                 <span className="text-sm font-mono font-bold tabular-nums tracking-tight text-foreground">
                   {formatTime(time)}
                 </span>

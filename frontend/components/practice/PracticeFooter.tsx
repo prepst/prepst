@@ -100,8 +100,8 @@ export function PracticeFooter({
     <div className="relative z-50 bg-background/80 backdrop-blur-xl border-t border-border/40 supports-[backdrop-filter]:bg-background/60">
       <div
         className={cn(
-          "flex items-center justify-between h-16",
-          isPinned ? "px-8" : "pl-[250px] pr-[250px]"
+          "flex h-auto min-h-14 items-center justify-between gap-2 py-2",
+          isPinned ? "px-4 lg:px-8" : "px-3 sm:px-4 lg:pl-[250px] lg:pr-[250px]"
         )}
       >
         {/* Left: Question Counter - Clickable */}
@@ -152,7 +152,7 @@ export function PracticeFooter({
         </div>
 
         {/* Right: AI Explanation / Explanation / Check / Back / Next */}
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2 overflow-x-auto">
           {/* Admin Flag Button */}
           {isAdmin && questionId && (
             <Button

@@ -35,6 +35,7 @@ import { motion } from "framer-motion";
 // import { StatisticsPanel } from "@/components/dashboard/StatisticsPanel";
 import { ProfileDropdown } from "@/components/dashboard/ProfileDropdown";
 import { MobileNav } from "@/components/dashboard/MobileNav";
+import { ThemeIcon } from "@/components/ThemeIcon";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -452,11 +453,21 @@ export default function DashboardLayout({
                         }`}
                       title={isSidebarCollapsed ? item.name : undefined}
                     >
-                      <Icon
-                        className={`flex-shrink-0 transition-colors ${isActive
-                            ? "text-primary"
-                            : "text-muted-foreground group-hover:text-foreground"
-                          } ${navIconSize}`}
+                      <ThemeIcon
+                        name={
+                          {
+                            "/dashboard": "home",
+                            "/dashboard/study-plan": "plan",
+                            "/dashboard/sessions": "review",
+                            "/dashboard/revision": "review",
+                            "/dashboard/drill": "drill",
+                            "/dashboard/question-pool": "questions",
+                            "/dashboard/mock-exam": "exam",
+                            "/dashboard/vocab": "book",
+                            "/dashboard/progress": "progress",
+                          }[item.href] || "home"
+                        }
+                        className={`flex-shrink-0 ${navIconSize}`}
                       />
                       {!isSidebarCollapsed && (
                         <span className="text-xs whitespace-nowrap">

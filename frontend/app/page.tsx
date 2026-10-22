@@ -1,18 +1,17 @@
-"use client";
+import type { Metadata } from "next";
+import { HomeGate } from "@/components/marketing/HomeGate";
+import { LandingPage } from "@/components/marketing/LandingPage";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+export const metadata: Metadata = {
+  title: { absolute: "Prep St — free SAT practice" },
+  description:
+    "Free SAT prep with a personal study plan, topic drills, vocabulary, and full mock exams.",
+};
 
 export default function Home() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.push("/dashboard");
-  }, [router]);
-
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-violet-500"></div>
-    </div>
+    <HomeGate>
+      <LandingPage />
+    </HomeGate>
   );
 }

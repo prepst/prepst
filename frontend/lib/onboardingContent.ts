@@ -1,7 +1,29 @@
-import { ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
+import {
+    BarChart3,
+    BookMarked,
+    BookOpen,
+    Bookmark,
+    Brain,
+    CalendarCheck,
+    ClipboardCheck,
+    Database,
+    LayoutDashboard,
+    MessageCircle,
+    MessagesSquare,
+    RotateCcw,
+    Search,
+    Settings,
+    Share2,
+    Sparkles,
+    Target,
+    Timer,
+    TrendingUp,
+    UserRound,
+} from "lucide-react";
 
 export interface OnboardingStep {
-    illustration?: ReactNode | string;
+    icon: LucideIcon;
     title: string;
     description: string;
 }
@@ -9,17 +31,17 @@ export interface OnboardingStep {
 export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
     dashboard: [
         {
-            illustration: "/pig1.png",
+            icon: LayoutDashboard,
             title: "Welcome to PrepSt!",
             description: "Your personalized SAT prep dashboard. Everything you need to crush your test is right here.",
         },
         {
-            illustration: "/pig2.png",
+            icon: Timer,
             title: "Quick Start Practice",
             description: "Hit 'Quick Start' to jump into a timed practice session — we'll pick questions based on your skill level.",
         },
         {
-            illustration: "/pig4.png",
+            icon: TrendingUp,
             title: "Track Your Progress",
             description: "Your study plan and performance insights update in real-time. Stay on track and watch your score grow!",
         },
@@ -27,17 +49,17 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
 
     "study-plan": [
         {
-            illustration: "/pig5.png",
+            icon: CalendarCheck,
             title: "Your Personalized Study Plan",
             description: "We've created a custom schedule based on your goals and available time. Each session targets your weak areas.",
         },
         {
-            illustration: "/pig6.png",
+            icon: BookOpen,
             title: "Complete Sessions",
             description: "Work through each session in order. Mark them complete as you go — consistency is key!",
         },
         {
-            illustration: "/pig8.png",
+            icon: Sparkles,
             title: "Adapt & Improve",
             description: "Your plan updates automatically based on your performance. The more you practice, the smarter it gets.",
         },
@@ -45,12 +67,12 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
 
     drill: [
         {
-            illustration: "/pig1.png",
+            icon: Target,
             title: "Unlimited Topic Drills",
             description: "Practice any concept as much as you need. No daily limits — master topics at your own pace.",
         },
         {
-            illustration: "/pig2.png",
+            icon: Brain,
             title: "Focus on Weak Spots",
             description: "Choose topics where you need the most practice. Each drill adapts to challenge you appropriately.",
         },
@@ -58,12 +80,12 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
 
     analytics: [
         {
-            illustration: "/pig4.png",
+            icon: BarChart3,
             title: "Your Performance Dashboard",
             description: "See exactly where you stand. Track score trends, accuracy rates, and time per question.",
         },
         {
-            illustration: "/pig5.png",
+            icon: Search,
             title: "Identify Weak Areas",
             description: "Pinpoint which topics need the most attention so you can study smarter, not harder.",
         },
@@ -71,12 +93,12 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
 
     "mock-exam": [
         {
-            illustration: "/pig6.png",
+            icon: ClipboardCheck,
             title: "Full SAT Simulation",
             description: "Experience the real test format. Complete mock exams with accurate timing and question distribution.",
         },
         {
-            illustration: "/pig8.png",
+            icon: BarChart3,
             title: "Detailed Score Reports",
             description: "After each exam, get a full breakdown of your performance with actionable insights.",
         },
@@ -84,12 +106,12 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
 
     "question-pool": [
         {
-            illustration: "/pig4.png",
+            icon: Database,
             title: "Browse All Questions",
             description: "Explore our complete question bank. Filter by topic, difficulty, or question type.",
         },
         {
-            illustration: "/pig5.png",
+            icon: Bookmark,
             title: "Save for Later",
             description: "Bookmark questions you want to revisit. Build your own custom review sets.",
         },
@@ -97,7 +119,7 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
 
     progress: [
         {
-            illustration: "/pig6.png",
+            icon: TrendingUp,
             title: "Track Your Journey",
             description: "See how far you've come! Your progress history shows every session and improvement.",
         },
@@ -105,7 +127,7 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
 
     saved: [
         {
-            illustration: "/pig8.png",
+            icon: Bookmark,
             title: "Your Saved Questions",
             description: "All your bookmarked questions in one place. Perfect for targeted review sessions.",
         },
@@ -113,7 +135,7 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
 
     revision: [
         {
-            illustration: "/pig1.png",
+            icon: RotateCcw,
             title: "Smart Review",
             description: "Revisit questions you got wrong. Our spaced repetition helps you actually remember.",
         },
@@ -121,12 +143,12 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
 
     chat: [
         {
-            illustration: "/pig2.png",
+            icon: MessageCircle,
             title: "Meet Peppa AI",
             description: "Your 24/7 study companion! Ask any question and get instant, step-by-step explanations.",
         },
         {
-            illustration: "/pig4.png",
+            icon: MessagesSquare,
             title: "Ask Follow-ups",
             description: "Don't understand something? Keep asking! Peppa will explain it differently until it clicks.",
         },
@@ -134,7 +156,7 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
 
     "my-sat": [
         {
-            illustration: "/pig5.png",
+            icon: Target,
             title: "Your SAT Profile",
             description: "Set your target score and test date. We'll tailor everything to help you reach your goals.",
         },
@@ -142,7 +164,7 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
 
     vocab: [
         {
-            illustration: "/pig6.png",
+            icon: BookMarked,
             title: "SAT Vocabulary Builder",
             description: "Master essential words that appear on the test. Learn with context and spaced repetition.",
         },
@@ -150,7 +172,7 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
 
     "mind-map": [
         {
-            illustration: "/pig8.png",
+            icon: Share2,
             title: "Visual Learning",
             description: "See how concepts connect. Mind maps help you understand the big picture.",
         },
@@ -158,7 +180,7 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
 
     profile: [
         {
-            illustration: "/pig1.png",
+            icon: UserRound,
             title: "Your Profile",
             description: "View and update your account information, goals, and preferences.",
         },
@@ -166,7 +188,7 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
 
     settings: [
         {
-            illustration: "/pig2.png",
+            icon: Settings,
             title: "Customize Your Experience",
             description: "Adjust themes, notifications, and study preferences. Reset your study plan if needed.",
         },

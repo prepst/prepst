@@ -1,12 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
+    DialogTitle,
 } from "@/components/ui/dialog";
 import { useOnboarding } from "@/contexts/OnboardingContext";
 import { OnboardingStep } from "@/lib/onboardingContent";
@@ -60,6 +61,7 @@ export function OnboardingModal({ pageId, steps }: OnboardingModalProps) {
     if (!steps || steps.length === 0) return null;
 
     const step = steps[currentStep];
+    const StepIcon = step.icon;
     const isLastStep = currentStep === steps.length - 1;
     const isFirstStep = currentStep === 0;
 
@@ -75,24 +77,13 @@ export function OnboardingModal({ pageId, steps }: OnboardingModalProps) {
                     <X className="h-4 w-4 text-muted-foreground" />
                 </button>
 
-                {/* Illustration Area */}
-                <div className="relative h-56 bg-gradient-to-br from-primary/5 via-primary/10 to-transparent flex items-center justify-center overflow-hidden">
-                    {/* Decorative blurs */}
+                <div className="relative h-48 bg-gradient-to-br from-primary/5 via-primary/10 to-transparent flex items-center justify-center overflow-hidden">
                     <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/20 rounded-full blur-3xl" />
-                    <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-amber-500/15 rounded-full blur-3xl" />
+                    <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
 
-                    {/* Illustration */}
-                    {typeof step.illustration === "string" ? (
-                        <Image
-                            src={step.illustration}
-                            alt={step.title}
-                            width={160}
-                            height={160}
-                            className="relative z-10 drop-shadow-lg"
-                        />
-                    ) : (
-                        <div className="relative z-10">{step.illustration}</div>
-                    )}
+                    <div className="relative z-10 flex h-28 w-28 items-center justify-center rounded-[1.75rem] border border-primary/15 bg-background/80 shadow-sm">
+                        <StepIcon className="h-12 w-12 text-primary" strokeWidth={1.75} aria-hidden="true" />
+                    </div>
                 </div>
 
                 {/* Content Area */}
@@ -116,12 +107,12 @@ export function OnboardingModal({ pageId, steps }: OnboardingModalProps) {
 
                     {/* Text content */}
                     <div className="text-center space-y-2">
-                        <h2 className="text-2xl font-bold text-foreground tracking-tight">
+                        <DialogTitle className="text-2xl font-bold text-foreground tracking-tight">
                             {step.title}
-                        </h2>
-                        <p className="text-muted-foreground leading-relaxed">
+                        </DialogTitle>
+                        <DialogDescription className="text-base text-muted-foreground leading-relaxed">
                             {step.description}
-                        </p>
+                        </DialogDescription>
                     </div>
 
                     {/* Navigation buttons */}

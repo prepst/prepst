@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { useProfile } from "@/hooks/queries";
 import { useUpdatePreferences } from "@/hooks/mutations";
@@ -37,6 +38,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -50,11 +52,12 @@ function SettingsContent() {
   const { data: profileData } = useProfile();
   const { theme, setTheme } = useTheme();
   const updatePreferencesMutation = useUpdatePreferences();
-  const { signOut } = useAuth();
+  const { signOut, user, requestPasswordReset } = useAuth();
   const { resetAllOnboarding } = useOnboarding();
   const [activeTab, setActiveTab] = useState("account");
   const [saveStatus, setSaveStatus] = useState<string | null>(null);
   const [isResetting, setIsResetting] = useState(false);
+  const [isSendingReset, setIsSendingReset] = useState(false);
 
   const handleThemeChange = (newTheme: "light" | "dark" | "auto") => {
     setTheme(newTheme);
@@ -172,6 +175,57 @@ function SettingsContent() {
                       </div>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card border-border">
+                <CardHeader>
+                  <CardTitle className="text-foreground">Password</CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    We'll email a link to choose a new password
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    {user?.email || profileData?.profile.email || "Your sign-in email"}
+                  </p>
+                  <Button
+                    variant="outline"
+                    disabled={isSendingReset || !(user?.email || profileData?.profile.email)}
+                    onClick={async () => {
+                      const email = user?.email || profileData?.profile.email;
+                      if (!email) return;
+                      try {
+                        setIsSendingReset(true);
+                        await requestPasswordReset(email);
+                        setSaveStatus("Password reset email sent");
+                      } catch {
+                        setSaveStatus("Failed to send password reset email");
+                      } finally {
+                        setIsSendingReset(false);
+                        setTimeout(() => setSaveStatus(null), 3000);
+                      }
+                    }}
+                  >
+                    {isSendingReset ? "Sending..." : "Email reset link"}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-card border-border">
+                <CardHeader>
+                  <CardTitle className="text-foreground">Legal</CardTitle>
+                  <CardDescription className="text-muted-foreground">
+                    How Prep St handles your account
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-wrap gap-3">
+                  <Button variant="outline" asChild>
+                    <Link href="/privacy">Privacy Policy</Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link href="/terms">Terms of Service</Link>
+                  </Button>
                 </CardContent>
               </Card>
 
@@ -366,7 +420,9 @@ function SettingsContent() {
                           </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
-                          <Button variant="outline" onClick={() => { }}>Cancel</Button>
+                          <DialogClose asChild>
+                            <Button variant="outline">Cancel</Button>
+                          </DialogClose>
                           <Button
                             variant="destructive"
                             onClick={handleResetStudyPlan}

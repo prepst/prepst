@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { BookOpen, XCircle } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import { useWrongAnswers } from "@/hooks/queries";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -170,12 +170,6 @@ function MissedQuestionsContent() {
           {/* Header */}
           <div className="flex flex-col gap-4">
             <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-destructive/10 border border-destructive/20 w-fit">
-                <XCircle className="w-3.5 h-3.5 text-destructive" />
-                <span className="text-xs font-semibold text-destructive uppercase tracking-wide">
-                  Missed Questions
-                </span>
-              </div>
               <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                 Missed Questions
               </h1>

@@ -78,10 +78,6 @@ export function TestDateCountdown({ testDate, onEditClick, compact = false }: Te
         return (
             <div className="bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 rounded-2xl p-6 border border-primary/20 shadow-sm h-full flex flex-col justify-center">
                 <div className="text-center space-y-3">
-                    <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/10 border border-primary/20">
-                        <Calendar className="w-3.5 h-3.5 text-primary" />
-                        <span className="text-xs font-semibold text-primary">Test Date</span>
-                    </div>
                     <h2 className="text-lg font-bold text-foreground">Set Your SAT Date</h2>
                     <p className="text-sm text-muted-foreground">
                         Set your test date for a personalized countdown.

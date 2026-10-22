@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { TrendingUp, Calendar, Zap, ClipboardList } from "lucide-react";
+import { TrendingUp, Calendar, ClipboardList } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 import { ONBOARDING_CONTENT } from "@/lib/onboardingContent";
@@ -205,12 +205,6 @@ function ProgressContent() {
         {/* Header */}
         <div className="mb-12">
           <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 w-fit">
-              <Zap className="w-3.5 h-3.5 text-primary" />
-              <span className="text-xs font-semibold text-primary uppercase tracking-wide">
-                Track Your Progress
-              </span>
-            </div>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-2">
               Progress Dashboard
             </h1>

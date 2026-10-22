@@ -233,12 +233,6 @@ function StudyPlanContent() {
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-3">
-              <Zap className="w-3.5 h-3.5 text-primary" />
-              <span className="text-xs font-semibold text-primary uppercase tracking-wide">
-                Personalized Learning
-              </span>
-            </div>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               SAT Study Plan
             </h1>

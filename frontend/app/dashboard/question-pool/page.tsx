@@ -490,12 +490,6 @@ function QuestionPoolContent() {
           {/* Header */}
           <div className="flex flex-col gap-4">
             <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 w-fit">
-                <Database className="w-3.5 h-3.5 text-primary" />
-                <span className="text-xs font-semibold text-primary uppercase tracking-wide">
-                  Question Pool
-                </span>
-              </div>
               <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                 Question Pool
               </h1>

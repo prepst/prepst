@@ -154,11 +154,6 @@ function ResultsContent() {
       <div className="max-w-6xl mx-auto space-y-10">
         {/* Hero Section */}
         <div className="text-center space-y-4 animate-in fade-in slide-in-from-top-4 duration-700">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
-            <span className="text-sm font-medium text-primary">
-              Diagnostic Complete
-            </span>
-          </div>
           <h1 className="text-4xl md:text-5xl font-extrabold text-foreground tracking-tight">
             Your Results Are In
           </h1>
@@ -429,11 +424,6 @@ function ResultsContent() {
 
           <div className="relative flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="text-center lg:text-left space-y-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
-                    <span className="text-sm font-medium text-primary">
-                  Ready to begin?
-                </span>
-              </div>
               <h2 className="text-2xl md:text-3xl font-bold text-foreground">
                 Start Your Personalized Journey
               </h2>

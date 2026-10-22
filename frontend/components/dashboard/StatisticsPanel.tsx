@@ -168,10 +168,15 @@ export function StatisticsPanel({
 
   // Use cached data immediately, fall back to fresh data or defaults
   const displayPhoto =
-    cachedProfilePhoto ||
-    profileData?.profile?.profile_photo_url ||
-    "/profile.png";
+    cachedProfilePhoto || profileData?.profile?.profile_photo_url || null;
   const displayName = cachedDisplayName || getDisplayName() || userName;
+  const initials = (() => {
+    const parts = displayName.trim().split(/\s+/).filter(Boolean);
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+    }
+    return (displayName[0] || "U").toUpperCase();
+  })();
 
   // Only show profile if we have cache OR profile data is loaded
   const hasProfileData =
@@ -189,14 +194,20 @@ export function StatisticsPanel({
           <div className="relative mb-5">
             <div className="w-36 h-36 rounded-full bg-primary/5 flex items-center justify-center relative shadow-sm border border-border">
               <div className="w-32 h-32 rounded-full bg-card flex items-center justify-center">
-                <div className="w-28 h-28 rounded-full overflow-hidden">
-                  <Image
-                    src={displayPhoto}
-                    alt="Profile"
-                    width={112}
-                    height={112}
-                    className="object-cover"
-                  />
+                <div className="w-28 h-28 rounded-full overflow-hidden bg-primary/10 flex items-center justify-center">
+                  {displayPhoto ? (
+                    <Image
+                      src={displayPhoto}
+                      alt="Profile"
+                      width={112}
+                      height={112}
+                      className="object-cover h-full w-full"
+                    />
+                  ) : (
+                    <span className="text-3xl font-semibold text-primary">
+                      {initials}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

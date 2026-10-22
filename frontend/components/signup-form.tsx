@@ -232,19 +232,19 @@ export function SignupForm({
               </a>
             </p>
             <p className="text-xs text-muted-foreground/60 px-6">
-              By clicking continue, you agree to our <a href="#" className="underline hover:text-primary">Terms of Service</a> and <a href="#" className="underline hover:text-primary">Privacy Policy</a>.
+              By clicking continue, you agree to our <a href="/terms" className="underline hover:text-primary">Terms of Service</a> and <a href="/privacy" className="underline hover:text-primary">Privacy Policy</a>.
             </p>
           </div>
         </div>
 
-        {/* Image Side */}
-        <div className="relative hidden md:block bg-muted/30">
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10" />
-          <img
-            src="/hero2.png"
-            alt="Signup Hero"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+        <div className="relative hidden md:flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-primary/5 p-10">
+          <div className="max-w-sm text-center">
+            <img src="/prepst.svg" alt="" className="mx-auto mb-6 h-16 w-auto" />
+            <h2 className="text-2xl font-bold text-foreground">Practice with a plan</h2>
+            <p className="mt-3 text-muted-foreground">
+              Study plans, drills, vocabulary, and full mock exams. Free for students.
+            </p>
+          </div>
         </div>
       </div>
     </div>

@@ -22,6 +22,32 @@ import { useProfile } from "@/hooks/queries";
 import { profileCache } from "@/lib/profile-cache";
 import { useState, useEffect } from "react";
 
+function ProfilePhoto({
+  src,
+  initials,
+}: {
+  src: string | null;
+  initials: string;
+}) {
+  if (src) {
+    return (
+      <Image
+        src={src}
+        alt=""
+        width={48}
+        height={48}
+        className="h-full w-full object-cover"
+      />
+    );
+  }
+
+  return (
+    <span className="flex h-full w-full items-center justify-center bg-primary/10 text-sm font-semibold text-primary">
+      {initials || "U"}
+    </span>
+  );
+}
+
 // Initialize cache synchronously to avoid flicker
 const getInitialCache = () => {
   if (typeof window === 'undefined') return { photo: null, name: "" };
@@ -128,8 +154,7 @@ export function ProfileDropdown({
     }
   };
 
-  // Use cached data immediately, fall back to fresh data or defaults
-  const displayPhoto = cachedProfilePhoto || profileData?.profile?.profile_photo_url || "/profile.png";
+  const displayPhoto = cachedProfilePhoto || profileData?.profile?.profile_photo_url || null;
   const displayName = cachedDisplayName || getDisplayName() || user?.email?.split("@")[0] || "";
 
   // Only show profile if we have cache OR profile data is loaded
@@ -148,13 +173,7 @@ export function ProfileDropdown({
             size="icon"
             className="w-12 h-12 rounded-2xl p-0 overflow-hidden hover:bg-muted/60 transition-all duration-200"
           >
-            <Image
-              src={displayPhoto}
-              alt="Profile"
-              width={48}
-              height={48}
-              className="object-cover"
-            />
+            <ProfilePhoto src={displayPhoto} initials={getInitials()} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56" align="start">
@@ -193,13 +212,7 @@ export function ProfileDropdown({
           >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 border border-border/50 shadow-sm">
-                <Image
-                  src={displayPhoto}
-                  alt="Profile"
-                  width={40}
-                  height={40}
-                  className="object-cover"
-                />
+                <ProfilePhoto src={displayPhoto} initials={getInitials()} />
               </div>
               {/* <div className="flex flex-col items-start flex-1">
                 <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">

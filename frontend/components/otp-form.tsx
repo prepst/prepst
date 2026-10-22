@@ -237,43 +237,29 @@ export function OTPForm({ className, ...props }: React.ComponentProps<"div">) {
               </Field>
             </FieldGroup>
           </form>
-          <div className="bg-gradient-to-br from-violet-50 to-violet-100 relative hidden md:block">
-            <img
-              src="/hero.png"
-              alt="SAT Prep Hero Image"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            <div className="relative h-full flex items-center justify-center p-8">
-              <div className="text-center text-black">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-white/20 backdrop-blur-sm rounded-3xl mb-6">
-                  <span className="text-4xl font-bold">P</span>
-                </div>
-                <h2
-                  className="text-3xl font-bold mb-4"
-                  style={{
-                    fontFamily:
-                      "SF Pro Display, -apple-system, BlinkMacSystemFont, sans-serif",
-                  }}
-                >
-                  Verify Your Account
-                </h2>
-                <p
-                  className="text-lg opacity-90"
-                  style={{
-                    fontFamily:
-                      "SF Pro Text, -apple-system, BlinkMacSystemFont, sans-serif",
-                  }}
-                >
-                  Check your email for the verification code
-                </p>
-              </div>
+          <div className="relative hidden md:flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-primary/5 p-8">
+            <div className="text-center">
+              <img src="/prepst.svg" alt="" className="mx-auto mb-6 h-16 w-auto" />
+              <h2 className="text-3xl font-bold mb-3 text-foreground">
+                Verify your account
+              </h2>
+              <p className="text-base text-muted-foreground">
+                Check your email for the 6-digit code, then come back here to finish signing up.
+              </p>
             </div>
           </div>
         </CardContent>
       </Card>
       <FieldDescription className="text-center">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
+        By clicking continue, you agree to our{" "}
+        <a href="/terms" className="underline hover:text-primary">
+          Terms of Service
+        </a>{" "}
+        and{" "}
+        <a href="/privacy" className="underline hover:text-primary">
+          Privacy Policy
+        </a>
+        .
       </FieldDescription>
     </div>
   );

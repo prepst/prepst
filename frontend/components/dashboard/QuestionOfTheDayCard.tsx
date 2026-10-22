@@ -141,16 +141,17 @@ export default function QuestionOfTheDayCard() {
     <>
       <button
         type="button"
-        className="flex h-full w-full flex-col rounded-xl border border-border bg-card p-6 text-left hover:bg-muted/40"
+        className="flex h-full w-full flex-col overflow-hidden rounded-xl border border-border bg-card text-left hover:bg-muted/40"
         onClick={handleQuestionClick}
       >
-        <div className="flex h-full flex-col">
+        <div className="h-1.5 bg-schedule" />
+        <div className="flex h-full flex-col p-6">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-sm font-medium text-foreground">
+            <h2 className="text-sm font-medium text-schedule">
               Question of the day
             </h2>
             {isCompleted && (
-              <span className="inline-flex items-center gap-1 text-sm text-emerald-600 dark:text-emerald-400">
+              <span className="inline-flex items-center gap-1 text-sm text-progress">
                 <CheckCircle2 className="h-4 w-4" />
                 Done
               </span>

@@ -1,18 +1,28 @@
 import Link from "next/link";
+import { BookOpen, PenLine, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const work = [
   {
     title: "Study plan",
     detail: "A schedule from your test date and the topics you miss.",
+    icon: BookOpen,
+    bar: "bg-study",
+    chip: "bg-study-soft text-study",
   },
   {
     title: "Practice",
     detail: "Short blocks when you have 15 minutes, or a full mock exam.",
+    icon: PenLine,
+    bar: "bg-practice",
+    chip: "bg-practice-soft text-practice",
   },
   {
     title: "Review",
     detail: "Explanations, vocabulary, and the questions you saved.",
+    icon: RotateCcw,
+    bar: "bg-exam",
+    chip: "bg-exam-soft text-exam",
   },
 ];
 
@@ -53,13 +63,19 @@ export function LandingPage() {
           </div>
         </div>
 
-        <ul className="mt-16 divide-y divide-border border-y border-border">
+        <ul className="mt-16 grid gap-4 sm:grid-cols-3">
           {work.map((item) => (
-            <li key={item.title} className="py-6">
-              <h2 className="text-lg font-semibold">{item.title}</h2>
-              <p className="mt-1 max-w-xl text-sm leading-relaxed text-muted-foreground">
-                {item.detail}
-              </p>
+            <li key={item.title} className="overflow-hidden rounded-xl border border-border bg-card">
+              <div className={`h-1.5 ${item.bar}`} />
+              <div className="p-5">
+                <div className={`mb-4 flex h-9 w-9 items-center justify-center rounded-lg ${item.chip}`}>
+                  <item.icon className="h-4 w-4" aria-hidden="true" />
+                </div>
+                <h2 className="text-lg font-semibold">{item.title}</h2>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  {item.detail}
+                </p>
+              </div>
             </li>
           ))}
         </ul>

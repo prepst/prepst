@@ -106,7 +106,7 @@ const StatCard = ({ item }: StatCardProps) => {
                     backdrop-blur-sm
                     transition-all duration-300 ease-out
                     shadow-lg ${theme.glow}
-                    hover:scale-[1.02]
+                    
                 `}
                 onMouseMove={handleMouseMove}
                 onMouseLeave={handleMouseLeave}

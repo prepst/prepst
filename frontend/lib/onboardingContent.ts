@@ -32,7 +32,7 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
     dashboard: [
         {
             icon: LayoutDashboard,
-            title: "Welcome to PrepSt!",
+            title: "Welcome to Prep St",
             description: "Your personalized SAT prep dashboard. Everything you need to crush your test is right here.",
         },
         {

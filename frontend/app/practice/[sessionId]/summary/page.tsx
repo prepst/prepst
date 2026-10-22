@@ -592,17 +592,11 @@ function SummaryContent() {
               <Button
                 onClick={generateAllFeedback}
                 disabled={generatingFeedback || sessionSummary !== null}
-                className={`
-                  relative h-12 px-8 font-semibold text-base rounded-xl transition-all duration-300 shadow-lg
-                  ${generatingFeedback || sessionSummary !== null
+                className={
+                  generatingFeedback || sessionSummary !== null
                     ? "cursor-not-allowed opacity-60"
-                    : "hover:scale-[1.02] hover:shadow-xl"
-                  }
-                `}
-                style={{
-                  backgroundColor: sessionSummary !== null ? "#22c55e" : "#866ffe",
-                  color: "white",
-                }}
+                    : undefined
+                }
               >
                 {/* Animated shimmer effect */}
                 {!sessionSummary && !generatingFeedback && (
@@ -821,21 +815,17 @@ function SummaryContent() {
                       <Sparkles className="w-12 h-12 text-primary" />
                     </div>
                   </div>
-                  <h3 className="text-xl font-bold text-foreground mt-8 mb-3">
-                    Unlock AI-Powered Insights
+                  <h3 className="mt-8 mb-3 text-lg font-semibold text-foreground">
+                    Review this session
                   </h3>
-                  <p className="text-muted-foreground max-w-md mx-auto leading-relaxed text-lg mb-8">
-                    Get a comprehensive analysis of your session including strengths,
-                    areas to improve, pacing insights, and personalized tips.
+                  <p className="mx-auto mb-8 max-w-md text-sm leading-relaxed text-muted-foreground">
+                    See which questions to redo, where time went, and what to practice next.
                   </p>
                   <Button
                     onClick={generateAllFeedback}
                     disabled={generatingFeedback}
-                    className="h-12 px-8 font-semibold text-base rounded-xl shadow-lg hover:scale-[1.02] hover:shadow-xl transition-all duration-300"
-                    style={{ backgroundColor: "#866ffe", color: "white" }}
                   >
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Generate Insights Now
+                    Show review
                   </Button>
                 </div>
               )}
@@ -853,18 +843,15 @@ function SummaryContent() {
           <Button
             variant="outline"
             onClick={() => router.push(`/practice/${sessionId}`)}
-            className="h-10 px-6 border-border/60 bg-background/50 hover:bg-accent hover:border-primary/30 transition-all text-base font-semibold min-w-[200px] shadow-sm hover:shadow-md"
+            className="h-10 min-w-[200px] px-6"
           >
             Review Questions
           </Button>
           <Button
             onClick={() => router.push("/dashboard/study-plan")}
-            className="h-10 px-6 font-semibold transition-all shadow-sm text-white hover:opacity-90 text-base min-w-[200px] flex items-center justify-center gap-2"
-            style={{
-              backgroundColor: "#866ffe",
-            }}
+            className="h-10 min-w-[200px] px-6"
           >
-            Return to Dashboard
+            Back to study plan
             <ArrowRight className="w-4 h-4" />
           </Button>
         </motion.div>

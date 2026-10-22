@@ -221,7 +221,7 @@ export function SessionTableView({ sessions, mockExams = [] }: SessionTableViewP
                       className={`gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${
                         status === "overdue"
                           ? ""
-                          : "border-transparent bg-[#866ffe] text-white hover:bg-[#7b63fe] !text-white"
+                          : "border-transparent bg-primary text-white hover:bg-[#7b63fe] !text-white"
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -257,7 +257,7 @@ export function SessionTableView({ sessions, mockExams = [] }: SessionTableViewP
                       className={`h-8 text-xs gap-1 ${
                         status === "overdue"
                           ? ""
-                          : "border-transparent bg-[#866ffe] text-white hover:bg-[#7b63fe] !text-white"
+                          : "border-transparent bg-primary text-white hover:bg-[#7b63fe] !text-white"
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();

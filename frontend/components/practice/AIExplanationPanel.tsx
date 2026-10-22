@@ -595,7 +595,7 @@ export function AIExplanationPanel({
                                         <button
                                             key={index}
                                             onClick={() => handlePromptClick(prompt)}
-                                            className="w-full px-4 py-3 bg-muted hover:bg-muted/80 border border-border rounded-xl text-foreground text-sm font-medium transition-all hover:scale-[1.02]"
+                                            className="w-full px-4 py-3 bg-muted hover:bg-muted/80 border border-border rounded-xl text-foreground text-sm font-medium transition-all "
                                         >
                                             {prompt}
                                         </button>

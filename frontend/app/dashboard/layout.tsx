@@ -305,22 +305,13 @@ export default function DashboardLayout({
             {/* Toggle button aligned with menu items */}
             <button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className={`absolute -right-3 top-8 w-8 h-8 bg-background rounded-full flex items-center justify-center hover:bg-muted transition-all duration-300 shadow-sm z-50 group ${isMobile ? "hidden" : "flex"
-                }`}
-              style={{
-                border: "1px solid #866ffe",
-              }}
+              className="absolute -right-3 top-8 z-50 hidden h-8 w-8 items-center justify-center rounded-full border border-border bg-background hover:bg-muted lg:flex"
+              aria-label={isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
             >
               {isSidebarCollapsed ? (
-                <ChevronRight
-                  className="w-4 h-4 transition-colors"
-                  style={{ color: "#866ffe" }}
-                />
+                <ChevronRight className="h-4 w-4 text-foreground" />
               ) : (
-                <ChevronLeft
-                  className="w-4 h-4 transition-colors"
-                  style={{ color: "#866ffe" }}
-                />
+                <ChevronLeft className="h-4 w-4 text-foreground" />
               )}
             </button>
 
@@ -609,7 +600,7 @@ export default function DashboardLayout({
               <div className="space-y-4 pb-6 px-2 pt-2">
                 <Link href="/signup" className="block">
                   <Button
-                    className={`w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20 rounded-xl ${isSidebarCollapsed
+                    className={`w-full bg-primary text-primary-foreground hover:bg-primary/90  rounded-xl ${isSidebarCollapsed
                         ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center"
                         : "h-12 px-4"
                       }`}
@@ -618,7 +609,7 @@ export default function DashboardLayout({
                     {isSidebarCollapsed ? (
                       <UserPlus className="w-5 h-5" />
                     ) : (
-                      "Sign Up"
+                      "Sign up"
                     )}
                   </Button>
                 </Link>
@@ -634,7 +625,7 @@ export default function DashboardLayout({
                     {isSidebarCollapsed ? (
                       <LogIn className="w-5 h-5" />
                     ) : (
-                      "Sign In"
+                      "Sign in"
                     )}
                   </Button>
                 </Link>

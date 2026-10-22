@@ -385,7 +385,7 @@ export default function ChatPage() {
                       <Button
                         size="icon"
                         className={`h-9 w-9 rounded-full transition-all duration-200 ${inputMessage.trim() || isStreaming
-                            ? "bg-foreground text-background shadow-md hover:opacity-90 hover:scale-105"
+                            ? "bg-foreground text-background shadow-md hover:opacity-90 "
                             : "bg-muted text-muted-foreground hover:bg-muted/80"
                           }`}
                         onClick={handleSendMessage}

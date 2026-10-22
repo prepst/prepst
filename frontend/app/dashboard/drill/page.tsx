@@ -205,7 +205,7 @@ function DrillPage() {
                   Targeted Practice
                 </span>
               </div>
-              <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                 Drill Session
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl">
@@ -252,7 +252,7 @@ function DrillPage() {
                     onClick={handleStartDrill}
                     disabled={selectedTopics.length === 0 || isCreatingSession}
                     size="lg"
-                    className="bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary text-white font-semibold shadow-lg shadow-primary/25 px-8 transition-all hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                    className="px-8 disabled:opacity-50"
                   >
                     {isCreatingSession ? (
                       <>

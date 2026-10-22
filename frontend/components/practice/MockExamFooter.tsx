@@ -156,11 +156,8 @@ export function MockExamFooter({
           {onShowExplanation && hasRationale && (
             <Button
               onClick={onShowExplanation}
-              className="h-10 px-6 font-semibold transition-all shadow-sm text-base flex items-center gap-2"
-              style={{
-                backgroundColor: "rgba(134, 111, 254, 0.3)",
-                color: "#866ffe",
-              }}
+              variant="outline"
+              className="h-10 px-6 text-base"
             >
               <Lightbulb className="size-4" />
               Explanation
@@ -186,10 +183,7 @@ export function MockExamFooter({
             <Button
               onClick={onSubmit}
               disabled={isSubmitting}
-              className="h-10 px-6 font-semibold transition-all shadow-sm text-white hover:opacity-90 text-base"
-              style={{
-                backgroundColor: "#866ffe",
-              }}
+              className="h-10 px-6 text-base"
             >
               {isSubmitting ? (
                 <>
@@ -206,10 +200,7 @@ export function MockExamFooter({
           ) : (
             <Button
               onClick={onNext}
-              className="h-10 px-6 font-semibold transition-all shadow-sm text-white hover:opacity-90 text-base"
-              style={{
-                backgroundColor: "#866ffe",
-              }}
+              className="h-10 px-6 text-base"
             >
               Next
               <ChevronRight className="w-4 h-4 ml-2" />

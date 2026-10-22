@@ -38,7 +38,7 @@ export function TodoSection({
     >
       {/* Header */}
       <div className="p-6 border-b border-border/40 flex items-center gap-4">
-        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl transition-transform group-hover:scale-105
+        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl transition-transform group-
           ${isMockSection ? "bg-blue-500/10 text-blue-600" : "bg-primary/10 text-primary"}
         `}>
           {section.icon}

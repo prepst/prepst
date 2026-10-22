@@ -90,7 +90,7 @@ function SessionsContent() {
                 Session History
               </span>
             </div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               Sessions
             </h1>
             <p className="text-muted-foreground max-w-2xl">

@@ -205,7 +205,7 @@ function StudyPlanContent() {
             <div className="inline-flex items-center justify-center w-24 h-24 bg-primary/10 rounded-3xl mb-8">
               <Zap className="w-10 h-10 text-primary" />
             </div>
-            <h2 className="text-4xl font-extrabold tracking-tight text-foreground mb-4">
+            <h2 className="text-2xl font-semibold tracking-tight text-foreground mb-4">
               No Study Plan Yet
             </h2>
             <p className="text-lg text-muted-foreground mb-8 max-w-md mx-auto leading-relaxed">
@@ -215,7 +215,7 @@ function StudyPlanContent() {
             <Button
               onClick={() => router.push("/onboard")}
               size="lg"
-              className="h-12 px-8 text-base rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
+              className="h-12 px-8 text-base rounded-xl shadow-lg hover:shadow-xl transition-all "
             >
               Create Study Plan
             </Button>
@@ -239,7 +239,7 @@ function StudyPlanContent() {
                 Personalized Learning
               </span>
             </div>
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               SAT Study Plan
             </h1>
             <p className="text-muted-foreground mt-1">

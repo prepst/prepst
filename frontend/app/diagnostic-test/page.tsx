@@ -125,7 +125,7 @@ function DiagnosticTestLandingContent() {
               onClick={handleCreateTest}
               disabled={isCreating}
               size="lg"
-              className="h-14 px-8 text-lg font-semibold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:-translate-y-0.5"
+              className="h-14 px-8 text-lg font-semibold   transition-all "
             >
               {isCreating ? (
                 <>

@@ -497,7 +497,7 @@ function QuestionPoolContent() {
                   Question Pool
                 </span>
               </div>
-              <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                 Question Pool
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl">
@@ -708,7 +708,7 @@ function QuestionPoolContent() {
                                   );
                                 }}
                                 disabled={creatingTopicSessionId === topic.topic_id}
-                                className="h-7 rounded-md border-transparent bg-[#866ffe] px-2.5 text-[11px] font-semibold text-white shadow-sm hover:bg-[#7b63fe] !text-white"
+                                className="h-7 rounded-md border-transparent bg-primary px-2.5 text-[11px] font-semibold text-white shadow-sm hover:bg-[#7b63fe] !text-white"
                               >
                                 <Play className="mr-1 h-3 w-3 fill-current" />
                                 {creatingTopicSessionId === topic.topic_id

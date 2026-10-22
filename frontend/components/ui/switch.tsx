@@ -26,11 +26,10 @@ const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
         <div
           className={cn(
             "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
-            checked ? "" : "bg-gray-200",
+            checked ? "bg-primary" : "bg-muted",
             "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2",
             className
           )}
-          style={checked ? { backgroundColor: "#866ffe" } : undefined}
         >
           <span
             className={cn(

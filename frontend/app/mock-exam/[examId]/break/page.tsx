@@ -124,7 +124,7 @@ function BreakContent() {
             onClick={handleContinue}
             disabled={!canContinue}
             size="lg"
-            className="w-full bg-[#866ffe] hover:bg-[#7a5ffe] text-white text-lg py-6"
+            className="w-full bg-primary hover:bg-primary/90 text-white text-lg py-6"
           >
             {nextModuleId ? 'Continue to Next Module' : 'View Results'}
           </Button>

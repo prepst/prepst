@@ -311,7 +311,7 @@ function ProgressContent() {
                           x2="100%"
                           y2="0%"
                         >
-                          <stop offset="0%" stopColor="#866ffe" />
+                          <stop offset="0%" stopColor="#1d9bf0" />
                           <stop offset="100%" stopColor="#a78bfa" />
                         </linearGradient>
                       </defs>
@@ -710,7 +710,7 @@ function ProgressContent() {
                           x2="100%"
                           y2="0%"
                         >
-                          <stop offset="0%" stopColor="#866ffe" />
+                          <stop offset="0%" stopColor="#1d9bf0" />
                           <stop offset="100%" stopColor="#a78bfa" />
                         </linearGradient>
                       </defs>

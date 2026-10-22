@@ -362,7 +362,7 @@ export default function DashboardLayout({
                         {/* Collapsible Header - Navigate when collapsed, expand/collapse when expanded */}
                         {isSidebarCollapsed ? (
                           <Link
-                            href={item.href}
+                            href={user || item.href === "/dashboard" ? item.href : "/login"}
                             className={`w-full flex items-center rounded-2xl transition-all duration-200 group ${isActive
                                 ? "bg-primary/10 text-primary font-semibold"
                                 : "hover:bg-muted/60 text-muted-foreground hover:text-foreground font-medium"
@@ -442,7 +442,7 @@ export default function DashboardLayout({
                   return (
                     <Link
                       key={item.href}
-                      href={item.href}
+                      href={user || item.href === "/dashboard" ? item.href : "/login"}
                       className={`rounded-2xl transition-all duration-200 group ${isActive
                           ? "bg-primary/10 text-primary font-semibold"
                           : "hover:bg-muted/60 hover:text-foreground text-muted-foreground font-medium"
@@ -491,7 +491,7 @@ export default function DashboardLayout({
                     return (
                       <Link
                         key={item.href}
-                        href={item.href}
+                        href={user || item.href === "/dashboard" ? item.href : "/login"}
                         className={`rounded-2xl transition-all duration-200 group ${isActive
                             ? "bg-primary/10 text-primary font-semibold"
                             : item.name === "Mind Map"
@@ -551,7 +551,7 @@ export default function DashboardLayout({
                 return (
                   <Link
                     key={item.href}
-                    href={item.href}
+                    href={user || item.href === "/dashboard" ? item.href : "/login"}
                     className={`rounded-2xl transition-all duration-200 group ${isActive
                         ? "bg-primary/10 text-primary font-semibold"
                         : "hover:bg-muted/60 hover:text-foreground text-muted-foreground font-medium"

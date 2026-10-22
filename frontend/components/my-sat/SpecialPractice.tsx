@@ -15,6 +15,7 @@ import { api } from "@/lib/api";
 import { formatDistanceToNow } from "date-fns";
 import { buildPracticeSessionPath } from "@/lib/practice-navigation";
 import { useRecentDrills } from "@/hooks/queries";
+import { useAuth } from "@/contexts/AuthContext";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -231,6 +232,7 @@ export function SessionHistoryItem({ session, onNavigate }: { session: DrillSess
 
 export function SpecialPractice() {
     const router = useRouter();
+    const { user } = useAuth();
     const [userPrompt, setUserPrompt] = useState("");
     const [isCreating, setIsCreating] = useState(false);
     const [showChat, setShowChat] = useState(false);
@@ -252,11 +254,19 @@ export function SpecialPractice() {
     }, [isCreating]);
 
     const handlePromptClick = (prompt: string) => {
+        if (!user) {
+            router.push("/login");
+            return;
+        }
         setUserPrompt(prompt);
         setShowChat(true);
     };
 
     const handleSubmit = async () => {
+        if (!user) {
+            router.push("/login");
+            return;
+        }
         if (!userPrompt.trim()) {
             toast.error("Please describe what you'd like to practice");
             return;
@@ -287,6 +297,10 @@ export function SpecialPractice() {
     };
 
     const handleNavigateSession = (sessionId: string) => {
+        if (!user) {
+            router.push("/login");
+            return;
+        }
         router.push(buildPracticeSessionPath(sessionId, "/dashboard"));
     };
 
@@ -479,7 +493,13 @@ export function SpecialPractice() {
                                     "hover:shadow-[0_4px_8px_-2px_rgba(0,0,0,0.08)]",
                                     "active:shadow-[inset_0_1px_2px_0_rgba(0,0,0,0.06)]"
                                 )}
-                                onClick={() => setShowChat(true)}
+                                onClick={() => {
+                                    if (!user) {
+                                        router.push("/login");
+                                        return;
+                                    }
+                                    setShowChat(true);
+                                }}
                             >
                                 <Sparkles className="w-4 h-4 mr-2" />
                                 Create New Peppa Session
@@ -503,7 +523,7 @@ export function SpecialPractice() {
                                     variant="ghost"
                                     size="sm"
                                     className="text-xs text-muted-foreground hover:text-foreground h-7 px-2"
-                                    onClick={() => router.push("/dashboard/sessions")}
+                                    onClick={() => router.push(user ? "/dashboard/sessions" : "/login")}
                                 >
                                     View All <ChevronRight className="w-3 h-3 ml-0.5" />
                                 </Button>

@@ -94,7 +94,7 @@ export function MobileNav() {
             return (
               <li key={item.href}>
                 <Link
-                  href={item.href}
+                  href={user || item.href === "/dashboard" ? item.href : "/login"}
                   className={`flex flex-col items-center gap-1 py-2 text-[11px] font-medium ${
                     active ? "text-primary" : "text-muted-foreground"
                   }`}
@@ -156,7 +156,7 @@ export function MobileNav() {
                 return (
                   <li key={item.href}>
                     <Link
-                      href={item.href}
+                      href={user || item.href === "/dashboard" ? item.href : "/login"}
                       className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium ${
                         active ? "bg-primary/10 text-primary" : "hover:bg-muted"
                       }`}

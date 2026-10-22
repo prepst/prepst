@@ -336,7 +336,7 @@ export default function DashboardPage() {
                 </h2>
                 <Button
                   variant="ghost"
-                  onClick={() => router.push("/dashboard/sessions")}
+                  onClick={() => router.push(user ? "/dashboard/sessions" : "/login")}
                 >
                   View sessions
                   <ArrowRight className="h-4 w-4" />
@@ -349,12 +349,12 @@ export default function DashboardPage() {
                     session={nextSession}
                     isLoading={isLoading}
                     hasPlan={(studyPlan?.study_plan?.sessions?.length ?? 0) > 0}
-                    onStart={() => router.push("/dashboard/study-plan")}
+                    onStart={() => router.push(user ? "/dashboard/study-plan" : "/login")}
                   />
                 </div>
                 <div className="md:col-span-1 lg:col-span-1 xl:col-span-1">
                   <RecommendationCard
-                    onStart={() => router.push("/dashboard/drill")}
+                    onStart={() => router.push(user ? "/dashboard/drill" : "/login")}
                   />
                 </div>
               </div>

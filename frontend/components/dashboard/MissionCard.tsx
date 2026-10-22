@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Play } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Session {
   id: string;
@@ -28,6 +29,7 @@ export default function MissionCard({
   onStart,
 }: MissionCardProps) {
   const router = useRouter();
+  const { user } = useAuth();
 
   if (isLoading) {
     return (
@@ -46,7 +48,7 @@ export default function MissionCard({
             ? "Every scheduled session is done. Make a new plan, or keep practicing from Drill."
             : "Set a test date and Prep St will build the sessions."}
         </p>
-        <Button className="mt-6" onClick={() => router.push("/onboard")}>
+        <Button className="mt-6" onClick={() => router.push(user ? "/onboard" : "/login")}>
           {hasPlan ? "Create a new plan" : "Create a study plan"}
         </Button>
       </div>

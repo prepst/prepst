@@ -1,12 +1,16 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 import { Loader2, ArrowRight, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { QuestionPracticePopup } from "@/components/revision/QuestionPracticePopup";
 import type { SessionQuestion } from "@/lib/types";
 
 export default function QuestionOfTheDayCard() {
+  const router = useRouter();
+  const { user } = useAuth();
   const [question, setQuestion] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedQuestion, setSelectedQuestion] =
@@ -114,6 +118,10 @@ export default function QuestionOfTheDayCard() {
   };
 
   const handleQuestionClick = async () => {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
     if (!question) return;
 
     try {

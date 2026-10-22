@@ -3,9 +3,11 @@
 import { ThemeIcon } from "@/components/ThemeIcon";
 import { useRouter } from "next/navigation";
 import { useStudyPlan, useMockExamAnalytics } from "@/hooks/queries";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function QuickActionsGrid() {
   const router = useRouter();
+  const { user } = useAuth();
   const { data: studyPlan } = useStudyPlan();
   const mockExamQuery = useMockExamAnalytics();
   const mockExamData = mockExamQuery.data || null;
@@ -75,6 +77,10 @@ export default function QuickActionsGrid() {
   ];
 
   const handleCardClick = (stat: typeof stats[0]) => {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
     if (stat.label === "Study Plan") {
       router.push("/dashboard/study-plan");
     } else if (stat.label === "Mock Exams") {

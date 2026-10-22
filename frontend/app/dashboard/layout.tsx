@@ -34,6 +34,7 @@ import {
 import { motion } from "framer-motion";
 // import { StatisticsPanel } from "@/components/dashboard/StatisticsPanel";
 import { ProfileDropdown } from "@/components/dashboard/ProfileDropdown";
+import { MobileNav } from "@/components/dashboard/MobileNav";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -209,7 +210,7 @@ export default function DashboardLayout({
     icon: React.ComponentType<{ className?: string }>;
   }[] = [
       // { name: "Chat", href: "/dashboard/chat", icon: MessageCircle },
-      // { name: "Settings", href: "/dashboard/settings", icon: Settings },
+      { name: "Settings", href: "/dashboard/settings", icon: Settings },
     ];
 
   const getDisplayName = () => {
@@ -276,7 +277,7 @@ export default function DashboardLayout({
           animate={{ width: targetSidebarWidth }}
           initial={false}
           transition={{ duration: 0.25, ease: "easeInOut" }}
-          className={`sticky top-0 h-screen flex-shrink-0 bg-card border-r border-border z-30 will-change-[width] ${isMobile
+          className={`sticky top-0 h-screen flex-shrink-0 bg-card border-r border-border z-30 will-change-[width] max-lg:hidden ${isMobile
               ? isSidebarCollapsed
                 ? "overflow-hidden border-none"
                 : `fixed left-0 z-50 shadow-2xl ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
@@ -643,12 +644,9 @@ export default function DashboardLayout({
         </motion.aside>
 
         {/* Main Content Area */}
-        <main
-          className={`flex-1 min-w-0 overflow-x-hidden ${isMobile
-              ? "pt-4 px-4"
-              : "pt-6 px-6 lg:max-w-6xl xl:max-w-7xl mx-auto w-full"
-            }`}
-        >
+        <MobileNav />
+
+        <main className="flex-1 min-w-0 w-full overflow-x-hidden px-4 pb-24 pt-16 lg:mx-auto lg:max-w-6xl lg:px-6 lg:pb-6 lg:pt-6 xl:max-w-7xl">
           {children}
         </main>
 

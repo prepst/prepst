@@ -128,6 +128,9 @@ export function LoginForm({
               type="button"
               variant="outline"
               disabled={loading}
+              onClick={() =>
+                setError("Apple sign-in isn't available yet. Use Google or your email.")
+              }
               className="w-full h-12 rounded-xl border-border/60 bg-card hover:bg-accent hover:text-foreground text-muted-foreground font-medium transition-all"
             >
               <svg
@@ -177,7 +180,7 @@ export function LoginForm({
                   Password
                 </Label>
                 <Link
-                  href="#"
+                  href="/forgot-password"
                   className="text-xs font-medium text-primary hover:text-primary/80 transition-colors"
                 >
                   Forgot password?
@@ -233,6 +236,15 @@ export function LoginForm({
               Sign up
             </Link>
           </p>
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            <Link href="/privacy" className="underline hover:text-primary">
+              Privacy
+            </Link>
+            {" · "}
+            <Link href="/terms" className="underline hover:text-primary">
+              Terms
+            </Link>
+          </p>
         </div>
       </div>
 
@@ -249,25 +261,20 @@ export function LoginForm({
           </div>
 
           {/* Stats pills */}
-          <div className="flex items-center gap-3 mb-12">
-            {/* <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-              <span className="text-sm font-bold text-primary tabular-nums">
-                10K+
+          <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
+            <div className="px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+              <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                Free for students
               </span>
-              <span className="text-sm text-muted-foreground">Students</span>
-            </div> */}
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-              <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
-                5000+
-              </span>
-              <span className="text-sm text-muted-foreground">Questions</span>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20">
-              <span className="text-sm font-bold text-amber-600 dark:text-amber-400 tabular-nums">
-                200+
+            <div className="px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+              <span className="text-sm font-semibold text-primary">
+                Study plans
               </span>
-              <span className="text-sm text-muted-foreground">
-                Avg Score Gain
+            </div>
+            <div className="px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20">
+              <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
+                Mock exams
               </span>
             </div>
           </div>
@@ -475,17 +482,11 @@ export function LoginForm({
             </div>
           </div>
 
-          {/* Testimonial */}
-          <div className="mt-8 max-w-sm">
-            <div className="p-4 rounded-xl bg-background/50 border border-border/40 backdrop-blur-sm">
-              <p className="text-sm text-muted-foreground italic">
-                "I improved my score from 1320 to 1520 in just 2 months!"
-              </p>
-              <p className="mt-2 text-xs text-primary font-medium">
-                — Alex K., Stanford Admit
-              </p>
-            </div>
-          </div>
+          <ul className="mt-8 max-w-sm space-y-2 text-sm text-muted-foreground">
+            <li>A study plan built around your test date and weak topics.</li>
+            <li>Timed drills, vocabulary, and full mock exams.</li>
+            <li>Explanations you can follow up on until a question clicks.</li>
+          </ul>
         </div>
 
         {/* Subtle grid pattern */}

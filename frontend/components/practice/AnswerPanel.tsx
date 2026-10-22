@@ -66,7 +66,7 @@ export function AnswerPanel({
       className={`flex-1 overflow-y-auto bg-background ${compact ? "p-4 sm:p-6" : isPinned ? "px-4 py-6 lg:px-8 lg:py-8" : "px-4 py-6 lg:pb-8 lg:pl-8 lg:pr-[250px] lg:pt-8"
         }`}
     >
-      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-6">
+      <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {question.question.question_type === "mc"
           ? "Select an Answer"
           : "Your Answer"}
@@ -83,7 +83,7 @@ export function AnswerPanel({
             value={answer?.userAnswer[0] || ""}
             onChange={(e) => onAnswerChange(e.target.value)}
             disabled={showFeedback}
-            className="text-3xl h-20 text-center font-mono tracking-widest bg-card border-2 border-border focus:border-primary focus:ring-4 focus:ring-primary/10 rounded-2xl transition-all"
+            className="h-11 rounded-lg border border-border bg-card px-3 text-left font-mono text-base tracking-normal focus:border-primary focus:ring-2 focus:ring-primary/15"
           />
 
           {/* Show correct answer for wrong SPR answers */}
@@ -116,7 +116,7 @@ export function AnswerPanel({
       {/* Multiple Choice Options */}
       {question.question.question_type === "mc" &&
         question.question.answer_options && (
-          <div className="space-y-3">
+          <div className="space-y-2">
             {(() => {
               const options = Array.isArray(question.question.answer_options)
                 ? question.question.answer_options
@@ -180,7 +180,7 @@ export function AnswerPanel({
                   <div
                     key={optionId}
                     className={`
-                      group relative flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ease-in-out
+                      group relative flex items-center gap-3 px-3 py-2 rounded-lg border cursor-pointer transition-colors
                       ${isCorrect
                         ? "border-green-500 bg-green-500/10 ring-1 ring-green-500/20"
                         : isWrong
@@ -188,10 +188,10 @@ export function AnswerPanel({
                           : isCorrectAnswer
                             ? "border-green-500 bg-green-500/10 ring-1 ring-green-500/20 border-dashed"
                             : isSelected
-                              ? "border-primary bg-primary/5 ring-1 ring-primary/20 scale-[1.01] shadow-sm"
+                              ? "border-primary bg-primary/5 ring-1 ring-primary/20"
                               : isEliminated
                                 ? "border-border/50 bg-muted/50 opacity-60"
-                                : "border-border bg-card hover:border-primary/50 hover:bg-accent hover:scale-[1.005]"
+                                : "border-border bg-card hover:border-primary/50 hover:bg-accent"
                       }
                     `}
                     onClick={() => {
@@ -207,7 +207,7 @@ export function AnswerPanel({
                     {/* Label Badge */}
                     <div
                       className={`
-                      flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border text-sm font-bold transition-colors
+                      flex h-7 w-7 shrink-0 items-center justify-center rounded-md border text-xs font-bold transition-colors
                       ${isCorrect
                           ? "border-transparent bg-green-500 text-white"
                           : isWrong
@@ -226,7 +226,7 @@ export function AnswerPanel({
                     </div>
 
                     {/* Answer Content */}
-                    <div className={`flex-1 text-foreground font-medium ${isEliminated ? "line-through text-muted-foreground" : ""}`}>
+                    <div className={`flex-1 text-sm leading-snug text-foreground [&_p]:m-0 [&_p]:leading-snug ${isEliminated ? "line-through text-muted-foreground" : ""}`}>
                       <span
                         dangerouslySetInnerHTML={{
                           __html: String(optionContent),
@@ -239,7 +239,7 @@ export function AnswerPanel({
                       <button
                         onClick={(e) => toggleElimination(optionId, e)}
                         className={`
-                          p-2 rounded-full transition-colors hover:bg-background/80
+                          p-1 rounded-full transition-colors hover:bg-background/80
                           ${isEliminated ? "text-primary" : "text-muted-foreground/50 hover:text-muted-foreground"}
                         `}
                         title={isEliminated ? "Restore answer" : "Eliminate answer"}

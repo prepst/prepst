@@ -33,7 +33,7 @@ export function BarChart({
   xKey,
   yKey,
   name = "Value",
-  color = "#3b82f6",
+  color = "#1d9bf0",
   xLabel,
   yLabel,
   height = 300,

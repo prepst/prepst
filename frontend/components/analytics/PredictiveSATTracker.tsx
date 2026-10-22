@@ -55,11 +55,11 @@ export function PredictiveSATTracker({ data }: PredictiveSATTrackerProps) {
   };
 
   return (
-    <Card className="border-0 shadow-xl bg-gradient-to-br from-violet-50/80 to-purple-50/80 backdrop-blur-sm">
+    <Card className="border-0 shadow-xl bg-gradient-to-br from-study-soft/80 to-study-soft/80 backdrop-blur-sm">
       <CardHeader className="pb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-violet-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+            <div className="w-14 h-14 bg-gradient-to-br from-study to-study rounded-xl flex items-center justify-center shadow-lg">
               <Target className="w-7 h-7 text-white" />
             </div>
             <div>
@@ -67,7 +67,7 @@ export function PredictiveSATTracker({ data }: PredictiveSATTrackerProps) {
                 SAT Score Predictions
               </CardTitle>
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="text-3xl font-bold bg-gradient-to-r from-study to-study bg-clip-text text-transparent">
                   {data.predicted_total_in_30_days}
                 </span>
                 <span className="text-sm text-slate-500 font-medium">
@@ -80,7 +80,7 @@ export function PredictiveSATTracker({ data }: PredictiveSATTrackerProps) {
             variant="outline"
             size="sm"
             onClick={() => setExpanded(!expanded)}
-            className="border-violet-200 text-violet-600 hover:bg-violet-50 hover:border-violet-300 transition-all duration-200"
+            className="border-study/25 text-study hover:bg-study-soft hover:border-study transition-all duration-200"
           >
             {expanded ? "Hide Details" : "View Details"}
           </Button>
@@ -90,7 +90,7 @@ export function PredictiveSATTracker({ data }: PredictiveSATTrackerProps) {
       <CardContent className="space-y-6">
         {/* Current vs Predicted */}
         <div className="grid grid-cols-2 gap-5">
-          <div className="bg-white/90 backdrop-blur-sm border border-violet-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+          <div className="bg-white/90 backdrop-blur-sm border border-study/25 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
             <p className="text-xs font-medium text-slate-500 uppercase tracking-wide mb-2">
               Current Total
             </p>
@@ -98,11 +98,11 @@ export function PredictiveSATTracker({ data }: PredictiveSATTrackerProps) {
               {data.current_total}
             </p>
           </div>
-          <div className="bg-gradient-to-br from-violet-50 to-purple-50 border border-violet-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
-            <p className="text-xs font-medium text-violet-600 uppercase tracking-wide mb-2">
+          <div className="bg-gradient-to-br from-study-soft to-study-soft border border-study/25 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow duration-200">
+            <p className="text-xs font-medium text-study uppercase tracking-wide mb-2">
               30-Day Prediction
             </p>
-            <p className="text-2xl font-bold text-violet-700">
+            <p className="text-2xl font-bold text-study">
               {data.predicted_total_in_30_days}
             </p>
           </div>
@@ -143,7 +143,7 @@ export function PredictiveSATTracker({ data }: PredictiveSATTrackerProps) {
 
         {/* Expanded Details */}
         {expanded && (
-          <div className="space-y-8 pt-4 border-t border-violet-100">
+          <div className="space-y-8 pt-4 border-t border-study/25">
             {/* Prediction Timeline Chart */}
             {data.prediction_timeline.length > 0 && (
               <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
@@ -161,17 +161,17 @@ export function PredictiveSATTracker({ data }: PredictiveSATTrackerProps) {
                     areas={[
                       {
                         dataKey: "total_score",
-                        color: "#8b5cf6",
+                        color: "#1d9bf0",
                         name: "Total Score",
                       },
                       {
                         dataKey: "math_score",
-                        color: "#3b82f6",
+                        color: "#1d9bf0",
                         name: "Math",
                       },
                       {
                         dataKey: "rw_score",
-                        color: "#10b981",
+                        color: "#00ba7c",
                         name: "R/W",
                       },
                     ]}
@@ -193,32 +193,32 @@ export function PredictiveSATTracker({ data }: PredictiveSATTrackerProps) {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-3 gap-4">
-                  <Card className="border-red-200 bg-red-50">
+                  <Card className="border-destructive/25 bg-destructive-soft">
                     <CardContent className="p-3">
-                      <p className="text-xs text-red-600 font-medium">
+                      <p className="text-xs text-destructive font-medium">
                         Pessimistic
                       </p>
-                      <p className="text-lg font-bold text-red-700">
+                      <p className="text-lg font-bold text-destructive">
                         {data.confidence_intervals.total.pessimistic}
                       </p>
                     </CardContent>
                   </Card>
-                  <Card className="border-violet-200 bg-violet-50">
+                  <Card className="border-study/25 bg-study-soft">
                     <CardContent className="p-3">
-                      <p className="text-xs text-violet-600 font-medium">
+                      <p className="text-xs text-study font-medium">
                         Realistic
                       </p>
-                      <p className="text-lg font-bold text-violet-700">
+                      <p className="text-lg font-bold text-study">
                         {data.confidence_intervals.total.realistic}
                       </p>
                     </CardContent>
                   </Card>
-                  <Card className="border-green-200 bg-green-50">
+                  <Card className="border-progress/25 bg-progress-soft">
                     <CardContent className="p-3">
-                      <p className="text-xs text-green-600 font-medium">
+                      <p className="text-xs text-progress font-medium">
                         Optimistic
                       </p>
-                      <p className="text-lg font-bold text-green-700">
+                      <p className="text-lg font-bold text-progress">
                         {data.confidence_intervals.total.optimistic}
                       </p>
                     </CardContent>
@@ -234,16 +234,16 @@ export function PredictiveSATTracker({ data }: PredictiveSATTrackerProps) {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
-                  <Card className="border-violet-200 bg-violet-50">
+                  <Card className="border-study/25 bg-study-soft">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="font-medium text-violet-800">Math</p>
-                        <TrendingUp className="w-4 h-4 text-violet-600" />
+                        <p className="font-medium text-study">Math</p>
+                        <TrendingUp className="w-4 h-4 text-study" />
                       </div>
-                      <p className="text-2xl font-bold text-violet-700">
+                      <p className="text-2xl font-bold text-study">
                         {data.predicted_math_in_30_days}
                       </p>
-                      <p className="text-sm text-violet-600">
+                      <p className="text-sm text-study">
                         Current: {data.current_math} •
                         {data.days_to_goal_math
                           ? ` Goal in ${formatDaysToGoal(
@@ -253,18 +253,18 @@ export function PredictiveSATTracker({ data }: PredictiveSATTrackerProps) {
                       </p>
                     </CardContent>
                   </Card>
-                  <Card className="border-green-200 bg-green-50">
+                  <Card className="border-progress/25 bg-progress-soft">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between mb-2">
-                        <p className="font-medium text-green-800">
+                        <p className="font-medium text-progress">
                           Reading & Writing
                         </p>
-                        <TrendingUp className="w-4 h-4 text-green-600" />
+                        <TrendingUp className="w-4 h-4 text-progress" />
                       </div>
-                      <p className="text-2xl font-bold text-green-700">
+                      <p className="text-2xl font-bold text-progress">
                         {data.predicted_rw_in_30_days}
                       </p>
-                      <p className="text-sm text-green-600">
+                      <p className="text-sm text-progress">
                         Current: {data.current_rw} •
                         {data.days_to_goal_rw
                           ? ` Goal in ${formatDaysToGoal(data.days_to_goal_rw)}`
@@ -278,16 +278,16 @@ export function PredictiveSATTracker({ data }: PredictiveSATTrackerProps) {
 
             {/* Recommendations */}
             {data.recommendations.length > 0 && (
-              <Card className="border-violet-200 bg-violet-50">
+              <Card className="border-study/25 bg-study-soft">
                 <CardHeader>
-                  <CardTitle className="text-base text-violet-800">
+                  <CardTitle className="text-base text-study">
                     Personalized Recommendations
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
                     {data.recommendations.map((recommendation, idx) => (
-                      <p key={idx} className="text-sm text-violet-700">
+                      <p key={idx} className="text-sm text-study">
                         {recommendation}
                       </p>
                     ))}
@@ -298,15 +298,15 @@ export function PredictiveSATTracker({ data }: PredictiveSATTrackerProps) {
 
             {/* Progress Alert */}
             {!data.on_track && data.goal_status !== "No Data" && (
-              <Card className="border-yellow-200 bg-yellow-50">
+              <Card className="border-schedule/25 bg-schedule-soft">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <AlertTriangle className="w-5 h-5 text-yellow-600" />
-                    <h4 className="font-semibold text-yellow-800">
+                    <AlertTriangle className="w-5 h-5 text-schedule" />
+                    <h4 className="font-semibold text-schedule">
                       Action Needed
                     </h4>
                   </div>
-                  <p className="text-sm text-yellow-700">
+                  <p className="text-sm text-schedule">
                     You&apos;re not currently on track to meet your goals.
                     Consider increasing your study time or focusing on your
                     weakest areas for maximum improvement.

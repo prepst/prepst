@@ -574,10 +574,10 @@ function DiagnosticTestContent() {
             }}
           >
             {/* Main gradient fill with vibrant colors */}
-            <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/95 to-primary/90" />
+            <div className="absolute inset-0 bg-study" />
 
             {/* Secondary gradient layer for depth */}
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary to-primary/80 opacity-60" />
+            <div className="absolute inset-0 hidden" />
 
             {/* Animated shine/shimmer effect */}
             <div

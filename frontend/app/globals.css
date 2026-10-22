@@ -25,6 +25,7 @@
   --color-input: var(--input);
   --color-border: var(--border);
   --color-destructive: var(--destructive);
+  --color-destructive-soft: var(--destructive-soft);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
   --color-muted-foreground: var(--muted-foreground);
@@ -85,7 +86,7 @@
   --card-foreground: #0f1419;
   --popover: #ffffff;
   --popover-foreground: #0f1419;
-  --primary: #0f1419;
+  --primary: #1d9bf0;
   --primary-foreground: #ffffff;
   --study: #1d9bf0;
   --study-soft: #e8f5fd;
@@ -104,6 +105,7 @@
   --accent: #e8f5fd;
   --accent-foreground: #0f1419;
   --destructive: #f4212e;
+  --destructive-soft: #fde8ea;
   --border: #eff3f4;
   --input: #eff3f4;
   --ring: #1d9bf0;
@@ -114,7 +116,7 @@
   --chart-5: #71767b;
   --sidebar: #f7f9f9;
   --sidebar-foreground: #0f1419;
-  --sidebar-primary: #0f1419;
+  --sidebar-primary: #1d9bf0;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #e8f5fd;
   --sidebar-accent-foreground: #0f1419;
@@ -148,6 +150,7 @@
   --accent: #0c2d44;
   --accent-foreground: #e7e9ea;
   --destructive: #f4212e;
+  --destructive-soft: #3a1216;
   --border: #2f3336;
   --input: #2f3336;
   --ring: #1d9bf0;
@@ -350,25 +353,25 @@
 
 /* Text highlight styling for student annotations */
 .text-highlight {
-  background-color: rgb(254 240 138); /* yellow-200 */
+  background-color: #ffe566;
   border-radius: 2px;
   padding: 0 2px;
   cursor: pointer;
   transition: background-color 0.2s;
-  user-select: text; /* Allow text selection through highlights */
+  user-select: text;
 }
 
 .text-highlight:hover {
-  background-color: rgb(254 215 170); /* yellow-300 */
+  background-color: #ffd400;
 }
 
 .dark .text-highlight {
-  background-color: rgb(113 63 18); /* yellow-900 */
-  color: rgb(254 249 195); /* yellow-100 */
+  background-color: #3a3000;
+  color: #ffd400;
 }
 
 .dark .text-highlight:hover {
-  background-color: rgb(133 77 14); /* yellow-800 */
+  background-color: #5c4a00;
 }
 
 /* 3D flip card animations for vocabulary modal */

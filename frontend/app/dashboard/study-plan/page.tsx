@@ -308,7 +308,7 @@ function StudyPlanContent() {
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-lg h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+              className="rounded-lg h-8 w-8 text-destructive hover:text-destructive"
               onClick={() => setShowDeleteConfirm(true)}
             >
               <Trash2 className="w-4 h-4" />

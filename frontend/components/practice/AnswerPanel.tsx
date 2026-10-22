@@ -182,11 +182,11 @@ export function AnswerPanel({
                     className={`
                       group relative flex items-center gap-3 px-3 py-2 rounded-lg border cursor-pointer transition-colors
                       ${isCorrect
-                        ? "border-green-500 bg-green-500/10 ring-1 ring-green-500/20"
+                        ? "border-progress bg-progress-soft ring-1 ring-progress/20"
                         : isWrong
-                          ? "border-red-500 bg-red-500/10 ring-1 ring-red-500/20"
+                          ? "border-destructive bg-destructive/10 ring-1 ring-destructive/20"
                           : isCorrectAnswer
-                            ? "border-green-500 bg-green-500/10 ring-1 ring-green-500/20 border-dashed"
+                            ? "border-progress bg-progress-soft ring-1 ring-progress/20 border-dashed"
                             : isSelected
                               ? "border-primary bg-primary/5 ring-1 ring-primary/20"
                               : isEliminated
@@ -209,11 +209,11 @@ export function AnswerPanel({
                       className={`
                       flex h-7 w-7 shrink-0 items-center justify-center rounded-md border text-xs font-bold transition-colors
                       ${isCorrect
-                          ? "border-transparent bg-green-500 text-white"
+                          ? "border-transparent bg-progress text-white"
                           : isWrong
-                            ? "border-transparent bg-red-500 text-white"
+                            ? "border-transparent bg-destructive text-white"
                             : isCorrectAnswer
-                              ? "border-transparent bg-green-500 text-white"
+                              ? "border-transparent bg-progress text-white"
                               : isSelected
                                 ? "border-transparent bg-primary text-primary-foreground"
                                 : isEliminated
@@ -253,8 +253,8 @@ export function AnswerPanel({
                     )}
 
                     {/* Feedback Icon */}
-                    {isCorrect && <Check className="w-5 h-5 text-green-500" />}
-                    {isWrong && <X className="w-5 h-5 text-red-500" />}
+                    {isCorrect && <Check className="w-5 h-5 text-progress" />}
+                    {isWrong && <X className="w-5 h-5 text-destructive" />}
                   </div>
                   );
                 })();
@@ -271,7 +271,7 @@ export function AnswerPanel({
             className={`
             rounded-xl p-4 border-2 transition-all duration-200
             ${answer.isCorrect
-                ? "bg-green-500/10 border-green-500/20 ring-1 ring-green-500/10"
+                ? "bg-progress-soft border-progress/20 ring-1 ring-progress/10"
                 : "bg-destructive/10 border-destructive/20 ring-1 ring-destructive/10"
               }
           `}
@@ -281,7 +281,7 @@ export function AnswerPanel({
                 className={`
                 h-10 w-10 rounded-lg flex items-center justify-center shrink-0 transition-all shadow-sm
                 ${answer.isCorrect
-                    ? "bg-green-500 text-white border border-green-500/30"
+                    ? "bg-progress text-white border border-progress/30"
                     : "bg-destructive text-white border border-destructive/30"
                   }
               `}

@@ -5,7 +5,6 @@ import { ProtectedRoute } from "@/components/ProtectedRoute";
 import {
   BookMarked,
   Plus,
-  Sparkles,
   Search,
   Trash2,
   Check,
@@ -156,19 +155,19 @@ function VocabContent() {
     switch (level) {
       case "E":
         return (
-          <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-0 text-xs">
+          <Badge className="bg-progress-soft text-progress dark:bg-progress/30 dark:text-progress border-0 text-xs">
             Easy
           </Badge>
         );
       case "M":
         return (
-          <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-0 text-xs">
+          <Badge className="bg-schedule-soft text-schedule dark:bg-schedule/30 dark:text-schedule border-0 text-xs">
             Medium
           </Badge>
         );
       case "H":
         return (
-          <Badge className="bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 border-0 text-xs">
+          <Badge className="bg-destructive-soft text-destructive dark:bg-destructive/30 dark:text-destructive border-0 text-xs">
             Hard
           </Badge>
         );
@@ -330,7 +329,7 @@ function VocabContent() {
                       className={cn(
                         "p-4 rounded-xl border transition-all group cursor-pointer",
                         word.is_mastered
-                          ? "bg-emerald-50/50 border-emerald-200 dark:bg-emerald-900/10 dark:border-emerald-800"
+                          ? "bg-progress-soft/50 border-progress/25 dark:bg-progress/10 dark:border-progress"
                           : "bg-card border-border hover:border-primary/30 hover:shadow-md"
                       )}
                       onClick={() => setSelectedWord(word)}
@@ -375,7 +374,7 @@ function VocabContent() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive hover:bg-destructive/10"
+                          className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:text-destructive"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleDeleteWord(word.id);
@@ -399,7 +398,7 @@ function VocabContent() {
             >
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-primary/10 rounded-lg">
-                  <Sparkles className="w-5 h-5 text-primary" />
+                  <BookOpen className="w-5 h-5 text-primary" />
                 </div>
                 <div className="text-left">
                   <h2 className="text-lg font-bold text-foreground">
@@ -431,11 +430,11 @@ function VocabContent() {
                           "px-3 py-1.5 rounded-md text-xs font-medium transition-all",
                           popularDifficulty === diff
                             ? diff === "E"
-                              ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                              ? "bg-progress-soft text-progress dark:bg-progress/30 dark:text-progress"
                               : diff === "M"
-                                ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                                ? "bg-schedule-soft text-schedule dark:bg-schedule/30 dark:text-schedule"
                                 : diff === "H"
-                                  ? "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
+                                  ? "bg-destructive-soft text-destructive dark:bg-destructive/30 dark:text-destructive"
                                   : "bg-background text-foreground shadow-sm"
                             : "text-muted-foreground hover:text-foreground"
                         )}

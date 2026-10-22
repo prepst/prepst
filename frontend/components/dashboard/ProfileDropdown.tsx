@@ -193,7 +193,7 @@ export function ProfileDropdown({
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
+          <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
             <LogOut className="mr-2 h-4 w-4" />
             Log out
           </DropdownMenuItem>
@@ -241,7 +241,7 @@ export function ProfileDropdown({
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
+          <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
             <LogOut className="mr-2 h-4 w-4" />
             Log out
           </DropdownMenuItem>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import {
-    Sparkles, Send, ArrowRight, Loader2, Zap, Target, Brain, BookOpen,
+    Send, ArrowRight, Loader2, Zap, Target, Brain, BookOpen,
     Clock, ChevronRight, CheckCircle, Play, RotateCcw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -76,41 +76,6 @@ const loadingMessages = [
     "Almost ready...",
 ];
 
-// ─── Peppa Avatar ───────────────────────────────────────────────────────────
-
-const PeppaAvatar = ({ size = "lg", animate = false }: { size?: "sm" | "lg"; animate?: boolean }) => {
-    const sizeClasses = size === "lg" ? "w-14 h-14" : "w-10 h-10";
-    const svgSize = size === "lg" ? "w-10 h-10" : "w-7 h-7";
-
-    return (
-        <div
-            className={cn(
-                sizeClasses,
-                "rounded-2xl flex items-center justify-center shrink-0",
-                "bg-[#fce4ec] dark:bg-[#3d2a2f]",
-                "shadow-[0_4px_12px_-2px_rgba(0,0,0,0.08),0_2px_4px_-1px_rgba(0,0,0,0.04),inset_0_1px_0_0_rgba(255,255,255,0.5)]",
-                "dark:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.3),0_2px_4px_-1px_rgba(0,0,0,0.2),inset_0_1px_0_0_rgba(255,255,255,0.1)]",
-                animate && "animate-pulse"
-            )}
-        >
-            <svg viewBox="0 0 100 100" className={svgSize}>
-                <ellipse cx="50" cy="55" rx="32" ry="28" fill="#f8bbd9" />
-                <ellipse cx="50" cy="62" rx="16" ry="10" fill="#f48fb1" />
-                <circle cx="44" cy="62" r="2.5" fill="#ad1457" />
-                <circle cx="56" cy="62" r="2.5" fill="#ad1457" />
-                <circle cx="38" cy="46" r="5" fill="white" />
-                <circle cx="62" cy="46" r="5" fill="white" />
-                <circle cx="39" cy="46" r="2.5" fill="#333" />
-                <circle cx="63" cy="46" r="2.5" fill="#333" />
-                <circle cx="40" cy="44" r="1" fill="white" />
-                <circle cx="64" cy="44" r="1" fill="white" />
-                <ellipse cx="26" cy="32" rx="7" ry="10" fill="#f8bbd9" />
-                <ellipse cx="74" cy="32" rx="7" ry="10" fill="#f8bbd9" />
-            </svg>
-        </div>
-    );
-};
-
 // ─── Session History Item ───────────────────────────────────────────────────
 
 export function SessionHistoryItem({ session, onNavigate }: { session: DrillSession; onNavigate: (id: string) => void }) {
@@ -147,11 +112,11 @@ export function SessionHistoryItem({ session, onNavigate }: { session: DrillSess
                 {/* Status icon */}
                 <div className={cn(
                     "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-110",
-                    isCompleted && "bg-green-100 dark:bg-green-900/30",
+                    isCompleted && "bg-progress-soft dark:bg-progress/30",
                     isInProgress && "bg-primary/10",
                     isPending && "bg-muted"
                 )}>
-                    {isCompleted && <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />}
+                    {isCompleted && <CheckCircle className="w-4 h-4 text-progress" />}
                     {isInProgress && <Play className="w-4 h-4 text-primary fill-primary" />}
                     {isPending && <Clock className="w-4 h-4 text-muted-foreground" />}
                 </div>
@@ -201,10 +166,10 @@ export function SessionHistoryItem({ session, onNavigate }: { session: DrillSess
                         <div className={cn(
                             "text-sm font-bold tabular-nums px-2.5 py-1 rounded-lg",
                             accuracy >= 80
-                                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                ? "bg-progress-soft text-progress dark:bg-progress/30 dark:text-progress"
                                 : accuracy >= 60
-                                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
-                                    : "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
+                                    ? "bg-study-soft text-study dark:bg-study/30 dark:text-study"
+                                    : "bg-schedule-soft text-schedule dark:bg-schedule/30 dark:text-schedule"
                         )}>
                             {accuracy}%
                         </div>
@@ -329,19 +294,12 @@ export function SpecialPractice() {
             {/* Header */}
             <div className="p-6 border-b border-border">
                 <div className="flex items-center gap-4">
-                    <PeppaAvatar size="lg" animate={isCreating} />
                     <div>
-                        <div className="flex items-center gap-2">
-                            <h2 className="text-xl font-bold text-foreground">
-                                Special Practice
-                            </h2>
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-muted text-muted-foreground">
-                                <Sparkles className="w-3 h-3 mr-1" />
-                                AI
-                            </span>
-                        </div>
+                        <h2 className="text-xl font-bold text-foreground">
+                            Special Practice
+                        </h2>
                         <p className="text-sm text-muted-foreground mt-0.5">
-                            Tell Peppa what you want to practice
+                            Describe what you want to practice
                         </p>
                     </div>
                 </div>
@@ -352,7 +310,6 @@ export function SpecialPractice() {
                 {isCreating ? (
                     <div className="py-8 space-y-6 animate-in fade-in duration-300">
                         <div className="flex items-start gap-3">
-                            <PeppaAvatar size="sm" animate />
                             <div
                                 className={cn(
                                     "flex-1 p-4 rounded-2xl rounded-tl-sm",
@@ -390,9 +347,7 @@ export function SpecialPractice() {
                     </div>
                 ) : (
                     <>
-                        {/* Peppa Chat Bubble */}
                         <div className="flex items-start gap-3">
-                            <PeppaAvatar size="sm" />
                             <div
                                 className={cn(
                                     "flex-1 p-4 rounded-2xl rounded-tl-sm",
@@ -401,15 +356,14 @@ export function SpecialPractice() {
                                 )}
                             >
                                 <p className="text-sm text-foreground leading-relaxed">
-                                    Hi! I&apos;m Peppa! Tell me what you&apos;d like to practice and I&apos;ll create a custom session for you.
+                                    Tell me what you&apos;d like to practice and I&apos;ll create a custom session for you.
                                 </p>
                             </div>
                         </div>
 
                         {/* Example Prompts */}
                         <div className="space-y-3">
-                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                                <Sparkles className="w-3.5 h-3.5" />
+                            <p className="text-xs font-medium text-muted-foreground">
                                 Try these examples
                             </p>
 
@@ -501,8 +455,7 @@ export function SpecialPractice() {
                                     setShowChat(true);
                                 }}
                             >
-                                <Sparkles className="w-4 h-4 mr-2" />
-                                Create New Peppa Session
+                                New practice session
                             </Button>
                         )}
                     </>
@@ -568,7 +521,7 @@ export function SpecialPractice() {
                         {completedSessions.length > 0 && (
                             <div className="space-y-2">
                                 <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                    <div className="w-1.5 h-1.5 rounded-full bg-progress" />
                                     Completed
                                 </p>
                                 {completedSessions.slice(0, 5).map((session: DrillSession) => (

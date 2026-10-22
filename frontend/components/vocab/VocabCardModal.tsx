@@ -61,7 +61,7 @@ export function VocabCardModal({
                   className={cn(
                     "w-full h-full rounded-2xl border-2 p-8 flex flex-col items-center justify-center",
                     word.is_mastered
-                      ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800"
+                      ? "bg-progress-soft border-progress/25 dark:bg-progress/20 dark:border-progress"
                       : "bg-card border-border"
                   )}
                 >
@@ -83,7 +83,7 @@ export function VocabCardModal({
                   className={cn(
                     "w-full h-full rounded-2xl border-2 p-8 flex flex-col",
                     word.is_mastered
-                      ? "bg-emerald-50 border-emerald-200 dark:bg-emerald-900/20 dark:border-emerald-800"
+                      ? "bg-progress-soft border-progress/25 dark:bg-progress/20 dark:border-progress"
                       : "bg-card border-border"
                   )}
                 >

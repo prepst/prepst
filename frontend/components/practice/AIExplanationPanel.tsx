@@ -9,6 +9,7 @@ import {
   ChevronDown,
   ArrowUp,
   Square,
+  MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { api } from "@/lib/api";
@@ -258,7 +259,7 @@ export function AIExplanationPanel({
         streamContentRef.current = "";
 
         try {
-            const formattingInstructions = `You are Peppa, an ultra-concise SAT tutor. Rules:
+            const formattingInstructions = `You are an ultra-concise SAT tutor. Rules:
 - Maximum 3-4 short lines per response
 - Use numbered steps ONLY when solving
 - NO explanations, NO fluff, NO "Let me explain"
@@ -360,9 +361,8 @@ export function AIExplanationPanel({
             <div
                 className={cn(
                     "fixed top-0 right-0 h-full w-[420px] z-[100] flex flex-col",
-          // Light mode: use app background, dark mode: Peppa black
-          "bg-background text-foreground dark:bg-[#0a0a0a] dark:text-slate-100",
-          "border-l border-border dark:border-neutral-800",
+          "bg-background text-foreground dark:bg-background",
+          "border-l border-border",
           "transform transition-transform duration-300 ease-out shadow-2xl",
                     isOpen ? "translate-x-0" : "translate-x-full"
                 )}
@@ -392,7 +392,7 @@ export function AIExplanationPanel({
                                     : "text-muted-foreground hover:text-foreground"
                             )}
                         >
-                            Ask Peppa
+                            Ask tutor
                         </button>
                         <button
                             onClick={() => setActiveTab("explanation")}
@@ -492,102 +492,21 @@ export function AIExplanationPanel({
                 {/* Main Content */}
         <div
           ref={chatContainerRef}
-          className="flex-1 overflow-y-auto px-6 py-6 bg-background dark:bg-[#0a0a0a]"
+          className="flex-1 overflow-y-auto px-6 py-6 bg-background dark:bg-background"
         >
                     {activeTab === "ask" ? (
                         messages.length === 0 ? (
                             /* Empty state with prompts */
                             <div className="flex flex-col items-center justify-center h-full">
-                                <div className="w-20 h-20 mb-6">
-                                    <svg viewBox="0 0 100 100" className="w-full h-full">
-                                        <defs>
-                      <linearGradient
-                        id="pigGradient"
-                        x1="0%"
-                        y1="0%"
-                        x2="0%"
-                        y2="100%"
-                      >
-                                                <stop offset="0%" stopColor="#FFB6C1" />
-                                                <stop offset="100%" stopColor="#FF69B4" />
-                                            </linearGradient>
-                                        </defs>
-                                        {/* Ears */}
-                    <ellipse
-                      cx="25"
-                      cy="25"
-                      rx="12"
-                      ry="15"
-                      fill="url(#pigGradient)"
-                      transform="rotate(-20 25 25)"
-                    />
-                    <ellipse
-                      cx="75"
-                      cy="25"
-                      rx="12"
-                      ry="15"
-                      fill="url(#pigGradient)"
-                      transform="rotate(20 75 25)"
-                    />
-                    <ellipse
-                      cx="25"
-                      cy="25"
-                      rx="6"
-                      ry="8"
-                      fill="#FF1493"
-                      transform="rotate(-20 25 25)"
-                    />
-                    <ellipse
-                      cx="75"
-                      cy="25"
-                      rx="6"
-                      ry="8"
-                      fill="#FF1493"
-                      transform="rotate(20 75 25)"
-                    />
-                                        {/* Face */}
-                                        <circle cx="50" cy="55" r="35" fill="url(#pigGradient)" />
-                                        {/* Eyes */}
-                                        <circle cx="38" cy="48" r="6" fill="#1a1a2e" />
-                                        <circle cx="62" cy="48" r="6" fill="#1a1a2e" />
-                                        <circle cx="40" cy="46" r="2" fill="white" />
-                                        <circle cx="64" cy="46" r="2" fill="white" />
-                                        {/* Snout */}
-                                        <ellipse cx="50" cy="65" rx="14" ry="10" fill="#FF69B4" />
-                                        {/* Nostrils */}
-                                        <ellipse cx="45" cy="65" rx="3" ry="4" fill="#FF1493" />
-                                        <ellipse cx="55" cy="65" rx="3" ry="4" fill="#FF1493" />
-                                        {/* Blush */}
-                    <circle
-                      cx="25"
-                      cy="58"
-                      r="6"
-                      fill="#FF69B4"
-                      opacity="0.5"
-                    />
-                    <circle
-                      cx="75"
-                      cy="58"
-                      r="6"
-                      fill="#FF69B4"
-                      opacity="0.5"
-                    />
-                                        {/* Smile */}
-                    <path
-                      d="M 40 75 Q 50 82 60 75"
-                      stroke="#FF1493"
-                      strokeWidth="2"
-                      fill="none"
-                      strokeLinecap="round"
-                    />
-                                    </svg>
+                                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl border border-[#9ed4f3] bg-[#d7eefb] text-[#0c3d5c]">
+                                    <MessageCircle className="h-7 w-7" />
                                 </div>
 
                 <h2 className="text-2xl font-bold text-foreground mb-2">
                   How can I help?
                 </h2>
                 <p className="text-muted-foreground text-sm mb-8">
-                  Ask Peppa any question!
+                  Ask a question
                 </p>
 
                                 <div className="w-full space-y-3 mb-8">
@@ -602,18 +521,6 @@ export function AIExplanationPanel({
                                     ))}
                                 </div>
 
-                                <div className="flex flex-col items-center gap-2 text-sm">
-                                    <div className="flex items-center gap-2 px-4 py-2 bg-muted rounded-full border border-border">
-                                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center">
-                                            <span className="text-[10px] text-white">◆</span>
-                                        </div>
-                                        <span className="text-foreground">
-                      You have{" "}
-                      <span className="text-cyan-500 font-semibold">24</span>{" "}
-                      orbs remaining
-                                        </span>
-                                    </div>
-                                </div>
                             </div>
                         ) : (
                             /* Chat messages */
@@ -634,38 +541,11 @@ export function AIExplanationPanel({
                                             {message.sender === "ai" ? (
                                                 <div className="flex flex-col gap-2 max-w-[85%]">
                                                     <div className="flex items-center gap-2">
-                                                        <div className="w-6 h-6 flex items-center justify-center">
-                                                            <svg viewBox="0 0 100 100" className="w-5 h-5">
-                                                                <circle cx="50" cy="55" r="30" fill="#FF69B4" />
-                                <ellipse
-                                  cx="50"
-                                  cy="60"
-                                  rx="10"
-                                  ry="7"
-                                  fill="#FF1493"
-                                />
-                                <ellipse
-                                  cx="45"
-                                  cy="60"
-                                  rx="2"
-                                  ry="3"
-                                  fill="#C71585"
-                                />
-                                <ellipse
-                                  cx="55"
-                                  cy="60"
-                                  rx="2"
-                                  ry="3"
-                                  fill="#C71585"
-                                />
-                                                                <circle cx="38" cy="48" r="4" fill="#1a1a2e" />
-                                                                <circle cx="62" cy="48" r="4" fill="#1a1a2e" />
-                                                                <circle cx="39" cy="47" r="1.5" fill="white" />
-                                                                <circle cx="63" cy="47" r="1.5" fill="white" />
-                                                            </svg>
+                                                        <div className="flex h-6 w-6 items-center justify-center rounded-md border border-[#9ed4f3] bg-[#d7eefb] text-[#0c3d5c]">
+                                                            <MessageCircle className="h-3.5 w-3.5" />
                                                         </div>
-                            <span className="text-sm font-bold text-foreground">
-                              Peppa
+                            <span className="text-sm font-medium text-foreground">
+                              Tutor
                             </span>
                                                     </div>
                                                     <div className="px-4 py-3 text-foreground">
@@ -732,7 +612,7 @@ export function AIExplanationPanel({
                                                             <div className="flex items-center gap-2 text-muted-foreground">
                                                                 <Loader variant="typing" size="sm" />
                                 <span className="text-sm italic">
-                                  Peppa is thinking...
+                                  Thinking...
                                 </span>
                                                             </div>
                                                         )}
@@ -759,7 +639,7 @@ export function AIExplanationPanel({
                         /* Step-by-Step Explanation */
                         <div className="space-y-6">
                             <div className="flex items-start gap-3">
-                                <div className="w-3 h-3 rounded-full bg-cyan-500 mt-1.5 flex-shrink-0" />
+                                <div className="w-3 h-3 rounded-full bg-study mt-1.5 flex-shrink-0" />
                                 <h3 className="text-lg font-semibold text-foreground">
                                     Step {currentStep}: {currentStepData?.title}
                                 </h3>
@@ -771,7 +651,7 @@ export function AIExplanationPanel({
                                         dangerouslySetInnerHTML={{
                                             __html: questionContext.stem.replace(
                                                 /(width|length|garden|feet)/gi,
-                                                '<span class="bg-cyan-500/30 px-1 rounded">$1</span>'
+                                                '<span class="bg-study/30 px-1 rounded">$1</span>'
                                             ),
                                         }}
                                     />
@@ -791,7 +671,7 @@ export function AIExplanationPanel({
                         key={i}
                         className="flex items-center gap-2 text-foreground"
                       >
-                                                <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+                                                <span className="w-1.5 h-1.5 rounded-full bg-study" />
                         <span
                           dangerouslySetInnerHTML={{
                             __html: bullet.replace(/x/g, "<em>x</em>"),
@@ -835,7 +715,7 @@ export function AIExplanationPanel({
                         <div className="space-y-6">
                             {questionContext?.rationale ? (
                                 <div
-                                    className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground leading-relaxed [&>p]:py-3 [&>p]:px-4 [&>p]:pl-8 [&>p]:rounded-lg [&>p]:bg-muted/30 [&>p]:mb-4 [&>p]:transition-all [&>p:hover]:bg-muted/50 [&>p]:relative [&>p:first-child]:before:content-[''] [&>p:first-child]:before:absolute [&>p:first-child]:before:left-3 [&>p:first-child]:before:top-5 [&>p:first-child]:before:w-2 [&>p:first-child]:before:h-2 [&>p:first-child]:before:rounded-full [&>p:first-child]:before:bg-green-500 [&>p:not(:first-child)]:before:content-[''] [&>p:not(:first-child)]:before:absolute [&>p:not(:first-child)]:before:left-3 [&>p:not(:first-child)]:before:top-5 [&>p:not(:first-child)]:before:w-2 [&>p:not(:first-child)]:before:h-2 [&>p:not(:first-child)]:before:rounded-full [&>p:not(:first-child)]:before:bg-red-500"
+                                    className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground leading-relaxed [&>p]:py-3 [&>p]:px-4 [&>p]:pl-8 [&>p]:rounded-lg [&>p]:bg-muted/30 [&>p]:mb-4 [&>p]:transition-all [&>p:hover]:bg-muted/50 [&>p]:relative [&>p:first-child]:before:content-[''] [&>p:first-child]:before:absolute [&>p:first-child]:before:left-3 [&>p:first-child]:before:top-5 [&>p:first-child]:before:w-2 [&>p:first-child]:before:h-2 [&>p:first-child]:before:rounded-full [&>p:first-child]:before:bg-progress [&>p:not(:first-child)]:before:content-[''] [&>p:not(:first-child)]:before:absolute [&>p:not(:first-child)]:before:left-3 [&>p:not(:first-child)]:before:top-5 [&>p:not(:first-child)]:before:w-2 [&>p:not(:first-child)]:before:h-2 [&>p:not(:first-child)]:before:rounded-full [&>p:not(:first-child)]:before:bg-destructive"
                   dangerouslySetInnerHTML={{
                     __html: questionContext.rationale,
                   }}
@@ -845,12 +725,12 @@ export function AIExplanationPanel({
                                     {steps.map((step, i) => (
                                         <div key={i} className="space-y-3">
                                             <div className="flex items-start gap-3">
-                                                <div className="w-3 h-3 rounded-full bg-cyan-500 mt-1.5 flex-shrink-0" />
+                                                <div className="w-3 h-3 rounded-full bg-study mt-1.5 flex-shrink-0" />
                                                 <h3 className="text-lg font-semibold text-foreground">
                                                     Step {i + 1}: {step.title}
                                                 </h3>
                                             </div>
-                      <p className={`text-muted-foreground ml-6 py-3 px-4 pl-8 rounded-lg bg-muted/30 mb-4 transition-all hover:bg-muted/50 relative before:content-[''] before:absolute before:left-3 before:top-5 before:w-2 before:h-2 before:rounded-full ${i === 0 ? 'before:bg-green-500' : 'before:bg-red-500'}`}>
+                      <p className={`text-muted-foreground ml-6 py-3 px-4 pl-8 rounded-lg bg-muted/30 mb-4 transition-all hover:bg-muted/50 relative before:content-[''] before:absolute before:left-3 before:top-5 before:w-2 before:h-2 before:rounded-full ${i === 0 ? 'before:bg-progress' : 'before:bg-destructive'}`}>
                         {step.content}
                       </p>
                                             {step.bullets && (
@@ -860,7 +740,7 @@ export function AIExplanationPanel({
                               key={j}
                               className="flex items-center gap-2 text-foreground"
                             >
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-study" />
                               <span
                                 dangerouslySetInnerHTML={{
                                   __html: bullet.replace(/x/g, "<em>x</em>"),
@@ -915,20 +795,11 @@ export function AIExplanationPanel({
                             className="w-full flex items-center justify-between px-4 py-3 bg-muted hover:bg-muted/80 border border-border rounded-xl transition-all"
                         >
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 flex items-center justify-center">
-                                    <svg viewBox="0 0 100 100" className="w-6 h-6">
-                                        <circle cx="50" cy="55" r="30" fill="#FF69B4" />
-                                        <ellipse cx="50" cy="60" rx="10" ry="7" fill="#FF1493" />
-                                        <ellipse cx="45" cy="60" rx="2" ry="3" fill="#C71585" />
-                                        <ellipse cx="55" cy="60" rx="2" ry="3" fill="#C71585" />
-                                        <circle cx="38" cy="48" r="4" fill="#1a1a2e" />
-                                        <circle cx="62" cy="48" r="4" fill="#1a1a2e" />
-                                        <circle cx="39" cy="47" r="1.5" fill="white" />
-                                        <circle cx="63" cy="47" r="1.5" fill="white" />
-                                    </svg>
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#9ed4f3] bg-[#d7eefb] text-[#0c3d5c]">
+                                    <MessageCircle className="h-4 w-4" />
                                 </div>
                 <span className="text-muted-foreground text-sm">
-                  Got a question? Ask Peppa Chat
+                  Got a question? Ask the tutor
                 </span>
                             </div>
                             <ChevronRight className="w-4 h-4 text-muted-foreground" />

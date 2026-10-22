@@ -169,7 +169,7 @@ export function SignupForm({
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-14 rounded-xl text-lg font-semibold   transition-all "
+              className="w-full h-14 rounded-xl text-lg font-semibold transition-all"
             >
               {loading ? (
                 <>

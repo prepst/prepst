@@ -12,7 +12,6 @@ import {
   Filter,
   Calculator,
   BookText,
-  Sparkles,
   Play,
 } from "lucide-react";
 import {
@@ -463,19 +462,19 @@ function QuestionPoolContent() {
     switch (difficulty) {
       case "E":
         return (
-          <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400 border-0 font-medium text-xs">
+          <Badge className="bg-progress-soft text-progress dark:bg-progress/30 dark:text-progress border-0 font-medium text-xs">
             Easy
           </Badge>
         );
       case "M":
         return (
-          <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-0 font-medium text-xs">
+          <Badge className="bg-schedule-soft text-schedule dark:bg-schedule/30 dark:text-schedule border-0 font-medium text-xs">
             Medium
           </Badge>
         );
       case "H":
         return (
-          <Badge className="bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400 border-0 font-medium text-xs">
+          <Badge className="bg-destructive-soft text-destructive dark:bg-destructive/30 dark:text-destructive border-0 font-medium text-xs">
             Hard
           </Badge>
         );
@@ -522,7 +521,6 @@ function QuestionPoolContent() {
                   )}
                 >
                   <span className="flex items-center gap-2">
-                    <Sparkles className="w-4 h-4" />
                     All
                     <span className="text-xs text-muted-foreground">
                       ({totalQuestions})
@@ -577,11 +575,11 @@ function QuestionPoolContent() {
                         "px-3 py-1.5 rounded-md text-xs font-medium transition-all",
                         difficultyFilter === diff
                           ? diff === "E"
-                            ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                            ? "bg-progress-soft text-progress dark:bg-progress/30 dark:text-progress"
                             : diff === "M"
-                              ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400"
+                              ? "bg-schedule-soft text-schedule dark:bg-schedule/30 dark:text-schedule"
                               : diff === "H"
-                                ? "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
+                                ? "bg-destructive-soft text-destructive dark:bg-destructive/30 dark:text-destructive"
                                 : "bg-background text-foreground shadow-sm"
                           : "text-muted-foreground hover:text-foreground"
                       )}
@@ -631,8 +629,8 @@ function QuestionPoolContent() {
                         className={cn(
                           "w-1.5 h-6 rounded-full",
                           category.section === "reading_writing"
-                            ? "bg-rose-500"
-                            : "bg-amber-500"
+                            ? "bg-destructive"
+                            : "bg-schedule"
                         )}
                       />
                       <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">
@@ -675,17 +673,17 @@ function QuestionPoolContent() {
                               {/* Difficulty distribution */}
                               <div className="flex items-center gap-1">
                                 {topic.easy_count > 0 && (
-                                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+                                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-progress-soft text-progress dark:bg-progress/30 dark:text-progress">
                                     {topic.easy_count}E
                                   </span>
                                 )}
                                 {topic.medium_count > 0 && (
-                                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-schedule-soft text-schedule dark:bg-schedule/30 dark:text-schedule">
                                     {topic.medium_count}M
                                   </span>
                                 )}
                                 {topic.hard_count > 0 && (
-                                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400">
+                                  <span className="px-2 py-0.5 text-xs font-medium rounded-full bg-destructive-soft text-destructive dark:bg-destructive/30 dark:text-destructive">
                                     {topic.hard_count}H
                                   </span>
                                 )}
@@ -708,7 +706,7 @@ function QuestionPoolContent() {
                                   );
                                 }}
                                 disabled={creatingTopicSessionId === topic.topic_id}
-                                className="h-7 rounded-md border-transparent bg-primary px-2.5 text-[11px] font-semibold text-white shadow-sm hover:bg-[#7b63fe] !text-white"
+                                className="h-7 rounded-md border-transparent bg-primary px-2.5 text-[11px] font-semibold text-white shadow-sm hover:bg-[#1a8cd8] !text-white"
                               >
                                 <Play className="mr-1 h-3 w-3 fill-current" />
                                 {creatingTopicSessionId === topic.topic_id

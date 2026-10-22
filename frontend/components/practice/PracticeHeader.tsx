@@ -141,7 +141,7 @@ export function PracticeHeader({
                 <Button
                   variant="outline"
                   size="sm"
-                  className="h-9 rounded-full border-border/60 bg-background/80 backdrop-blur-sm hover:bg-accent hover:border-primary/50 gap-2 px-4 shadow-sm transition-all duration-200"
+                  className="h-9 rounded-full border-border/60 bg-background/80 backdrop-blur-sm hover:bg-accent gap-2 px-4 transition-all duration-200"
                 >
                   <div className="h-4 w-4 rounded-md bg-primary/10 flex items-center justify-center">
                     <Clock className="w-3 h-3 text-primary" />
@@ -209,7 +209,7 @@ export function PracticeHeader({
                   variant="ghost"
                   size="icon"
                   onClick={onCloseTimer}
-                  className="h-7 w-7 rounded-lg transition-all duration-200 hover:bg-destructive/20 text-muted-foreground hover:text-destructive"
+                  className="h-7 w-7 rounded-lg transition-all duration-200 text-muted-foreground hover:text-destructive"
                   title="Close Timer"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -223,21 +223,21 @@ export function PracticeHeader({
         <div className="flex items-center gap-2">
           {/* Gamification Stats */}
           <div className="hidden md:flex items-center gap-3 mr-2">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-500/10 border border-orange-500/20">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-schedule-soft border border-schedule/40">
               <Flame
                 className={cn(
-                  "w-4 h-4 text-orange-500",
-                  streak > 0 && "fill-orange-500 animate-pulse"
+                  "w-4 h-4 text-schedule",
+                  streak > 0 && "fill-schedule animate-pulse"
                 )}
               />
-              <span className="text-sm font-bold text-orange-600 dark:text-orange-400 tabular-nums">
+              <span className="text-sm font-bold text-schedule tabular-nums">
                 {streak}
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-yellow-500/10 border border-yellow-500/20">
-              <Trophy className="w-4 h-4 text-yellow-600 dark:text-yellow-500" />
-              <span className="text-sm font-bold text-yellow-700 dark:text-yellow-400 tabular-nums">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-schedule/10 border border-schedule/20">
+              <Trophy className="w-4 h-4 text-schedule dark:text-schedule" />
+              <span className="text-sm font-bold text-schedule dark:text-schedule tabular-nums">
                 {score}
               </span>
             </div>
@@ -249,7 +249,7 @@ export function PracticeHeader({
             variant="ghost"
             size="icon"
             onClick={onExit}
-            className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+            className="text-muted-foreground hover:text-destructive"
             title="Exit Session"
           >
             <X className="w-4 h-4" />
@@ -265,7 +265,7 @@ export function PracticeHeader({
           style={{ width: `${progress}%` }}
         >
           {/* Main gradient fill */}
-          <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/95 to-primary/90" />
+          <div className="absolute inset-0 bg-study" />
         </div>
 
         {/* Bottom shadow for depth */}

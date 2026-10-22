@@ -66,9 +66,9 @@ export function CompletedSessionsCard({
   };
 
   const getAccuracyColor = (accuracy: number) => {
-    if (accuracy >= 80) return "text-green-600";
-    if (accuracy >= 60) return "text-yellow-600";
-    return "text-red-600";
+    if (accuracy >= 80) return "text-progress";
+    if (accuracy >= 60) return "text-schedule";
+    return "text-destructive";
   };
 
   const getAccuracyBadgeVariant = (accuracy: number) => {
@@ -167,8 +167,8 @@ export function CompletedSessionsCard({
                 className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
-                    <CheckCircle className="w-5 h-5 text-purple-600" />
+                  <div className="w-10 h-10 bg-study-soft rounded-full flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 text-study" />
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
@@ -219,7 +219,7 @@ export function CompletedSessionsCard({
                     onClick={() => handleCreateRevision(session.id)}
                     disabled={creatingRevision === session.id}
                     size="sm"
-                    className="bg-purple-600 hover:bg-purple-700"
+                    className="bg-study hover:bg-study"
                   >
                     {creatingRevision === session.id ? (
                       <>

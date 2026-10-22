@@ -139,13 +139,13 @@ export function MockExamFooter({
               className={cn(
                 "h-10 px-4 border-border/60 bg-background/50 hover:bg-accent transition-all text-base font-semibold",
                 isMarkedForReview &&
-                  "bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400"
+                  "bg-schedule-soft border-schedule/40 text-schedule"
               )}
             >
               <Flag
                 className={cn(
                   "w-4 h-4 mr-2",
-                  isMarkedForReview && "fill-orange-500 text-orange-500"
+                  isMarkedForReview && "fill-schedule text-schedule"
                 )}
               />
               {isMarkedForReview ? "Marked for Review" : "Mark for Review"}

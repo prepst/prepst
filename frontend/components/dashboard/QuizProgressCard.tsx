@@ -11,15 +11,15 @@ interface QuizProgressCardProps {
 }
 
 const colorClasses: Record<ColorVariant, string> = {
-  pink: "bg-gradient-to-br from-red-50 to-red-100",
-  blue: "bg-gradient-to-br from-blue-50 to-blue-100",
-  green: "bg-gradient-to-br from-green-50 to-green-100",
+  pink: "bg-gradient-to-br from-destructive-soft to-destructive-soft",
+  blue: "bg-gradient-to-br from-study-soft to-study-soft",
+  green: "bg-gradient-to-br from-progress-soft to-progress-soft",
 };
 
 const iconBgClasses: Record<ColorVariant, string> = {
-  pink: "bg-red-200/50",
-  blue: "bg-blue-200/50",
-  green: "bg-green-200/50",
+  pink: "bg-destructive-soft/50",
+  blue: "bg-study-soft/50",
+  green: "bg-progress-soft/50",
 };
 
 export function QuizProgressCard({

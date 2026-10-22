@@ -53,7 +53,7 @@ export function TimeSelectionModal({
                 onClick={() => setSelectedTime(option.value)}
                 className={`w-full p-4 rounded-xl border-2 text-left transition-all ${
                   selectedTime === option.value
-                    ? "border-purple-500 bg-purple-50 text-purple-700"
+                    ? "border-study bg-study-soft text-study"
                     : "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
                 }`}
               >
@@ -74,7 +74,7 @@ export function TimeSelectionModal({
             <Button
               onClick={handleStartPractice}
               disabled={!selectedTime}
-              className="flex-1 bg-purple-600 hover:bg-purple-700"
+              className="flex-1"
             >
               Start Practice
             </Button>

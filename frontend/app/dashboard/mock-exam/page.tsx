@@ -150,9 +150,9 @@ export default function MockExamPage() {
   const getStatusBadge = (status: string) => {
     const styles = {
       not_started: "bg-muted text-muted-foreground",
-      in_progress: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-      completed: "bg-green-500/10 text-green-600 dark:text-green-400",
-      abandoned: "bg-red-500/10 text-red-600 dark:text-red-400",
+      in_progress: "bg-study-soft text-study",
+      completed: "bg-progress-soft text-progress",
+      abandoned: "bg-destructive/10 text-destructive dark:text-destructive",
     };
 
     const labels = {
@@ -224,19 +224,19 @@ export default function MockExamPage() {
             {!isLoading && exams.filter(e => e.status === "in_progress").length > 0 && (
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                  <div className="w-2 h-2 rounded-full bg-study animate-pulse" />
                   Continue Your Exam
                 </h2>
                 {exams.filter(e => e.status === "in_progress").map((exam, index) => (
                   <div
                     key={exam.id}
-                    className="bg-blue-500/5 rounded-2xl p-5 border border-blue-500/20 hover:border-blue-500/40 transition-all cursor-pointer"
+                    className="bg-study-soft rounded-2xl p-5 border border-study/30 hover:border-study/40 transition-all cursor-pointer"
                     onClick={() => handleResumeExam(exam.id)}
                   >
                     <div className="flex items-center justify-between gap-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                          <Clock className="w-6 h-6 text-blue-500" />
+                        <div className="w-12 h-12 rounded-xl bg-study-soft flex items-center justify-center">
+                          <Clock className="w-6 h-6 text-study" />
                         </div>
                         <div>
                           <h3 className="font-bold text-foreground">
@@ -247,7 +247,7 @@ export default function MockExamPage() {
                           </p>
                         </div>
                       </div>
-                      <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                      <Button>
                         Resume Exam
                       </Button>
                     </div>
@@ -357,13 +357,13 @@ export default function MockExamPage() {
                                 </div>
                                 <div className="hidden sm:flex items-center gap-4 text-sm">
                                   <div className="text-center">
-                                    <p className="font-bold text-blue-600 dark:text-blue-400">
+                                    <p className="font-bold text-study">
                                       {exam.math_score ?? "-"}
                                     </p>
                                     <p className="text-[10px] text-muted-foreground">Math</p>
                                   </div>
                                   <div className="text-center">
-                                    <p className="font-bold text-emerald-600 dark:text-emerald-400">
+                                    <p className="font-bold text-progress">
                                       {exam.rw_score ?? "-"}
                                     </p>
                                     <p className="text-[10px] text-muted-foreground">R&W</p>

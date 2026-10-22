@@ -158,13 +158,8 @@ export function PracticeFooter({
             <Button
               onClick={handleToggleFlag}
               disabled={toggleFlagMutation.isPending}
-              className="h-10 px-4 font-semibold transition-all shadow-sm text-base flex items-center gap-2"
-              style={{
-                backgroundColor: localIsFlagged
-                  ? "rgba(239, 68, 68, 0.2)"
-                  : "rgba(239, 68, 68, 0.1)",
-                color: "#ef4444",
-              }}
+              variant="destructive"
+              className="h-10 px-4 text-base"
             >
               <Flag className="size-4" />
               {localIsFlagged ? "Flagged" : "Flag"}
@@ -213,10 +208,6 @@ export function PracticeFooter({
               "h-10 px-6 font-semibold transition-all shadow-sm hover:opacity-90 disabled:opacity-50 text-base flex items-center gap-2",
               !hasAnswer && "opacity-60"
             )}
-            style={{
-              backgroundColor: "rgba(254, 165, 0, 0.25)",
-              color: "#fea500",
-            }}
           >
             <Check className="size-4" />
             Check

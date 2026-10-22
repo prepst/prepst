@@ -61,19 +61,19 @@ export function SessionTableView({ sessions, mockExams = [] }: SessionTableViewP
         return {
           icon: <CheckCircle className="w-4 h-4" />,
           label: "Completed",
-          className: "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800",
+          className: "bg-progress-soft text-progress border-progress/25 dark:bg-progress/20 dark:text-progress dark:border-progress",
         };
       case "in-progress":
         return {
           icon: <PlayCircle className="w-4 h-4" />,
           label: "In Progress",
-          className: "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800",
+          className: "bg-study-soft text-study border-study/25 dark:bg-study/20 dark:text-study dark:border-study",
         };
       case "overdue":
         return {
           icon: <AlertCircle className="w-4 h-4" />,
           label: "Overdue",
-          className: "bg-red-100 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800",
+          className: "bg-destructive-soft text-destructive border-destructive/25 dark:bg-destructive/20 dark:text-destructive dark:border-destructive",
         };
       default:
         return {
@@ -211,7 +211,7 @@ export function SessionTableView({ sessions, mockExams = [] }: SessionTableViewP
                 {/* Action */}
                 <div className="col-span-2 text-right">
                   {isCompleted && !isMockTest ? (
-                    <span className="text-sm font-medium text-green-600">
+                    <span className="text-sm font-medium text-progress">
                       Completed
                     </span>
                   ) : (
@@ -221,7 +221,7 @@ export function SessionTableView({ sessions, mockExams = [] }: SessionTableViewP
                       className={`gap-1 opacity-0 group-hover:opacity-100 transition-opacity ${
                         status === "overdue"
                           ? ""
-                          : "border-transparent bg-primary text-white hover:bg-[#7b63fe] !text-white"
+                          : "border-transparent bg-primary text-white hover:bg-[#1a8cd8] !text-white"
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -247,7 +247,7 @@ export function SessionTableView({ sessions, mockExams = [] }: SessionTableViewP
                     {statusConfig.label}
                   </Badge>
                   {isCompleted && !isMockTest ? (
-                    <span className="text-sm font-medium text-green-600">
+                    <span className="text-sm font-medium text-progress">
                       Done
                     </span>
                   ) : (
@@ -257,7 +257,7 @@ export function SessionTableView({ sessions, mockExams = [] }: SessionTableViewP
                       className={`h-8 text-xs gap-1 ${
                         status === "overdue"
                           ? ""
-                          : "border-transparent bg-primary text-white hover:bg-[#7b63fe] !text-white"
+                          : "border-transparent bg-primary text-white hover:bg-[#1a8cd8] !text-white"
                       }`}
                       onClick={(e) => {
                         e.stopPropagation();

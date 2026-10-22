@@ -87,11 +87,11 @@ export function SessionListItem({
   const getStatusIcon = () => {
     switch (status) {
       case 'completed':
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
+        return <CheckCircle className="w-5 h-5 text-progress" />;
       case 'in-progress':
-        return <PlayCircle className="w-5 h-5 text-blue-500" />;
+        return <PlayCircle className="w-5 h-5 text-study" />;
       case 'overdue':
-        return <AlertCircle className="w-5 h-5 text-red-500" />;
+        return <AlertCircle className="w-5 h-5 text-destructive" />;
       default:
         return null;
     }
@@ -101,19 +101,19 @@ export function SessionListItem({
     switch (status) {
       case 'completed':
         return (
-          <span className="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded-full">
+          <span className="px-2 py-1 text-xs font-medium bg-progress-soft text-progress rounded-full">
             Completed
           </span>
         );
       case 'in-progress':
         return (
-          <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+          <span className="px-2 py-1 text-xs font-medium bg-study-soft text-study rounded-full">
             {progressPercentage}% Complete
           </span>
         );
       case 'overdue':
         return (
-          <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-700 rounded-full">
+          <span className="px-2 py-1 text-xs font-medium bg-destructive-soft text-destructive rounded-full">
             Overdue
           </span>
         );
@@ -129,8 +129,8 @@ export function SessionListItem({
       className={`
         py-3 px-4 rounded-lg transition-all duration-200
         ${isClickable ? 'hover:shadow-md cursor-pointer' : 'opacity-75'}
-        ${status === 'overdue' ? 'bg-red-50 border border-red-200' : ''}
-        ${status === 'in-progress' ? 'bg-blue-50 border border-blue-200' : ''}
+        ${status === 'overdue' ? 'bg-destructive-soft border border-destructive/25' : ''}
+        ${status === 'in-progress' ? 'bg-study-soft border border-study/25' : ''}
         ${status === 'completed' ? 'bg-gray-50' : ''}
         ${status === 'upcoming' ? 'hover:bg-gray-50' : ''}
       `}
@@ -188,7 +188,7 @@ export function SessionListItem({
               <div className="mt-2">
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
-                    className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                    className="bg-study h-2 rounded-full transition-all duration-300"
                     style={{ width: `${progressPercentage}%` }}
                   />
                 </div>
@@ -199,7 +199,7 @@ export function SessionListItem({
 
         <div className="flex items-center gap-3 flex-shrink-0 ml-auto">
           <p className={`font-medium whitespace-nowrap ${
-            status === 'overdue' ? 'text-red-600' : ''
+            status === 'overdue' ? 'text-destructive' : ''
           }`}>
             {formatDate(session.scheduled_date)}
           </p>

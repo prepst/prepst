@@ -417,7 +417,7 @@ export function QuestionPracticePopup({
                 variant="ghost"
                 size="icon"
                 onClick={handleClose}
-                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                className="h-8 w-8 text-muted-foreground hover:text-destructive"
               >
                 <X className="w-4 h-4" />
               </Button>
@@ -481,7 +481,7 @@ export function QuestionPracticePopup({
                 <div className="px-8 pb-8">
                   <div className="mt-6 p-6 shadow-sm border-border/80 bg-card rounded-xl border">
                     <div className="flex items-center gap-2 mb-4">
-                      <BookOpen className="w-5 h-5 text-purple-600" />
+                      <BookOpen className="w-5 h-5 text-study" />
                       <h4 className="text-base font-semibold tracking-tight">
                         Explanation
                       </h4>
@@ -511,10 +511,6 @@ export function QuestionPracticePopup({
                       "w-full h-10 font-semibold transition-all shadow-sm hover:opacity-90 disabled:opacity-50 text-base flex items-center justify-center gap-2",
                       (!answer || !answer.userAnswer?.[0]) && "opacity-60"
                     )}
-                    style={{
-                      backgroundColor: "rgba(254, 165, 0, 0.25)",
-                      color: "#fea500",
-                    }}
                   >
                     <Check className="size-4" />
                     Check Answer
@@ -554,11 +550,7 @@ export function QuestionPracticePopup({
                   {/* Done/Next Button */}
                   <Button
                     onClick={handleNext}
-                    className="w-full h-10 px-6 font-semibold transition-all shadow-sm hover:opacity-90 text-base flex items-center justify-center gap-2"
-                    style={{
-                      backgroundColor: "rgba(254, 165, 0, 0.25)",
-                      color: "#fea500",
-                    }}
+                    className="w-full h-10 px-6 font-semibold transition-all hover:opacity-90 text-base flex items-center justify-center gap-2"
                   >
                     {hasNext ? (
                       <>

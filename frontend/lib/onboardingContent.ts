@@ -15,7 +15,6 @@ import {
     Search,
     Settings,
     Share2,
-    Sparkles,
     Target,
     Timer,
     TrendingUp,
@@ -59,7 +58,7 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
             description: "Work through each session in order. Mark them complete as you go — consistency is key!",
         },
         {
-            icon: Sparkles,
+            icon: BarChart3,
             title: "Adapt & Improve",
             description: "Your plan updates automatically based on your performance. The more you practice, the smarter it gets.",
         },
@@ -144,13 +143,13 @@ export const ONBOARDING_CONTENT: Record<string, OnboardingStep[]> = {
     chat: [
         {
             icon: MessageCircle,
-            title: "Meet Peppa AI",
+            title: "Meet your tutor",
             description: "Your 24/7 study companion! Ask any question and get instant, step-by-step explanations.",
         },
         {
             icon: MessagesSquare,
             title: "Ask Follow-ups",
-            description: "Don't understand something? Keep asking! Peppa will explain it differently until it clicks.",
+            description: "Don't understand something? Keep asking. It will explain it a different way until it clicks.",
         },
     ],
 

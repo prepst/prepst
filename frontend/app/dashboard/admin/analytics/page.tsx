@@ -118,7 +118,7 @@ function AdminAnalyticsContent() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-study border-t-transparent mx-auto mb-4"></div>
           <p className="text-gray-700 font-medium">Loading analytics...</p>
         </div>
       </div>
@@ -129,10 +129,10 @@ function AdminAnalyticsContent() {
     return (
       <div className="py-12">
         <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
+          <p className="text-destructive mb-4">{error}</p>
           <button
             onClick={handleRefresh}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 rounded-xl border border-[#9ed4f3] bg-[#d7eefb] text-[#0c3d5c] hover:bg-[#c5e6f8]"
           >
             Retry
           </button>
@@ -176,7 +176,7 @@ function AdminAnalyticsContent() {
         </div>
         <button
           onClick={handleRefresh}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-[#9ed4f3] bg-[#d7eefb] text-[#0c3d5c] hover:bg-[#c5e6f8]"
         >
           <RefreshCw className="w-4 h-4" />
           Refresh
@@ -185,7 +185,7 @@ function AdminAnalyticsContent() {
 
       {/* Admin Badge */}
       {masteryStats?.is_admin && (
-        <div className="mb-6 inline-block px-4 py-2 bg-purple-100 text-purple-800 rounded-lg font-semibold">
+        <div className="mb-6 inline-block px-4 py-2 bg-study-soft text-study rounded-lg font-semibold">
           Admin View - All Users Data
         </div>
       )}

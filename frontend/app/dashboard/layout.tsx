@@ -28,14 +28,12 @@ import {
   BookMarked,
   XCircle,
   Bookmark,
-  Sparkles,
   Database,
 } from "lucide-react";
 import { motion } from "framer-motion";
 // import { StatisticsPanel } from "@/components/dashboard/StatisticsPanel";
 import { ProfileDropdown } from "@/components/dashboard/ProfileDropdown";
 import { MobileNav } from "@/components/dashboard/MobileNav";
-import { ThemeIcon } from "@/components/ThemeIcon";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -453,21 +451,11 @@ export default function DashboardLayout({
                         }`}
                       title={isSidebarCollapsed ? item.name : undefined}
                     >
-                      <ThemeIcon
-                        name={
-                          {
-                            "/dashboard": "home",
-                            "/dashboard/study-plan": "plan",
-                            "/dashboard/sessions": "review",
-                            "/dashboard/revision": "review",
-                            "/dashboard/drill": "drill",
-                            "/dashboard/question-pool": "questions",
-                            "/dashboard/mock-exam": "exam",
-                            "/dashboard/vocab": "book",
-                            "/dashboard/progress": "progress",
-                          }[item.href] || "home"
-                        }
-                        className={`flex-shrink-0 ${navIconSize}`}
+                      <Icon
+                        className={`flex-shrink-0 transition-colors ${isActive
+                            ? "text-primary"
+                            : "text-muted-foreground group-hover:text-foreground"
+                          } ${navIconSize}`}
                       />
                       {!isSidebarCollapsed && (
                         <span className="text-xs whitespace-nowrap">
@@ -495,7 +483,7 @@ export default function DashboardLayout({
                         className={`rounded-2xl transition-all duration-200 group ${isActive
                             ? "bg-primary/10 text-primary font-semibold"
                             : item.name === "Mind Map"
-                              ? "hover:bg-accent text-purple-500"
+                              ? "hover:bg-accent text-study"
                               : "hover:bg-muted/60 hover:text-foreground text-muted-foreground font-medium"
                           } ${isSidebarCollapsed
                             ? "flex justify-center p-3 mx-auto w-12 h-12"
@@ -588,7 +576,7 @@ export default function DashboardLayout({
                       }`}
                     title={isSidebarCollapsed ? "Admin Dashboard" : undefined}
                   >
-                    <Shield className="flex-shrink-0 text-amber-500 group-hover:text-amber-600 w-5 h-5" />
+                    <Shield className="flex-shrink-0 text-schedule group-hover:text-schedule w-5 h-5" />
                     {/* {!isSidebarCollapsed && (
                       <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
                         Admin Dashboard
@@ -611,7 +599,7 @@ export default function DashboardLayout({
               <div className="space-y-4 pb-6 px-2 pt-2">
                 <Link href="/signup" className="block">
                   <Button
-                    className={`w-full bg-primary text-primary-foreground hover:bg-primary/90  rounded-xl ${isSidebarCollapsed
+                    className={`w-full rounded-xl ${isSidebarCollapsed
                         ? "h-12 w-12 p-0 rounded-2xl flex items-center justify-center"
                         : "h-12 px-4"
                       }`}

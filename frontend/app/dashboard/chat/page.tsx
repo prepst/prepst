@@ -23,7 +23,6 @@ import {
   MessageCircle,
   ArrowUp,
   Square,
-  Sparkles,
   Zap,
   BookOpen,
   PenTool,
@@ -212,15 +211,15 @@ export default function ChatPage() {
         {/* Chat Header */}
         <div className="relative z-10 flex items-center justify-between border-b border-border/40 bg-background px-6 py-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl">
-              <span className="text-xl font-bold text-foreground">P</span>
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#9ed4f3] bg-[#d7eefb] text-[#0c3d5c]">
+              <MessageCircle className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="font-semibold text-foreground">Peppa AI</h1>
+              <h1 className="font-semibold text-foreground">Tutor</h1>
               <p className="text-xs text-muted-foreground flex items-center gap-1.5">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-progress opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-progress"></span>
                 </span>
                 Online & Ready
               </p>
@@ -231,7 +230,7 @@ export default function ChatPage() {
             <Button
               variant="ghost"
               size="sm"
-              className="gap-2 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              className="gap-2 text-muted-foreground hover:text-destructive"
               onClick={handleClearChat}
             >
               <Trash2 className="h-4 w-4" />
@@ -360,7 +359,7 @@ export default function ChatPage() {
         {/* Input Area */}
         <div className="sticky bottom-0 left-0 right-0 z-20 px-4 pb-6 pt-2 bg-background border-t border-border/40">
           <div className="mx-auto w-full max-w-3xl">
-            <div className="relative rounded-[24px] bg-background/80 p-2 shadow-2xl backdrop-blur-xl border border-border/50 ring-1 ring-black/5 dark:ring-white/5 transition-all duration-200 focus-within:ring-2 focus-within:ring-purple-500/20 focus-within:border-purple-500/30">
+            <div className="relative rounded-[24px] bg-background/80 p-2 shadow-2xl backdrop-blur-xl border border-border/50 ring-1 ring-black/5 dark:ring-white/5 transition-all duration-200 focus-within:ring-2 focus-within:ring-study/20 focus-within:border-study/30">
               <PromptInput
                 value={inputMessage}
                 onValueChange={handlePromptInputValueChange}
@@ -373,11 +372,7 @@ export default function ChatPage() {
                   placeholder="Ask me anything..."
                   className="min-h-[50px] px-4 py-3 text-base sm:text-sm focus-visible:ring-0 max-h-[200px]"
                 />
-                <div className="flex items-center justify-between px-2 pb-1">
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground px-2">
-                    <Sparkles className="w-3 h-3 text-purple-500" />
-                    <span>AI-Enhanced</span>
-                  </div>
+                <div className="flex items-center justify-end px-2 pb-1">
                   <PromptInputActions>
                     <PromptInputAction
                       tooltip={isStreaming ? "Stop generation" : "Send message"}

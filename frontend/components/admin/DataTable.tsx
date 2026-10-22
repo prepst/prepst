@@ -54,7 +54,7 @@ export function DataTable<T extends Record<string, unknown>>({
       <div className="flex justify-end">
         <button
           onClick={handleExportCSV}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm"
+          className="px-4 py-2 rounded-xl border border-[#9ed4f3] bg-[#d7eefb] text-[#0c3d5c] hover:bg-[#c5e6f8] text-sm"
         >
           Export CSV
         </button>

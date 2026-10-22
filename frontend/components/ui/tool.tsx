@@ -43,13 +43,13 @@ const Tool = ({ toolPart, defaultOpen = false, className }: ToolProps) => {
   const getStateIcon = () => {
     switch (state) {
       case "input-streaming":
-        return <Loader2 className="h-4 w-4 animate-spin text-blue-500" />
+        return <Loader2 className="h-4 w-4 animate-spin text-study" />
       case "input-available":
-        return <Settings className="h-4 w-4 text-orange-500" />
+        return <Settings className="h-4 w-4 text-schedule" />
       case "output-available":
-        return <CheckCircle className="h-4 w-4 text-green-500" />
+        return <CheckCircle className="h-4 w-4 text-progress" />
       case "output-error":
-        return <XCircle className="h-4 w-4 text-red-500" />
+        return <XCircle className="h-4 w-4 text-destructive" />
       default:
         return <Settings className="text-muted-foreground h-4 w-4" />
     }
@@ -63,7 +63,7 @@ const Tool = ({ toolPart, defaultOpen = false, className }: ToolProps) => {
           <span
             className={cn(
               baseClasses,
-              "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+              "bg-study-soft text-study dark:bg-study/30 dark:text-study"
             )}
           >
             Processing
@@ -74,7 +74,7 @@ const Tool = ({ toolPart, defaultOpen = false, className }: ToolProps) => {
           <span
             className={cn(
               baseClasses,
-              "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400"
+              "bg-schedule-soft text-schedule dark:bg-schedule/30 dark:text-schedule"
             )}
           >
             Ready
@@ -85,7 +85,7 @@ const Tool = ({ toolPart, defaultOpen = false, className }: ToolProps) => {
           <span
             className={cn(
               baseClasses,
-              "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+              "bg-progress-soft text-progress dark:bg-progress/30 dark:text-progress"
             )}
           >
             Completed
@@ -96,7 +96,7 @@ const Tool = ({ toolPart, defaultOpen = false, className }: ToolProps) => {
           <span
             className={cn(
               baseClasses,
-              "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+              "bg-destructive-soft text-destructive dark:bg-destructive/30 dark:text-destructive"
             )}
           >
             Error
@@ -187,8 +187,8 @@ const Tool = ({ toolPart, defaultOpen = false, className }: ToolProps) => {
 
             {state === "output-error" && toolPart.errorText && (
               <div>
-                <h4 className="mb-2 text-sm font-medium text-red-500">Error</h4>
-                <div className="bg-background rounded border border-red-200 p-2 text-sm dark:border-red-950 dark:bg-red-900/20">
+                <h4 className="mb-2 text-sm font-medium text-destructive">Error</h4>
+                <div className="bg-background rounded border border-destructive/25 p-2 text-sm dark:border-destructive dark:bg-destructive/20">
                   {toolPart.errorText}
                 </div>
               </div>
@@ -201,7 +201,7 @@ const Tool = ({ toolPart, defaultOpen = false, className }: ToolProps) => {
             )}
 
             {toolCallId && (
-              <div className="text-muted-foreground border-t border-blue-200 pt-2 text-xs">
+              <div className="text-muted-foreground border-t border-study/25 pt-2 text-xs">
                 <span className="font-mono">Call ID: {toolCallId}</span>
               </div>
             )}

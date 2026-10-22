@@ -32,14 +32,14 @@ function getSessionStyle(session: TodoSession) {
   const sessionNumber = session.session_number || 1;
 
   const styles = [
-    { emoji: "📊", className: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
-    { emoji: "📚", className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
-    { emoji: "🎯", className: "bg-purple-500/10 text-purple-600 dark:text-purple-400" },
-    { emoji: "📝", className: "bg-orange-500/10 text-orange-600 dark:text-orange-400" },
-    { emoji: "🧮", className: "bg-pink-500/10 text-pink-600 dark:text-pink-400" },
-    { emoji: "🔬", className: "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400" },
-    { emoji: "🌍", className: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400" },
-    { emoji: "⚡", className: "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400" },
+    { emoji: "📊", className: "bg-study-soft text-study" },
+    { emoji: "📚", className: "bg-progress-soft text-progress" },
+    { emoji: "🎯", className: "bg-study-soft text-study" },
+    { emoji: "📝", className: "bg-schedule-soft text-schedule" },
+    { emoji: "🧮", className: "bg-destructive/10 text-destructive dark:text-destructive" },
+    { emoji: "🔬", className: "bg-study/10 text-study dark:text-study" },
+    { emoji: "🌍", className: "bg-study/10 text-study dark:text-study" },
+    { emoji: "⚡", className: "bg-schedule/10 text-schedule dark:text-schedule" },
   ];
 
   const colorIndex = (sessionNumber - 1) % styles.length;
@@ -121,9 +121,9 @@ export function TodoItem({ todo, onToggle }: TodoItemProps) {
     if (!todo.priority) return null;
     
     const priorityConfig = {
-      important: { label: "Important", className: "border-red-200 bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800" },
-      "new-product": { label: "New", className: "border-blue-200 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-400 dark:border-blue-800" },
-      delayed: { label: "Delayed", className: "border-yellow-200 bg-yellow-50 text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800" },
+      important: { label: "Important", className: "border-destructive/25 bg-destructive-soft text-destructive dark:bg-destructive/20 dark:text-destructive dark:border-destructive" },
+      "new-product": { label: "New", className: "border-study/25 bg-study-soft text-study dark:bg-study/20 dark:text-study dark:border-study" },
+      delayed: { label: "Delayed", className: "border-schedule/25 bg-schedule-soft text-schedule dark:bg-schedule/20 dark:text-schedule dark:border-schedule" },
     };
 
     const config = priorityConfig[todo.priority];
@@ -137,7 +137,7 @@ export function TodoItem({ todo, onToggle }: TodoItemProps) {
   return (
     <div
       className={`group relative mb-3 rounded-2xl border border-border bg-card p-5 transition-all duration-300 
-        ${isMockTest ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-100 dark:border-blue-800/30" : "hover:shadow-md hover:scale-[1.01] hover:border-primary/20"}
+        ${isMockTest ? "bg-study-soft/50 dark:bg-study/20 border-study/25 dark:border-study/30" : "hover:shadow-md hover:scale-[1.01] hover:border-primary/20"}
         ${completed && !isMockTest ? "opacity-60 grayscale-[0.5]" : "cursor-pointer"}
       `}
       onClick={handleClick}
@@ -157,7 +157,7 @@ export function TodoItem({ todo, onToggle }: TodoItemProps) {
                 </h3>
                 {todo.score !== undefined && (
                    <div className="mt-1">
-                     <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400 hover:bg-green-100 border-0">
+                     <Badge variant="secondary" className="bg-progress-soft text-progress dark:bg-progress/30 dark:text-progress hover:bg-progress-soft border-0">
                         Score: {todo.score}
                      </Badge>
                    </div>
@@ -191,9 +191,9 @@ export function TodoItem({ todo, onToggle }: TodoItemProps) {
             <div className="flex items-center justify-between">
                <div className="flex items-center gap-2">
                   <div className={`w-2 h-2 rounded-full ${
-                    status === 'completed' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]' :
-                    status === 'in-progress' ? 'bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.4)]' :
-                    status === 'overdue' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]' :
+                    status === 'completed' ? 'bg-progress shadow-[0_0_8px_rgba(0, 186, 124,0.4)]' :
+                    status === 'in-progress' ? 'bg-study shadow-[0_0_8px_rgba(29, 155, 240,0.4)]' :
+                    status === 'overdue' ? 'bg-destructive shadow-[0_0_8px_rgba(244, 33, 46,0.4)]' :
                     'bg-muted-foreground/30'
                   }`} />
                   <span className="text-xs font-semibold text-muted-foreground capitalize tracking-wide">

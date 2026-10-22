@@ -57,7 +57,7 @@ function CallbackHandler() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <div className="text-red-500 mb-4">Authentication Error</div>
+          <div className="text-destructive mb-4">Authentication Error</div>
           <p className="text-sm text-muted-foreground">{error}</p>
           <p className="text-xs text-muted-foreground mt-2">Redirecting to login...</p>
         </div>
@@ -68,7 +68,7 @@ function CallbackHandler() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-500 mx-auto mb-3"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-study mx-auto mb-3"></div>
         <p className="text-sm text-muted-foreground">Completing sign in...</p>
       </div>
     </div>
@@ -80,7 +80,7 @@ export default function AuthCallbackHandler() {
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-purple-500 mx-auto mb-3"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-study mx-auto mb-3"></div>
           <p className="text-sm text-gray-500">Loading...</p>
         </div>
       </div>

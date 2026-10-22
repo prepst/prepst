@@ -15,7 +15,6 @@ import {
   BrainCircuit,
   BookOpen,
   ArrowRight,
-  Sparkles,
   Zap,
   BarChart3,
 } from "lucide-react";
@@ -156,7 +155,6 @@ function ResultsContent() {
         {/* Hero Section */}
         <div className="text-center space-y-4 animate-in fade-in slide-in-from-top-4 duration-700">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
-            <Sparkles className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium text-primary">
               Diagnostic Complete
             </span>
@@ -181,17 +179,17 @@ function ResultsContent() {
         </div>
 
         {/* Success Banner */}
-        <div className="relative overflow-hidden bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent border border-emerald-500/20 rounded-3xl p-6 md:p-8 animate-in fade-in zoom-in-95 duration-700 delay-150">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="relative overflow-hidden bg-gradient-to-br from-progress/10 via-progress/5 to-transparent border border-progress/20 rounded-3xl p-6 md:p-8 animate-in fade-in zoom-in-95 duration-700 delay-150">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-progress-soft rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="relative flex flex-col md:flex-row items-start md:items-center gap-5">
-            <div className="p-4 bg-emerald-500/20 rounded-2xl shrink-0">
-              <Trophy className="w-8 h-8 text-emerald-500" />
+            <div className="p-4 bg-progress/20 rounded-2xl shrink-0">
+              <Trophy className="w-8 h-8 text-progress" />
             </div>
             <div className="space-y-2">
-              <h3 className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+              <h3 className="text-xl font-bold text-progress">
                 Baseline Established
               </h3>
-              <p className="text-emerald-600/80 dark:text-emerald-400/80 leading-relaxed max-w-3xl">
+              <p className="text-progress/80 dark:text-progress/80 leading-relaxed max-w-3xl">
                 Your diagnostic has revealed key insights about your strengths
                 and opportunities. We&apos;ve identified{" "}
                 {focusTopics.length > 0
@@ -238,16 +236,16 @@ function ResultsContent() {
           </div>
 
           {/* Math Score */}
-          <div className="group relative bg-card border border-blue-500/20 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
+          <div className="group relative bg-card border border-study/30 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-300">
             <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-              <BrainCircuit className="w-24 h-24 text-blue-500" />
+              <BrainCircuit className="w-24 h-24 text-study" />
             </div>
             <div className="relative">
-              <p className="text-sm font-bold text-blue-600/70 dark:text-blue-400/70 uppercase tracking-wider mb-3">
+              <p className="text-sm font-bold text-study/70 dark:text-study/70 uppercase tracking-wider mb-3">
                 Math Section
               </p>
               <div className="flex items-baseline gap-2 mb-3">
-                <span className="text-5xl font-black tabular-nums text-blue-600 dark:text-blue-400">
+                <span className="text-5xl font-black tabular-nums text-study">
                   {math_correct}
                 </span>
                 <span className="text-xl text-muted-foreground">
@@ -257,11 +255,11 @@ function ResultsContent() {
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-blue-500 rounded-full transition-all duration-1000 ease-out delay-300"
+                    className="h-full bg-study rounded-full transition-all duration-1000 ease-out delay-300"
                     style={{ width: `${animatedScores.math}%` }}
                   />
                 </div>
-                <span className="text-sm font-bold text-blue-600 dark:text-blue-400 tabular-nums">
+                <span className="text-sm font-bold text-study tabular-nums">
                   {animatedScores.math.toFixed(1)}%
                 </span>
               </div>
@@ -269,16 +267,16 @@ function ResultsContent() {
           </div>
 
           {/* RW Score */}
-          <div className="group relative bg-card border border-emerald-500/20 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-400">
+          <div className="group relative bg-card border border-progress/20 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-400">
             <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-              <BookOpen className="w-24 h-24 text-emerald-500" />
+              <BookOpen className="w-24 h-24 text-progress" />
             </div>
             <div className="relative">
-              <p className="text-sm font-bold text-emerald-600/70 dark:text-emerald-400/70 uppercase tracking-wider mb-3">
+              <p className="text-sm font-bold text-progress/70 dark:text-progress/70 uppercase tracking-wider mb-3">
                 Reading & Writing
               </p>
               <div className="flex items-baseline gap-2 mb-3">
-                <span className="text-5xl font-black tabular-nums text-emerald-600 dark:text-emerald-400">
+                <span className="text-5xl font-black tabular-nums text-progress">
                   {rw_correct}
                 </span>
                 <span className="text-xl text-muted-foreground">
@@ -288,11 +286,11 @@ function ResultsContent() {
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-emerald-500 rounded-full transition-all duration-1000 ease-out delay-500"
+                    className="h-full bg-progress rounded-full transition-all duration-1000 ease-out delay-500"
                     style={{ width: `${animatedScores.rw}%` }}
                   />
                 </div>
-                <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
+                <span className="text-sm font-bold text-progress tabular-nums">
                   {animatedScores.rw.toFixed(1)}%
                 </span>
               </div>
@@ -305,8 +303,8 @@ function ResultsContent() {
           {/* Visual Comparison */}
           <div className="bg-card border border-border rounded-3xl p-8 shadow-sm animate-in fade-in slide-in-from-bottom-6 duration-700 delay-500">
             <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 bg-violet-500/10 rounded-xl">
-                <BarChart3 className="w-6 h-6 text-violet-500" />
+              <div className="p-3 bg-study-soft rounded-xl">
+                <BarChart3 className="w-6 h-6 text-study" />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-foreground">
@@ -323,7 +321,7 @@ function ResultsContent() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <BrainCircuit className="w-4 h-4 text-blue-500" />
+                    <BrainCircuit className="w-4 h-4 text-study" />
                     <span className="font-medium text-foreground">Math</span>
                   </div>
                   <span className="text-sm font-bold text-foreground tabular-nums">
@@ -332,7 +330,7 @@ function ResultsContent() {
                 </div>
                 <div className="h-4 bg-secondary rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full transition-all duration-1000 ease-out"
+                    className="h-full bg-gradient-to-r from-study to-study rounded-full transition-all duration-1000 ease-out"
                     style={{ width: `${math_percentage}%` }}
                   />
                 </div>
@@ -342,7 +340,7 @@ function ResultsContent() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <BookOpen className="w-4 h-4 text-emerald-500" />
+                    <BookOpen className="w-4 h-4 text-progress" />
                     <span className="font-medium text-foreground">
                       Reading & Writing
                     </span>
@@ -353,7 +351,7 @@ function ResultsContent() {
                 </div>
                 <div className="h-4 bg-secondary rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full transition-all duration-1000 ease-out delay-200"
+                    className="h-full bg-gradient-to-r from-progress to-progress rounded-full transition-all duration-1000 ease-out delay-200"
                     style={{ width: `${rw_percentage}%` }}
                   />
                 </div>
@@ -363,7 +361,7 @@ function ResultsContent() {
             {/* Insight */}
             <div className="mt-6 p-4 bg-muted/50 rounded-2xl">
               <div className="flex items-start gap-3">
-                <Zap className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+                <Zap className="w-5 h-5 text-schedule shrink-0 mt-0.5" />
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   <span className="font-medium text-foreground">
                     {strongerSection.name} is your stronger section
@@ -379,8 +377,8 @@ function ResultsContent() {
           {/* Quick Stats */}
           <div className="bg-card border border-border rounded-3xl p-8 shadow-sm animate-in fade-in slide-in-from-bottom-6 duration-700 delay-600">
             <div className="flex items-center gap-4 mb-6">
-              <div className="p-3 bg-amber-500/10 rounded-xl">
-                <TrendingUp className="w-6 h-6 text-amber-500" />
+              <div className="p-3 bg-schedule/10 rounded-xl">
+                <TrendingUp className="w-6 h-6 text-schedule" />
               </div>
               <div>
                 <h2 className="text-xl font-bold text-foreground">
@@ -393,22 +391,22 @@ function ResultsContent() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 bg-emerald-500/5 border border-emerald-500/10 rounded-2xl">
-                <p className="text-3xl font-black text-emerald-600 dark:text-emerald-400 mb-1 tabular-nums">
+              <div className="p-4 bg-progress/5 border border-progress/10 rounded-2xl">
+                <p className="text-3xl font-black text-progress mb-1 tabular-nums">
                   {strongTopics.length}
                 </p>
                 <p className="text-sm text-muted-foreground">Strong Topics</p>
               </div>
-              <div className="p-4 bg-amber-500/5 border border-amber-500/10 rounded-2xl">
-                <p className="text-3xl font-black text-amber-600 dark:text-amber-400 mb-1 tabular-nums">
+              <div className="p-4 bg-schedule/5 border border-schedule/10 rounded-2xl">
+                <p className="text-3xl font-black text-schedule dark:text-schedule mb-1 tabular-nums">
                   {developingTopics.length}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   Developing Areas
                 </p>
               </div>
-              <div className="p-4 bg-rose-500/5 border border-rose-500/10 rounded-2xl">
-                <p className="text-3xl font-black text-rose-600 dark:text-rose-400 mb-1 tabular-nums">
+              <div className="p-4 bg-destructive/5 border border-destructive/10 rounded-2xl">
+                <p className="text-3xl font-black text-destructive dark:text-destructive mb-1 tabular-nums">
                   {focusTopics.length}
                 </p>
                 <p className="text-sm text-muted-foreground">Focus Areas</p>
@@ -432,8 +430,7 @@ function ResultsContent() {
           <div className="relative flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="text-center lg:text-left space-y-3">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-primary">
+                    <span className="text-sm font-medium text-primary">
                   Ready to begin?
                 </span>
               </div>

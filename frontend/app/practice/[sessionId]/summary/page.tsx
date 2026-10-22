@@ -12,7 +12,6 @@ import {
   XCircle,
   TrendingUp,
   ArrowRight,
-  Sparkles,
   Target,
   BarChart3,
   ChevronDown,
@@ -400,7 +399,7 @@ function SummaryContent() {
         >
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <CardContent className="p-6 flex items-center gap-4">
-              <div className="p-3 rounded-full bg-blue-500/10 text-blue-500">
+              <div className="p-3 rounded-full bg-study-soft text-study">
                 <TrendingUp className="w-6 h-6" />
               </div>
               <div>
@@ -416,7 +415,7 @@ function SummaryContent() {
 
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <CardContent className="p-6 flex items-center gap-4">
-              <div className="p-3 rounded-full bg-green-500/10 text-green-500">
+              <div className="p-3 rounded-full bg-progress-soft text-progress">
                 <CheckCircle className="w-6 h-6" />
               </div>
               <div>
@@ -432,7 +431,7 @@ function SummaryContent() {
 
           <Card className="bg-card/50 backdrop-blur-sm border-border/50">
             <CardContent className="p-6 flex items-center gap-4">
-              <div className="p-3 rounded-full bg-red-500/10 text-red-500">
+              <div className="p-3 rounded-full bg-destructive/10 text-destructive">
                 <XCircle className="w-6 h-6" />
               </div>
               <div>
@@ -505,10 +504,10 @@ function SummaryContent() {
                               className={`
                                 font-mono font-semibold text-xs px-2 py-0.5
                                 ${acc >= 70
-                                  ? "bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20"
+                                  ? "bg-progress-soft text-progress border border-progress/20"
                                   : acc >= 50
-                                    ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20"
-                                    : "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20"
+                                    ? "bg-schedule/10 text-schedule dark:text-schedule border border-schedule/20"
+                                    : "bg-destructive/10 text-destructive dark:text-destructive border border-destructive/20"
                                 }
                               `}
                             >
@@ -524,10 +523,10 @@ function SummaryContent() {
                             className={`
                               h-full rounded-full transition-all duration-700 ease-out relative overflow-hidden
                               ${acc >= 70
-                                ? "bg-green-500"
+                                ? "bg-progress"
                                 : acc >= 50
-                                  ? "bg-amber-500"
-                                  : "bg-red-500"
+                                  ? "bg-schedule"
+                                  : "bg-destructive"
                               }
                             `}
                           >
@@ -544,10 +543,10 @@ function SummaryContent() {
                               className={`
                                 absolute top-0 right-0 w-8 h-full blur-md transition-all duration-700
                                 ${acc >= 70
-                                  ? "bg-green-500/60"
+                                  ? "bg-progress/60"
                                   : acc >= 50
-                                    ? "bg-amber-500/60"
-                                    : "bg-red-500/60"
+                                    ? "bg-schedule/60"
+                                    : "bg-destructive/60"
                                 }
                               `}
                             />
@@ -577,7 +576,7 @@ function SummaryContent() {
 
               <div className="relative flex items-center gap-5">
                 <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-primary/10">
-                  <Sparkles className="w-7 h-7 text-primary" />
+                  <Lightbulb className="w-7 h-7 text-primary" />
                 </div>
                 <div>
                   <h2 className="text-2xl font-bold text-foreground tracking-tight">
@@ -611,7 +610,7 @@ function SummaryContent() {
                 <span className="relative flex items-center gap-2">
                   {generatingFeedback ? (
                     <>
-                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-t-transparent" />
+                      <div className="animate-spin rounded-full h-5 w-5 border-2 border-current border-t-transparent" />
                       <span>Analyzing Session...</span>
                     </>
                   ) : sessionSummary !== null ? (
@@ -621,7 +620,7 @@ function SummaryContent() {
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-5 h-5" />
+                      <Lightbulb className="w-5 h-5" />
                       <span>Generate Insights</span>
                     </>
                   )}
@@ -661,13 +660,13 @@ function SummaryContent() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.1 }}
-                      className="relative p-6 rounded-2xl bg-gradient-to-br from-green-500/10 to-green-500/5 border border-green-500/20 overflow-hidden group/card hover:shadow-lg hover:shadow-green-500/10 transition-all duration-300"
+                      className="relative p-6 rounded-2xl bg-gradient-to-br from-progress/10 to-progress/5 border border-progress/20 overflow-hidden group/card hover:shadow-lg hover:shadow-progress/10 transition-all duration-300"
                     >
-                      <div className="absolute -top-6 -right-6 w-24 h-24 bg-green-500/20 rounded-full blur-2xl group-hover/card:scale-150 transition-transform duration-500" />
+                      <div className="absolute -top-6 -right-6 w-24 h-24 bg-progress/20 rounded-full blur-2xl group-hover/card:scale-150 transition-transform duration-500" />
                       <div className="relative">
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="h-10 w-10 rounded-xl bg-green-500/20 border border-green-500/30 flex items-center justify-center">
-                            <CheckCircle className="w-5 h-5 text-green-500" />
+                          <div className="h-10 w-10 rounded-xl bg-progress/20 border border-progress/30 flex items-center justify-center">
+                            <CheckCircle className="w-5 h-5 text-progress" />
                           </div>
                           <h3 className="text-lg font-bold text-foreground">Strengths</h3>
                         </div>
@@ -676,7 +675,7 @@ function SummaryContent() {
                             sessionSummary.summary.strengths.map((s, i) => (
                               <Badge
                                 key={i}
-                                className="px-3 py-1.5 bg-green-500/15 text-green-600 dark:text-green-400 border border-green-500/30 font-medium hover:bg-green-500/25 transition-colors cursor-default"
+                                className="px-3 py-1.5 bg-progress/15 text-progress border border-progress/30 font-medium hover:bg-progress/25 transition-colors cursor-default"
                               >
                                 {s}
                               </Badge>
@@ -693,13 +692,13 @@ function SummaryContent() {
                       initial={{ opacity: 0, x: 20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.2 }}
-                      className="relative p-6 rounded-2xl bg-gradient-to-br from-amber-500/10 to-amber-500/5 border border-amber-500/20 overflow-hidden group/card hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-300"
+                      className="relative p-6 rounded-2xl bg-gradient-to-br from-schedule/10 to-schedule/5 border border-schedule/20 overflow-hidden group/card hover:shadow-lg hover:shadow-schedule/10 transition-all duration-300"
                     >
-                      <div className="absolute -top-6 -right-6 w-24 h-24 bg-amber-500/20 rounded-full blur-2xl group-hover/card:scale-150 transition-transform duration-500" />
+                      <div className="absolute -top-6 -right-6 w-24 h-24 bg-schedule/20 rounded-full blur-2xl group-hover/card:scale-150 transition-transform duration-500" />
                       <div className="relative">
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="h-10 w-10 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center">
-                            <AlertTriangle className="w-5 h-5 text-amber-500" />
+                          <div className="h-10 w-10 rounded-xl bg-schedule/20 border border-schedule/30 flex items-center justify-center">
+                            <AlertTriangle className="w-5 h-5 text-schedule" />
                           </div>
                           <h3 className="text-lg font-bold text-foreground">Areas to Improve</h3>
                         </div>
@@ -708,7 +707,7 @@ function SummaryContent() {
                             sessionSummary.summary.weaknesses.map((w, i) => (
                               <Badge
                                 key={i}
-                                className="px-3 py-1.5 bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 font-medium hover:bg-amber-500/25 transition-colors cursor-default"
+                                className="px-3 py-1.5 bg-schedule/15 text-schedule dark:text-schedule border border-schedule/30 font-medium hover:bg-schedule/25 transition-colors cursor-default"
                               >
                                 {w}
                               </Badge>
@@ -727,12 +726,12 @@ function SummaryContent() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.3 }}
-                      className="relative p-6 rounded-2xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20 overflow-hidden group/card hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300"
+                      className="relative p-6 rounded-2xl bg-gradient-to-br from-study/10 to-study/5 border border-study/30 overflow-hidden group/card hover:shadow-lg hover:shadow-study/10 transition-all duration-300"
                     >
-                      <div className="absolute -top-6 -left-6 w-32 h-32 bg-blue-500/15 rounded-full blur-3xl group-hover/card:scale-125 transition-transform duration-500" />
+                      <div className="absolute -top-6 -left-6 w-32 h-32 bg-study-soft rounded-full blur-3xl group-hover/card:scale-125 transition-transform duration-500" />
                       <div className="relative flex items-start gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-blue-500/20 border border-blue-500/30 flex items-center justify-center shrink-0">
-                          <Clock className="w-6 h-6 text-blue-500" />
+                        <div className="h-12 w-12 rounded-xl bg-study/20 border border-study/30 flex items-center justify-center shrink-0">
+                          <Clock className="w-6 h-6 text-study" />
                         </div>
                         <div>
                           <h3 className="text-lg font-bold text-foreground mb-2">Speed Analysis</h3>
@@ -750,20 +749,20 @@ function SummaryContent() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: 0.4 }}
-                      className="relative p-6 rounded-2xl bg-gradient-to-br from-rose-500/10 to-rose-500/5 border border-rose-500/20 overflow-hidden"
+                      className="relative p-6 rounded-2xl bg-gradient-to-br from-destructive/10 to-destructive/5 border border-destructive/20 overflow-hidden"
                     >
-                      <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-rose-500/10 rounded-full blur-3xl" />
+                      <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-destructive/10 rounded-full blur-3xl" />
                       <div className="relative">
                         <div className="flex items-center gap-3 mb-4">
-                          <div className="h-10 w-10 rounded-xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center">
-                            <Zap className="w-5 h-5 text-rose-500" />
+                          <div className="h-10 w-10 rounded-xl bg-destructive/20 border border-destructive/30 flex items-center justify-center">
+                            <Zap className="w-5 h-5 text-destructive" />
                           </div>
                           <h3 className="text-lg font-bold text-foreground">Patterns to Watch</h3>
                         </div>
                         <ul className="space-y-3">
                           {sessionSummary.summary.error_patterns.map((pattern, i) => (
-                            <li key={i} className="flex items-start gap-3 p-3 rounded-xl bg-rose-500/5 border border-rose-500/10">
-                              <div className="w-1.5 h-1.5 rounded-full bg-rose-500 mt-2 shrink-0" />
+                            <li key={i} className="flex items-start gap-3 p-3 rounded-xl bg-destructive/5 border border-destructive/10">
+                              <div className="w-1.5 h-1.5 rounded-full bg-destructive mt-2 shrink-0" />
                               <span className="text-foreground">{pattern}</span>
                             </li>
                           ))}
@@ -810,9 +809,8 @@ function SummaryContent() {
                 <div className="text-center py-16 lg:py-20">
                   <div className="relative inline-block">
                     {/* Animated gradient ring */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-primary via-purple-500 to-primary rounded-3xl blur-xl opacity-30 animate-pulse" />
                     <div className="relative w-24 h-24 bg-gradient-to-br from-primary/20 to-primary/5 rounded-3xl flex items-center justify-center border border-primary/20 shadow-2xl shadow-primary/20">
-                      <Sparkles className="w-12 h-12 text-primary" />
+                      <Lightbulb className="w-12 h-12 text-primary" />
                     </div>
                   </div>
                   <h3 className="mt-8 mb-3 text-lg font-semibold text-foreground">

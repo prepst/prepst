@@ -87,8 +87,8 @@ export function MockExamPerformance({
                   <span
                     className={`px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold border ${
                       improvementFromLowest >= 0
-                        ? "bg-emerald-500/10 text-emerald-300 border-emerald-400/40"
-                        : "bg-rose-500/10 text-rose-300 border-rose-400/40"
+                        ? "bg-progress-soft text-progress border-progress/40"
+                        : "bg-destructive/10 text-destructive border-destructive/40"
                     }`}
                   >
                     {improvementFromLowest >= 0 ? "+" : "-"}
@@ -105,8 +105,8 @@ export function MockExamPerformance({
                   <span
                     className={`text-xs sm:text-sm font-semibold ${
                       improvementFromLowest >= 0
-                        ? "text-emerald-300"
-                        : "text-rose-300"
+                        ? "text-progress"
+                        : "text-destructive"
                     }`}
                   >
                     {improvementFromLowest >= 0 ? "+" : "-"}
@@ -127,7 +127,7 @@ export function MockExamPerformance({
                     lines={[
                       {
                         dataKey: "total_score",
-                        color: "#3b82f6",
+                        color: "#1d9bf0",
                         name: "Total Score",
                       },
                     ]}
@@ -155,7 +155,7 @@ export function MockExamPerformance({
                   <p className="text-muted-foreground text-xs uppercase tracking-wide">
                     Average Score
                   </p>
-                  <p className="text-2xl font-semibold text-blue-600 dark:text-blue-300 mt-1">
+                  <p className="text-2xl font-semibold text-study dark:text-study mt-1">
                     {Math.round(data.avg_total_score)}
                   </p>
                 </div>
@@ -163,7 +163,7 @@ export function MockExamPerformance({
                   <p className="text-muted-foreground text-xs uppercase tracking-wide">
                     Improvement
                   </p>
-                  <p className="text-2xl font-semibold text-green-600 dark:text-green-300 mt-1">
+                  <p className="text-2xl font-semibold text-progress mt-1">
                     {improvementFromLowest > 0 ? "+" : ""}
                     {Math.round(improvementFromLowest)} pts
                   </p>
@@ -195,8 +195,8 @@ export function MockExamPerformance({
               <p className="text-muted-foreground mb-4">
                 Take your first mock exam to start tracking your progress
               </p>
-              <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 max-w-md">
-                <p className="text-sm text-blue-600 dark:text-blue-400">
+              <div className="bg-study-soft border border-study/30 rounded-lg p-4 max-w-md">
+                <p className="text-sm text-study">
                   <strong>Tip:</strong> Mock exams help you practice under real
                   test conditions and track your improvement over time.
                 </p>

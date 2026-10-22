@@ -361,7 +361,6 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Special Practice with Peppa */}
           <SpecialPractice />
         </div>
       </div>

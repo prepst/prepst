@@ -161,38 +161,38 @@ function ProgressContent() {
   // Total scores are in positions 3 & 4 to make them the biggest cards
   const satCardData = [
     {
-      color: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", // Purple-blue gradient for current math
+      color: "linear-gradient(135deg, #1d9bf0 0%, #8ecdf7 100%)", // Purple-blue gradient for current math
       title: study_plan.current_math_score?.toString() || "0",
       description: "Current Math Score",
       label: "Math",
     },
     {
-      color: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)", // Pink-red gradient for target math
+      color: "linear-gradient(135deg, #f7b3b8 0%, #f4212e 100%)", // Pink-red gradient for target math
       title: study_plan.target_math_score?.toString() || "800",
       description: "Target Math Score",
       label: "Target",
     },
     {
-      color: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)", // Mint-pink gradient for current total (BIG CARD)
+      color: "linear-gradient(135deg, #b7ebda 0%, #fde8ea 100%)", // Mint-pink gradient for current total (BIG CARD)
       title: currentTotal.toString(),
       description: `Current Total Score • ${improvement > 0 ? `+${improvement} to go` : "Target reached!"
         }`,
       label: "Current Total",
     },
     {
-      color: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)", // Pink-yellow gradient for target total (BIG CARD)
+      color: "linear-gradient(135deg, #f7b3b8 0%, #ffd400 100%)", // Pink-yellow gradient for target total (BIG CARD)
       title: targetTotal.toString(),
       description: "Total Target Score",
       label: "Target",
     },
     {
-      color: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)", // Blue-cyan gradient for current R/W
+      color: "linear-gradient(135deg, #1d9bf0 0%, #8ecdf7 100%)", // Blue-cyan gradient for current R/W
       title: study_plan.current_rw_score?.toString() || "0",
       description: "Current English R/W Score",
       label: "English R/W",
     },
     {
-      color: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)", // Green-teal gradient for target R/W
+      color: "linear-gradient(135deg, #00ba7c 0%, #7ddec0 100%)", // Green-teal gradient for target R/W
       title: study_plan.target_rw_score?.toString() || "800",
       description: "Target English R/W Score",
       label: "Target",
@@ -312,7 +312,7 @@ function ProgressContent() {
                           y2="0%"
                         >
                           <stop offset="0%" stopColor="#1d9bf0" />
-                          <stop offset="100%" stopColor="#a78bfa" />
+                          <stop offset="100%" stopColor="#8ecdf7" />
                         </linearGradient>
                       </defs>
                     </svg>
@@ -343,7 +343,7 @@ function ProgressContent() {
 
               {/* Improvement Needed */}
               <div className="mt-6 flex items-center justify-center gap-2 py-3 px-4 bg-background/50 rounded-xl border border-border/40">
-                <TrendingUp className="w-4 h-4 text-emerald-500" />
+                <TrendingUp className="w-4 h-4 text-progress" />
                 <span className="text-sm text-muted-foreground">
                   {improvement > 0
                     ? `${improvement} points to reach your dream score`
@@ -357,12 +357,12 @@ function ProgressContent() {
           <div className="space-y-4">
             {/* Study Streak */}
             <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-20 h-20 bg-orange-500/10 rounded-full blur-2xl" />
+              <div className="absolute top-0 right-0 w-20 h-20 bg-schedule-soft rounded-full blur-2xl" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2.5 bg-gradient-to-br from-orange-500/20 to-orange-600/10 rounded-xl backdrop-blur-sm border border-orange-500/20">
+                  <div className="p-2.5 bg-gradient-to-br from-schedule/20 to-schedule/10 rounded-xl backdrop-blur-sm border border-schedule/40">
                     <svg
-                      className="w-5 h-5 text-orange-500"
+                      className="w-5 h-5 text-schedule"
                       viewBox="0 0 24 24"
                       fill="currentColor"
                     >
@@ -375,7 +375,7 @@ function ProgressContent() {
                     </div>
                     <div className="text-2xl font-bold text-foreground font-mono">
                       {profileData?.streak?.current_streak || 0}{" "}
-                      <span className="text-sm font-normal text-orange-500">
+                      <span className="text-sm font-normal text-schedule">
                         days 🔥
                       </span>
                     </div>
@@ -389,12 +389,12 @@ function ProgressContent() {
 
             {/* Questions Answered */}
             <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-20 h-20 bg-emerald-500/10 rounded-full blur-2xl" />
+              <div className="absolute top-0 right-0 w-20 h-20 bg-progress-soft rounded-full blur-2xl" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2.5 bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 rounded-xl backdrop-blur-sm border border-emerald-500/20">
+                  <div className="p-2.5 bg-gradient-to-br from-progress/20 to-progress/10 rounded-xl backdrop-blur-sm border border-progress/20">
                     <svg
-                      className="w-5 h-5 text-emerald-500"
+                      className="w-5 h-5 text-progress"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -426,12 +426,12 @@ function ProgressContent() {
 
             {/* Accuracy */}
             <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-2xl p-5 shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-20 h-20 bg-blue-500/10 rounded-full blur-2xl" />
+              <div className="absolute top-0 right-0 w-20 h-20 bg-study-soft rounded-full blur-2xl" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="p-2.5 bg-gradient-to-br from-blue-500/20 to-blue-600/10 rounded-xl backdrop-blur-sm border border-blue-500/20">
+                  <div className="p-2.5 bg-gradient-to-br from-study/15 to-study/5 rounded-xl backdrop-blur-sm border border-study/30">
                     <svg
-                      className="w-5 h-5 text-blue-500"
+                      className="w-5 h-5 text-study"
                       viewBox="0 0 24 24"
                       fill="none"
                       stroke="currentColor"
@@ -507,7 +507,7 @@ function ProgressContent() {
                 {/* Strength */}
                 <div className="p-4 bg-card/80 backdrop-blur-sm border border-border/40 rounded-2xl hover:bg-card/90 transition-colors">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2.5 h-2.5 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-full shadow-sm shadow-emerald-500/50" />
+                    <div className="w-2.5 h-2.5 bg-gradient-to-r from-progress to-progress rounded-full shadow-sm shadow-progress/50" />
                     <span className="text-sm font-semibold text-foreground">
                       Your Strengths
                     </span>
@@ -534,7 +534,7 @@ function ProgressContent() {
                 {/* Focus Area */}
                 <div className="p-4 bg-card/80 backdrop-blur-sm border border-border/40 rounded-2xl hover:bg-card/90 transition-colors">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2.5 h-2.5 bg-gradient-to-r from-amber-400 to-orange-500 rounded-full shadow-sm shadow-amber-500/50" />
+                    <div className="w-2.5 h-2.5 bg-gradient-to-r from-schedule to-schedule rounded-full shadow-sm shadow-schedule/50" />
                     <span className="text-sm font-semibold text-foreground">
                       Focus Areas
                     </span>
@@ -561,7 +561,7 @@ function ProgressContent() {
                 {/* Quick Tip */}
                 <div className="p-4 bg-gradient-to-br from-primary/10 to-card/80 backdrop-blur-sm border border-primary/30 rounded-2xl">
                   <div className="flex items-center gap-2 mb-2">
-                    <div className="w-2.5 h-2.5 bg-gradient-to-r from-primary to-violet-500 rounded-full shadow-sm shadow-primary/50" />
+                    <div className="w-2.5 h-2.5 bg-gradient-to-r from-study to-study rounded-full shadow-sm shadow-primary/50" />
                     <span className="text-sm font-semibold text-primary">
                       Pro Tip
                     </span>
@@ -578,14 +578,14 @@ function ProgressContent() {
 
           {/* Score Projection Card */}
           <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-3xl p-6 shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute top-0 right-0 w-40 h-40 bg-study-soft rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-blue-500/15 rounded-xl backdrop-blur-sm border border-blue-500/20">
-                    <TrendingUp className="w-5 h-5 text-blue-500" />
+                  <div className="p-2.5 bg-study-soft rounded-xl backdrop-blur-sm border border-study/30">
+                    <TrendingUp className="w-5 h-5 text-study" />
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-foreground">
@@ -598,7 +598,7 @@ function ProgressContent() {
                 </div>
                 <Badge
                   variant="outline"
-                  className="bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400"
+                  className="bg-progress-soft border-progress/30 text-progress"
                 >
                   On Track ✓
                 </Badge>
@@ -644,8 +644,8 @@ function ProgressContent() {
                           x2="100%"
                           y2="0%"
                         >
-                          <stop offset="0%" stopColor="#10b981" />
-                          <stop offset="100%" stopColor="#34d399" />
+                          <stop offset="0%" stopColor="#00ba7c" />
+                          <stop offset="100%" stopColor="#00ba7c" />
                         </linearGradient>
                       </defs>
                     </svg>
@@ -658,7 +658,7 @@ function ProgressContent() {
                   <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">
                     Math
                   </div>
-                  <div className="flex items-center justify-center gap-1 text-emerald-500 text-xs font-medium">
+                  <div className="flex items-center justify-center gap-1 text-progress text-xs font-medium">
                     <TrendingUp className="w-3 h-3" />
                     <span>
                       +
@@ -711,7 +711,7 @@ function ProgressContent() {
                           y2="0%"
                         >
                           <stop offset="0%" stopColor="#1d9bf0" />
-                          <stop offset="100%" stopColor="#a78bfa" />
+                          <stop offset="100%" stopColor="#8ecdf7" />
                         </linearGradient>
                       </defs>
                     </svg>
@@ -745,7 +745,7 @@ function ProgressContent() {
                   <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Score Trajectory
                   </span>
-                  <span className="text-xs text-emerald-500 font-medium">
+                  <span className="text-xs text-progress font-medium">
                     ↑ Improving
                   </span>
                 </div>
@@ -770,7 +770,7 @@ function ProgressContent() {
               </div>
 
               {/* Projected Total */}
-              <div className="p-4 bg-gradient-to-br from-primary/10 to-blue-500/5 backdrop-blur-sm border border-primary/30 rounded-2xl">
+              <div className="p-4 bg-gradient-to-br from-primary/10 to-study/5 backdrop-blur-sm border border-primary/30 rounded-2xl">
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-xs text-muted-foreground mb-1">
@@ -786,7 +786,7 @@ function ProgressContent() {
                     <div className="text-xs text-muted-foreground mb-1">
                       {projectedImprovement > 0 ? "Projected gain" : "Points to gain"}
                     </div>
-                    <div className="text-xl font-bold text-emerald-500 font-mono">
+                    <div className="text-xl font-bold text-progress font-mono">
                       {projectedImprovement > 0
                         ? `+${Math.min(projectedImprovement, targetTotal - currentTotal)}`
                         : `+${targetTotal - currentTotal}`}
@@ -797,7 +797,7 @@ function ProgressContent() {
                   <div className="flex items-center gap-2">
                     <div className="flex-1 h-1.5 bg-muted/30 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-primary to-emerald-400 rounded-full transition-all duration-1000"
+                        className="h-full bg-gradient-to-r from-primary to-progress rounded-full transition-all duration-1000"
                         style={{
                           width: `${Math.min(
                             (currentTotal / targetTotal) * 100,
@@ -820,7 +820,7 @@ function ProgressContent() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
           <Button
             variant="outline"
-            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent hover:border-primary/50 rounded-2xl border-border/60 transition-all duration-300  group"
+            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent rounded-2xl border-border/60 transition-all duration-300 group"
             onClick={() => router.push("/dashboard/revision")}
           >
             <div className="p-3 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-colors">
@@ -850,12 +850,12 @@ function ProgressContent() {
 
           <Button
             variant="outline"
-            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent hover:border-primary/50 rounded-2xl border-border/60 transition-all duration-300  group"
+            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent rounded-2xl border-border/60 transition-all duration-300 group"
             onClick={() => router.push("/dashboard/drill")}
           >
-            <div className="p-3 bg-emerald-500/10 rounded-xl group-hover:bg-emerald-500/20 transition-colors">
+            <div className="p-3 bg-progress-soft rounded-xl group-hover:bg-progress/20 transition-colors">
               <svg
-                className="w-6 h-6 text-emerald-500"
+                className="w-6 h-6 text-progress"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -878,11 +878,11 @@ function ProgressContent() {
 
           <Button
             variant="outline"
-            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent hover:border-primary/50 rounded-2xl border-border/60 transition-all duration-300  group"
+            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent rounded-2xl border-border/60 transition-all duration-300 group"
             onClick={() => router.push("/dashboard/mock-exam")}
           >
-            <div className="p-3 bg-amber-500/10 rounded-xl group-hover:bg-amber-500/20 transition-colors">
-              <Calendar className="w-6 h-6 text-amber-500" />
+            <div className="p-3 bg-schedule/10 rounded-xl group-hover:bg-schedule/20 transition-colors">
+              <Calendar className="w-6 h-6 text-schedule" />
             </div>
             <div className="text-left">
               <div className="font-semibold text-foreground">
@@ -896,11 +896,11 @@ function ProgressContent() {
 
           <Button
             variant="outline"
-            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent hover:border-primary/50 rounded-2xl border-border/60 transition-all duration-300  group"
+            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent rounded-2xl border-border/60 transition-all duration-300 group"
             onClick={() => router.push("/diagnostic-test")}
           >
-            <div className="p-3 bg-violet-500/10 rounded-xl group-hover:bg-violet-500/20 transition-colors">
-              <ClipboardList className="w-6 h-6 text-violet-500" />
+            <div className="p-3 bg-study-soft rounded-xl group-hover:bg-study/20 transition-colors">
+              <ClipboardList className="w-6 h-6 text-study" />
             </div>
             <div className="text-left">
               <div className="font-semibold text-foreground">
@@ -1028,17 +1028,17 @@ function ProgressContent() {
                     lines={[
                       {
                         dataKey: "predicted_sat_math",
-                        color: "#10b981",
+                        color: "#00ba7c",
                         name: "Math Score",
                       },
                       {
                         dataKey: "predicted_sat_rw",
-                        color: "#8b5cf6",
+                        color: "#1d9bf0",
                         name: "R/W Score",
                       },
                       {
                         dataKey: "total",
-                        color: "#3b82f6",
+                        color: "#1d9bf0",
                         name: "Total Score",
                       },
                     ]}
@@ -1144,7 +1144,7 @@ function ProgressContent() {
                       areas={[
                         {
                           dataKey: "mastery",
-                          color: "#8b5cf6",
+                          color: "#1d9bf0",
                           name: "Mastery %",
                         },
                       ]}

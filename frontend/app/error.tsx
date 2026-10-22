@@ -24,7 +24,7 @@ export default function Error({
         <button
           type="button"
           onClick={reset}
-          className="inline-flex h-11 items-center rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground"
+          className="inline-flex h-11 items-center rounded-xl border border-[#9ed4f3] bg-[#d7eefb] px-5 text-sm font-semibold text-[#0c3d5c] hover:bg-[#c5e6f8]"
         >
           Try again
         </button>

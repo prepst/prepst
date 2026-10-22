@@ -25,7 +25,7 @@ export function RadarChart({
   dataKey,
   categoryKey,
   height = 400,
-  color = "#8b5cf6",
+  color = "#1d9bf0",
   name = "Mastery",
   formatTooltip,
 }: RadarChartProps) {

@@ -226,7 +226,7 @@ export default function ManimPage() {
                 <Button
                   onClick={handleGenerate}
                   disabled={isGenerating || !question.trim()}
-                  className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground  transition-all "
+                  className="w-full h-12 text-lg font-semibold transition-all"
                 >
                   {isGenerating ? (
                     <>
@@ -338,7 +338,7 @@ export default function ManimPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all opacity-0 group-hover:opacity-100"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive transition-all opacity-0 group-hover:opacity-100"
                             onClick={(e) => {
                               e.stopPropagation(); // Prevent playing when deleting
                               handleDeleteVideo(video.id);

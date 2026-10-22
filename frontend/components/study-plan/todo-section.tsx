@@ -30,7 +30,7 @@ export function TodoSection({
       ref={setNodeRef}
       className={`rounded-3xl border transition-all duration-300 group
         ${isMockSection 
-          ? "bg-blue-50/50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-800/30" 
+          ? "bg-study-soft/50 dark:bg-study/10 border-study/25 dark:border-study/30" 
           : "bg-card border-border shadow-sm hover:shadow-md"
         } 
         ${isDraggedOver ? "ring-2 ring-primary ring-offset-2 bg-accent/50" : ""}
@@ -39,7 +39,7 @@ export function TodoSection({
       {/* Header */}
       <div className="p-6 border-b border-border/40 flex items-center gap-4">
         <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl transition-transform group-
-          ${isMockSection ? "bg-blue-500/10 text-blue-600" : "bg-primary/10 text-primary"}
+          ${isMockSection ? "bg-study-soft text-study" : "bg-primary/10 text-primary"}
         `}>
           {section.icon}
         </div>

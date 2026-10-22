@@ -13,17 +13,17 @@ export function LearningVelocityCard({ data }: LearningVelocityCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   const getVelocityColor = (velocity: number) => {
-    if (velocity >= 5) return "text-green-600";
-    if (velocity >= 2) return "text-blue-600";
-    if (velocity >= 0) return "text-yellow-600";
-    return "text-red-600";
+    if (velocity >= 5) return "text-progress";
+    if (velocity >= 2) return "text-study";
+    if (velocity >= 0) return "text-schedule";
+    return "text-destructive";
   };
 
   const getAccelerationIcon = () => {
     if (data.acceleration > 1.1)
-      return <TrendingUp className="w-4 h-4 text-green-600" />;
+      return <TrendingUp className="w-4 h-4 text-progress" />;
     if (data.acceleration < 0.9)
-      return <TrendingDown className="w-4 h-4 text-red-600" />;
+      return <TrendingDown className="w-4 h-4 text-destructive" />;
     return <Target className="w-4 h-4 text-gray-600" />;
   };
 
@@ -36,18 +36,18 @@ export function LearningVelocityCard({ data }: LearningVelocityCardProps) {
   };
 
   const getMomentumColor = (score: number) => {
-    if (score >= 75) return "text-green-600 bg-green-100";
-    if (score >= 50) return "text-blue-600 bg-blue-100";
-    if (score >= 25) return "text-yellow-600 bg-yellow-100";
-    return "text-red-600 bg-red-100";
+    if (score >= 75) return "text-progress bg-progress-soft";
+    if (score >= 50) return "text-study bg-study-soft";
+    if (score >= 25) return "text-schedule bg-schedule-soft";
+    return "text-destructive bg-destructive-soft";
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-blue-100">
+    <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-study/25">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-            <Zap className="w-6 h-6 text-blue-600" />
+          <div className="w-12 h-12 bg-study-soft rounded-full flex items-center justify-center">
+            <Zap className="w-6 h-6 text-study" />
           </div>
           <div>
             <p className="text-sm text-gray-600">Learning Velocity</p>
@@ -63,7 +63,7 @@ export function LearningVelocityCard({ data }: LearningVelocityCardProps) {
         </div>
         <button
           onClick={() => setExpanded(!expanded)}
-          className="text-sm text-blue-600 hover:underline"
+          className="text-sm text-study hover:underline"
         >
           {expanded ? "Hide Details" : "View Details"}
         </button>
@@ -95,7 +95,7 @@ export function LearningVelocityCard({ data }: LearningVelocityCardProps) {
       {/* Velocity Status */}
       <div className="mb-4">
         {data.is_improving ? (
-          <div className="flex items-center gap-2 text-green-600">
+          <div className="flex items-center gap-2 text-progress">
             <TrendingUp className="w-4 h-4" />
             <p className="text-sm font-medium">
               You&apos;re in the {data.velocity_percentile}th percentile for
@@ -103,7 +103,7 @@ export function LearningVelocityCard({ data }: LearningVelocityCardProps) {
             </p>
           </div>
         ) : (
-          <div className="flex items-center gap-2 text-yellow-600">
+          <div className="flex items-center gap-2 text-schedule">
             <Target className="w-4 h-4" />
             <p className="text-sm font-medium">
               Steady progress - keep up the momentum!
@@ -129,7 +129,7 @@ export function LearningVelocityCard({ data }: LearningVelocityCardProps) {
                 lines={[
                   {
                     dataKey: "velocity",
-                    color: "#3b82f6",
+                    color: "#1d9bf0",
                     name: "Weekly Improvement",
                   },
                 ]}
@@ -182,11 +182,11 @@ export function LearningVelocityCard({ data }: LearningVelocityCardProps) {
           )}
 
           {/* Learning Insights */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="font-semibold text-blue-800 mb-2">
+          <div className="bg-study-soft border border-study/25 rounded-lg p-4">
+            <h4 className="font-semibold text-study mb-2">
               Learning Insights
             </h4>
-            <div className="space-y-2 text-sm text-blue-700">
+            <div className="space-y-2 text-sm text-study">
               {data.overall_velocity > 5 && (
                 <p>
                   🚀 <strong>Excellent pace!</strong> You&apos;re learning

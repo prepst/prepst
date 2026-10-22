@@ -228,7 +228,7 @@ export default function ProfilePage() {
                 <Button
                   onClick={handleSaveProfile}
                   disabled={uploadingPhoto || isSaving}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground "
+                  
                 >
                   {isSaving ? (
                     <div className="h-4 w-4 animate-spin border-2 border-current border-t-transparent rounded-full mr-2" />
@@ -242,7 +242,7 @@ export default function ProfilePage() {
               <Button
                 onClick={handleEditToggle}
                 variant="outline"
-                className="border-border/50 hover:bg-accent/50 shadow-sm"
+                className="border-border/50 hover:bg-accent/50"
               >
                 <Edit2 className="mr-2 h-4 w-4" />
                 Edit Profile
@@ -278,7 +278,7 @@ export default function ProfilePage() {
               <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-primary/10 to-transparent opacity-50" />
 
               <div className="relative z-10 mb-6">
-                <div className="w-32 h-32 rounded-full p-1 bg-gradient-to-br from-primary to-purple-500 ">
+                <div className="w-32 h-32 rounded-full p-1 bg-gradient-to-br from-primary to-study ">
                   <div className="w-full h-full rounded-full bg-background overflow-hidden flex items-center justify-center relative group">
                     {profile.profile_photo_url ? (
                       <img
@@ -335,7 +335,7 @@ export default function ProfilePage() {
                 )}
                 {profile.school_name && (
                   <div className="px-3 py-1 rounded-full bg-secondary/50 border border-border/50 text-sm font-medium flex items-center gap-2 max-w-[200px] truncate">
-                    <School className="w-3.5 h-3.5 text-blue-500" />
+                    <School className="w-3.5 h-3.5 text-study" />
                     {profile.school_name}
                   </div>
                 )}
@@ -345,7 +345,7 @@ export default function ProfilePage() {
             {/* Quick Actions Card */}
             <div className="bg-card/50 backdrop-blur-xl border border-border/50 rounded-3xl p-6 shadow-lg">
               <h3 className="font-semibold text-foreground mb-4 flex items-center gap-2">
-                <Zap className="w-5 h-5 text-yellow-500" />
+                <Zap className="w-5 h-5 text-schedule" />
                 Quick Actions
               </h3>
               <div className="space-y-3">
@@ -362,7 +362,7 @@ export default function ProfilePage() {
                   className="w-full justify-start h-12 text-base font-medium border-border/50 hover:bg-accent/50"
                   onClick={() => router.push("/dashboard/study-plan")}
                 >
-                  <Calendar className="w-5 h-5 mr-3 text-blue-500" />
+                  <Calendar className="w-5 h-5 mr-3 text-study" />
                   View Study Plan
                 </Button>
                 {latestCompletedDiagnostic && (
@@ -375,7 +375,7 @@ export default function ProfilePage() {
                       )
                     }
                   >
-                    <ClipboardCheck className="w-5 h-5 mr-3 text-violet-500" />
+                    <ClipboardCheck className="w-5 h-5 mr-3 text-study" />
                     View Diagnostic Results
                   </Button>
                 )}
@@ -392,7 +392,7 @@ export default function ProfilePage() {
               transition={{ delay: 0.2 }}
             >
               <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-foreground">
-                <Trophy className="w-5 h-5 text-yellow-500" />
+                <Trophy className="w-5 h-5 text-schedule" />
                 Performance Overview
               </h3>
 
@@ -410,7 +410,7 @@ export default function ProfilePage() {
                   </div>
                   <div className="w-full bg-secondary/50 h-1.5 rounded-full mt-1 overflow-hidden">
                     <div
-                      className="bg-blue-500 h-full rounded-full"
+                      className="bg-study h-full rounded-full"
                       style={{
                         width: `${Math.min(
                           100,
@@ -420,7 +420,7 @@ export default function ProfilePage() {
                     />
                   </div>
                   {stats?.improvement_math && (
-                    <span className="text-xs text-green-500 font-medium">
+                    <span className="text-xs text-progress font-medium">
                       +{stats.improvement_math}% growth
                     </span>
                   )}
@@ -439,7 +439,7 @@ export default function ProfilePage() {
                   </div>
                   <div className="w-full bg-secondary/50 h-1.5 rounded-full mt-1 overflow-hidden">
                     <div
-                      className="bg-green-500 h-full rounded-full"
+                      className="bg-progress h-full rounded-full"
                       style={{
                         width: `${Math.min(
                           100,
@@ -449,7 +449,7 @@ export default function ProfilePage() {
                     />
                   </div>
                   {stats?.improvement_rw && (
-                    <span className="text-xs text-green-500 font-medium">
+                    <span className="text-xs text-progress font-medium">
                       +{stats.improvement_rw}% growth
                     </span>
                   )}
@@ -461,7 +461,7 @@ export default function ProfilePage() {
                     Hours Studied
                   </span>
                   <div className="flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-purple-500" />
+                    <Clock className="w-5 h-5 text-study" />
                     <span className="text-2xl font-bold text-foreground">
                       {stats?.total_study_hours
                         ? stats.total_study_hours.toFixed(1)
@@ -479,7 +479,7 @@ export default function ProfilePage() {
                     Day Streak
                   </span>
                   <div className="flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-orange-500" />
+                    <Zap className="w-5 h-5 text-schedule" />
                     <span className="text-2xl font-bold text-foreground">
                       {profileData?.streak?.current_streak || 0}
                     </span>

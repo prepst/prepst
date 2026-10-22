@@ -69,9 +69,9 @@ function BreakContent() {
 
           {/* Completed Module */}
           {completedModule && (
-            <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-green-500/10 border border-green-500/20 rounded-full">
-              <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-              <span className="text-green-600 dark:text-green-400 font-semibold">
+            <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 bg-progress-soft border border-progress/20 rounded-full">
+              <CheckCircle className="w-5 h-5 text-progress" />
+              <span className="text-progress font-semibold">
                 {getModuleTitle(completedModule)} Complete!
               </span>
             </div>
@@ -84,14 +84,14 @@ function BreakContent() {
           </p>
 
           {/* Break Timer */}
-          <div className="bg-blue-500/10 rounded-xl p-8 mb-8 border-2 border-blue-500/20">
+          <div className="bg-study-soft rounded-xl p-8 mb-8 border-2 border-study/30">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <Clock className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-              <span className="text-5xl font-mono font-bold text-blue-700 dark:text-blue-300 tabular-nums">
+              <Clock className="w-8 h-8 text-study" />
+              <span className="text-5xl font-mono font-bold text-study dark:text-study tabular-nums">
                 {formatTime(timeRemaining)}
               </span>
             </div>
-            <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+            <p className="text-sm text-study font-medium">
               {timeRemaining > 0 ? 'Break time remaining' : 'Break time is up!'}
             </p>
           </div>
@@ -124,7 +124,7 @@ function BreakContent() {
             onClick={handleContinue}
             disabled={!canContinue}
             size="lg"
-            className="w-full bg-primary hover:bg-primary/90 text-white text-lg py-6"
+            className="w-full text-lg py-6"
           >
             {nextModuleId ? 'Continue to Next Module' : 'View Results'}
           </Button>

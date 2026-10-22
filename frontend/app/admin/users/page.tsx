@@ -73,7 +73,7 @@ export default function AdminUsersPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <Card className="max-w-md">
           <CardHeader>
-            <CardTitle className="text-red-600">Error</CardTitle>
+            <CardTitle className="text-destructive">Error</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-gray-600 dark:text-gray-400">{error}</p>
@@ -100,7 +100,7 @@ export default function AdminUsersPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-study rounded-full flex items-center justify-center">
                 <User className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -181,7 +181,7 @@ export default function AdminUsersPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-green-600 rounded-full flex items-center justify-center">
+              <div className="w-12 h-12 bg-progress rounded-full flex items-center justify-center">
                 <Users className="w-6 h-6 text-white" />
               </div>
               <div>
@@ -193,7 +193,7 @@ export default function AdminUsersPage() {
           <CardContent>
             <div className="flex items-center justify-center py-8">
               <div className="text-center">
-                <div className="text-6xl font-bold text-green-600 dark:text-green-400 mb-2">
+                <div className="text-6xl font-bold text-progress mb-2">
                   {totalUsers !== null ? totalUsers.toLocaleString() : "—"}
                 </div>
                 <div className="text-lg text-gray-600 dark:text-gray-400">

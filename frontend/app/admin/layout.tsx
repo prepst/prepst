@@ -127,7 +127,7 @@ export default function AdminLayout({
         <div className="flex items-center justify-between p-4 border-b border-gray-700">
           {isSidebarOpen && (
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center font-bold">
+              <div className="w-8 h-8 bg-study rounded-lg flex items-center justify-center font-bold">
                 A
               </div>
               <span className="font-semibold">Admin Panel</span>
@@ -170,7 +170,7 @@ export default function AdminLayout({
                 href={item.href}
                 className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
                   isActive
-                    ? "bg-blue-600 text-white"
+                    ? "bg-study text-white"
                     : "hover:bg-gray-800 text-gray-300"
                 }`}
               >
@@ -184,7 +184,7 @@ export default function AdminLayout({
         {/* User Info & Logout */}
         <div className="absolute bottom-0 w-full p-4 border-t border-gray-700">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm font-bold">
+            <div className="w-8 h-8 bg-study rounded-full flex items-center justify-center text-sm font-bold">
               {user?.email?.charAt(0).toUpperCase()}
             </div>
             {isSidebarOpen && (
@@ -198,7 +198,7 @@ export default function AdminLayout({
           </div>
           <button
             onClick={() => signOut()}
-            className="w-full flex items-center gap-3 p-2 hover:bg-gray-800 rounded-lg transition-colors text-red-400"
+            className="w-full flex items-center gap-3 p-2 hover:bg-gray-800 rounded-lg transition-colors text-destructive"
           >
             <LogOut className="w-5 h-5" />
             {isSidebarOpen && <span>Sign Out</span>}

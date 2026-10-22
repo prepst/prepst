@@ -56,9 +56,9 @@ function ResultsContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-study-soft">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-study border-t-transparent mx-auto mb-4"></div>
           <p className="text-gray-700 font-medium">Loading results...</p>
         </div>
       </div>
@@ -67,9 +67,9 @@ function ResultsContent() {
 
   if (error || !results) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 p-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-study-soft p-4">
         <div className="text-center bg-white p-8 rounded-2xl shadow-lg">
-          <AlertCircle className="w-16 h-16 text-red-500 mx-auto mb-4" />
+          <AlertCircle className="w-16 h-16 text-destructive mx-auto mb-4" />
           <h2 className="text-2xl font-bold mb-2">Oops!</h2>
           <p className="text-gray-600 mb-6">{error || 'Results not found'}</p>
           <Button onClick={() => router.push('/dashboard/mock-exam')} size="lg">
@@ -96,8 +96,8 @@ function ResultsContent() {
         {/* Score Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Total Score */}
-          <div className="bg-card rounded-2xl p-8 border border-purple-500/20 shadow-sm bg-purple-500/5">
-            <h3 className="text-lg font-medium mb-1 text-purple-600 dark:text-purple-400">Total Score</h3>
+          <div className="bg-card rounded-2xl p-8 border border-study/20 shadow-sm bg-study/5">
+            <h3 className="text-lg font-medium mb-1 text-study">Total Score</h3>
             <div className="flex items-baseline gap-2">
               <span className="text-6xl font-bold tracking-tighter text-foreground">{exam.total_score}</span>
               <span className="text-lg font-medium text-muted-foreground">/ 1600</span>
@@ -105,8 +105,8 @@ function ResultsContent() {
           </div>
 
           {/* Math Score */}
-          <div className="bg-card rounded-2xl p-8 border border-blue-500/20 shadow-sm bg-blue-500/5">
-            <h3 className="text-lg font-medium mb-1 text-blue-600 dark:text-blue-400">Math</h3>
+          <div className="bg-card rounded-2xl p-8 border border-study/30 shadow-sm bg-study-soft">
+            <h3 className="text-lg font-medium mb-1 text-study">Math</h3>
             <div className="flex items-baseline gap-2">
               <span className="text-5xl font-bold tracking-tighter text-foreground">{exam.math_score}</span>
               <span className="text-lg font-medium text-muted-foreground">/ 800</span>
@@ -114,8 +114,8 @@ function ResultsContent() {
           </div>
 
           {/* Reading & Writing Score */}
-          <div className="bg-card rounded-2xl p-8 border border-emerald-500/20 shadow-sm bg-emerald-500/5">
-            <h3 className="text-lg font-medium mb-1 text-emerald-600 dark:text-emerald-400">Reading & Writing</h3>
+          <div className="bg-card rounded-2xl p-8 border border-progress/20 shadow-sm bg-progress/5">
+            <h3 className="text-lg font-medium mb-1 text-progress">Reading & Writing</h3>
             <div className="flex items-baseline gap-2">
               <span className="text-5xl font-bold tracking-tighter text-foreground">{exam.rw_score}</span>
               <span className="text-lg font-medium text-muted-foreground">/ 800</span>
@@ -141,13 +141,13 @@ function ResultsContent() {
               </div>
             </div>
             
-            <div className="flex items-center gap-4 p-4 rounded-xl bg-green-500/10 border border-green-500/20">
-              <div className="p-3 bg-green-500/20 rounded-full">
-                <CheckCircle className="w-6 h-6 text-green-600 dark:text-green-400" />
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-progress-soft border border-progress/20">
+              <div className="p-3 bg-progress/20 rounded-full">
+                <CheckCircle className="w-6 h-6 text-progress" />
               </div>
               <div>
                 <p className="text-2xl font-bold text-foreground">{total_correct}</p>
-                <p className="text-sm font-medium text-green-600 dark:text-green-400">Correct Answers</p>
+                <p className="text-sm font-medium text-progress">Correct Answers</p>
               </div>
             </div>
 
@@ -181,8 +181,8 @@ function ResultsContent() {
                   </div>
                   <div className="text-right">
                     <span className={`text-xl font-bold ${
-                      category.percentage >= 70 ? 'text-green-600 dark:text-green-400' :
-                      category.percentage >= 50 ? 'text-yellow-600 dark:text-yellow-400' :
+                      category.percentage >= 70 ? 'text-progress' :
+                      category.percentage >= 50 ? 'text-schedule dark:text-schedule' :
                       'text-destructive'
                     }`}>
                       {category.percentage.toFixed(0)}%
@@ -192,8 +192,8 @@ function ResultsContent() {
                 <div className="w-full bg-muted rounded-full h-2.5 overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-500 ${
-                      category.percentage >= 70 ? 'bg-green-500' :
-                      category.percentage >= 50 ? 'bg-yellow-500' :
+                      category.percentage >= 70 ? 'bg-progress' :
+                      category.percentage >= 50 ? 'bg-schedule' :
                       'bg-destructive'
                     }`}
                     style={{ width: `${category.percentage}%` }}
@@ -242,8 +242,8 @@ function ResultsContent() {
                   <div className="flex items-center gap-4">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       (module.correct_count / module.total_questions) >= 0.7 
-                        ? 'bg-green-500/10 text-green-600 dark:text-green-400' 
-                        : 'bg-orange-500/10 text-orange-600 dark:text-orange-400'
+                        ? 'bg-progress-soft text-progress' 
+                        : 'bg-schedule-soft text-schedule'
                     }`}>
                       {((module.correct_count / module.total_questions) * 100).toFixed(0)}%
                     </span>
@@ -262,14 +262,14 @@ function ResultsContent() {
                         key={question.question_id}
                         className={`p-4 rounded-xl border transition-colors ${
                           question.is_correct
-                            ? 'bg-green-500/5 border-green-500/20'
+                            ? 'bg-progress/5 border-progress/20'
                             : 'bg-destructive/5 border-destructive/20'
                         }`}
                       >
                         <div className="flex items-start gap-3">
                           <div className={`mt-0.5 p-1 rounded-full ${
                             question.is_correct 
-                              ? 'text-green-600 dark:text-green-400 bg-green-500/10' 
+                              ? 'text-progress bg-progress-soft' 
                               : 'text-destructive bg-destructive/10'
                           }`}>
                             {question.is_correct ? (
@@ -286,10 +286,10 @@ function ResultsContent() {
                               </span>
                               <span className={`px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wide ${
                                 question.difficulty === 'E'
-                                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                                  ? 'bg-progress-soft text-progress'
                                   : question.difficulty === 'M'
-                                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
-                                  : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                                  ? 'bg-schedule/10 text-schedule dark:text-schedule'
+                                  : 'bg-destructive/10 text-destructive dark:text-destructive'
                               }`}>
                                 {question.difficulty === 'E' ? 'Easy' : question.difficulty === 'M' ? 'Medium' : 'Hard'}
                               </span>
@@ -306,8 +306,8 @@ function ResultsContent() {
                                     {question.user_answer?.join(', ') || 'Skipped'}
                                   </p>
                                 </div>
-                                <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
-                                  <p className="text-xs font-semibold text-green-600 dark:text-green-400 uppercase mb-1">Correct Answer</p>
+                                <div className="p-3 rounded-lg bg-progress-soft border border-progress/20">
+                                  <p className="text-xs font-semibold text-progress uppercase mb-1">Correct Answer</p>
                                   <p className="text-foreground font-medium font-mono">
                                     {question.correct_answer.join(', ')}
                                   </p>

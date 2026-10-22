@@ -16,7 +16,6 @@ import {
     ArrowUpRight,
     CheckCircle2,
     Clock,
-    Sparkles,
     Zap,
 } from "lucide-react";
 import {
@@ -163,7 +162,7 @@ const SpotlightFeature = ({ items }: { items: string[] }) => {
                     transition={{ delay: 0.1 * index }}
                     className="flex items-center gap-2"
                 >
-                    <CheckCircle2 className="h-4 w-4 text-emerald-500 dark:text-emerald-400 flex-shrink-0" />
+                    <CheckCircle2 className="h-4 w-4 text-progress dark:text-progress flex-shrink-0" />
                     <span className="text-sm text-neutral-700 dark:text-neutral-300">
                         {item}
                     </span>
@@ -266,11 +265,11 @@ const MetricsFeature = ({
 }) => {
     const getColorClass = (color = "emerald") => {
         const colors = {
-            emerald: "bg-emerald-500 dark:bg-emerald-400",
-            blue: "bg-blue-500 dark:bg-blue-400",
-            violet: "bg-violet-500 dark:bg-violet-400",
-            amber: "bg-amber-500 dark:bg-amber-400",
-            rose: "bg-rose-500 dark:bg-rose-400",
+            emerald: "bg-progress dark:bg-progress",
+            blue: "bg-study dark:bg-study",
+            violet: "bg-study dark:bg-study",
+            amber: "bg-schedule dark:bg-schedule",
+            rose: "bg-destructive dark:bg-destructive",
         };
         return colors[color as keyof typeof colors] || colors.emerald;
     };
@@ -296,7 +295,7 @@ const MetricsFeature = ({
                                 <Zap className="w-3.5 h-3.5" />
                             )}
                             {metric.label === "Improvement" && (
-                                <Sparkles className="w-3.5 h-3.5" />
+                                <ArrowUpRight className="w-3.5 h-3.5" />
                             )}
                             {metric.label}
                         </div>

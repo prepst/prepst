@@ -15,11 +15,11 @@ import { toast } from "sonner";
 import { SkillRadialChart } from "@/components/charts/SkillRadialChart";
 import {
   Zap,
+  Lightbulb,
   Search,
   Target,
   TrendingUp,
   BookOpen,
-  Sparkles,
   CheckCircle,
   AlertCircle,
   Clock,
@@ -184,10 +184,10 @@ function DrillPage() {
 
   const getTopicDifficultyColor = (difficulty: string) => {
     switch (difficulty) {
-      case "easy": return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
-      case "medium": return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
-      case "hard": return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
-      default: return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
+      case "easy": return "bg-progress-soft text-progress";
+      case "medium": return "bg-schedule-soft text-schedule";
+      case "hard": return "bg-destructive-soft text-destructive";
+      default: return "bg-muted text-muted-foreground";
     }
   };
 
@@ -242,9 +242,9 @@ function DrillPage() {
                       variant="outline"
                       size="sm"
                       onClick={quickSelectRecommendations}
-                      className="border-primary/20 hover:bg-primary/5"
+                      
                     >
-                      <Sparkles className="w-4 h-4 mr-2" />
+                      <Lightbulb className="w-4 h-4 mr-2" />
                       Quick Select ({Math.min(recommendations.length, 5 - selectedTopics.length)})
                     </Button>
                   )}
@@ -256,7 +256,7 @@ function DrillPage() {
                   >
                     {isCreatingSession ? (
                       <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent mr-2" />
                         Creating...
                       </>
                     ) : (
@@ -290,8 +290,8 @@ function DrillPage() {
             <section className="space-y-6">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
-                    <Sparkles className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                  <div className="p-2 bg-schedule-soft dark:bg-schedule/30 rounded-lg">
+                    <Lightbulb className="w-5 h-5 text-schedule dark:text-schedule" />
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-foreground">Recommended for You</h2>
@@ -359,7 +359,6 @@ function DrillPage() {
                       </div>
                     </div>
 
-                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/20 to-primary/10" />
                   </div>
                 ))}
               </div>
@@ -490,9 +489,6 @@ function DrillPage() {
                         </div>
                       </div>
 
-                      {/* Section Indicator */}
-                      <div className={`absolute bottom-0 left-0 right-0 h-1 ${topic.section === 'math' ? 'bg-gradient-to-r from-amber-400 to-orange-400' : 'bg-gradient-to-r from-rose-400 to-pink-400'
-                        }`} />
                     </div>
                   </div>
                 ))}
@@ -618,11 +614,11 @@ function DrillPage() {
                     <div className="text-right">
                       <div
                         className={`text-xl font-bold ${session.correct_count / session.total_questions >= 0.8
-                          ? "text-green-600 dark:text-green-400"
+                          ? "text-progress"
                           : session.correct_count / session.total_questions >=
                             0.6
-                            ? "text-blue-600 dark:text-blue-400"
-                            : "text-orange-600 dark:text-orange-400"
+                            ? "text-study"
+                            : "text-schedule"
                           }`}
                       >
                         {Math.round(

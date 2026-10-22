@@ -211,7 +211,7 @@ export function TopicGraphView({ heatmap }: TopicGraphViewProps) {
         // Show mastery percentage for hovered nodes
         if (!node.isCenter && hoveredNode?.id === node.id) {
           ctx.font = "10px sans-serif";
-          ctx.fillStyle = "#7c3aed";
+          ctx.fillStyle = "#1d9bf0";
           ctx.fillText(
             `${Math.round(node.mastery * 100)}% mastery`,
             node.x,

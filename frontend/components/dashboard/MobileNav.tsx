@@ -3,41 +3,52 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, Menu, Settings, User, X, type LucideIcon } from "lucide-react";
-import { ThemeIcon } from "@/components/ThemeIcon";
+import {
+  BookMarked,
+  BookOpen,
+  Brain,
+  Database,
+  FileText,
+  History,
+  Home,
+  LogOut,
+  Menu,
+  RotateCcw,
+  Settings,
+  TrendingUp,
+  User,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 
-const primaryItems: { name: string; href: string; icon: string | LucideIcon }[] = [
-  { name: "Home", href: "/dashboard", icon: "home" },
-  { name: "Plan", href: "/dashboard/study-plan", icon: "plan" },
-  { name: "Drill", href: "/dashboard/drill", icon: "drill" },
-  { name: "Mock", href: "/dashboard/mock-exam", icon: "exam" },
+const primaryItems: { name: string; href: string; icon: LucideIcon }[] = [
+  { name: "Home", href: "/dashboard", icon: Home },
+  { name: "Plan", href: "/dashboard/study-plan", icon: BookOpen },
+  { name: "Drill", href: "/dashboard/drill", icon: Brain },
+  { name: "Mock", href: "/dashboard/mock-exam", icon: FileText },
 ];
 
-const moreItems: { name: string; href: string; icon: string | LucideIcon }[] = [
-  { name: "Sessions", href: "/dashboard/sessions", icon: "review" },
-  { name: "Revision", href: "/dashboard/revision", icon: "review" },
-  { name: "Questions", href: "/dashboard/question-pool", icon: "questions" },
-  { name: "Vocab", href: "/dashboard/vocab", icon: "book" },
-  { name: "Progress", href: "/dashboard/progress", icon: "progress" },
+const moreItems: { name: string; href: string; icon: LucideIcon }[] = [
+  { name: "Sessions", href: "/dashboard/sessions", icon: History },
+  { name: "Revision", href: "/dashboard/revision", icon: RotateCcw },
+  { name: "Questions", href: "/dashboard/question-pool", icon: Database },
+  { name: "Vocab", href: "/dashboard/vocab", icon: BookMarked },
+  { name: "Progress", href: "/dashboard/progress", icon: TrendingUp },
   { name: "Profile", href: "/dashboard/profile", icon: User },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
 ];
 
 function NavMark({
-  icon,
+  icon: Icon,
   className,
 }: {
-  icon: string | LucideIcon;
+  icon: LucideIcon;
   className: string;
 }) {
-  if (typeof icon === "string") {
-    return <ThemeIcon name={icon} className={className} />;
-  }
-  const Icon = icon;
   return <Icon className={className} aria-hidden="true" />;
 }
 

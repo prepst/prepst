@@ -57,10 +57,10 @@ export function QuestionPanel({
 
   const difficultyColor =
     question.question.difficulty === "E"
-      ? "bg-emerald-500"
+      ? "bg-progress"
       : question.question.difficulty === "M"
-        ? "bg-amber-500"
-        : "bg-rose-500";
+        ? "bg-schedule"
+        : "bg-destructive";
 
   const difficultyLabel =
     question.question.difficulty === "E"
@@ -128,7 +128,7 @@ export function QuestionPanel({
         >
           <Button
             size="sm"
-            className="shadow-lg gap-1.5 text-xs"
+            className="gap-1.5 text-xs"
             onClick={saveToVocab}
             disabled={addVocab.isPending}
           >

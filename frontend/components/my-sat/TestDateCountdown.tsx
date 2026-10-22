@@ -89,7 +89,7 @@ export function TestDateCountdown({ testDate, onEditClick, compact = false }: Te
                     <Button
                         onClick={onEditClick}
                         size="sm"
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
+                        className="font-semibold"
                     >
                         <Calendar className="w-3.5 h-3.5 mr-1.5" />
                         Set Date

@@ -23,7 +23,7 @@ import {
 const chartConfig = {
   math: {
     label: "Math",
-    color: "#2b7efe",
+    color: "#1d9bf0",
   },
   rw: {
     label: "English",
@@ -78,8 +78,8 @@ export function PerformanceChart() {
     <Card className="p-8 rounded-2xl border-border shadow-sm bg-card">
       <CardHeader>
         <div className="flex items-center gap-3 mb-2">
-          <div className="p-2 bg-green-500/10 rounded-lg">
-            <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
+          <div className="p-2 bg-progress-soft rounded-lg">
+            <TrendingUp className="h-5 w-5 text-progress" />
           </div>
           <CardTitle className="text-2xl font-bold text-card-foreground">
             Mock Exam Performance

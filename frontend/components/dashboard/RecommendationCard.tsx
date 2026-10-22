@@ -15,7 +15,7 @@ export default function RecommendationCard({ onStart }: RecommendationCardProps)
                     Practice one skill for about five minutes.
                 </p>
             </div>
-            <Button variant="outline" onClick={onStart} className="w-fit border-practice/40 text-practice hover:bg-practice-soft hover:text-practice">
+            <Button onClick={onStart} className="w-fit">
                 Start a drill
             </Button>
         </div>

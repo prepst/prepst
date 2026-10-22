@@ -52,7 +52,7 @@ export default function AdminQuestionTestPage() {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-study mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading question...</p>
         </div>
       </div>
@@ -63,7 +63,7 @@ export default function AdminQuestionTestPage() {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-red-600">Question not found</p>
+          <p className="text-destructive">Question not found</p>
           <Button onClick={() => router.push(getBackUrl())} className="mt-4">
             Back to Questions
           </Button>
@@ -136,7 +136,7 @@ export default function AdminQuestionTestPage() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 flex flex-col overflow-hidden">
+    <div className="h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-study-soft flex flex-col overflow-hidden">
       {/* Admin Toolbar */}
       <div className="bg-white border-b border-gray-200 shadow-sm flex-shrink-0">
         <div className="px-4 py-3">
@@ -154,10 +154,10 @@ export default function AdminQuestionTestPage() {
                 <span
                   className={`px-2 py-1 text-xs font-semibold rounded-full ${
                     adminQuestion.difficulty === "E"
-                      ? "bg-emerald-100 text-emerald-700"
+                      ? "bg-progress-soft text-progress"
                       : adminQuestion.difficulty === "M"
-                      ? "bg-amber-100 text-amber-700"
-                      : "bg-rose-100 text-rose-700"
+                      ? "bg-schedule-soft text-schedule"
+                      : "bg-destructive-soft text-destructive"
                   }`}
                 >
                   {adminQuestion.difficulty === "E"
@@ -175,7 +175,7 @@ export default function AdminQuestionTestPage() {
                 <span
                   className={`px-2 py-1 text-xs font-semibold rounded-full ${
                     adminQuestion.is_active
-                      ? "bg-green-100 text-green-700"
+                      ? "bg-progress-soft text-progress"
                       : "bg-gray-100 text-gray-700"
                   }`}
                 >

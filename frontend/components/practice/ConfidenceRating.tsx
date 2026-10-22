@@ -15,11 +15,11 @@ export function ConfidenceRating({
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
 
   const ratings = [
-    { value: 1, label: "Guessing", color: "text-red-500" },
-    { value: 2, label: "Unsure", color: "text-orange-500" },
-    { value: 3, label: "Somewhat Sure", color: "text-yellow-500" },
-    { value: 4, label: "Confident", color: "text-green-500" },
-    { value: 5, label: "Very Confident", color: "text-blue-500" },
+    { value: 1, label: "Guessing", color: "text-destructive" },
+    { value: 2, label: "Unsure", color: "text-schedule" },
+    { value: 3, label: "Somewhat Sure", color: "text-schedule" },
+    { value: 4, label: "Confident", color: "text-progress" },
+    { value: 5, label: "Very Confident", color: "text-study" },
   ];
 
   const handleSelect = (value: number) => {

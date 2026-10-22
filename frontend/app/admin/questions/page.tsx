@@ -301,12 +301,12 @@ export default function AdminQuestionsPage() {
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
         {isLoading ? (
           <div className="p-12 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-study mx-auto"></div>
             <p className="mt-4 text-gray-600">Loading questions...</p>
           </div>
         ) : error ? (
           <div className="p-12 text-center">
-            <p className="text-red-600">Error loading questions</p>
+            <p className="text-destructive">Error loading questions</p>
           </div>
         ) : questions.length === 0 ? (
           <div className="p-12 text-center">
@@ -397,10 +397,10 @@ export default function AdminQuestionsPage() {
                           <span
                             className={`px-2 py-1 text-xs font-semibold rounded-full ${
                               question.difficulty === "E"
-                                ? "bg-emerald-100 text-emerald-700"
+                                ? "bg-progress-soft text-progress"
                                 : question.difficulty === "M"
-                                ? "bg-amber-100 text-amber-700"
-                                : "bg-rose-100 text-rose-700"
+                                ? "bg-schedule-soft text-schedule"
+                                : "bg-destructive-soft text-destructive"
                             }`}
                           >
                             {question.difficulty === "E"
@@ -419,7 +419,7 @@ export default function AdminQuestionsPage() {
                           <span
                             className={`px-2 py-1 text-xs font-semibold rounded-full ${
                               question.is_active
-                                ? "bg-green-100 text-green-700"
+                                ? "bg-progress-soft text-progress"
                                 : "bg-gray-100 text-gray-700"
                             }`}
                           >
@@ -445,9 +445,9 @@ export default function AdminQuestionsPage() {
                               }
                             >
                               {question.is_active ? (
-                                <PowerOff className="w-4 h-4 text-orange-500" />
+                                <PowerOff className="w-4 h-4 text-schedule" />
                               ) : (
-                                <Power className="w-4 h-4 text-green-500" />
+                                <Power className="w-4 h-4 text-progress" />
                               )}
                             </Button>
                             <Button

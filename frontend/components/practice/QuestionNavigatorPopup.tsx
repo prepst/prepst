@@ -37,11 +37,11 @@ export function QuestionNavigatorPopup({
       {!isMockExam && (
         <div className="flex items-center justify-center gap-4 text-sm px-3 pt-2 pb-2 border-b">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded border border-green-500 bg-green-500/20" />
+            <div className="w-4 h-4 rounded border border-progress bg-progress/20" />
             <span className="text-muted-foreground">Correct</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded border border-red-500 bg-red-500/20" />
+            <div className="w-4 h-4 rounded border border-destructive bg-destructive/20" />
             <span className="text-muted-foreground">Incorrect</span>
           </div>
         </div>
@@ -49,7 +49,7 @@ export function QuestionNavigatorPopup({
       {isMockExam && (
         <div className="flex items-center justify-center gap-4 text-sm px-3 pt-2 pb-2 border-b">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded border border-orange-500 bg-orange-500/20" />
+            <div className="w-4 h-4 rounded border border-schedule bg-schedule/20" />
             <span className="text-muted-foreground">Answered</span>
           </div>
         </div>
@@ -80,9 +80,9 @@ export function QuestionNavigatorPopup({
             } else if (isMockExam) {
               // Mock exam: orange if answered, default if not answered
               if (isAnswered) {
-                bgColor = "bg-orange-500/20";
-                borderColor = "border-orange-500/30";
-                textColor = "text-orange-500";
+                bgColor = "bg-schedule/20";
+                borderColor = "border-schedule/40";
+                textColor = "text-schedule";
               } else {
                 bgColor = "bg-muted/30";
                 borderColor = "border-border";
@@ -91,13 +91,13 @@ export function QuestionNavigatorPopup({
             } else {
               // Regular practice: green if correct, red if wrong, default if not answered
               if (isCorrect) {
-                bgColor = "bg-green-500/20";
-                borderColor = "border-green-500/30";
-                textColor = "text-green-500";
+                bgColor = "bg-progress/20";
+                borderColor = "border-progress/30";
+                textColor = "text-progress";
               } else if (isWrong) {
-                bgColor = "bg-red-500/20";
-                borderColor = "border-red-500/30";
-                textColor = "text-red-500";
+                bgColor = "bg-destructive/20";
+                borderColor = "border-destructive/30";
+                textColor = "text-destructive";
               } else {
                 bgColor = "bg-muted/30";
                 borderColor = "border-border";
@@ -119,7 +119,7 @@ export function QuestionNavigatorPopup({
               >
                 {index + 1}
                 {isMarked && (
-                  <Bookmark className="absolute top-0 right-0 w-2 h-2 text-orange-500 fill-orange-500" />
+                  <Bookmark className="absolute top-0 right-0 w-2 h-2 text-schedule fill-schedule" />
                 )}
               </button>
             );

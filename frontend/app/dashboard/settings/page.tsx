@@ -20,7 +20,7 @@ import {
   RefreshCw,
   AlertTriangle,
   Eye,
-  Sparkles,
+  Gift,
   MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -80,7 +80,7 @@ function SettingsContent() {
 
   const tabs = [
     { id: "account", label: "Account", icon: User },
-    { id: "access", label: "Free Access", icon: Sparkles },
+    { id: "access", label: "Free Access", icon: Gift },
     { id: "appearance", label: "Appearance", icon: Palette },
     { id: "study", label: "Study Plan", icon: BookOpen },
   ];
@@ -105,7 +105,7 @@ function SettingsContent() {
               className={
                 saveStatus.includes("Failed")
                   ? "border-destructive/50 text-destructive dark:border-destructive"
-                  : "border-green-500/50 text-green-600 dark:text-green-400"
+                  : "border-progress/50 text-progress"
               }
             >
               <div className="flex items-center gap-2">
@@ -248,7 +248,7 @@ function SettingsContent() {
               <Card className="bg-card border-border">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-foreground">
-                    <Sparkles className="w-5 h-5" />
+                    <Gift className="w-5 h-5" />
                     Prep St Is Free
                   </CardTitle>
                   <CardDescription className="text-muted-foreground">
@@ -256,9 +256,9 @@ function SettingsContent() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-gradient-to-r from-emerald-500/10 via-primary/5 to-cyan-500/10 p-4">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/15">
-                      <Sparkles className="h-6 w-6 text-emerald-600" />
+                  <div className="flex items-center gap-3 rounded-xl border border-progress/20 bg-gradient-to-r from-progress/10 via-primary/5 to-study/10 p-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-progress/15">
+                      <Gift className="h-6 w-6 text-progress" />
                     </div>
                     <div>
                       <h4 className="font-semibold text-foreground">Everything is free</h4>

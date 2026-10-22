@@ -145,15 +145,15 @@ export function StatisticsPanel({
           averageScore: 78,
           improvementRate: 12,
           topSkills: [
-            { name: "Algebra", mastery: 85, color: "bg-blue-500" },
+            { name: "Algebra", mastery: 85, color: "bg-study" },
             {
               name: "Reading Comprehension",
               mastery: 78,
-              color: "bg-green-500",
+              color: "bg-progress",
             },
-            { name: "Geometry", mastery: 72, color: "bg-purple-500" },
-            { name: "Grammar", mastery: 68, color: "bg-orange-500" },
-            { name: "Data Analysis", mastery: 65, color: "bg-pink-500" },
+            { name: "Geometry", mastery: 72, color: "bg-study" },
+            { name: "Grammar", mastery: 68, color: "bg-schedule" },
+            { name: "Data Analysis", mastery: 65, color: "bg-destructive" },
           ],
         };
 

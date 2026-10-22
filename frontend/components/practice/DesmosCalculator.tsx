@@ -264,7 +264,7 @@ export function DesmosCalculator({ isOpen, onClose, calculatorType }: DesmosCalc
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 rounded-full hover:bg-destructive/10 hover:text-destructive"
+                        className="h-7 w-7 rounded-full hover:text-destructive"
                         onClick={onClose}
                     >
                         <X className="h-3.5 w-3.5" />

@@ -107,15 +107,15 @@ function MockExamContent() {
       },
       in_progress: { 
         label: 'In Progress', 
-        className: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-800' 
+        className: 'bg-study-soft text-study border-study/25 dark:border-study' 
       },
       completed: { 
         label: 'Completed', 
-        className: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800' 
+        className: 'bg-progress-soft text-progress border-progress/25 dark:border-progress' 
       },
       abandoned: { 
         label: 'Abandoned', 
-        className: 'bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-800' 
+        className: 'bg-destructive/10 text-destructive dark:text-destructive border-destructive/25 dark:border-destructive' 
       },
     };
 
@@ -143,8 +143,8 @@ function MockExamContent() {
         {/* Info Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="group bg-card rounded-3xl p-8 shadow-sm border border-border hover:shadow-md transition-all duration-300 ">
-            <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <Clock className="w-7 h-7 text-blue-600 dark:text-blue-400" />
+            <div className="w-14 h-14 bg-study-soft rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <Clock className="w-7 h-7 text-study" />
             </div>
             <h3 className="text-xl font-bold text-foreground mb-2">2 Hours 14 Minutes</h3>
             <p className="text-muted-foreground leading-relaxed">
@@ -153,8 +153,8 @@ function MockExamContent() {
           </div>
 
           <div className="group bg-card rounded-3xl p-8 shadow-sm border border-border hover:shadow-md transition-all duration-300 ">
-            <div className="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <BookOpen className="w-7 h-7 text-purple-600 dark:text-purple-400" />
+            <div className="w-14 h-14 bg-study-soft rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <BookOpen className="w-7 h-7 text-study" />
             </div>
             <h3 className="text-xl font-bold text-foreground mb-2">4 Modules</h3>
             <p className="text-muted-foreground leading-relaxed">
@@ -163,8 +163,8 @@ function MockExamContent() {
           </div>
 
           <div className="group bg-card rounded-3xl p-8 shadow-sm border border-border hover:shadow-md transition-all duration-300 ">
-            <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <TrendingUp className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
+            <div className="w-14 h-14 bg-progress-soft rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+              <TrendingUp className="w-7 h-7 text-progress" />
             </div>
             <h3 className="text-xl font-bold text-foreground mb-2">Adaptive Testing</h3>
             <p className="text-muted-foreground leading-relaxed">
@@ -189,7 +189,7 @@ function MockExamContent() {
                 onClick={createMockExam}
                 disabled={isCreating}
                 size="lg"
-                className="h-14 px-8 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all "
+                className="h-14 px-8 text-lg rounded-xl transition-all"
               >
                 {isCreating ? (
                   <>Creating Exam...</>
@@ -205,7 +205,7 @@ function MockExamContent() {
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex items-center gap-3 text-red-600 dark:text-red-400">
+          <div className="bg-destructive/10 border border-destructive/20 rounded-2xl p-4 flex items-center gap-3 text-destructive dark:text-destructive">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
             <p className="font-medium">{error}</p>
           </div>
@@ -259,8 +259,8 @@ function MockExamContent() {
                     <div className="flex items-start gap-5">
                       {/* Status Icon */}
                       <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0
-                        ${exam.status === 'completed' ? 'bg-green-500/10 text-green-600 dark:text-green-400' : 
-                          exam.status === 'in_progress' ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' : 
+                        ${exam.status === 'completed' ? 'bg-progress-soft text-progress' : 
+                          exam.status === 'in_progress' ? 'bg-study-soft text-study' : 
                           'bg-gray-500/10 text-gray-500'}
                       `}>
                          {exam.status === 'completed' ? <CheckCircle className="w-6 h-6" /> :

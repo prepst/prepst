@@ -736,7 +736,7 @@ function PracticeSessionContent() {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Lightbulb className="w-5 h-5 text-purple-600" />
+              <Lightbulb className="w-5 h-5 text-study" />
               Explanation
             </DialogTitle>
           </DialogHeader>

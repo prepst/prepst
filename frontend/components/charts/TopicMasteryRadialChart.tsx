@@ -22,7 +22,7 @@ import { ChartConfig, ChartContainer } from "@/components/ui/chart";
 const chartConfig = {
   mastery: {
     label: "Mastery",
-    color: "#307bff",
+    color: "#1d9bf0",
   },
 } satisfies ChartConfig;
 
@@ -44,13 +44,13 @@ export function TopicMasteryRadialChart({
   const chartData = [
     {
       mastery: currentMastery,
-      fill: "#307bff",
+      fill: "#1d9bf0",
     },
   ];
 
   const getIncreaseColor = () => {
-    if (masteryIncrease > 0) return "text-green-600";
-    if (masteryIncrease < 0) return "text-red-600";
+    if (masteryIncrease > 0) return "text-progress";
+    if (masteryIncrease < 0) return "text-destructive";
     return "text-gray-600";
   };
 

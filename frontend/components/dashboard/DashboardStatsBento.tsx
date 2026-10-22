@@ -56,32 +56,32 @@ const StatCard = ({ item }: StatCardProps) => {
 
     const colors = {
         orange: {
-            bg: "from-orange-500/20 via-orange-500/5 to-transparent",
-            border: "border-orange-500/20",
-            text: "text-orange-600 dark:text-orange-400",
-            iconBg: "bg-orange-500",
-            glow: "group-hover:shadow-orange-500/20",
+            bg: "from-[#fff8d6] to-background",
+            border: "border-[#ffe566]",
+            text: "text-schedule",
+            iconBg: "bg-[#fff4b8] text-[#8a6a00]",
+            glow: "",
         },
         purple: {
-            bg: "from-purple-500/20 via-purple-500/5 to-transparent",
-            border: "border-purple-500/20",
-            text: "text-purple-600 dark:text-purple-400",
-            iconBg: "bg-purple-500",
-            glow: "group-hover:shadow-purple-500/20",
+            bg: "from-study-soft to-background",
+            border: "border-study/25",
+            text: "text-study",
+            iconBg: "bg-[#d7eefb] text-[#0c3d5c]",
+            glow: "",
         },
         green: {
-            bg: "from-emerald-500/20 via-emerald-500/5 to-transparent",
-            border: "border-emerald-500/20",
-            text: "text-emerald-600 dark:text-emerald-400",
-            iconBg: "bg-emerald-500",
-            glow: "group-hover:shadow-emerald-500/20",
+            bg: "from-progress-soft to-background",
+            border: "border-progress/25",
+            text: "text-progress",
+            iconBg: "bg-[#e5f8f1] text-[#065f46]",
+            glow: "",
         },
         blue: {
-            bg: "from-blue-500/20 via-blue-500/5 to-transparent",
-            border: "border-blue-500/20",
-            text: "text-blue-600 dark:text-blue-400",
-            iconBg: "bg-blue-500",
-            glow: "group-hover:shadow-blue-500/20",
+            bg: "from-study-soft to-background",
+            border: "border-study/30",
+            text: "text-study",
+            iconBg: "bg-study text-white",
+            glow: "",
         },
     };
 
@@ -117,13 +117,9 @@ const StatCard = ({ item }: StatCardProps) => {
                 }}
             >
                  {/* Background pattern */}
-                <div className="absolute inset-0 opacity-10 pointer-events-none overflow-hidden rounded-2xl">
-                    <div className={`absolute -top-10 -right-10 w-32 h-32 bg-${item.color}-500 rounded-full blur-3xl`}></div>
-                    <div className={`absolute -bottom-10 -left-10 w-32 h-32 bg-${item.color}-500 rounded-full blur-3xl`}></div>
-                </div>
 
                 <div className="relative z-10 flex items-start justify-between mb-3">
-                    <div className={`p-2.5 rounded-xl ${theme.iconBg} shadow-lg text-white transform transition-transform group-hover:rotate-6`}>
+                    <div className={`p-2.5 rounded-xl ${theme.iconBg}`}>
                         <item.icon className="w-5 h-5" />
                     </div>
                     {item.progress !== undefined && (

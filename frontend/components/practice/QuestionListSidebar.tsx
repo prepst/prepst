@@ -59,9 +59,9 @@ export function QuestionListSidebar({
                   isCurrent
                     ? "border-primary/50 bg-primary/5 ring-1 ring-primary/20 shadow-sm"
                     : isMarked
-                    ? "border-orange-500/30 bg-orange-500/5"
+                    ? "border-schedule/40 bg-schedule/5"
                     : isCorrect
-                    ? "border-green-500/20 bg-green-500/5 hover:bg-green-500/10"
+                    ? "border-progress/20 bg-progress/5 hover:bg-progress-soft"
                     : isWrong
                     ? "border-destructive/20 bg-destructive/5 hover:bg-destructive/10"
                     : isAnswered
@@ -104,10 +104,10 @@ export function QuestionListSidebar({
                         text-[10px] px-1.5 py-0.5 rounded font-medium
                         ${
                           question.question.difficulty === "E"
-                            ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                            ? "bg-progress-soft text-progress"
                             : question.question.difficulty === "M"
-                            ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
-                            : "bg-rose-500/10 text-rose-600 dark:text-rose-400"
+                            ? "bg-schedule/10 text-schedule dark:text-schedule"
+                            : "bg-destructive/10 text-destructive dark:text-destructive"
                         }
                       `}
                       >
@@ -124,9 +124,9 @@ export function QuestionListSidebar({
                 {/* Status Indicator */}
                 <div className="shrink-0 flex items-center gap-1">
                   {isMarked && (
-                    <Flag className="w-4 h-4 text-orange-500 fill-orange-500" />
+                    <Flag className="w-4 h-4 text-schedule fill-schedule" />
                   )}
-                  {isCorrect && <Check className="w-4 h-4 text-green-500" />}
+                  {isCorrect && <Check className="w-4 h-4 text-progress" />}
                   {isWrong && <X className="w-4 h-4 text-destructive" />}
                   {isCurrent && !isAnswered && (
                     <div className="w-2 h-2 bg-primary rounded-full animate-pulse" />

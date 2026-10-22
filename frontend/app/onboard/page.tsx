@@ -15,7 +15,6 @@ import {
   GraduationCap,
   TrendingUp,
   Clock,
-  Sparkles,
   ArrowRight,
   X,
 } from "lucide-react";
@@ -276,7 +275,7 @@ function OnboardContent() {
       <div className="max-w-3xl w-full bg-card rounded-[2rem] shadow-2xl border border-border/40 p-10 md:p-16 relative overflow-hidden">
         {/* Background Accents */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-study-soft rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
         {/* Close Button */}
         <button
@@ -371,7 +370,7 @@ function OnboardContent() {
                       )}
                     >
                       <div className="p-2.5 bg-background rounded-xl shadow-sm">
-                        <Target className="w-5 h-5 text-blue-500" />
+                        <Target className="w-5 h-5 text-study" />
                       </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-foreground mb-1">
@@ -396,7 +395,7 @@ function OnboardContent() {
                       animate={{ opacity: 1, y: 0 }}
                       className="bg-accent/30 border border-border/50 rounded-lg p-4 flex items-start gap-3 mb-12"
                     >
-                      <AlertTriangle className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
+                      <AlertTriangle className="w-5 h-5 text-schedule shrink-0 mt-0.5" />
                       <div className="text-sm text-muted-foreground">
                         <strong>Note:</strong> You already have a plan.
                         Continuing will replace it.
@@ -478,7 +477,7 @@ function OnboardContent() {
                     <div className="bg-accent/30 rounded-2xl p-6 border border-border/50">
                       <div className="flex items-center gap-3 mb-6">
                         <div className="p-2.5 bg-background rounded-xl shadow-sm">
-                          <Calendar className="w-5 h-5 text-blue-500" />
+                          <Calendar className="w-5 h-5 text-study" />
                         </div>
                         <div>
                           <h3 className="font-semibold text-foreground">
@@ -561,13 +560,13 @@ function OnboardContent() {
                         label: "Efficiency",
                         text: "Skip what you know",
                         icon: Clock,
-                        color: "text-blue-500",
+                        color: "text-study",
                       },
                       {
                         label: "Customization",
                         text: "Tailored curriculum",
                         icon: TrendingUp,
-                        color: "text-green-500",
+                        color: "text-progress",
                       },
                     ].map((item, i) => {
                       const Icon = item.icon;
@@ -591,7 +590,6 @@ function OnboardContent() {
                   </div>
 
                   <div className="bg-accent/30 border border-border/50 rounded-lg p-4 flex items-center gap-3 justify-center mb-12">
-                    <Sparkles className="w-4 h-4 text-primary" />
                     <p className="text-sm text-muted-foreground">
                       Recommended for the most accurate study plan.
                     </p>
@@ -665,7 +663,7 @@ function OnboardContent() {
                             onChange={(e) =>
                               updateFormData("targetMathScore", e.target.value)
                             }
-                            className="text-lg h-12 bg-background border-green-500/50 focus:border-green-500 focus:ring-green-500/20"
+                            className="text-lg h-12 bg-background border-progress/50 focus:border-progress focus:ring-progress/20"
                           />
                         </div>
                       </div>
@@ -716,7 +714,7 @@ function OnboardContent() {
                                 e.target.value
                               )
                             }
-                            className="text-lg h-12 bg-background border-blue-500/50 focus:border-blue-500 focus:ring-blue-500/20"
+                            className="text-lg h-12 bg-background border-study/50 focus:border-study focus:ring-study/20"
                           />
                         </div>
                       </div>
@@ -727,7 +725,7 @@ function OnboardContent() {
                   <div className="bg-accent/30 rounded-2xl p-6 border border-border/50 flex flex-col sm:flex-row items-center justify-between gap-4 mb-12">
                     <div className="flex items-center gap-3">
                       <div className="p-2.5 bg-background rounded-xl shadow-sm">
-                        <Calendar className="w-5 h-5 text-orange-500" />
+                        <Calendar className="w-5 h-5 text-schedule" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground">
@@ -831,11 +829,11 @@ function OnboardContent() {
                   onClick={currentStep === 4 ? handleSubmit : handleNext}
                   disabled={isLoading}
                   size="lg"
-                  className="h-14 px-8 text-lg font-semibold   transition-all "
+                  className="h-14 px-8 text-lg font-semibold transition-all"
                 >
                   {isLoading ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                      <div className="w-5 h-5 border-2 border-current/30 border-t-current rounded-full animate-spin mr-2" />
                       Creating Plan...
                     </>
                   ) : (

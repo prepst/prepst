@@ -126,7 +126,7 @@ function QuickPracticeCompleteContent() {
       <div className="w-full max-w-2xl mx-auto">
         <Card className="p-8 text-center bg-card border-border shadow-lg">
           <div className="mb-8">
-            <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-progress-soft dark:bg-progress/30 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-2xl">🎉</span>
             </div>
             <h1 className="text-3xl font-bold text-foreground mb-2">
@@ -148,10 +148,10 @@ function QuickPracticeCompleteContent() {
               <div
                 className={`text-6xl font-bold mb-2 ${
                   percentage >= 70
-                    ? "text-green-600 dark:text-green-500"
+                    ? "text-progress dark:text-progress"
                     : percentage >= 50
-                    ? "text-yellow-600 dark:text-yellow-500"
-                    : "text-red-600 dark:text-red-500"
+                    ? "text-schedule dark:text-schedule"
+                    : "text-destructive dark:text-destructive"
                 }`}
               >
                 {percentage}%
@@ -164,20 +164,20 @@ function QuickPracticeCompleteContent() {
             {/* Performance Indicator */}
             <div className="text-center mb-4">
               {percentage >= 90 && (
-                <div className="text-green-600 dark:text-green-500 font-semibold">
+                <div className="text-progress dark:text-progress font-semibold">
                   🌟 Excellent Work!
                 </div>
               )}
               {percentage >= 70 && percentage < 90 && (
-                <div className="text-blue-600 dark:text-blue-500 font-semibold">👍 Good Job!</div>
+                <div className="text-study dark:text-study font-semibold">👍 Good Job!</div>
               )}
               {percentage >= 50 && percentage < 70 && (
-                <div className="text-yellow-600 dark:text-yellow-500 font-semibold">
+                <div className="text-schedule dark:text-schedule font-semibold">
                   📚 Keep Practicing!
                 </div>
               )}
               {percentage < 50 && (
-                <div className="text-red-600 dark:text-red-500 font-semibold">
+                <div className="text-destructive dark:text-destructive font-semibold">
                   💪 You Can Do Better!
                 </div>
               )}
@@ -203,7 +203,7 @@ function QuickPracticeCompleteContent() {
           <div className="space-y-3">
             <Button
               onClick={handleStartNewPractice}
-              className="w-full bg-primary text-primary-foreground hover:bg-primary/90 py-3"
+              className="w-full py-3"
             >
               Start Another Practice
             </Button>

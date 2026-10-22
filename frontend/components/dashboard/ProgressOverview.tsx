@@ -68,20 +68,20 @@ export function ProgressOverview({
       {/* Main Progress Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Study Plan Progress */}
-        <Card className="border-0 shadow-none bg-purple-500/10">
+        <Card className="border-0 shadow-none bg-study-soft">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-purple-500 rounded-xl shadow-md">
+              <div className="p-3 bg-study rounded-xl shadow-md">
                 <BookOpen className="h-6 w-6 text-white" />
               </div>
               <div className="flex-1">
-                <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">
+                <p className="text-sm text-study font-medium">
                   Study Plan
                 </p>
-                <p className="text-2xl font-bold text-purple-700 dark:text-purple-300">
+                <p className="text-2xl font-bold text-study dark:text-study">
                   {completedSessions}/{totalSessions}
                 </p>
-                <p className="text-xs text-purple-600/80 dark:text-purple-400/80">
+                <p className="text-xs text-study/80 dark:text-study/80">
                   Sessions completed
                 </p>
               </div>
@@ -89,10 +89,10 @@ export function ProgressOverview({
             <div className="mt-4">
               <Progress
                 value={completionRate}
-                className="h-2 bg-purple-200 dark:bg-purple-900/30"
-                indicatorClassName="bg-purple-500"
+                className="h-2 bg-study-soft dark:bg-study/30"
+                indicatorClassName="bg-study"
               />
-              <p className="text-xs text-purple-600 dark:text-purple-400 mt-1">
+              <p className="text-xs text-study mt-1">
                 {Math.round(completionRate)}% complete
               </p>
             </div>
@@ -100,20 +100,20 @@ export function ProgressOverview({
         </Card>
 
         {/* Mock Exam Performance */}
-        <Card className="border-0 shadow-none bg-blue-500/10">
+        <Card className="border-0 shadow-none bg-study-soft">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-blue-500 rounded-xl shadow-md">
+              <div className="p-3 bg-study rounded-xl shadow-md">
                 <Target className="h-6 w-6 text-white" />
               </div>
               <div className="flex-1">
-                <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
+                <p className="text-sm text-study font-medium">
                   Mock Exams
                 </p>
-                <p className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+                <p className="text-2xl font-bold text-study dark:text-study">
                   {totalMockExams}
                 </p>
-                <p className="text-xs text-blue-600/80 dark:text-blue-400/80">
+                <p className="text-xs text-study/80 dark:text-study/80">
                   {averageScore > 0 ? `Avg: ${averageScore}` : "No scores yet"}
                 </p>
               </div>
@@ -122,20 +122,20 @@ export function ProgressOverview({
         </Card>
 
         {/* Days Until Test */}
-        <Card className="border-0 shadow-none bg-orange-500/10">
+        <Card className="border-0 shadow-none bg-schedule-soft">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-orange-500 rounded-xl shadow-md">
-                <Calendar className="h-6 w-6 text-white" />
+              <div className="p-3 rounded-xl bg-background text-schedule">
+                <Calendar className="h-6 w-6" />
               </div>
               <div className="flex-1">
-                <p className="text-sm text-orange-600 dark:text-orange-400 font-medium">
+                <p className="text-sm text-schedule font-medium">
                   Test Date
                 </p>
-                <p className="text-2xl font-bold text-orange-700 dark:text-orange-300">
+                <p className="text-2xl font-bold text-schedule dark:text-schedule">
                   {daysUntilTest > 0 ? daysUntilTest : "N/A"}
                 </p>
-                <p className="text-xs text-orange-600/80 dark:text-orange-400/80">
+                <p className="text-xs text-schedule/80 dark:text-schedule/80">
                   {daysUntilTest > 0 ? "days remaining" : "No date set"}
                 </p>
               </div>
@@ -144,20 +144,20 @@ export function ProgressOverview({
         </Card>
 
         {/* Overall Progress */}
-        <Card className="border-0 shadow-none bg-green-500/10">
+        <Card className="border-0 shadow-none bg-progress-soft">
           <CardContent className="p-6">
             <div className="flex items-center gap-4">
-              <div className="p-3 bg-green-500 rounded-xl shadow-md">
+              <div className="p-3 bg-progress rounded-xl shadow-md">
                 <TrendingUp className="h-6 w-6 text-white" />
               </div>
               <div className="flex-1">
-                <p className="text-sm text-green-600 dark:text-green-400 font-medium">
+                <p className="text-sm text-progress font-medium">
                   Overall
                 </p>
-                <p className="text-2xl font-bold text-green-700 dark:text-green-300">
+                <p className="text-2xl font-bold text-progress dark:text-progress">
                   {Math.round(completionRate)}%
                 </p>
-                <p className="text-xs text-green-600/80 dark:text-green-400/80">
+                <p className="text-xs text-progress/80">
                   Progress
                 </p>
               </div>
@@ -171,8 +171,8 @@ export function ProgressOverview({
         <Card className="border-border shadow-sm bg-card">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-card-foreground">
-              <div className="p-2 bg-purple-500/10 rounded-lg">
-                <BookOpen className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              <div className="p-2 bg-study-soft rounded-lg">
+                <BookOpen className="h-5 w-5 text-study" />
               </div>
               Study Plan Timeline
             </CardTitle>
@@ -189,9 +189,9 @@ export function ProgressOverview({
                     <div
                       className={`w-8 h-8 rounded-full flex items-center justify-center ${
                         session.status === "completed"
-                          ? "bg-green-500 text-white"
+                          ? "bg-progress text-white"
                           : session.status === "in_progress"
-                          ? "bg-yellow-500 text-white"
+                          ? "bg-schedule-soft text-schedule"
                           : "bg-muted text-muted-foreground"
                       }`}
                     >

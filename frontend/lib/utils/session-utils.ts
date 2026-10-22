@@ -195,24 +195,24 @@ export function getSessionColorScheme(status: SessionStatus) {
   switch (status) {
     case "completed":
       return {
-        bg: "bg-green-100",
-        border: "border-green-200",
-        text: "text-green-700",
-        badge: "bg-green-500",
+        bg: "bg-progress-soft",
+        border: "border-progress/25",
+        text: "text-progress",
+        badge: "bg-progress",
       };
     case "in-progress":
       return {
-        bg: "bg-blue-100",
-        border: "border-blue-200",
-        text: "text-blue-700",
-        badge: "bg-blue-500",
+        bg: "bg-study-soft",
+        border: "border-study/25",
+        text: "text-study",
+        badge: "bg-study",
       };
     case "overdue":
       return {
-        bg: "bg-red-50",
-        border: "border-red-200",
-        text: "text-red-700",
-        badge: "bg-red-500",
+        bg: "bg-destructive-soft",
+        border: "border-destructive/25",
+        text: "text-destructive",
+        badge: "bg-destructive",
       };
     case "upcoming":
     default:

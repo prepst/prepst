@@ -64,7 +64,7 @@ function AnalyticsContent() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-study border-t-transparent mx-auto mb-4"></div>
           <p className="text-gray-700 font-medium">Loading analytics...</p>
         </div>
       </div>
@@ -76,14 +76,14 @@ function AnalyticsContent() {
     return (
       <div className="py-12">
         <div className="text-center">
-          <p className="text-red-600 mb-4">{errorMessage}</p>
+          <p className="text-destructive mb-4">{errorMessage}</p>
           <button
             onClick={() => {
               growthCurveQuery.refetch();
               heatmapQuery.refetch();
               snapshotsQuery.refetch();
             }}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="px-4 py-2 rounded-xl border border-[#9ed4f3] bg-[#d7eefb] text-[#0c3d5c] hover:bg-[#c5e6f8]"
           >
             Retry
           </button>
@@ -94,10 +94,10 @@ function AnalyticsContent() {
 
   const latestSnapshot = snapshots[0];
   const getMasteryColor = (mastery: number) => {
-    if (mastery >= 0.8) return "text-green-600 bg-green-100";
-    if (mastery >= 0.6) return "text-blue-600 bg-blue-100";
-    if (mastery >= 0.4) return "text-yellow-600 bg-yellow-100";
-    return "text-red-600 bg-red-100";
+    if (mastery >= 0.8) return "text-progress bg-progress-soft";
+    if (mastery >= 0.6) return "text-study bg-study-soft";
+    if (mastery >= 0.4) return "text-schedule bg-schedule-soft";
+    return "text-destructive bg-destructive-soft";
   };
 
   return (
@@ -113,14 +113,14 @@ function AnalyticsContent() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-blue-100">
+        <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-study/25">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <Brain className="w-6 h-6 text-blue-600" />
+            <div className="w-12 h-12 bg-study-soft rounded-full flex items-center justify-center">
+              <Brain className="w-6 h-6 text-study" />
             </div>
             <div>
               <p className="text-sm text-gray-600">Avg Mastery</p>
-              <p className="text-2xl font-bold text-blue-600">
+              <p className="text-2xl font-bold text-study">
                 {Math.round(avgMastery * 100)}%
               </p>
             </div>
@@ -129,42 +129,42 @@ function AnalyticsContent() {
 
         {latestSnapshot && (
           <>
-            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-green-100">
+            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-progress/25">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                  <Target className="w-6 h-6 text-green-600" />
+                <div className="w-12 h-12 bg-progress-soft rounded-full flex items-center justify-center">
+                  <Target className="w-6 h-6 text-progress" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Predicted Math</p>
-                  <p className="text-2xl font-bold text-green-600">
+                  <p className="text-2xl font-bold text-progress">
                     {latestSnapshot.predicted_sat_math || "N/A"}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-purple-100">
+            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-study/25">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                  <Target className="w-6 h-6 text-purple-600" />
+                <div className="w-12 h-12 bg-study-soft rounded-full flex items-center justify-center">
+                  <Target className="w-6 h-6 text-study" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Predicted R/W</p>
-                  <p className="text-2xl font-bold text-purple-600">
+                  <p className="text-2xl font-bold text-study">
                     {latestSnapshot.predicted_sat_rw || "N/A"}
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-orange-100">
+            <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-schedule/25">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-orange-600" />
+                <div className="w-12 h-12 bg-schedule-soft rounded-full flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-schedule" />
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">Cognitive Efficiency</p>
-                  <p className="text-2xl font-bold text-orange-600">
+                  <p className="text-2xl font-bold text-schedule">
                     {latestSnapshot.cognitive_efficiency_score
                       ? Math.round(
                         latestSnapshot.cognitive_efficiency_score * 100
@@ -181,18 +181,18 @@ function AnalyticsContent() {
 
       {/* Insights Section */}
       {(errorStats || cognitiveStats || Object.keys(heatmap).length > 0) && (
-        <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl shadow-lg p-6 mb-8 border-2 border-blue-200">
+        <div className="bg-gradient-to-br from-study-soft to-study-soft rounded-xl shadow-lg p-6 mb-8 border-2 border-study/25">
           <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <Zap className="w-6 h-6 text-blue-600" />
+            <Zap className="w-6 h-6 text-study" />
             Personalized Insights
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Best Learning Time */}
             {cognitiveStats &&
               cognitiveStats.time_of_day_patterns.length > 0 && (
-                <div className="bg-white rounded-lg p-4 border-2 border-blue-100">
+                <div className="bg-white rounded-lg p-4 border-2 border-study/25">
                   <div className="flex items-start gap-3">
-                    <Clock className="w-5 h-5 text-blue-600 mt-1" />
+                    <Clock className="w-5 h-5 text-study mt-1" />
                     <div>
                       <p className="font-semibold text-gray-800">
                         Your Peak Learning Time
@@ -221,9 +221,9 @@ function AnalyticsContent() {
             {Object.values(heatmap)
               .flatMap((cat) => cat.skills)
               .filter((s) => s.plateau).length > 0 && (
-                <div className="bg-white rounded-lg p-4 border-2 border-orange-100">
+                <div className="bg-white rounded-lg p-4 border-2 border-schedule/25">
                   <div className="flex items-start gap-3">
-                    <AlertTriangle className="w-5 h-5 text-orange-600 mt-1" />
+                    <AlertTriangle className="w-5 h-5 text-schedule mt-1" />
                     <div>
                       <p className="font-semibold text-gray-800">
                         Learning Plateau Detected
@@ -245,9 +245,9 @@ function AnalyticsContent() {
             {Object.values(heatmap)
               .flatMap((cat) => cat.skills)
               .filter((s) => s.velocity > 0.05).length > 0 && (
-                <div className="bg-white rounded-lg p-4 border-2 border-green-100">
+                <div className="bg-white rounded-lg p-4 border-2 border-progress/25">
                   <div className="flex items-start gap-3">
-                    <TrendingUp className="w-5 h-5 text-green-600 mt-1" />
+                    <TrendingUp className="w-5 h-5 text-progress mt-1" />
                     <div>
                       <p className="font-semibold text-gray-800">
                         Great Progress!
@@ -271,9 +271,9 @@ function AnalyticsContent() {
               cognitiveStats.confidence_accuracy_map.some(
                 (c) => Math.abs(c.calibration_gap) > 15
               ) && (
-                <div className="bg-white rounded-lg p-4 border-2 border-purple-100">
+                <div className="bg-white rounded-lg p-4 border-2 border-study/25">
                   <div className="flex items-start gap-3">
-                    <Brain className="w-5 h-5 text-purple-600 mt-1" />
+                    <Brain className="w-5 h-5 text-study mt-1" />
                     <div>
                       <p className="font-semibold text-gray-800">
                         Confidence Check
@@ -300,14 +300,14 @@ function AnalyticsContent() {
 
         {/* Error Patterns Card */}
         {errorStats && (
-          <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-orange-100">
+          <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-schedule/25">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                <AlertTriangle className="w-6 h-6 text-orange-600" />
+              <div className="w-12 h-12 bg-schedule-soft rounded-full flex items-center justify-center">
+                <AlertTriangle className="w-6 h-6 text-schedule" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Error Patterns</p>
-                <p className="text-2xl font-bold text-orange-600">
+                <p className="text-2xl font-bold text-schedule">
                   {errorStats.total_errors}
                 </p>
               </div>
@@ -318,7 +318,7 @@ function AnalyticsContent() {
             {expandedCard !== "errors" && (
               <button
                 onClick={() => setExpandedCard("errors")}
-                className="text-sm text-blue-600 hover:underline"
+                className="text-sm text-study hover:underline"
               >
                 View Details
               </button>
@@ -336,14 +336,14 @@ function AnalyticsContent() {
 
         {/* Cognitive Efficiency Card */}
         {cognitiveStats && (
-          <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-blue-100">
+          <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-study/25">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <Activity className="w-6 h-6 text-blue-600" />
+              <div className="w-12 h-12 bg-study-soft rounded-full flex items-center justify-center">
+                <Activity className="w-6 h-6 text-study" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Efficiency Score</p>
-                <p className="text-2xl font-bold text-blue-600">
+                <p className="text-2xl font-bold text-study">
                   {cognitiveStats.overall_efficiency.toFixed(2)}
                 </p>
               </div>
@@ -354,7 +354,7 @@ function AnalyticsContent() {
             {expandedCard !== "cognitive" && (
               <button
                 onClick={() => setExpandedCard("cognitive")}
-                className="text-sm text-blue-600 hover:underline"
+                className="text-sm text-study hover:underline"
               >
                 View Details
               </button>
@@ -372,14 +372,14 @@ function AnalyticsContent() {
 
         {/* Confidence Accuracy Card */}
         {confidenceStats && (
-          <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-purple-100">
+          <div className="bg-white rounded-xl shadow-lg p-6 border-2 border-study/25">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                <Target className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 bg-study-soft rounded-full flex items-center justify-center">
+                <Target className="w-6 h-6 text-study" />
               </div>
               <div>
                 <p className="text-sm text-gray-600">Confidence Tracking</p>
-                <p className="text-2xl font-bold text-purple-600">
+                <p className="text-2xl font-bold text-study">
                   {confidenceStats.avg_confidence.toFixed(1)}
                 </p>
               </div>
@@ -390,7 +390,7 @@ function AnalyticsContent() {
             {expandedCard !== "confidence" && (
               <button
                 onClick={() => setExpandedCard("confidence")}
-                className="text-sm text-blue-600 hover:underline"
+                className="text-sm text-study hover:underline"
               >
                 View Details
               </button>
@@ -434,7 +434,7 @@ function AnalyticsContent() {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-orange-600">
+                      <p className="text-lg font-bold text-schedule">
                         {topic.error_rate}%
                       </p>
                     </div>
@@ -452,7 +452,7 @@ function AnalyticsContent() {
                 {errorStats.cognitive_blocks.slice(0, 3).map((block, idx) => (
                   <div
                     key={idx}
-                    className="p-3 bg-orange-50 border border-orange-200 rounded-lg"
+                    className="p-3 bg-schedule-soft border border-schedule/25 rounded-lg"
                   >
                     <p className="font-medium text-gray-800">
                       {block.skill_name}
@@ -485,12 +485,12 @@ function AnalyticsContent() {
                 lines={[
                   {
                     dataKey: "avg_accuracy",
-                    color: "#3b82f6",
+                    color: "#1d9bf0",
                     name: "Accuracy %",
                   },
                   {
                     dataKey: "efficiency_score",
-                    color: "#10b981",
+                    color: "#00ba7c",
                     name: "Efficiency",
                   },
                 ]}
@@ -510,7 +510,7 @@ function AnalyticsContent() {
                   <div
                     key={idx}
                     className={`p-3 rounded-lg text-center ${Math.abs(conf.calibration_gap) > 10
-                        ? "bg-orange-50 border-2 border-orange-200"
+                        ? "bg-schedule-soft border-2 border-schedule/25"
                         : "bg-gray-50 border-2 border-gray-200"
                       }`}
                   >
@@ -522,8 +522,8 @@ function AnalyticsContent() {
                     </p>
                     <p
                       className={`text-xs ${conf.calibration_gap > 0
-                          ? "text-orange-600"
-                          : "text-blue-600"
+                          ? "text-schedule"
+                          : "text-study"
                         }`}
                     >
                       {conf.calibration_gap > 0 ? "↓" : "↑"}{" "}
@@ -550,7 +550,7 @@ function AnalyticsContent() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="bg-gray-50 p-4 rounded-lg">
               <p className="text-sm text-gray-600">Average Confidence</p>
-              <p className="text-3xl font-bold text-purple-600">
+              <p className="text-3xl font-bold text-study">
                 {confidenceStats.avg_confidence.toFixed(1)}/5
               </p>
             </div>
@@ -566,7 +566,7 @@ function AnalyticsContent() {
                 xKey="level"
                 yKey="count"
                 name="Responses"
-                color="#8b5cf6"
+                color="#1d9bf0"
                 height={150}
                 formatXAxis={(val) => `${val}⭐`}
               />
@@ -579,7 +579,7 @@ function AnalyticsContent() {
       {growthData.length > 0 && (
         <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
           <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <TrendingUp className="w-6 h-6 text-blue-600" />
+            <TrendingUp className="w-6 h-6 text-study" />
             SAT Score Growth Over Time
           </h2>
           <div className="mb-6">
@@ -597,17 +597,17 @@ function AnalyticsContent() {
               lines={[
                 {
                   dataKey: "predicted_sat_math",
-                  color: "#10b981",
+                  color: "#00ba7c",
                   name: "Math Score",
                 },
                 {
                   dataKey: "predicted_sat_rw",
-                  color: "#8b5cf6",
+                  color: "#1d9bf0",
                   name: "R/W Score",
                 },
                 {
                   dataKey: "total",
-                  color: "#3b82f6",
+                  color: "#1d9bf0",
                   name: "Total Score",
                 },
               ]}
@@ -640,7 +640,7 @@ function AnalyticsContent() {
                   {point.predicted_sat_math && (
                     <div className="text-right">
                       <p className="text-xs text-gray-600">Math</p>
-                      <p className="font-bold text-green-600">
+                      <p className="font-bold text-progress">
                         {point.predicted_sat_math}
                       </p>
                     </div>
@@ -648,7 +648,7 @@ function AnalyticsContent() {
                   {point.predicted_sat_rw && (
                     <div className="text-right">
                       <p className="text-xs text-gray-600">R/W</p>
-                      <p className="font-bold text-purple-600">
+                      <p className="font-bold text-study">
                         {point.predicted_sat_rw}
                       </p>
                     </div>

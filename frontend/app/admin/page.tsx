@@ -120,7 +120,7 @@ export default function AdminHomePage() {
               href="/admin/questions"
               className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700"
             >
-              <FileQuestion className="w-8 h-8 text-blue-600 mb-3" />
+              <FileQuestion className="w-8 h-8 text-study mb-3" />
               <h3 className="font-semibold text-gray-900 dark:text-white">
                 Manage Questions
               </h3>
@@ -133,7 +133,7 @@ export default function AdminHomePage() {
               href="/admin/questions?filter=inactive"
               className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700"
             >
-              <AlertTriangle className="w-8 h-8 text-yellow-600 mb-3" />
+              <AlertTriangle className="w-8 h-8 text-schedule mb-3" />
               <h3 className="font-semibold text-gray-900 dark:text-white">
                 Review Issues
               </h3>
@@ -147,7 +147,7 @@ export default function AdminHomePage() {
               href="/admin/analytics"
               className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700"
             >
-              <TrendingUp className="w-8 h-8 text-green-600 mb-3" />
+              <TrendingUp className="w-8 h-8 text-progress mb-3" />
               <h3 className="font-semibold text-gray-900 dark:text-white">
                 View Analytics
               </h3>
@@ -160,7 +160,7 @@ export default function AdminHomePage() {
               onClick={() => loadStats()}
               className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition-shadow border border-gray-200 dark:border-gray-700 text-left"
             >
-              <Activity className="w-8 h-8 text-purple-600 mb-3" />
+              <Activity className="w-8 h-8 text-study mb-3" />
               <h3 className="font-semibold text-gray-900 dark:text-white">
                 Refresh Stats
               </h3>
@@ -179,7 +179,7 @@ export default function AdminHomePage() {
               {/* Total Questions */}
               <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
-                  <Database className="w-8 h-8 text-blue-600" />
+                  <Database className="w-8 h-8 text-study" />
                   <span className="text-3xl font-bold text-gray-900 dark:text-white">
                     {stats?.total_questions || 0}
                   </span>
@@ -196,8 +196,8 @@ export default function AdminHomePage() {
               {/* Active/Inactive */}
               <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
-                  <CheckCircle className="w-8 h-8 text-green-600" />
-                  <span className="text-3xl font-bold text-green-600">
+                  <CheckCircle className="w-8 h-8 text-progress" />
+                  <span className="text-3xl font-bold text-progress">
                     {stats?.active_questions || 0}
                   </span>
                 </div>
@@ -205,7 +205,7 @@ export default function AdminHomePage() {
                   Active Questions
                 </h3>
                 <div className="flex items-center gap-2 text-sm">
-                  <XCircle className="w-4 h-4 text-red-500" />
+                  <XCircle className="w-4 h-4 text-destructive" />
                   <span className="text-gray-600 dark:text-gray-400">
                     {stats?.inactive_questions || 0} inactive
                   </span>
@@ -215,8 +215,8 @@ export default function AdminHomePage() {
               {/* Issues */}
               <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700">
                 <div className="flex items-center justify-between mb-4">
-                  <AlertTriangle className="w-8 h-8 text-yellow-600" />
-                  <span className="text-3xl font-bold text-yellow-600">
+                  <AlertTriangle className="w-8 h-8 text-schedule" />
+                  <span className="text-3xl font-bold text-schedule">
                     {(stats?.empty_answers || 0) +
                       (stats?.missing_rationale || 0)}
                   </span>
@@ -239,27 +239,27 @@ export default function AdminHomePage() {
                 Difficulty Distribution
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">
-                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                <div className="p-4 bg-progress-soft dark:bg-progress/20 rounded-lg border border-progress/25 dark:border-progress">
+                  <div className="text-2xl font-bold text-progress">
                     {stats.by_difficulty.E || 0}
                   </div>
-                  <div className="text-sm text-green-700 dark:text-green-300">
+                  <div className="text-sm text-progress dark:text-progress">
                     Easy Questions
                   </div>
                 </div>
-                <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                  <div className="text-2xl font-bold text-yellow-600 dark:text-yellow-400">
+                <div className="p-4 bg-schedule-soft dark:bg-schedule/20 rounded-lg border border-schedule/25 dark:border-schedule">
+                  <div className="text-2xl font-bold text-schedule dark:text-schedule">
                     {stats.by_difficulty.M || 0}
                   </div>
-                  <div className="text-sm text-yellow-700 dark:text-yellow-300">
+                  <div className="text-sm text-schedule dark:text-schedule">
                     Medium Questions
                   </div>
                 </div>
-                <div className="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">
-                  <div className="text-2xl font-bold text-red-600 dark:text-red-400">
+                <div className="p-4 bg-destructive-soft dark:bg-destructive/20 rounded-lg border border-destructive/25 dark:border-destructive">
+                  <div className="text-2xl font-bold text-destructive dark:text-destructive">
                     {stats.by_difficulty.H || 0}
                   </div>
-                  <div className="text-sm text-red-700 dark:text-red-300">
+                  <div className="text-sm text-destructive dark:text-destructive">
                     Hard Questions
                   </div>
                 </div>
@@ -278,14 +278,14 @@ export default function AdminHomePage() {
                   <span className="text-gray-600 dark:text-gray-400">
                     Database
                   </span>
-                  <span className="flex items-center gap-2 text-green-600">
+                  <span className="flex items-center gap-2 text-progress">
                     <CheckCircle className="w-4 h-4" />
                     Connected
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600 dark:text-gray-400">API</span>
-                  <span className="flex items-center gap-2 text-green-600">
+                  <span className="flex items-center gap-2 text-progress">
                     <CheckCircle className="w-4 h-4" />
                     Responding
                   </span>
@@ -322,7 +322,7 @@ export default function AdminHomePage() {
             {isLoadingFeedbacks ? (
               <div className="text-sm text-gray-600">Loading feedback...</div>
             ) : feedbackError ? (
-              <div className="text-sm text-red-500">{feedbackError}</div>
+              <div className="text-sm text-destructive">{feedbackError}</div>
             ) : feedbacks.length === 0 ? (
               <div className="text-sm text-gray-600">
                 No feedback submitted yet.
@@ -345,7 +345,7 @@ export default function AdminHomePage() {
                       {feedback.page_url && (
                         <a
                           href={feedback.page_url}
-                          className="text-xs text-blue-600 dark:text-blue-400 underline"
+                          className="text-xs text-study underline"
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -372,7 +372,7 @@ export default function AdminHomePage() {
                       href={feedback.attachment_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="text-xs text-blue-600 dark:text-blue-400 underline inline-flex items-center gap-1"
+                      className="text-xs text-study underline inline-flex items-center gap-1"
                     >
                       View attachment
                     </a>

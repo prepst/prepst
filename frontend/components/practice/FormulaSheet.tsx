@@ -227,7 +227,7 @@ export function FormulaSheet({ isOpen, onClose }: FormulaSheetProps) {
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 rounded-full hover:bg-destructive/10 hover:text-destructive"
+                        className="h-7 w-7 rounded-full hover:text-destructive"
                         onClick={onClose}
                     >
                         <X className="h-3.5 w-3.5" />
@@ -244,7 +244,7 @@ export function FormulaSheet({ isOpen, onClose }: FormulaSheetProps) {
                             <div className="flex items-center gap-2 mb-3">
                                 <Badge
                                     variant="outline"
-                                    className="bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/30 text-[10px] py-0"
+                                    className="bg-progress-soft text-progress border-progress/30 text-[10px] py-0"
                                 >
                                     <GraduationCap className="w-3 h-3 mr-1" />
                                     Official SAT Reference
@@ -298,7 +298,7 @@ export function FormulaSheet({ isOpen, onClose }: FormulaSheetProps) {
                             <div className="flex items-center gap-2 mb-3">
                                 <Badge
                                     variant="outline"
-                                    className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/30 text-[10px] py-0"
+                                    className="bg-study-soft text-study border-study/30 text-[10px] py-0"
                                 >
                                     Study Reference
                                 </Badge>

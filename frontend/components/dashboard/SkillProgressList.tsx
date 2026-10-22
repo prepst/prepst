@@ -15,11 +15,11 @@ interface SkillProgressListProps {
 }
 
 const defaultSkills: Skill[] = [
-  { name: "Sport Skills", percentage: 71, color: "bg-blue-500" },
-  { name: "Blogging", percentage: 92, color: "bg-blue-500" },
-  { name: "Leadership", percentage: 33, color: "bg-blue-500" },
-  { name: "Meditation", percentage: 56, color: "bg-blue-500" },
-  { name: "Philosophy", percentage: 77, color: "bg-blue-500" },
+  { name: "Sport Skills", percentage: 71, color: "bg-study" },
+  { name: "Blogging", percentage: 92, color: "bg-study" },
+  { name: "Leadership", percentage: 33, color: "bg-study" },
+  { name: "Meditation", percentage: 56, color: "bg-study" },
+  { name: "Philosophy", percentage: 77, color: "bg-study" },
 ];
 
 export function SkillProgressList({
@@ -58,8 +58,8 @@ export function SkillProgressList({
                     <span className="text-sm font-bold text-gray-900">
                       {skill.percentage}%
                     </span>
-                    <button className="w-6 h-6 rounded-full bg-orange-100 hover:bg-orange-200 flex items-center justify-center transition-colors">
-                      <span className="text-orange-600 text-xs font-bold">
+                    <button className="w-6 h-6 rounded-full bg-schedule-soft hover:bg-schedule-soft flex items-center justify-center transition-colors">
+                      <span className="text-schedule text-xs font-bold">
                         →
                       </span>
                     </button>

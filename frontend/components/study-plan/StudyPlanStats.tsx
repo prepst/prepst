@@ -79,9 +79,9 @@ export function StudyPlanStats({ sessions }: StudyPlanStatsProps) {
       {/* Stats Grid */}
       <div className="grid grid-cols-4 gap-3">
         {/* Streak */}
-        <div className="bg-orange-50 dark:bg-orange-900/10 rounded-xl p-3 border border-orange-100 dark:border-orange-800/20">
+        <div className="bg-schedule-soft dark:bg-schedule/10 rounded-xl p-3 border border-schedule/25 dark:border-schedule/20">
           <div className="flex items-center gap-2 mb-1">
-            <Flame className="w-4 h-4 text-orange-500" />
+            <Flame className="w-4 h-4 text-schedule" />
             <span className="text-xs font-medium text-muted-foreground">Streak</span>
           </div>
           <p className="text-xl font-bold text-foreground">{streak}</p>
@@ -89,9 +89,9 @@ export function StudyPlanStats({ sessions }: StudyPlanStatsProps) {
         </div>
 
         {/* Done */}
-        <div className="bg-green-50 dark:bg-green-900/10 rounded-xl p-3 border border-green-100 dark:border-green-800/20">
+        <div className="bg-progress-soft dark:bg-progress/10 rounded-xl p-3 border border-progress/25 dark:border-progress/20">
           <div className="flex items-center gap-2 mb-1">
-            <CheckCircle className="w-4 h-4 text-green-500" />
+            <CheckCircle className="w-4 h-4 text-progress" />
             <span className="text-xs font-medium text-muted-foreground">Done</span>
           </div>
           <p className="text-xl font-bold text-foreground">{completedSessions}</p>
@@ -99,9 +99,9 @@ export function StudyPlanStats({ sessions }: StudyPlanStatsProps) {
         </div>
 
         {/* Target */}
-        <div className="bg-blue-50 dark:bg-blue-900/10 rounded-xl p-3 border border-blue-100 dark:border-blue-800/20">
+        <div className="bg-study-soft dark:bg-study/10 rounded-xl p-3 border border-study/25 dark:border-study/20">
           <div className="flex items-center gap-2 mb-1">
-            <Target className="w-4 h-4 text-blue-500" />
+            <Target className="w-4 h-4 text-study" />
             <span className="text-xs font-medium text-muted-foreground">Target</span>
           </div>
           <p className="text-xl font-bold text-foreground">{targetSessions}</p>
@@ -111,16 +111,16 @@ export function StudyPlanStats({ sessions }: StudyPlanStatsProps) {
         {/* In Progress / Overdue indicator */}
         <div className={`rounded-xl p-3 border ${
           overdueSessions > 0 
-            ? "bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-800/20" 
-            : "bg-purple-50 dark:bg-purple-900/10 border-purple-100 dark:border-purple-800/20"
+            ? "bg-destructive-soft dark:bg-destructive/10 border-destructive/25 dark:border-destructive/20" 
+            : "bg-study-soft dark:bg-study/10 border-study/25 dark:border-study/20"
         }`}>
           <div className="flex items-center gap-2 mb-1">
-            <Clock className={`w-4 h-4 ${overdueSessions > 0 ? "text-red-500" : "text-purple-500"}`} />
+            <Clock className={`w-4 h-4 ${overdueSessions > 0 ? "text-destructive" : "text-study"}`} />
             <span className="text-xs font-medium text-muted-foreground">
               {overdueSessions > 0 ? "Overdue" : "Active"}
             </span>
           </div>
-          <p className={`text-xl font-bold ${overdueSessions > 0 ? "text-red-600" : "text-foreground"}`}>
+          <p className={`text-xl font-bold ${overdueSessions > 0 ? "text-destructive" : "text-foreground"}`}>
             {overdueSessions > 0 ? overdueSessions : inProgressSessions}
           </p>
           <p className="text-[10px] text-muted-foreground">

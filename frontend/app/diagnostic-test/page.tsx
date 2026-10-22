@@ -52,7 +52,7 @@ function DiagnosticTestLandingContent() {
       <div className="max-w-3xl w-full bg-card rounded-[2rem] shadow-2xl border border-border/40 p-10 md:p-16 relative overflow-hidden">
         {/* Background Accents */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-blue-500/5 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-study-soft rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
         <div className="relative z-10">
           {/* Header */}
@@ -84,7 +84,7 @@ function DiagnosticTestLandingContent() {
 
             <div className="bg-accent/30 p-6 rounded-2xl border border-border/50 flex items-start gap-4 hover:bg-accent/50 transition-colors">
               <div className="p-2.5 bg-background rounded-xl shadow-sm">
-                <Clock className="w-5 h-5 text-blue-500" />
+                <Clock className="w-5 h-5 text-study" />
               </div>
               <div>
                 <h3 className="font-semibold text-foreground mb-1">No Time Limit</h3>
@@ -96,7 +96,7 @@ function DiagnosticTestLandingContent() {
 
             <div className="bg-accent/30 p-6 rounded-2xl border border-border/50 flex items-start gap-4 hover:bg-accent/50 transition-colors">
               <div className="p-2.5 bg-background rounded-xl shadow-sm">
-                <TrendingUp className="w-5 h-5 text-green-500" />
+                <TrendingUp className="w-5 h-5 text-progress" />
               </div>
               <div>
                 <h3 className="font-semibold text-foreground mb-1">Baseline Mastery</h3>
@@ -108,7 +108,7 @@ function DiagnosticTestLandingContent() {
 
             <div className="bg-accent/30 p-6 rounded-2xl border border-border/50 flex items-start gap-4 hover:bg-accent/50 transition-colors">
               <div className="p-2.5 bg-background rounded-xl shadow-sm">
-                <CheckCircle2 className="w-5 h-5 text-orange-500" />
+                <CheckCircle2 className="w-5 h-5 text-schedule" />
               </div>
               <div>
                 <h3 className="font-semibold text-foreground mb-1">Smart Calibration</h3>
@@ -125,11 +125,11 @@ function DiagnosticTestLandingContent() {
               onClick={handleCreateTest}
               disabled={isCreating}
               size="lg"
-              className="h-14 px-8 text-lg font-semibold   transition-all "
+              className="h-14 px-8 text-lg font-semibold transition-all"
             >
               {isCreating ? (
                 <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                  <div className="w-5 h-5 border-2 border-current/30 border-t-current rounded-full animate-spin mr-2" />
                   Creating Test...
                 </>
               ) : (

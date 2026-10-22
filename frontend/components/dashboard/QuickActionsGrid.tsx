@@ -1,6 +1,6 @@
 "use client";
 
-import { ThemeIcon } from "@/components/ThemeIcon";
+import { BookOpen, Calendar, Target, TrendingUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useStudyPlan, useMockExamAnalytics } from "@/hooks/queries";
 import { useAuth } from "@/contexts/AuthContext";
@@ -49,7 +49,7 @@ export default function QuickActionsGrid() {
       label: "Study Plan",
       value: `${completedSessions}/${totalSessions}`,
       desc: "Sessions completed",
-      icon: "plan",
+      icon: BookOpen,
       chip: "bg-study-soft text-study",
       progress: completionRate,
     },
@@ -57,21 +57,21 @@ export default function QuickActionsGrid() {
       label: "Mock Exams",
       value: totalMockExams.toString(),
       desc: averageScore > 0 ? `Avg: ${averageScore}` : "No scores yet",
-      icon: "exam",
+      icon: Target,
       chip: "bg-exam-soft text-exam",
     },
     {
       label: "Test Date",
       value: daysUntilTest > 0 ? daysUntilTest.toString() : "N/A",
       desc: daysUntilTest > 0 ? "days remaining" : "No date set",
-      icon: "calendar",
+      icon: Calendar,
       chip: "bg-schedule-soft text-schedule",
     },
     {
       label: "Overall",
       value: `${Math.round(completionRate)}%`,
       desc: "Progress",
-      icon: "progress",
+      icon: TrendingUp,
       chip: "bg-progress-soft text-progress",
     },
   ];
@@ -102,7 +102,7 @@ export default function QuickActionsGrid() {
           className="rounded-xl border border-border bg-card p-4 text-left hover:bg-muted/40"
         >
           <div className={`mb-3 flex h-8 w-8 items-center justify-center rounded-lg ${stat.chip}`}>
-            <ThemeIcon name={stat.icon} className="h-4 w-4" />
+            <stat.icon className="h-4 w-4" aria-hidden="true" />
           </div>
           <p className="text-sm text-muted-foreground">{stat.label}</p>
           <p className="text-2xl font-semibold tabular-nums text-foreground">

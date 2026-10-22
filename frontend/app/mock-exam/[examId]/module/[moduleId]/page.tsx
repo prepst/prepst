@@ -653,28 +653,28 @@ function ModuleContent() {
             <div
               className={`flex items-center gap-2 px-3 py-1.5 rounded-full border shadow-sm transition-all duration-300 ${
                 timeRemaining <= 300
-                  ? "bg-red-500/10 border-red-500/20 ring-1 ring-red-500/10"
+                  ? "bg-destructive/10 border-destructive/20 ring-1 ring-destructive/10"
                   : timeRemaining <= 600
-                  ? "bg-orange-500/10 border-orange-500/20 ring-1 ring-orange-500/10"
-                  : "bg-blue-500/10 border-blue-500/20 ring-1 ring-blue-500/10"
+                  ? "bg-schedule-soft border-schedule/40 ring-1 ring-schedule/10"
+                  : "bg-study-soft border-study/30 ring-1 ring-study/10"
               }`}
             >
               <Clock
                 className={`w-3.5 h-3.5 ${
                   timeRemaining <= 300
-                    ? "text-red-600 dark:text-red-400"
+                    ? "text-destructive dark:text-destructive"
                     : timeRemaining <= 600
-                    ? "text-orange-600 dark:text-orange-400"
-                    : "text-blue-600 dark:text-blue-400"
+                    ? "text-schedule"
+                    : "text-study"
                 }`}
               />
               <span
                 className={`text-sm font-mono font-bold tabular-nums tracking-tight ${
                   timeRemaining <= 300
-                    ? "text-red-700 dark:text-red-300"
+                    ? "text-destructive dark:text-destructive"
                     : timeRemaining <= 600
-                    ? "text-orange-700 dark:text-orange-300"
-                    : "text-blue-700 dark:text-blue-300"
+                    ? "text-schedule dark:text-schedule"
+                    : "text-study dark:text-study"
                 }`}
               >
                 {formatTime(timeRemaining)}
@@ -717,7 +717,7 @@ function ModuleContent() {
               }}
               variant="ghost"
               size="sm"
-              className="hidden lg:flex text-xs text-purple-600/50 hover:text-purple-600 hover:bg-purple-500/10"
+              className="hidden lg:flex text-xs text-study/70 hover:text-study hover:bg-study-soft"
             >
               Dev Fill
             </Button>}
@@ -741,10 +741,10 @@ function ModuleContent() {
             style={{ width: `${progress}%` }}
           >
             {/* Main gradient fill with vibrant colors */}
-            <div className="absolute inset-0 bg-gradient-to-r from-primary via-primary/95 to-primary/90" />
+            <div className="absolute inset-0 bg-study" />
 
             {/* Secondary gradient layer for depth */}
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary to-primary/80 opacity-60" />
+            <div className="absolute inset-0 hidden" />
 
             {/* Animated shine/shimmer effect */}
             <div
@@ -841,7 +841,7 @@ function ModuleContent() {
                         isCurrent
                           ? "border-primary/50 bg-primary/5 ring-1 ring-primary/20 shadow-sm"
                           : isMarked
-                          ? "border-orange-500/30 bg-orange-500/5"
+                          ? "border-schedule/40 bg-schedule/5"
                           : isAnswered
                           ? "border-border bg-muted/30 hover:bg-muted/50"
                           : "border-transparent hover:bg-accent hover:border-border"
@@ -877,7 +877,7 @@ function ModuleContent() {
                         </div>
                       </div>
                       {isMarked && (
-                        <Flag className="w-4 h-4 text-orange-500 fill-orange-500" />
+                        <Flag className="w-4 h-4 text-schedule fill-schedule" />
                       )}
                     </div>
                   </button>
@@ -902,10 +902,10 @@ function ModuleContent() {
                 <div
                   className={`w-1.5 h-1.5 rounded-full ${
                     currentQuestion.question.difficulty === "E"
-                      ? "bg-emerald-500"
+                      ? "bg-progress"
                       : currentQuestion.question.difficulty === "M"
-                      ? "bg-amber-500"
-                      : "bg-rose-500"
+                      ? "bg-schedule"
+                      : "bg-destructive"
                   }`}
                 />
                 {currentQuestion.question.difficulty === "E"
@@ -1052,7 +1052,7 @@ function ModuleContent() {
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Lightbulb className="w-5 h-5 text-purple-600" />
+              <Lightbulb className="w-5 h-5 text-study" />
               Explanation
             </DialogTitle>
           </DialogHeader>

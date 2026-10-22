@@ -162,8 +162,8 @@ export function OTPForm({ className, ...props }: React.ComponentProps<"div">) {
                   className={`text-sm p-4 rounded-xl border ${
                     error.includes("sent!") ||
                     error.includes("Verification code sent")
-                      ? "text-green-700 bg-green-50 border-green-200"
-                      : "text-red-600 bg-red-50 border-red-100"
+                      ? "text-progress bg-progress-soft border-progress/25"
+                      : "text-destructive bg-destructive-soft border-destructive/25"
                   }`}
                 >
                   {error}
@@ -214,7 +214,7 @@ export function OTPForm({ className, ...props }: React.ComponentProps<"div">) {
               <Field>
                 <Button
                   type="submit"
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+                  className="w-full"
                   disabled={loading || otp.length !== 6}
                 >
                   {loading ? "Verifying..." : "Verify"}
@@ -225,7 +225,7 @@ export function OTPForm({ className, ...props }: React.ComponentProps<"div">) {
                     type="button"
                     onClick={handleResend}
                     disabled={resendCooldown > 0 || loading}
-                    className={`text-violet-600 hover:text-violet-700 ${
+                    className={`text-study hover:text-study ${
                       resendCooldown > 0 ? "opacity-50 cursor-not-allowed" : ""
                     }`}
                   >

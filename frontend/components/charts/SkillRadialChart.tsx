@@ -26,7 +26,7 @@ import { buildPracticeSessionPath } from "@/lib/practice-navigation";
 const chartConfig = {
   mastery: {
     label: "Mastery",
-    color: "#2b7efe",
+    color: "#1d9bf0",
   },
 } satisfies ChartConfig;
 
@@ -56,7 +56,7 @@ export function SkillRadialChart({
   const chartData = [
     {
       mastery: masteryPercentage,
-      fill: "#2b7efe",
+      fill: "#1d9bf0",
     },
   ];
 
@@ -68,10 +68,10 @@ export function SkillRadialChart({
   };
 
   const getVelocityColor = () => {
-    if (velocity > 0.05) return "text-green-600";
-    if (velocity > 0.02) return "text-blue-600";
-    if (velocity > -0.02) return "text-orange-600";
-    return "text-red-600";
+    if (velocity > 0.05) return "text-progress";
+    if (velocity > 0.02) return "text-study";
+    if (velocity > -0.02) return "text-schedule";
+    return "text-destructive";
   };
 
   const handleDrillClick = async () => {
@@ -142,7 +142,7 @@ export function SkillRadialChart({
             <RadialBar
               dataKey="mastery"
               background
-              fill="#2b7efe"
+              fill="#1d9bf0"
               cornerRadius={4}
             />
             <PolarRadiusAxis tick={false} tickLine={false} axisLine={false}>
@@ -188,7 +188,7 @@ export function SkillRadialChart({
             onClick={handleDrillClick}
             size="sm"
             variant="outline"
-            className="w-full mt-2 hover:bg-[#2b7efe] hover:text-white hover:border-[#2b7efe]"
+            className="w-full mt-2 hover:border-[#1d9bf0]"
           >
             <Target className="w-3 h-3 mr-1" />
             Drill

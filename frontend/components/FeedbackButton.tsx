@@ -130,7 +130,7 @@ export function FeedbackButton({
       <Dialog open={open} onOpenChange={setOpen}>
         <Button
           type="button"
-          className="shadow-lg"
+          
           onClick={() => setOpen(true)}
         >
           <MessageCircle className="mr-2 h-4 w-4" />

@@ -277,7 +277,7 @@ export default function DashboardLayout({
           animate={{ width: targetSidebarWidth }}
           initial={false}
           transition={{ duration: 0.25, ease: "easeInOut" }}
-          className={`sticky top-0 h-screen flex-shrink-0 bg-card border-r border-border z-30 will-change-[width] max-lg:hidden ${isMobile
+          className={`sticky top-0 h-screen flex-shrink-0 bg-sidebar border-r border-border z-30 will-change-[width] max-lg:hidden ${isMobile
               ? isSidebarCollapsed
                 ? "overflow-hidden border-none"
                 : `fixed left-0 z-50 shadow-2xl ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"

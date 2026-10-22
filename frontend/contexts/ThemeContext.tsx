@@ -13,8 +13,7 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  // Default to system preference unless the user explicitly picked something else.
-  const [theme, setTheme] = useState<Theme>("auto");
+  const [theme, setTheme] = useState<Theme>("light");
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -24,12 +23,9 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (savedTheme && ["light", "dark", "auto"].includes(savedTheme)) {
       setTheme(savedTheme);
     } else {
-      // If no saved theme, check system preference for initial state
-      const systemPrefersDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-      setIsDarkMode(systemPrefersDark);
-      document.documentElement.classList.toggle("dark", systemPrefersDark);
+      setTheme("light");
+      setIsDarkMode(false);
+      document.documentElement.classList.remove("dark");
     }
     setMounted(true);
   }, []);

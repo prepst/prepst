@@ -37,7 +37,9 @@ export default function MissionCard({
 
   if (!session) {
     return (
-      <div className="rounded-xl border border-border bg-card p-8 text-center">
+      <div className="overflow-hidden rounded-xl border border-border bg-card text-center">
+        <div className="h-1.5 bg-study" />
+        <div className="p-8">
         <h3 className="text-lg font-semibold text-foreground">
           {hasPlan ? "Sessions finished" : "No study plan yet"}
         </h3>
@@ -49,12 +51,15 @@ export default function MissionCard({
         <Button className="mt-6" onClick={() => router.push("/onboard")}>
           {hasPlan ? "Create a new plan" : "Create a study plan"}
         </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-full flex-col justify-between gap-6 rounded-xl border border-border bg-card p-6">
+    <div className="flex h-full flex-col justify-between overflow-hidden rounded-xl border border-border bg-card">
+      <div className="h-1.5 bg-study" />
+      <div className="flex flex-1 flex-col justify-between gap-6 p-6">
       <div className="space-y-2">
         <p className="text-sm text-muted-foreground">
           {session.duration_minutes} min · {session.num_questions} questions
@@ -72,6 +77,7 @@ export default function MissionCard({
         <Play className="h-4 w-4" />
         Start session
       </Button>
+      </div>
     </div>
   );
 }

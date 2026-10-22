@@ -16,8 +16,6 @@ import {
 import { supabase } from "@/lib/supabase";
 import {
   Play,
-  Target,
-  Sparkles,
   ArrowRight,
   Clock,
 } from "lucide-react";
@@ -27,8 +25,6 @@ import { SpecialPractice } from "@/components/my-sat/SpecialPractice";
 import QuickActionsGrid from "@/components/dashboard/QuickActionsGrid";
 import RecommendationCard from "@/components/dashboard/RecommendationCard";
 import QuestionOfTheDayCard from "@/components/dashboard/QuestionOfTheDayCard";
-import { motion } from "framer-motion";
-import { useTheme } from "@/contexts/ThemeContext";
 import { FeedbackButton } from "@/components/FeedbackButton";
 import { QuestionPracticePopup } from "@/components/revision/QuestionPracticePopup";
 import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
@@ -49,7 +45,6 @@ export default function DashboardPage() {
   const { user } = useAuth();
   const { profileData } = useProfile();
   const [showTimeSelection, setShowTimeSelection] = useState(false);
-  const { isDarkMode } = useTheme();
 
   // Lightweight question popup state
   const [questions, setQuestions] = useState<SessionQuestion[]>([]);
@@ -250,10 +245,14 @@ export default function DashboardPage() {
       } as SessionForMissionCard)
     : undefined;
 
-  const heroBgClass = isDarkMode ? "bg-[#0F172A]" : "bg-[#9184ff]";
-  const heroTextColorClass = isDarkMode ? "text-white" : "text-foreground";
-  const heroBlursPrimary = isDarkMode ? "bg-purple-600/30" : "bg-orange-200/50";
-  const heroBlursSecondary = isDarkMode ? "bg-blue-600/30" : "bg-orange-200/50";
+  const targetScore =
+    profileData?.stats?.target_math_score && profileData?.stats?.target_rw_score
+      ? profileData.stats.target_math_score + profileData.stats.target_rw_score
+      : studyPlan?.study_plan?.target_math_score &&
+          studyPlan?.study_plan?.target_rw_score
+        ? studyPlan.study_plan.target_math_score +
+          studyPlan.study_plan.target_rw_score
+        : null;
 
   return (
     <div className="min-h-screen bg-background/50">
@@ -265,123 +264,56 @@ export default function DashboardPage() {
           {/* Hero Section with Question of the Day */}
           <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-stretch">
             {/* Hero Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className={`relative overflow-hidden rounded-[2.5rem] ${heroBgClass} ${heroTextColorClass} shadow-2xl flex-1 flex flex-col`}
-            >
-              {/* Abstract Background */}
-              <div className="absolute inset-0">
-                <div
-                  className={`absolute top-0 right-0 w-[600px] h-[600px] ${heroBlursPrimary} rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3`}
-                ></div>
-                <div
-                  className={`absolute bottom-0 left-0 w-[500px] h-[500px] ${heroBlursSecondary} rounded-full blur-[100px] translate-y-1/3 -translate-x-1/4`}
-                ></div>
+            <section className="flex flex-1 flex-col justify-between gap-8 rounded-xl border border-border bg-card p-6 md:p-8">
+              <div className="max-w-xl space-y-2">
+                <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                  {user
+                    ? `Hello, ${getDisplayName().split(" ")[0]}`
+                    : "Practice for the SAT"}
+                </h1>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {user
+                    ? "Continue your study plan, or start a short practice block."
+                    : "Sign in to keep a study plan and see what you miss."}
+                </p>
               </div>
-
-              <div className="relative z-10 p-6 md:p-10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-8 flex-1">
-                <div className="flex-1 space-y-4">
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className="space-y-6"
-                  >
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 dark:bg-black/10 backdrop-blur-md border border-white/10 dark:border-black/10">
-                      <Sparkles className="w-4 h-4 text-yellow-400" />
-                      <span className="text-sm font-medium">
-                        AI-Powered Learning
-                      </span>
-                    </div>
-
-                    <div className="space-y-2">
-                      <h1 className="text-3xl md:text-5xl font-bold leading-tight">
-                        {user ? (
-                          <>
-                            Hello, <span>{getDisplayName().split(" ")[0]}</span>
-                          </>
-                        ) : (
-                          "Hey there!"
-                        )}
-                      </h1>
-                      <p className="text-base md:text-lg text-gray-700 dark:text-gray-300 max-w-lg">
-                        Prep St is free, so you can jump straight into practice.
-                        Your personalized study plan is optimized for maximum
-                        score improvement from day one.
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap gap-3">
-                      <Button
-                        onClick={() => {
-                          if (!user) {
-                            router.push("/signup");
-                          } else {
-                            setShowTimeSelection(true);
-                          }
-                        }}
-                        className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-6 py-4 text-base font-bold transition-all hover:scale-105 shadow-[0_0_20px_rgba(255,255,255,0.3)]"
-                      >
-                        <Play className="w-4 h-4 mr-2 fill-current" />
-                        {user ? "Quick Start" : "Sign Up"}
-                      </Button>
-                      <Button
-                        onClick={() => {
-                          if (!user) {
-                            router.push("/login");
-                          } else {
-                            router.push("/dashboard/mock-exam");
-                          }
-                        }}
-                        variant="outline"
-                        className="border-border text-foreground hover:bg-accent rounded-full px-6 py-4 text-base font-medium backdrop-blur-sm"
-                      >
-                        <Target className="w-4 h-4 mr-2" />
-                        {user ? "Mock Exam" : "Log In"}
-                      </Button>
-                    </div>
-                  </motion.div>
-                </div>
-
-                {/* Hero Illustration / Stats or 3D Element placeholder */}
-                <div className="hidden lg:block relative w-48 h-48">
-                  {/* Circle Progress Concept */}
-                  <div className="absolute inset-0 rounded-full border-3 border-purple-300 dark:border-white/10 flex items-center justify-center animate-[spin_10s_linear_infinite]">
-                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-purple-500 rounded-full shadow-[0_0_8px_rgba(168,85,247,0.8)]"></div>
+              <div className="flex flex-wrap items-end gap-3">
+                <Button
+                  size="lg"
+                  onClick={() => {
+                    if (!user) {
+                      router.push("/signup");
+                    } else {
+                      setShowTimeSelection(true);
+                    }
+                  }}
+                >
+                  <Play className="h-4 w-4" />
+                  {user ? "Start practice" : "Sign up"}
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => {
+                    if (!user) {
+                      router.push("/login");
+                    } else {
+                      router.push("/dashboard/mock-exam");
+                    }
+                  }}
+                >
+                  {user ? "Mock exam" : "Sign in"}
+                </Button>
+                {targetScore != null && (
+                  <div className="ml-auto text-right">
+                    <p className="text-2xl font-semibold tabular-nums text-foreground">
+                      {targetScore}
+                    </p>
+                    <p className="text-sm text-muted-foreground">Target score</p>
                   </div>
-                  <div className="absolute inset-6 rounded-full border-3 border-blue-300 dark:border-white/10 flex items-center justify-center animate-[spin_15s_linear_infinite_reverse]">
-                    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2.5 h-2.5 bg-blue-500 rounded-full shadow-[0_0_8px_rgba(59,130,246,0.8)]"></div>
-                  </div>
-
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                    <span className="text-3xl font-bold relative">
-                      {profileData?.stats?.target_math_score &&
-                      profileData?.stats?.target_rw_score ? (
-                        profileData.stats.target_math_score +
-                        profileData.stats.target_rw_score
-                      ) : studyPlan?.study_plan?.target_math_score &&
-                        studyPlan?.study_plan?.target_rw_score ? (
-                        studyPlan.study_plan.target_math_score +
-                        studyPlan.study_plan.target_rw_score
-                      ) : (
-                        <span
-                          className="select-none bg-gradient-to-r from-gray-400/50 via-gray-300/50 to-gray-400/50 dark:from-gray-500/50 dark:via-gray-400/50 dark:to-gray-500/50 bg-clip-text text-transparent"
-                          style={{
-                            backgroundSize: "200% 100%",
-                            animation: "shimmer 2s ease-in-out infinite",
-                          }}
-                        >
-                          1600
-                        </span>
-                      )}
-                    </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider mt-1">
-                      Target Score
-                    </span>
-                  </div>
-                </div>
+                )}
               </div>
-            </motion.div>
+            </section>
 
             {/* Question of the Day Card - Outside Hero */}
             <div className="hidden lg:block w-full lg:w-auto lg:min-w-[280px] lg:max-w-[320px] flex">
@@ -399,16 +331,15 @@ export default function DashboardPage() {
             {/* Mission Card (Next Session) */}
             <div className="lg:col-span-2 space-y-6">
               <div className="flex items-center justify-between">
-                <h3 className="text-2xl font-bold text-foreground flex items-center gap-2">
-                  <Target className="w-6 h-6 text-primary" />
-                  Current Objective
-                </h3>
+                <h2 className="text-lg font-semibold text-foreground">
+                  Next session
+                </h2>
                 <Button
                   variant="ghost"
-                  className="text-muted-foreground hover:text-primary"
                   onClick={() => router.push("/dashboard/sessions")}
                 >
-                  View All <ArrowRight className="w-4 h-4 ml-1" />
+                  View sessions
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
               </div>
 
@@ -417,6 +348,7 @@ export default function DashboardPage() {
                   <MissionCard
                     session={nextSession}
                     isLoading={isLoading}
+                    hasPlan={(studyPlan?.study_plan?.sessions?.length ?? 0) > 0}
                     onStart={() => router.push("/dashboard/study-plan")}
                   />
                 </div>

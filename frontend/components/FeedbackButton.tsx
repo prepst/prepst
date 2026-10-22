@@ -42,12 +42,12 @@ export function FeedbackButton({
   const wrapperClass = (() => {
     if (placement === "inline") return cn(className);
     if (placement === "fixed-left")
-      return cn("fixed bottom-6 left-6 z-50", className);
-    return cn("fixed bottom-6 right-6 z-50", className);
+      return cn("fixed bottom-24 left-4 z-40 lg:bottom-6 lg:left-6", className);
+    return cn("fixed bottom-24 right-4 z-40 lg:bottom-6 lg:right-6", className);
   })();
 
   const subject = useMemo(
-    () => `[${type === "bug" ? "Bug" : "Improvement"}] PrepST feedback`,
+    () => `[${type === "bug" ? "Bug" : "Improvement"}] Prep St feedback`,
     [type]
   );
 

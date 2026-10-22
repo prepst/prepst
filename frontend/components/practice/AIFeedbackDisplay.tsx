@@ -19,7 +19,7 @@ export function AIFeedbackDisplay({
   isCorrect,
   showHeader = true,
   headerTitle = "AI Tutor Feedback",
-  headerSubtitle = "Personalized insights powered by PrepSt AI",
+  headerSubtitle = "What to review from this question",
 }: AIFeedbackDisplayProps) {
   return (
     <Card className="mt-6 p-6 shadow-sm border-border/80">

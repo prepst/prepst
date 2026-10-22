@@ -186,7 +186,7 @@ export default function MockExamPage() {
                     Full-Length Practice Test
                   </span>
                 </div>
-                <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+                <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                   Mock SAT Exam
                 </h1>
                 <p className="text-lg text-muted-foreground max-w-xl">
@@ -197,7 +197,7 @@ export default function MockExamPage() {
                 onClick={createMockExam}
                 disabled={isCreating}
                 size="lg"
-                className="h-14 px-8 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:scale-105 disabled:opacity-70 disabled:hover:scale-100 shrink-0 rounded-xl"
+                className="h-11 shrink-0 px-6 disabled:opacity-70"
               >
                 {isCreating ? (
                   <>

@@ -110,7 +110,7 @@ export function QuestionNavigatorPopup({
                 key={question.session_question_id}
                 onClick={() => handleQuestionClick(index)}
                 className={cn(
-                  "relative w-10 h-10 rounded border transition-all hover:scale-105 flex items-center justify-center font-bold text-xs pt-0 pb-0 m-0",
+                  "relative w-10 h-10 rounded border transition-all  flex items-center justify-center font-bold text-xs pt-0 pb-0 m-0",
                   bgColor,
                   borderColor,
                   textColor,

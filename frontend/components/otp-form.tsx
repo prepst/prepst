@@ -214,7 +214,7 @@ export function OTPForm({ className, ...props }: React.ComponentProps<"div">) {
               <Field>
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-violet-500 to-violet-600 hover:from-violet-600 hover:to-violet-700"
+                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
                   disabled={loading || otp.length !== 6}
                 >
                   {loading ? "Verifying..." : "Verify"}

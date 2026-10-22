@@ -5,7 +5,6 @@ import {
   Check,
   Lightbulb,
   ChevronDown,
-  Sparkles,
   Flag,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -177,13 +176,8 @@ export function PracticeFooter({
             <Button
               onClick={onGetFeedback}
               disabled={loadingFeedback}
-              className="h-10 px-6 font-semibold transition-all shadow-sm text-base flex items-center gap-2 !text-white"
-              style={{
-                backgroundColor: loadingFeedback
-                  ? "rgba(134, 111, 254, 0.5)"
-                  : "#866ffe",
-                color: "#ffffff",
-              }}
+              variant="outline"
+              className="h-10 px-6 text-base"
             >
               {loadingFeedback ? (
                 <>
@@ -192,8 +186,7 @@ export function PracticeFooter({
                 </>
               ) : (
                 <>
-                  <Sparkles className="size-4" />
-                  AI Explanation
+                  Ask tutor
                 </>
               )}
             </Button>
@@ -204,11 +197,8 @@ export function PracticeFooter({
             <Button
               onClick={onShowExplanation}
               disabled={!hasRationale}
-              className="h-10 px-6 font-semibold transition-all shadow-sm text-base flex items-center gap-2"
-              style={{
-                backgroundColor: "rgba(134, 111, 254, 0.3)",
-                color: "#866ffe",
-              }}
+              variant="outline"
+              className="h-10 px-6 text-base"
             >
               <Lightbulb className="size-4" />
               Explanation

@@ -465,7 +465,7 @@ function ResultsContent() {
                   }
                 }}
                 size="lg"
-                className="h-14 px-8 rounded-xl font-semibold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:scale-[1.02] transition-all duration-300 group"
+                className="h-14 px-8 rounded-xl font-semibold    transition-all duration-300 group"
               >
                 {returnToOnboarding ? "Continue Onboarding" : "Create Study Plan"}
                 <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />

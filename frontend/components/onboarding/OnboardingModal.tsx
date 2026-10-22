@@ -77,12 +77,9 @@ export function OnboardingModal({ pageId, steps }: OnboardingModalProps) {
                     <X className="h-4 w-4 text-muted-foreground" />
                 </button>
 
-                <div className="relative h-48 bg-gradient-to-br from-primary/5 via-primary/10 to-transparent flex items-center justify-center overflow-hidden">
-                    <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/20 rounded-full blur-3xl" />
-                    <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl" />
-
-                    <div className="relative z-10 flex h-28 w-28 items-center justify-center rounded-[1.75rem] border border-primary/15 bg-background/80 shadow-sm">
-                        <StepIcon className="h-12 w-12 text-primary" strokeWidth={1.75} aria-hidden="true" />
+                <div className="flex h-40 items-center justify-center bg-muted/40">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-xl border border-border bg-background">
+                        <StepIcon className="h-7 w-7 text-primary" strokeWidth={1.75} aria-hidden="true" />
                     </div>
                 </div>
 
@@ -128,8 +125,7 @@ export function OnboardingModal({ pageId, steps }: OnboardingModalProps) {
                         )}
                         <Button
                             onClick={handleNext}
-                            className="h-12 font-semibold flex-1 hover:opacity-90 transition-opacity text-base"
-                            style={{ backgroundColor: "#dad3fd", color: "#5b3cc4" }}
+                            className="h-11 flex-1"
                         >
                             {isLastStep ? "Get Started" : "Continue"}
                         </Button>

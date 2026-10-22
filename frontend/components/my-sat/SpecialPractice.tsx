@@ -409,7 +409,7 @@ export function SpecialPractice() {
                                             "bg-background border border-border",
                                             "shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05),0_1px_2px_-1px_rgba(0,0,0,0.03)]",
                                             "hover:shadow-[0_4px_12px_-2px_rgba(0,0,0,0.08),0_2px_4px_-1px_rgba(0,0,0,0.04)]",
-                                            "hover:-translate-y-0.5",
+                                            "",
                                             "active:translate-y-0 active:shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.06)]"
                                         )}
                                     >

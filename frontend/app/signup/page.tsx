@@ -115,7 +115,7 @@ export default function SignupPage() {
             Welcome!
           </h1>
           <p className="text-base text-muted-foreground mb-8">
-            Sign up to PrepSt to continue to PrepSt.
+            Create your free account.
           </p>
 
           {error && (
@@ -244,8 +244,7 @@ export default function SignupPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-14 rounded-xl text-lg font-semibold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:-translate-y-0.5 text-white hover:opacity-90"
-              style={{ backgroundColor: "#866ffe" }}
+              className="h-11 w-full"
             >
               {loading ? (
                 <>
@@ -264,7 +263,7 @@ export default function SignupPage() {
               href="/login"
               className="font-semibold text-primary hover:text-primary/80 transition-colors"
             >
-              Log in
+              Sign in
             </Link>
           </p>
           <p className="mt-4 text-center text-xs text-muted-foreground">
@@ -287,30 +286,12 @@ export default function SignupPage() {
         <div className="flex-1 flex flex-col items-center justify-center p-16 pr-[250px] pt-0">
           {/* Stats Text */}
           <div className="text-center mb-8">
-            <p className="mt-4 text-lg text-muted-foreground max-w-md">
-              AI-powered practice with personalized feedback to help you reach
-              your dream score.
+            <p className="mt-4 max-w-md text-lg text-muted-foreground">
+              A study plan, short practice, and full mock exams.
             </p>
           </div>
 
           {/* Stats pills */}
-          <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
-            <div className="px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-              <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                Free for students
-              </span>
-            </div>
-            <div className="px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-              <span className="text-sm font-semibold text-primary">
-                Study plans
-              </span>
-            </div>
-            <div className="px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20">
-              <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
-                Mock exams
-              </span>
-            </div>
-          </div>
 
           {/* 3D SAT Visual */}
           <div className="relative w-72 h-72 flex items-center justify-center">
@@ -326,7 +307,7 @@ export default function SignupPage() {
             <div className="relative group cursor-pointer">
               <svg
                 viewBox="0 0 200 200"
-                className="w-56 h-56 transition-transform duration-500 group-hover:scale-105"
+                className="w-56 h-56 transition-transform duration-500 group-"
               >
                 {/* Shadow ellipse */}
                 <ellipse

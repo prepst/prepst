@@ -820,7 +820,7 @@ function OnboardContent() {
                       router.push("/diagnostic-test?returnToOnboarding=true");
                     }}
                     size="lg"
-                    className="h-14 px-8 text-lg font-semibold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:-translate-y-0.5"
+                    className="h-14 px-8 text-lg font-semibold   transition-all "
                   >
                     Start Diagnostic
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -831,7 +831,7 @@ function OnboardContent() {
                   onClick={currentStep === 4 ? handleSubmit : handleNext}
                   disabled={isLoading}
                   size="lg"
-                  className="h-14 px-8 text-lg font-semibold shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-all hover:-translate-y-0.5"
+                  className="h-14 px-8 text-lg font-semibold   transition-all "
                 >
                   {isLoading ? (
                     <>

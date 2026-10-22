@@ -174,7 +174,7 @@ export default function ManimPage() {
       <div className="w-full max-w-6xl mx-auto px-6 py-12 space-y-12">
         {/* Header */}
         <div className="space-y-2">
-          <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             Manim Video Generator
           </h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
@@ -226,7 +226,7 @@ export default function ManimPage() {
                 <Button
                   onClick={handleGenerate}
                   disabled={isGenerating || !question.trim()}
-                  className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25 transition-all hover:scale-105"
+                  className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground  transition-all "
                 >
                   {isGenerating ? (
                     <>

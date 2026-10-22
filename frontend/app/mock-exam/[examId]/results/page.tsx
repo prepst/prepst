@@ -338,7 +338,7 @@ function ResultsContent() {
           <Button
             size="lg"
             onClick={() => router.push('/dashboard/mock-exam')}
-            className="bg-[#866ffe] hover:bg-[#7a5ffe] text-white border-0 h-12 px-8 font-semibold shadow-lg shadow-primary/20"
+            className="bg-primary hover:bg-primary/90 text-white border-0 h-12 px-8 font-semibold "
           >
             Start New Exam
           </Button>

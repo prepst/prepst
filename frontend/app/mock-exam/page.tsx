@@ -133,7 +133,7 @@ function MockExamContent() {
       <div className="max-w-7xl mx-auto space-y-12">
         {/* Header */}
         <div className="space-y-4">
-          <h1 className="text-4xl font-extrabold tracking-tight text-foreground">Mock SAT Exam</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Mock SAT Exam</h1>
           <p className="text-lg text-muted-foreground max-w-2xl">
             Take a full-length practice test that mimics the real SAT experience. 
             Challenge yourself under timed conditions to assess your readiness.
@@ -142,7 +142,7 @@ function MockExamContent() {
 
         {/* Info Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="group bg-card rounded-3xl p-8 shadow-sm border border-border hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
+          <div className="group bg-card rounded-3xl p-8 shadow-sm border border-border hover:shadow-md transition-all duration-300 ">
             <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <Clock className="w-7 h-7 text-blue-600 dark:text-blue-400" />
             </div>
@@ -152,7 +152,7 @@ function MockExamContent() {
             </p>
           </div>
 
-          <div className="group bg-card rounded-3xl p-8 shadow-sm border border-border hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
+          <div className="group bg-card rounded-3xl p-8 shadow-sm border border-border hover:shadow-md transition-all duration-300 ">
             <div className="w-14 h-14 bg-purple-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <BookOpen className="w-7 h-7 text-purple-600 dark:text-purple-400" />
             </div>
@@ -162,7 +162,7 @@ function MockExamContent() {
             </p>
           </div>
 
-          <div className="group bg-card rounded-3xl p-8 shadow-sm border border-border hover:shadow-md transition-all duration-300 hover:scale-[1.02]">
+          <div className="group bg-card rounded-3xl p-8 shadow-sm border border-border hover:shadow-md transition-all duration-300 ">
             <div className="w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
               <TrendingUp className="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
             </div>
@@ -189,7 +189,7 @@ function MockExamContent() {
                 onClick={createMockExam}
                 disabled={isCreating}
                 size="lg"
-                className="h-14 px-8 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
+                className="h-14 px-8 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all "
               >
                 {isCreating ? (
                   <>Creating Exam...</>

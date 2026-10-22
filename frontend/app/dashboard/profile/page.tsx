@@ -201,7 +201,7 @@ export default function ProfilePage() {
             animate={{ opacity: 1, x: 0 }}
             className="space-y-1"
           >
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
               Profile & Settings
             </h1>
             <p className="text-muted-foreground text-lg">
@@ -228,7 +228,7 @@ export default function ProfilePage() {
                 <Button
                   onClick={handleSaveProfile}
                   disabled={uploadingPhoto || isSaving}
-                  className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground "
                 >
                   {isSaving ? (
                     <div className="h-4 w-4 animate-spin border-2 border-current border-t-transparent rounded-full mr-2" />
@@ -278,7 +278,7 @@ export default function ProfilePage() {
               <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-primary/10 to-transparent opacity-50" />
 
               <div className="relative z-10 mb-6">
-                <div className="w-32 h-32 rounded-full p-1 bg-gradient-to-br from-primary to-purple-500 shadow-lg shadow-primary/20">
+                <div className="w-32 h-32 rounded-full p-1 bg-gradient-to-br from-primary to-purple-500 ">
                   <div className="w-full h-full rounded-full bg-background overflow-hidden flex items-center justify-center relative group">
                     {profile.profile_photo_url ? (
                       <img

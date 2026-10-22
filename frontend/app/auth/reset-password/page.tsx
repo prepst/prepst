@@ -44,7 +44,7 @@ export default function ResetPasswordPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
-        <h1 className="text-3xl font-bold tracking-tight">Choose a new password</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Choose a new password</h1>
         <p className="mt-2 text-muted-foreground">
           Use at least 6 characters. You'll stay signed in after it saves.
         </p>

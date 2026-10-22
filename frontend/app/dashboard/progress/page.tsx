@@ -130,7 +130,7 @@ function ProgressContent() {
             <div className="inline-flex items-center justify-center w-24 h-24 bg-primary/10 rounded-3xl mb-8">
               <TrendingUp className="w-10 h-10 text-primary" />
             </div>
-            <h2 className="text-4xl font-extrabold tracking-tight text-foreground mb-4">
+            <h2 className="text-2xl font-semibold tracking-tight text-foreground mb-4">
               No Progress Data Yet
             </h2>
             <p className="text-lg text-muted-foreground mb-8 max-w-md mx-auto leading-relaxed">
@@ -140,7 +140,7 @@ function ProgressContent() {
             <Button
               onClick={() => router.push("/onboard")}
               size="lg"
-              className="h-12 px-8 text-base rounded-xl shadow-lg hover:shadow-xl transition-all hover:scale-105"
+              className="h-12 px-8 text-base rounded-xl shadow-lg hover:shadow-xl transition-all "
             >
               Create Study Plan
             </Button>
@@ -211,7 +211,7 @@ function ProgressContent() {
                 Track Your Progress
               </span>
             </div>
-            <h1 className="text-4xl font-extrabold tracking-tight text-foreground mb-2">
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground mb-2">
               Progress Dashboard
             </h1>
             <p className="text-lg text-muted-foreground">
@@ -223,7 +223,7 @@ function ProgressContent() {
         {/* Dream Score Tracker & Quick Stats */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-12">
           {/* Dream Score Card - Main Feature */}
-          <div className="lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-[#866ffe]/10 via-card to-card border border-border/60 rounded-3xl p-8 shadow-sm">
+          <div className="lg:col-span-2 relative overflow-hidden bg-gradient-to-br from-primary/10 via-card to-card border border-border/60 rounded-3xl p-8 shadow-sm">
             <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
             <div className="relative z-10">
               <div className="flex items-start justify-between mb-6">
@@ -820,7 +820,7 @@ function ProgressContent() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
           <Button
             variant="outline"
-            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent hover:border-primary/50 rounded-2xl border-border/60 transition-all duration-300 hover:scale-[1.02] group"
+            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent hover:border-primary/50 rounded-2xl border-border/60 transition-all duration-300  group"
             onClick={() => router.push("/dashboard/revision")}
           >
             <div className="p-3 bg-primary/10 rounded-xl group-hover:bg-primary/20 transition-colors">
@@ -850,7 +850,7 @@ function ProgressContent() {
 
           <Button
             variant="outline"
-            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent hover:border-primary/50 rounded-2xl border-border/60 transition-all duration-300 hover:scale-[1.02] group"
+            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent hover:border-primary/50 rounded-2xl border-border/60 transition-all duration-300  group"
             onClick={() => router.push("/dashboard/drill")}
           >
             <div className="p-3 bg-emerald-500/10 rounded-xl group-hover:bg-emerald-500/20 transition-colors">
@@ -878,7 +878,7 @@ function ProgressContent() {
 
           <Button
             variant="outline"
-            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent hover:border-primary/50 rounded-2xl border-border/60 transition-all duration-300 hover:scale-[1.02] group"
+            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent hover:border-primary/50 rounded-2xl border-border/60 transition-all duration-300  group"
             onClick={() => router.push("/dashboard/mock-exam")}
           >
             <div className="p-3 bg-amber-500/10 rounded-xl group-hover:bg-amber-500/20 transition-colors">
@@ -896,7 +896,7 @@ function ProgressContent() {
 
           <Button
             variant="outline"
-            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent hover:border-primary/50 rounded-2xl border-border/60 transition-all duration-300 hover:scale-[1.02] group"
+            className="h-auto py-5 px-6 justify-start gap-4 bg-card hover:bg-accent hover:border-primary/50 rounded-2xl border-border/60 transition-all duration-300  group"
             onClick={() => router.push("/diagnostic-test")}
           >
             <div className="p-3 bg-violet-500/10 rounded-xl group-hover:bg-violet-500/20 transition-colors">

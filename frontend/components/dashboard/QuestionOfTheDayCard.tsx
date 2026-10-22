@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Calendar, Loader2, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Loader2, ArrowRight, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { QuestionPracticePopup } from "@/components/revision/QuestionPracticePopup";
 import type { SessionQuestion } from "@/lib/types";
@@ -140,38 +139,21 @@ export default function QuestionOfTheDayCard() {
 
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-        className="group relative w-full h-full text-left rounded-[2.5rem] overflow-hidden shadow-lg dark:shadow-none transition-all duration-300 cursor-pointer flex flex-col"
+      <button
+        type="button"
+        className="flex h-full w-full flex-col rounded-xl border border-border bg-card p-6 text-left hover:bg-muted/40"
         onClick={handleQuestionClick}
       >
-        {/* Base Background */}
-        <div className="absolute inset-0 bg-white/90 dark:bg-white/10"></div>
-
-        {/* Blurred Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-orange-500/30 via-yellow-500/30 to-amber-500/30 dark:from-orange-500/40 dark:via-yellow-500/40 dark:to-amber-500/40">
-          <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-orange-500/40 dark:bg-orange-500/50 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3"></div>
-          <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-yellow-500/40 dark:bg-yellow-500/50 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/4"></div>
-        </div>
-
-        {/* Content */}
-        <div className="relative z-10 h-full flex flex-col p-6 md:p-10 backdrop-blur-sm bg-white/20 dark:bg-white/5">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-yellow-400" />
-              <span className="text-xs font-semibold uppercase tracking-wide text-foreground">
-                Question of the Day
-              </span>
-            </div>
+        <div className="flex h-full flex-col">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="text-sm font-medium text-foreground">
+              Question of the day
+            </h2>
             {isCompleted && (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/20 backdrop-blur-md rounded-md border border-emerald-500/30">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                <span className="text-xs font-semibold text-emerald-600 uppercase tracking-wide">
-                  Done
-                </span>
-              </div>
+              <span className="inline-flex items-center gap-1 text-sm text-emerald-600 dark:text-emerald-400">
+                <CheckCircle2 className="h-4 w-4" />
+                Done
+              </span>
             )}
           </div>
 
@@ -182,16 +164,12 @@ export default function QuestionOfTheDayCard() {
                   Practice a new question every day to build consistency and
                   improve your SAT skills.
                 </p>
-                <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground font-medium uppercase tracking-wide mt-auto">
-                  <div className="px-3 py-1.5 bg-background/50 backdrop-blur-md rounded-md border border-border/50">
-                    <Loader2 className="w-3 h-3 animate-spin inline-block" />
-                  </div>
+                <div className="mt-auto text-sm text-muted-foreground">
+                  <Loader2 className="inline h-4 w-4 animate-spin" />
                 </div>
               </div>
-              <div className="mt-6 flex items-center justify-end">
-                <div className="w-10 h-10 rounded-full bg-primary/20 backdrop-blur-md border border-primary/30 flex items-center justify-center">
-                  <Loader2 className="w-5 h-5 animate-spin text-primary" />
-                </div>
+              <div className="mt-6 flex justify-end text-primary">
+                <Loader2 className="h-4 w-4 animate-spin" />
               </div>
             </div>
           ) : question ? (
@@ -201,14 +179,10 @@ export default function QuestionOfTheDayCard() {
                   Practice a new question every day to build consistency and
                   improve your SAT skills.
                 </p>
-                <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground font-medium uppercase tracking-wide mt-auto">
-                  {question.topics?.name && (
-                    <span className="px-3 py-1.5 bg-background/50 backdrop-blur-md rounded-md border border-border/50">
-                      {question.topics.name}
-                    </span>
-                  )}
+                <div className="mt-auto flex flex-wrap gap-2 text-sm text-muted-foreground">
+                  {question.topics?.name && <span>{question.topics.name}</span>}
                   {question.difficulty && (
-                    <span className="px-3 py-1.5 bg-background/50 backdrop-blur-md rounded-md border border-border/50">
+                    <span>
                       {question.difficulty === "E"
                         ? "Easy"
                         : question.difficulty === "M"
@@ -218,10 +192,9 @@ export default function QuestionOfTheDayCard() {
                   )}
                 </div>
               </div>
-              <div className="mt-6 flex items-center justify-end">
-                <div className="w-10 h-10 rounded-full bg-primary/20 backdrop-blur-md border border-primary/30 flex items-center justify-center text-primary transition-all duration-300">
-                  <ArrowRight className="w-5 h-5" />
-                </div>
+              <div className="mt-6 flex items-center justify-end gap-1 text-sm font-medium text-primary">
+                Practice
+                <ArrowRight className="h-4 w-4" />
               </div>
             </div>
           ) : (
@@ -232,7 +205,7 @@ export default function QuestionOfTheDayCard() {
             </div>
           )}
         </div>
-      </motion.div>
+      </button>
 
       {selectedQuestion && (
         <QuestionPracticePopup

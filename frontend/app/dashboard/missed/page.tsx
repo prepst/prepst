@@ -176,7 +176,7 @@ function MissedQuestionsContent() {
                   Missed Questions
                 </span>
               </div>
-              <h1 className="text-4xl font-extrabold tracking-tight text-foreground">
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                 Missed Questions
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl">

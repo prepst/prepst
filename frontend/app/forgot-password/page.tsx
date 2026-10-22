@@ -39,7 +39,7 @@ export default function ForgotPasswordPage() {
           <ArrowLeft className="h-4 w-4" />
           Back to sign in
         </Link>
-        <h1 className="text-3xl font-bold tracking-tight">Reset your password</h1>
+        <h1 className="text-2xl font-semibold tracking-tight">Reset your password</h1>
         <p className="mt-2 text-muted-foreground">
           Enter the email on your account. If we find it, we'll send a link to choose a new password.
         </p>

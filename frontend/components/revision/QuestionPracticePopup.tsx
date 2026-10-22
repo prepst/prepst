@@ -7,7 +7,6 @@ import {
   X,
   Check,
   Lightbulb,
-  Sparkles,
   BookOpen,
   ChevronLeft,
   ChevronRight,
@@ -534,13 +533,8 @@ export function QuestionPracticePopup({
                     <Button
                       onClick={handleGetFeedback}
                       disabled={loadingFeedback}
-                      className="w-full h-10 font-semibold transition-all shadow-sm text-base flex items-center justify-center gap-2 !text-white"
-                      style={{
-                        backgroundColor: loadingFeedback
-                          ? "rgba(134, 111, 254, 0.5)"
-                          : "#866ffe",
-                        color: "#ffffff",
-                      }}
+                      variant="outline"
+                      className="h-10 w-full text-base"
                     >
                       {loadingFeedback ? (
                         <>
@@ -549,8 +543,7 @@ export function QuestionPracticePopup({
                         </>
                       ) : (
                         <>
-                          <Sparkles className="size-4" />
-                          AI Explanation
+                          Ask tutor
                         </>
                       )}
                     </Button>
@@ -590,13 +583,8 @@ export function QuestionPracticePopup({
                     <Button
                       onClick={handleGetFeedback}
                       disabled={loadingFeedback}
-                      className="w-full h-10 font-semibold transition-all shadow-sm text-base flex items-center justify-center gap-2 !text-white"
-                      style={{
-                        backgroundColor: loadingFeedback
-                          ? "rgba(134, 111, 254, 0.5)"
-                          : "#866ffe",
-                        color: "#ffffff",
-                      }}
+                      variant="outline"
+                      className="h-10 w-full text-base"
                     >
                       {loadingFeedback ? (
                         <>
@@ -605,8 +593,7 @@ export function QuestionPracticePopup({
                         </>
                       ) : (
                         <>
-                          <Sparkles className="size-4" />
-                          AI Explanation
+                          Ask tutor
                         </>
                       )}
                     </Button>

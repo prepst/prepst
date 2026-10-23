@@ -100,12 +100,86 @@ export function PracticeFooter({
     <div className="relative z-50 shrink-0 border-t border-border/40 bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl supports-[backdrop-filter]:bg-background/95">
       <div
         className={cn(
-          "flex h-auto min-h-14 items-center justify-between gap-2 py-2",
+          "flex h-auto min-h-14 items-center gap-2 py-2",
           isPinned ? "px-4 lg:px-8" : "px-3 sm:px-4 lg:pl-[250px] lg:pr-[250px]"
         )}
       >
-        {/* Left: Question Counter - Clickable */}
-        <div className="flex items-center gap-3">
+        {showFeedback ? (
+          <Button
+            onClick={onNext}
+            className="h-10 shrink-0 px-4 text-base font-semibold"
+          >
+            Next
+            <ChevronRight className="size-4" />
+          </Button>
+        ) : (
+          <Button
+            onClick={onSubmit}
+            disabled={!hasAnswer || isSubmitting}
+            className={cn(
+              "h-10 shrink-0 px-4 text-base font-semibold",
+              !hasAnswer && "opacity-60"
+            )}
+          >
+            {isSubmitting ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            ) : (
+              <Check className="size-4" />
+            )}
+            Check
+          </Button>
+        )}
+
+        <Button
+          variant="outline"
+          onClick={onPrevious}
+          disabled={isFirstQuestion}
+          className={cn(
+            "h-10 shrink-0 px-3 text-base",
+            isFirstQuestion && "opacity-50"
+          )}
+        >
+          Back
+        </Button>
+
+        {onGetFeedback && (
+          <Button
+            onClick={onGetFeedback}
+            disabled={loadingFeedback}
+            variant="outline"
+            className="h-10 shrink-0 px-3 text-base"
+            aria-label="Ask tutor"
+          >
+            {loadingFeedback ? (
+              <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+            ) : (
+              <>
+                <MessageCircle className="size-4 sm:hidden" />
+                <span className="hidden sm:inline">Ask tutor</span>
+              </>
+            )}
+          </Button>
+        )}
+
+        {isAdmin && questionId && (
+          <Button
+            onClick={handleToggleFlag}
+            disabled={toggleFlagMutation.isPending}
+            variant={localIsFlagged ? "destructive" : "outline"}
+            className={cn(
+              "h-10 shrink-0 px-3 text-base",
+              !localIsFlagged && "text-muted-foreground"
+            )}
+            aria-label={localIsFlagged ? "Flagged" : "Flag"}
+          >
+            <Flag className={cn("size-4", localIsFlagged && "fill-current")} />
+            <span className="hidden sm:inline">
+              {localIsFlagged ? "Flagged" : "Flag"}
+            </span>
+          </Button>
+        )}
+
+        <div className="ml-auto flex items-center gap-3">
           {questions.length > 0 ? (
             <Popover>
               <PopoverTrigger asChild>
@@ -149,76 +223,6 @@ export function PracticeFooter({
               </span>
             </div>
           )}
-        </div>
-
-        {/* Right: AI Explanation / Explanation / Check / Back / Next */}
-        <div className="flex shrink-0 items-center gap-2 overflow-x-auto">
-          {/* Admin Flag Button */}
-          {isAdmin && questionId && (
-            <Button
-              onClick={handleToggleFlag}
-              disabled={toggleFlagMutation.isPending}
-              variant="destructive"
-              className="h-10 px-4 text-base"
-            >
-              <Flag className="size-4" />
-              {localIsFlagged ? "Flagged" : "Flag"}
-            </Button>
-          )}
-
-          {onGetFeedback && (
-            <Button
-              onClick={onGetFeedback}
-              disabled={loadingFeedback}
-              variant="outline"
-              className="h-10 shrink-0 px-3 text-base sm:px-4"
-              aria-label="Ask tutor"
-            >
-              {loadingFeedback ? (
-                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-              ) : (
-                <>
-                  <MessageCircle className="size-4 sm:hidden" />
-                  <span className="hidden sm:inline">Ask tutor</span>
-                </>
-              )}
-            </Button>
-          )}
-
-          {/* Check Button */}
-          <Button
-            onClick={onSubmit}
-            disabled={!hasAnswer || isSubmitting || showFeedback}
-            className={cn(
-              "h-10 px-6 font-semibold transition-all shadow-sm hover:opacity-90 disabled:opacity-50 text-base flex items-center gap-2",
-              !hasAnswer && "opacity-60"
-            )}
-          >
-            <Check className="size-4" />
-            Check
-          </Button>
-
-          {/* Back Button */}
-          <Button
-            variant="outline"
-            onClick={onPrevious}
-            disabled={isFirstQuestion}
-            className={cn(
-              "h-10 px-4 border-border/60 bg-background/50 hover:bg-accent transition-all text-base",
-              isFirstQuestion && "opacity-50 cursor-not-allowed"
-            )}
-          >
-            Back
-          </Button>
-
-          {/* Next Button */}
-          <Button
-            variant="outline"
-            onClick={onNext}
-            className="h-10 px-4 border-border/60 bg-background/50 hover:bg-muted/80 text-foreground transition-all text-base"
-          >
-            Next
-          </Button>
         </div>
       </div>
     </div>

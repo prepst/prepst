@@ -5,7 +5,6 @@ import {
   X,
   Pin,
   ChevronRight,
-  ChevronLeft,
   ChevronDown,
   ArrowUp,
   Square,
@@ -54,15 +53,11 @@ export function AIExplanationPanel({
     onClose,
     isPinned = false,
     onPinChange,
-    initialTab = "ask",
+    initialTab = "explanation",
     questionId,
     questionContext,
 }: AIExplanationPanelProps) {
     const [activeTab, setActiveTab] = useState<"ask" | "explanation">(initialTab);
-  const [explanationMode, setExplanationMode] = useState<"step" | "full">(
-    "step"
-  );
-    const [currentStep, setCurrentStep] = useState(1);
     const [chatMode, setChatMode] = useState<"answer" | "tutor">("answer");
     const [showModeDropdown, setShowModeDropdown] = useState(false);
 
@@ -326,27 +321,6 @@ export function AIExplanationPanel({
         }
     };
 
-    // Mock steps for demonstration
-    const steps = [
-        {
-            title: "Identify length and width",
-            content: "First, let's define the dimensions based on the text:",
-            bullets: ["Width: x", "Length: x + 18"],
-        },
-        {
-            title: "Write the perimeter formula",
-            content: "The perimeter of a rectangle is:",
-            bullets: ["P = 2(length + width)", "P = 2(x + 18 + x)"],
-        },
-        {
-            title: "Simplify the expression",
-            content: "Combine like terms:",
-            bullets: ["P = 2(2x + 18)", "P = 4x + 36"],
-        },
-    ];
-
-    const currentStepData = steps[currentStep - 1];
-
     return (
         <>
             {/* Backdrop */}
@@ -360,59 +334,58 @@ export function AIExplanationPanel({
             {/* Panel */}
             <div
                 className={cn(
-                    "fixed top-0 right-0 h-full w-[420px] z-[100] flex flex-col",
-          "bg-background text-foreground dark:bg-background",
-          "border-l border-border",
-          "transform transition-transform duration-300 ease-out shadow-2xl",
+                    "fixed inset-0 z-[100] flex h-dvh w-full flex-col bg-background text-foreground",
+                    "sm:inset-y-0 sm:left-auto sm:right-0 sm:h-full sm:w-[420px] sm:border-l sm:border-border",
+                    "transition-transform duration-300 ease-out",
                     isOpen ? "translate-x-0" : "translate-x-full"
                 )}
             >
-                {/* Header */}
-                <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-                    <button
-                        onClick={() => onPinChange?.(!isPinned)}
-                        className={cn(
-                            "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition-colors",
-                            isPinned
-                                ? "bg-muted text-foreground"
-                                : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                        )}
-                    >
-                        <Pin className="w-4 h-4" />
-                        {isPinned ? "Unpin" : "Pin to side"}
-                    </button>
-
-                    <div className="flex items-center bg-muted rounded-full p-1">
+                <div className="shrink-0 border-b border-border px-3 pb-3 pt-3">
+                    <div className="mb-3 flex items-center justify-between">
                         <button
-                            onClick={() => setActiveTab("ask")}
+                            onClick={() => onPinChange?.(!isPinned)}
                             className={cn(
-                                "px-4 py-1.5 rounded-full text-sm font-medium transition-all",
-                                activeTab === "ask"
-                                    ? "bg-background text-foreground shadow-sm"
-                                    : "text-muted-foreground hover:text-foreground"
+                                "hidden items-center gap-2 rounded-lg px-3 py-1.5 text-sm transition-colors sm:flex",
+                                isPinned
+                                    ? "bg-muted text-foreground"
+                                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
                             )}
                         >
-                            Ask tutor
+                            <Pin className="w-4 h-4" />
+                            {isPinned ? "Unpin" : "Pin to side"}
                         </button>
+                        <button
+                            onClick={onClose}
+                            className="ml-auto flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
+                            aria-label="Close"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1 rounded-xl bg-muted p-1">
                         <button
                             onClick={() => setActiveTab("explanation")}
                             className={cn(
-                                "px-4 py-1.5 rounded-full text-sm font-medium transition-all",
+                                "h-10 rounded-lg text-sm font-medium",
                                 activeTab === "explanation"
                                     ? "bg-background text-foreground shadow-sm"
-                                    : "text-muted-foreground hover:text-foreground"
+                                    : "text-muted-foreground"
                             )}
                         >
                             Explanation
                         </button>
+                        <button
+                            onClick={() => setActiveTab("ask")}
+                            className={cn(
+                                "h-10 rounded-lg text-sm font-medium",
+                                activeTab === "ask"
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground"
+                            )}
+                        >
+                            Ask tutor
+                        </button>
                     </div>
-
-                    <button
-                        onClick={onClose}
-                        className="p-2 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
-                    >
-                        <X className="w-5 h-5" />
-                    </button>
                 </div>
 
                 {/* Subheader */}
@@ -462,37 +435,12 @@ export function AIExplanationPanel({
                             + New Chat
                         </button>
                     </div>
-                ) : (
-                    <div className="flex items-center gap-2 px-4 py-2 border-b border-border">
-                        <button
-                            onClick={() => setExplanationMode("step")}
-                            className={cn(
-                                "px-4 py-1.5 rounded-full text-sm font-medium transition-all",
-                                explanationMode === "step"
-                                    ? "bg-muted text-foreground"
-                                    : "text-muted-foreground hover:text-foreground"
-                            )}
-                        >
-                            Step-by-Step
-                        </button>
-                        <button
-                            onClick={() => setExplanationMode("full")}
-                            className={cn(
-                                "px-4 py-1.5 rounded-full text-sm font-medium transition-all",
-                                explanationMode === "full"
-                                    ? "bg-muted text-foreground"
-                                    : "text-muted-foreground hover:text-foreground"
-                            )}
-                        >
-                            Full Explanation
-                        </button>
-                    </div>
-                )}
+                ) : null}
 
                 {/* Main Content */}
         <div
           ref={chatContainerRef}
-          className="flex-1 overflow-y-auto px-6 py-6 bg-background dark:bg-background"
+          className="min-h-0 flex-1 overflow-y-auto bg-background px-4 py-5 sm:px-6"
         >
                     {activeTab === "ask" ? (
                         messages.length === 0 ? (
@@ -635,131 +583,26 @@ export function AIExplanationPanel({
                                 </AnimatePresence>
                             </div>
                         )
-                    ) : explanationMode === "step" ? (
-                        /* Step-by-Step Explanation */
-                        <div className="space-y-6">
-                            <div className="flex items-start gap-3">
-                                <div className="w-3 h-3 rounded-full bg-study mt-1.5 flex-shrink-0" />
-                                <h3 className="text-lg font-semibold text-foreground">
-                                    Step {currentStep}: {currentStepData?.title}
-                                </h3>
-                            </div>
-
-                            {questionContext?.stem && (
-                                <div className="text-muted-foreground leading-relaxed">
-                                    <div
-                                        dangerouslySetInnerHTML={{
-                                            __html: questionContext.stem.replace(
-                                                /(width|length|garden|feet)/gi,
-                                                '<span class="bg-study/30 px-1 rounded">$1</span>'
-                                            ),
-                                        }}
-                                    />
-                                </div>
-                            )}
-
-                            <div className="border-t border-dashed border-border" />
-
-                            <div className="space-y-4">
-                <p className="text-muted-foreground">
-                  {currentStepData?.content}
-                </p>
-                                {currentStepData?.bullets && (
-                                    <ul className="space-y-2">
-                                        {currentStepData.bullets.map((bullet, i) => (
-                      <li
-                        key={i}
-                        className="flex items-center gap-2 text-foreground"
-                      >
-                                                <span className="w-1.5 h-1.5 rounded-full bg-study" />
-                        <span
-                          dangerouslySetInnerHTML={{
-                            __html: bullet.replace(/x/g, "<em>x</em>"),
-                          }}
-                        />
-                                            </li>
-                                        ))}
-                                    </ul>
-                                )}
-                            </div>
-
-                            <div className="flex items-center gap-3 pt-4">
-                                <button
-                                    onClick={() =>
-                                        setCurrentStep(Math.max(currentStep - 1, 1))
-                                    }
-                                    disabled={currentStep <= 1}
-                                    className="flex items-center justify-center px-5 py-2.5 bg-muted hover:bg-muted/80 rounded-xl text-foreground text-sm font-medium transition-all disabled:opacity-50"
-                                >
-                                    <ChevronLeft className="w-4 h-4" />
-                                </button>
-                                <button
-                                    onClick={() =>
-                                        setCurrentStep(Math.min(currentStep + 1, steps.length))
-                                    }
-                                    disabled={currentStep >= steps.length}
-                                    className="flex items-center justify-center px-5 py-2.5 bg-muted hover:bg-muted/80 rounded-xl text-foreground text-sm font-medium transition-all disabled:opacity-50"
-                                >
-                                    <ChevronRight className="w-4 h-4" />
-                                </button>
-                                <button
-                                    onClick={() => setExplanationMode("full")}
-                                    className="px-5 py-2.5 bg-background hover:bg-muted border border-border rounded-xl text-muted-foreground text-sm font-medium transition-all"
-                                >
-                                    Show Answer
-                                </button>
-                            </div>
-                        </div>
                     ) : (
-                        /* Full Explanation */
                         <div className="space-y-6">
                             {questionContext?.rationale ? (
                                 <div
-                                    className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground leading-relaxed [&>p]:py-3 [&>p]:px-4 [&>p]:pl-8 [&>p]:rounded-lg [&>p]:bg-muted/30 [&>p]:mb-4 [&>p]:transition-all [&>p:hover]:bg-muted/50 [&>p]:relative [&>p:first-child]:before:content-[''] [&>p:first-child]:before:absolute [&>p:first-child]:before:left-3 [&>p:first-child]:before:top-5 [&>p:first-child]:before:w-2 [&>p:first-child]:before:h-2 [&>p:first-child]:before:rounded-full [&>p:first-child]:before:bg-progress [&>p:not(:first-child)]:before:content-[''] [&>p:not(:first-child)]:before:absolute [&>p:not(:first-child)]:before:left-3 [&>p:not(:first-child)]:before:top-5 [&>p:not(:first-child)]:before:w-2 [&>p:not(:first-child)]:before:h-2 [&>p:not(:first-child)]:before:rounded-full [&>p:not(:first-child)]:before:bg-destructive"
-                  dangerouslySetInnerHTML={{
-                    __html: questionContext.rationale,
-                  }}
+                                    className="prose prose-sm dark:prose-invert max-w-none text-foreground leading-relaxed"
+                                    dangerouslySetInnerHTML={{
+                                        __html: questionContext.rationale,
+                                    }}
                                 />
                             ) : (
-                                <div className="space-y-6">
-                                    {steps.map((step, i) => (
-                                        <div key={i} className="space-y-3">
-                                            <div className="flex items-start gap-3">
-                                                <div className="w-3 h-3 rounded-full bg-study mt-1.5 flex-shrink-0" />
-                                                <h3 className="text-lg font-semibold text-foreground">
-                                                    Step {i + 1}: {step.title}
-                                                </h3>
-                                            </div>
-                      <p className={`text-muted-foreground ml-6 py-3 px-4 pl-8 rounded-lg bg-muted/30 mb-4 transition-all hover:bg-muted/50 relative before:content-[''] before:absolute before:left-3 before:top-5 before:w-2 before:h-2 before:rounded-full ${i === 0 ? 'before:bg-progress' : 'before:bg-destructive'}`}>
-                        {step.content}
-                      </p>
-                                            {step.bullets && (
-                                                <ul className="space-y-1 ml-6">
-                                                    {step.bullets.map((bullet, j) => (
-                            <li
-                              key={j}
-                              className="flex items-center gap-2 text-foreground"
-                            >
-                                                            <span className="w-1.5 h-1.5 rounded-full bg-study" />
-                              <span
-                                dangerouslySetInnerHTML={{
-                                  __html: bullet.replace(/x/g, "<em>x</em>"),
-                                }}
-                              />
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
+                                <p className="text-sm text-muted-foreground">
+                                    No explanation for this question yet.
+                                </p>
                             )}
                         </div>
                     )}
         </div>
 
                 {/* Footer */}
-        <div className="p-4 border-t border-border">
+        <div className="shrink-0 border-t border-border p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
                     {activeTab === "ask" ? (
                         <div className="flex items-center gap-2 bg-muted rounded-xl border border-border p-2">
                             <input

@@ -102,7 +102,7 @@ function PracticeSessionContent() {
   const [confidenceScore, setConfidenceScore] = useState<number>(3); // Default confidence
   const [showExplanation, setShowExplanation] = useState(false);
   const [showAIPanel, setShowAIPanel] = useState(false);
-  const [aiPanelTab, setAiPanelTab] = useState<"ask" | "explanation">("ask");
+  const [aiPanelTab, setAiPanelTab] = useState<"ask" | "explanation">("explanation");
   const [isAIPanelPinned, setIsAIPanelPinned] = useState(false);
   const compact = useCompactLayout();
 

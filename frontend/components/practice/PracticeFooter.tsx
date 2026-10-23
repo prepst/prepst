@@ -6,6 +6,7 @@ import {
   Lightbulb,
   ChevronDown,
   Flag,
+  MessageCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { QuestionNavigatorPopup } from "./QuestionNavigatorPopup";
@@ -166,37 +167,36 @@ export function PracticeFooter({
             </Button>
           )}
 
-          {/* AI Explanation Button */}
-          {onGetFeedback && (
-            <Button
-              onClick={onGetFeedback}
-              disabled={loadingFeedback}
-              variant="outline"
-              className="h-10 px-6 text-base"
-            >
-              {loadingFeedback ? (
-                <>
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  Ask tutor
-                </>
-              )}
-            </Button>
-          )}
-
-          {/* Explanation Button */}
           {onShowExplanation && (
             <Button
               onClick={onShowExplanation}
               disabled={!hasRationale}
               variant="outline"
-              className="h-10 px-6 text-base"
+              className="h-10 shrink-0 px-3 sm:px-4"
+              aria-label="Explanation"
             >
               <Lightbulb className="size-4" />
-              Explanation
+              <span className="sm:hidden">Explain</span>
+              <span className="hidden sm:inline">Explanation</span>
+            </Button>
+          )}
+
+          {onGetFeedback && (
+            <Button
+              onClick={onGetFeedback}
+              disabled={loadingFeedback}
+              variant="outline"
+              className="h-10 shrink-0 px-3 text-base sm:px-4"
+              aria-label="Ask tutor"
+            >
+              {loadingFeedback ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              ) : (
+                <>
+                  <MessageCircle className="size-4 sm:hidden" />
+                  <span className="hidden sm:inline">Ask tutor</span>
+                </>
+              )}
             </Button>
           )}
 

@@ -157,10 +157,12 @@ export function MockExamFooter({
             <Button
               onClick={onShowExplanation}
               variant="outline"
-              className="h-10 px-6 text-base"
+              className="h-10 shrink-0 px-3 sm:px-4"
+              aria-label="Explanation"
             >
               <Lightbulb className="size-4" />
-              Explanation
+              <span className="sm:hidden">Explain</span>
+              <span className="hidden sm:inline">Explanation</span>
             </Button>
           )}
 

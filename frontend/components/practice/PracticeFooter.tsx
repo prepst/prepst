@@ -3,7 +3,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Check,
-  Lightbulb,
   ChevronDown,
   Flag,
   MessageCircle,
@@ -164,20 +163,6 @@ export function PracticeFooter({
             >
               <Flag className="size-4" />
               {localIsFlagged ? "Flagged" : "Flag"}
-            </Button>
-          )}
-
-          {onShowExplanation && (
-            <Button
-              onClick={onShowExplanation}
-              disabled={!hasRationale}
-              variant="outline"
-              className="h-10 shrink-0 px-3 sm:px-4"
-              aria-label="Explanation"
-            >
-              <Lightbulb className="size-4" />
-              <span className="sm:hidden">Explain</span>
-              <span className="hidden sm:inline">Explanation</span>
             </Button>
           )}
 

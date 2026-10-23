@@ -4,7 +4,6 @@ import {
   ChevronRight,
   ChevronDown,
   Flag,
-  Lightbulb,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { QuestionNavigatorPopup } from "./QuestionNavigatorPopup";
@@ -153,19 +152,6 @@ export function MockExamFooter({
           )}
 
           {/* Explanation Button */}
-          {onShowExplanation && hasRationale && (
-            <Button
-              onClick={onShowExplanation}
-              variant="outline"
-              className="h-10 shrink-0 px-3 sm:px-4"
-              aria-label="Explanation"
-            >
-              <Lightbulb className="size-4" />
-              <span className="sm:hidden">Explain</span>
-              <span className="hidden sm:inline">Explanation</span>
-            </Button>
-          )}
-
           {/* Back Button */}
           <Button
             variant="outline"

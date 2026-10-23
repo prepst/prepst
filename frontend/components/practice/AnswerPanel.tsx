@@ -299,11 +299,27 @@ export function AnswerPanel({
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {answer.isCorrect
                     ? "You nailed this concept."
-                    : "Review the explanation below to understand why."}
+                    : question.question.rationale
+                      ? "Review the explanation below to understand why."
+                      : "Take another look at this one."}
                 </p>
               </div>
             </div>
           </div>
+
+          {question.question.rationale && (
+            <div className="rounded-xl border border-border bg-card p-4">
+              <h4 className="mb-2 text-sm font-semibold text-foreground">
+                Explanation
+              </h4>
+              <div
+                className="prose prose-sm max-w-none text-foreground leading-relaxed dark:prose-invert"
+                dangerouslySetInnerHTML={{
+                  __html: question.question.rationale,
+                }}
+              />
+            </div>
+          )}
 
           {/* Confidence Rating - Show together with feedback */}
           {onConfidenceSelect && (

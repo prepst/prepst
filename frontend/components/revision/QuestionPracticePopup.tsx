@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import {
   X,
   Check,
-  Lightbulb,
   BookOpen,
   ChevronLeft,
   ChevronRight,
@@ -517,15 +516,7 @@ export function QuestionPracticePopup({
                   </Button>
 
                   {/* Explanation and AI Explanation Buttons */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button
-                      onClick={handleGetExplanation}
-                      variant="outline"
-                      className="w-full h-10 border-border/60 bg-background/50 hover:bg-accent transition-all text-base font-semibold flex items-center justify-center gap-2"
-                    >
-                      <Lightbulb className="size-4" />
-                      Explanation
-                    </Button>
+                  <div>
                     <Button
                       onClick={handleGetFeedback}
                       disabled={loadingFeedback}
@@ -563,15 +554,7 @@ export function QuestionPracticePopup({
                   </Button>
 
                   {/* Explanation and AI Explanation Buttons */}
-                  <div className="grid grid-cols-2 gap-3">
-                    <Button
-                      onClick={handleGetExplanation}
-                      variant="outline"
-                      className="w-full h-10 border-border/60 bg-background/50 hover:bg-accent transition-all text-base font-semibold flex items-center justify-center gap-2"
-                    >
-                      <Lightbulb className="size-4" />
-                      Explanation
-                    </Button>
+                  <div>
                     <Button
                       onClick={handleGetFeedback}
                       disabled={loadingFeedback}

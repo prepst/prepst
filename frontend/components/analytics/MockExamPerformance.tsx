@@ -34,12 +34,21 @@ export function MockExamPerformance({
     (exam) => Number(exam.total_score) || 0
   );
   const mockExamMin = mockExamScores.length ? Math.min(...mockExamScores) : 0;
-  const mockExamFloor = Math.max(0, Math.floor((mockExamMin - 50) / 100) * 100);
-  const mockExamDomain: [number, number] =
-    mockExamScores.length > 0 ? [mockExamFloor, 1600] : [0, 1600];
+  const mockExamMax = mockExamScores.length ? Math.max(...mockExamScores) : 0;
+  const scoreSpan = Math.max(mockExamMax - mockExamMin, 80);
+  const scorePad = Math.max(40, Math.round(scoreSpan * 0.35));
+  const scoreLow = mockExamScores.length
+    ? Math.max(200, Math.floor((mockExamMin - scorePad) / 50) * 50)
+    : 400;
+  let scoreHigh = mockExamScores.length
+    ? Math.min(1600, Math.ceil((mockExamMax + scorePad) / 50) * 50)
+    : 1600;
+  if (scoreHigh - scoreLow < 200) scoreHigh = Math.min(1600, scoreLow + 200);
+  const mockExamDomain: [number, number] = [scoreLow, scoreHigh];
+  const scoreStep = scoreHigh - scoreLow > 400 ? 100 : 50;
   const mockExamYTicks = Array.from(
-    { length: Math.floor((1600 - mockExamDomain[0]) / 200) + 1 },
-    (_, i) => mockExamDomain[0] + i * 200
+    { length: Math.floor((scoreHigh - scoreLow) / scoreStep) + 1 },
+    (_, i) => scoreLow + i * scoreStep
   );
   const mockExamTicks = Array.from(
     new Set(mockExamPoints.map((exam) => exam.date))
@@ -55,8 +64,8 @@ export function MockExamPerformance({
     mockExamMin > 0 ? (improvementFromLowest / mockExamMin) * 100 : 0;
 
   return (
-    <div className="mb-12">
-      <div className="bg-card border border-border rounded-2xl p-8">
+    <div>
+      <div className="rounded-2xl border border-border bg-card p-3 sm:p-6">
         {isLoading ? (
           <div className="space-y-4">
             <Skeleton className="h-8 w-40" />
@@ -77,97 +86,90 @@ export function MockExamPerformance({
             </p>
           </div>
         ) : data && data.recent_exams?.length > 0 ? (
-          <div className="bg-gradient-to-br from-white via-brand-surface/60 to-white dark:from-[#0f0f1a] dark:via-[#0b0b13] dark:to-[#0f0f1a] border border-brand-border/70 dark:border-white/10 rounded-3xl shadow-sm">
-            <div className="relative h-full p-4 sm:p-6 flex flex-col gap-4">
-              <div className="flex items-center gap-2 sm:gap-3 flex-wrap text-xs sm:text-sm">
-                <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-                  <div className="px-2.5 py-1 rounded-full text-[10px] sm:text-[11px] font-semibold bg-black/10 dark:bg-white/10 border border-white/10 text-foreground">
-                    Performance trend
-                  </div>
-                  <span
-                    className={`px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-semibold border ${
-                      improvementFromLowest >= 0
-                        ? "bg-progress-soft text-progress border-progress/40"
-                        : "bg-destructive/10 text-destructive border-destructive/40"
-                    }`}
-                  >
-                    {improvementFromLowest >= 0 ? "+" : "-"}
-                    {Math.abs(improvementFromLowest).toFixed(0)} pts
-                  </span>
-                </div>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <div className="rounded-full border border-border bg-muted px-2.5 py-1 text-[11px] font-semibold text-foreground">
+                Performance trend
               </div>
+              <span
+                className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
+                  improvementFromLowest >= 0
+                    ? "border-progress/40 bg-progress-soft text-progress"
+                    : "border-destructive/40 bg-destructive/10 text-destructive"
+                }`}
+              >
+                {improvementFromLowest >= 0 ? "+" : "-"}
+                {Math.abs(improvementFromLowest).toFixed(0)} pts
+              </span>
+            </div>
 
-              <div className="flex items-center gap-2 sm:gap-6 flex-wrap text-xs sm:text-base">
-                <div className="flex items-baseline gap-1.5 sm:gap-2">
-                  <span className="text-2xl sm:text-4xl font-mono font-bold text-foreground">
-                    {mockCurrentScore.toFixed(0)}
-                  </span>
-                  <span
-                    className={`text-xs sm:text-sm font-semibold ${
-                      improvementFromLowest >= 0
-                        ? "text-progress"
-                        : "text-destructive"
-                    }`}
-                  >
-                    {improvementFromLowest >= 0 ? "+" : "-"}
-                    {Math.abs(improvementFromLowest).toFixed(0)} (
-                    {improvementPctFromLowest.toFixed(1)}%)
-                  </span>
-                </div>
-                <div className="text-[11px] sm:text-xs text-muted-foreground">
-                  From {mockStartScore.toFixed(0)} start ·{" "}
-                  {mockExamPoints.length} exams
-                </div>
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="text-3xl font-semibold tabular-nums text-foreground">
+                {mockCurrentScore.toFixed(0)}
+              </span>
+              <span
+                className={`text-sm font-semibold ${
+                  improvementFromLowest >= 0
+                    ? "text-progress"
+                    : "text-destructive"
+                }`}
+              >
+                {improvementFromLowest >= 0 ? "+" : "-"}
+                {Math.abs(improvementFromLowest).toFixed(0)} (
+                {improvementPctFromLowest.toFixed(1)}%)
+              </span>
+              <span className="text-xs text-muted-foreground">
+                From {mockStartScore.toFixed(0)} · {mockExamPoints.length} exams
+              </span>
+            </div>
+
+            <div className="h-[200px] sm:h-[280px]">
+              <LineChart
+                data={mockExamPoints}
+                lines={[
+                  {
+                    dataKey: "total_score",
+                    color: "#1d9bf0",
+                    name: "Total Score",
+                  },
+                ]}
+                xKey="date"
+                height="100%"
+                yDomain={mockExamDomain}
+                xTicks={mockExamTicks}
+                yTicks={mockExamYTicks}
+                yAxisWidth={36}
+                margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+                showLegend={false}
+                gridColorDark="rgba(255,255,255,0.08)"
+              />
+            </div>
+
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-xl bg-muted/50 p-2.5 sm:p-4">
+                <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
+                  Latest
+                </p>
+                <p className="mt-1 text-lg font-semibold tabular-nums text-foreground sm:text-2xl">
+                  {mockCurrentScore.toFixed(0)}
+                </p>
               </div>
-
-              <div className="relative flex-1 rounded-xl border backdrop-blur-sm overflow-hidden border-black/10 bg-white/60 dark:border-white/5 dark:bg-black/10">
-                <div className="h-full min-h-[320px]">
-                  <LineChart
-                    data={mockExamPoints}
-                    lines={[
-                      {
-                        dataKey: "total_score",
-                        color: "#1d9bf0",
-                        name: "Total Score",
-                      },
-                    ]}
-                    xKey="date"
-                    height={320}
-                    yLabel="Score"
-                    yDomain={mockExamDomain}
-                    xTicks={mockExamTicks}
-                    yTicks={mockExamYTicks}
-                    gridColorDark="rgba(255,255,255,0.08)"
-                  />
-                </div>
+              <div className="rounded-xl bg-muted/50 p-2.5 sm:p-4">
+                <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
+                  Average
+                </p>
+                <p className="mt-1 text-lg font-semibold tabular-nums text-study sm:text-2xl">
+                  {Math.round(data.avg_total_score)}
+                </p>
               </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-sm">
-                <div className="bg-white/60 dark:bg-white/[0.04] border border-border/60 dark:border-white/10 rounded-xl p-4">
-                  <p className="text-muted-foreground text-xs uppercase tracking-wide">
-                    Latest Total Score
-                  </p>
-                  <p className="text-2xl font-semibold text-foreground mt-1">
-                    {mockCurrentScore.toFixed(0)}
-                  </p>
-                </div>
-                <div className="bg-white/60 dark:bg-white/[0.04] border border-border/60 dark:border-white/10 rounded-xl p-4">
-                  <p className="text-muted-foreground text-xs uppercase tracking-wide">
-                    Average Score
-                  </p>
-                  <p className="text-2xl font-semibold text-study dark:text-study mt-1">
-                    {Math.round(data.avg_total_score)}
-                  </p>
-                </div>
-                <div className="bg-white/60 dark:bg-white/[0.04] border border-border/60 dark:border-white/10 rounded-xl p-4">
-                  <p className="text-muted-foreground text-xs uppercase tracking-wide">
-                    Improvement
-                  </p>
-                  <p className="text-2xl font-semibold text-progress mt-1">
-                    {improvementFromLowest > 0 ? "+" : ""}
-                    {Math.round(improvementFromLowest)} pts
-                  </p>
-                </div>
+              <div className="rounded-xl bg-muted/50 p-2.5 sm:p-4">
+                <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-xs">
+                  Change
+                </p>
+                <p className="mt-1 text-lg font-semibold tabular-nums text-progress sm:text-2xl">
+                  {improvementFromLowest > 0 ? "+" : ""}
+                  {Math.round(improvementFromLowest)}
+                </p>
               </div>
             </div>
           </div>

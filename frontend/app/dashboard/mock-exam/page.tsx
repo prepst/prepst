@@ -176,7 +176,7 @@ export default function MockExamPage() {
     <>
       <div className="min-h-screen bg-background pb-20">
         <div className="flex justify-center">
-          <div className="w-full max-w-6xl px-6 py-12 space-y-8">
+          <div className="w-full max-w-6xl space-y-6 px-0 py-4 lg:px-2 lg:py-10">
             {/* Header with integrated CTA */}
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
               <div className="space-y-3">

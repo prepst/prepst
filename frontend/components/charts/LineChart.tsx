@@ -21,13 +21,16 @@ interface LineChartProps {
   xKey: string;
   xLabel?: string;
   yLabel?: string;
-  height?: number;
+  height?: number | string;
   formatXAxis?: (value: string | number) => string;
   formatYAxis?: (value: string | number) => string;
   formatTooltip?: (value: string | number) => string;
   xTicks?: Array<string | number>;
   yDomain?: [number | string, number | string];
   yTicks?: Array<number | string>;
+  yAxisWidth?: number;
+  margin?: { top: number; right: number; left: number; bottom: number };
+  showLegend?: boolean;
   gridColor?: string;
   gridColorDark?: string;
 }
@@ -45,6 +48,9 @@ export function LineChart({
   xTicks,
   yDomain,
   yTicks,
+  yAxisWidth = 60,
+  margin = { top: 5, right: 30, left: 20, bottom: 5 },
+  showLegend = true,
   gridColor = "#e5e7eb",
   gridColorDark = "rgba(255,255,255,0.08)",
 }: LineChartProps) {
@@ -70,7 +76,7 @@ export function LineChart({
     <ResponsiveContainer width="100%" height={height}>
       <RechartsLineChart
         data={data}
-        margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+        margin={margin}
       >
         <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
         <XAxis
@@ -94,9 +100,10 @@ export function LineChart({
           stroke="#6b7280"
           domain={yDomain}
           ticks={yTicks}
+          width={yAxisWidth}
         />
         <Tooltip formatter={formatTooltip} contentStyle={tooltipStyle} />
-        <Legend />
+        {showLegend ? <Legend /> : null}
         {lines.map((line) => (
           <Line
             key={line.dataKey}
@@ -107,6 +114,7 @@ export function LineChart({
             name={line.name}
             dot={{ fill: line.color, r: 4 }}
             activeDot={{ r: 6 }}
+            isAnimationActive={false}
           />
         ))}
       </RechartsLineChart>

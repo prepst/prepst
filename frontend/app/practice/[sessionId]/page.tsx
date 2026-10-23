@@ -499,7 +499,7 @@ function PracticeSessionContent() {
   // Loading state
   if (isLoading) {
     return (
-      <div className="h-screen bg-background flex flex-col overflow-hidden">
+      <div className="flex h-dvh max-h-dvh flex-col overflow-hidden bg-background">
         <div className="relative z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/60">
           <div className="flex items-center justify-between pl-[250px] pr-[250px] h-16">
             <div className="flex items-center gap-3">
@@ -578,9 +578,9 @@ function PracticeSessionContent() {
   }
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden">
+    <div className="flex h-dvh max-h-dvh flex-col overflow-hidden bg-background">
       {/* Main content wrapper that adjusts for pinned panel */}
-      <div className={cn("flex-1 flex flex-col overflow-hidden transition-all duration-300", isAIPanelPinned && showAIPanel ? "mr-[420px]" : "")}>
+      <div className={cn("flex min-h-0 flex-1 flex-col overflow-hidden transition-all duration-300", isAIPanelPinned && showAIPanel ? "mr-[420px]" : "")}>
         {/* Header with Progress */}
         <PracticeHeader
           currentIndex={currentIndex}
@@ -663,8 +663,8 @@ function PracticeSessionContent() {
           {/* Right Panel - Answer Choices & Feedback - Dynamic width */}
           <div
             className={compact
-              ? "flex max-h-[48dvh] w-full min-h-0 flex-col border-t border-border bg-card"
-              : "flex flex-col border-l border-border bg-card/50 backdrop-blur-sm"}
+              ? "flex max-h-[min(42dvh,calc(100dvh-13rem))] w-full min-h-0 shrink-0 flex-col overflow-hidden border-t border-border bg-card"
+              : "flex min-h-0 flex-col overflow-hidden border-l border-border bg-card/50 backdrop-blur-sm"}
             style={compact ? undefined : { width: `${dividerPosition}px` }}
           >
             <AnswerPanel

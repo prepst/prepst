@@ -601,9 +601,9 @@ function ModuleContent() {
   };
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden">
+    <div className="flex h-dvh max-h-dvh flex-col overflow-hidden bg-background">
       {/* Header with Progress */}
-      <div className="relative z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/60">
+      <div className="relative z-50 shrink-0 border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-14 items-center justify-between gap-2 px-3 sm:h-16 sm:px-4 lg:pl-[250px] lg:pr-[250px]">
           <div className="flex items-center gap-6">
             <div className="flex min-w-0 items-center gap-3">
@@ -955,8 +955,8 @@ function ModuleContent() {
         {/* Answer Panel - Dynamic width */}
         <div
           className={compact
-            ? "flex max-h-[48dvh] w-full min-h-0 flex-col border-t border-border bg-card"
-            : "flex flex-col border-l border-border bg-card/50 backdrop-blur-sm"}
+            ? "flex max-h-[min(42dvh,calc(100dvh-13rem))] w-full min-h-0 shrink-0 flex-col overflow-hidden border-t border-border bg-card"
+            : "flex min-h-0 flex-col overflow-hidden border-l border-border bg-card/50 backdrop-blur-sm"}
           style={compact ? undefined : { width: `${dividerPosition}px` }}
         >
           {/* Transform mock exam data to match AnswerPanel expectations */}

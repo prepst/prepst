@@ -86,7 +86,7 @@ export function PracticeHeader({
   const progress = ((currentIndex + 1) / totalQuestions) * 100;
 
   return (
-    <div className="relative z-50 bg-background/80 backdrop-blur-xl border-b border-border/40 supports-[backdrop-filter]:bg-background/60">
+    <div className="relative z-50 shrink-0 border-b border-border/40 bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
       <div className={cn(
         "flex items-center justify-between h-14 gap-2 sm:h-16",
         isPinned ? "px-4 lg:px-8" : "px-3 sm:px-6 lg:pl-[250px] lg:pr-[250px]"

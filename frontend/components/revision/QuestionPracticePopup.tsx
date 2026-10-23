@@ -461,7 +461,7 @@ export function QuestionPracticePopup({
           </div>
 
           {/* Answer Panel */}
-          <div className="flex max-h-[48dvh] w-full min-h-0 shrink-0 flex-col overflow-hidden border-t border-border bg-background lg:max-h-none lg:w-[480px] lg:border-l lg:border-t-0">
+          <div className="flex max-h-[min(42dvh,calc(100dvh-13rem))] w-full min-h-0 shrink-0 flex-col overflow-hidden border-t border-border bg-background lg:max-h-none lg:w-[480px] lg:border-l lg:border-t-0">
             <div className="flex-1 overflow-y-auto">
               <AnswerPanel
                 question={question}

@@ -97,7 +97,7 @@ export function PracticeFooter({
   };
 
   return (
-    <div className="relative z-50 bg-background/80 backdrop-blur-xl border-t border-border/40 supports-[backdrop-filter]:bg-background/60">
+    <div className="relative z-50 shrink-0 border-t border-border/40 bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl supports-[backdrop-filter]:bg-background/95">
       <div
         className={cn(
           "flex h-auto min-h-14 items-center justify-between gap-2 py-2",

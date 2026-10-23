@@ -12,6 +12,7 @@ import { AnswerPanel } from "@/components/practice/AnswerPanel";
 import { QuestionListSidebar } from "@/components/practice/QuestionListSidebar";
 import { TimerModal } from "@/components/practice/TimerModal";
 import { useTimer } from "@/hooks/useTimer";
+import { useCompactLayout } from "@/hooks/useCompactLayout";
 import { SessionQuestion, AnswerState } from "@/lib/types";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -48,6 +49,7 @@ interface PracticeSession {
 function QuickPracticeContent() {
   const params = useParams();
   const router = useRouter();
+  const compact = useCompactLayout();
   const sessionId = params.sessionId as string;
 
   // Load session from localStorage
@@ -555,7 +557,7 @@ function QuickPracticeContent() {
   }
 
   return (
-    <div className="h-screen bg-background flex flex-col overflow-hidden">
+    <div className="flex h-dvh max-h-dvh flex-col overflow-hidden bg-background">
       {/* Header with Progress */}
       <PracticeHeader
         currentIndex={currentIndex}
@@ -590,10 +592,10 @@ function QuickPracticeContent() {
 
       <div
         ref={containerRef}
-        className="flex-1 flex overflow-hidden"
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        className={compact ? "flex min-h-0 flex-1 flex-col overflow-hidden" : "flex min-h-0 flex-1 overflow-hidden"}
+        onMouseMove={compact ? undefined : handleMouseMove}
+        onMouseUp={compact ? undefined : handleMouseUp}
+        onMouseLeave={compact ? undefined : handleMouseUp}
       >
         {/* Left Sidebar - Question List */}
         {showQuestionList && (
@@ -607,26 +609,28 @@ function QuickPracticeContent() {
         )}
 
         {/* Question Panel - Flexible width */}
-        <div className="flex-1 flex flex-col min-w-0">
+        <div className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <QuestionPanel question={formattedQuestions[currentIndex]} />
         </div>
 
-        {/* Draggable Divider */}
+        {!compact && (
         <div
-          className={`w-1 bg-border hover:bg-primary cursor-col-resize transition-colors ml-5 ${
+          className={`ml-5 w-1 cursor-col-resize bg-border transition-colors hover:bg-primary ${
             isDragging ? "bg-primary" : ""
           }`}
           onMouseDown={handleMouseDown}
           style={{
             userSelect: "none",
-            cursor: isDragging ? "col-resize" : "col-resize",
+            cursor: "col-resize",
           }}
         />
+        )}
 
-        {/* Right Panel - Answer Choices & Feedback - Dynamic width */}
         <div
-          className="border-l border-border bg-card/50 backdrop-blur-sm flex flex-col"
-          style={{ width: `${dividerPosition}px` }}
+          className={compact
+            ? "flex max-h-[min(42dvh,calc(100dvh-13rem))] w-full min-h-0 shrink-0 flex-col overflow-hidden border-t border-border bg-card"
+            : "flex min-h-0 flex-col overflow-hidden border-l border-border bg-card/50 backdrop-blur-sm"}
+          style={compact ? undefined : { width: `${dividerPosition}px` }}
         >
           <AnswerPanel
             question={formattedQuestions[currentIndex]}

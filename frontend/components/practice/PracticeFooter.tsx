@@ -104,31 +104,51 @@ export function PracticeFooter({
           isPinned ? "px-4 lg:px-8" : "px-3 sm:px-4 lg:pl-[250px] lg:pr-[250px]"
         )}
       >
-        {showFeedback ? (
-          <Button
-            onClick={onNext}
-            className="h-10 shrink-0 px-4 text-base font-semibold"
-          >
-            Next
-            <ChevronRight className="size-4" />
-          </Button>
-        ) : (
-          <Button
-            onClick={onSubmit}
-            disabled={!hasAnswer || isSubmitting}
-            className={cn(
-              "h-10 shrink-0 px-4 text-base font-semibold",
-              !hasAnswer && "opacity-60"
-            )}
-          >
-            {isSubmitting ? (
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-            ) : (
-              <Check className="size-4" />
-            )}
-            Check
-          </Button>
-        )}
+        <div className="flex items-center gap-3">
+          {questions.length > 0 ? (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted border border-border/60 hover:bg-muted/80 transition-colors cursor-pointer">
+                  <span className="text-sm font-medium text-foreground tabular-nums">
+                    {currentIndex + 1}
+                  </span>
+                  <span className="text-sm font-medium text-muted-foreground">
+                    of
+                  </span>
+                  <span className="text-sm font-medium text-foreground tabular-nums">
+                    {totalQuestions}
+                  </span>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="start"
+                side="top"
+                sideOffset={8}
+                className="w-auto min-w-[100px] max-w-[600px] p-0 max-h-[80vh] overflow-hidden"
+              >
+                <QuestionNavigatorPopup
+                  questions={questions}
+                  answers={answers}
+                  currentIndex={currentIndex}
+                  onNavigate={handleNavigate}
+                />
+              </PopoverContent>
+            </Popover>
+          ) : (
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted border border-border/60">
+              <span className="text-sm font-medium text-foreground tabular-nums">
+                {currentIndex + 1}
+              </span>
+              <span className="text-sm font-medium text-muted-foreground">
+                of
+              </span>
+              <span className="text-sm font-medium text-foreground tabular-nums">
+                {totalQuestions}
+              </span>
+            </div>
+          )}
+        </div>
 
         <Button
           variant="outline"
@@ -179,49 +199,31 @@ export function PracticeFooter({
           </Button>
         )}
 
-        <div className="ml-auto flex items-center gap-3">
-          {questions.length > 0 ? (
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted border border-border/60 hover:bg-muted/80 transition-colors cursor-pointer">
-                  <span className="text-sm font-medium text-foreground tabular-nums">
-                    {currentIndex + 1}
-                  </span>
-                  <span className="text-sm font-medium text-muted-foreground">
-                    of
-                  </span>
-                  <span className="text-sm font-medium text-foreground tabular-nums">
-                    {totalQuestions}
-                  </span>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent
-                align="start"
-                side="top"
-                sideOffset={8}
-                className="w-auto min-w-[100px] max-w-[600px] p-0 max-h-[80vh] overflow-hidden"
-              >
-                <QuestionNavigatorPopup
-                  questions={questions}
-                  answers={answers}
-                  currentIndex={currentIndex}
-                  onNavigate={handleNavigate}
-                />
-              </PopoverContent>
-            </Popover>
+        <div className="ml-auto flex items-center">
+          {showFeedback ? (
+            <Button
+              onClick={onNext}
+              className="h-10 shrink-0 px-4 text-base font-semibold"
+            >
+              Next
+              <ChevronRight className="size-4" />
+            </Button>
           ) : (
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted border border-border/60">
-              <span className="text-sm font-medium text-foreground tabular-nums">
-                {currentIndex + 1}
-              </span>
-              <span className="text-sm font-medium text-muted-foreground">
-                of
-              </span>
-              <span className="text-sm font-medium text-foreground tabular-nums">
-                {totalQuestions}
-              </span>
-            </div>
+            <Button
+              onClick={onSubmit}
+              disabled={!hasAnswer || isSubmitting}
+              className={cn(
+                "h-10 shrink-0 px-4 text-base font-semibold",
+                !hasAnswer && "opacity-60"
+              )}
+            >
+              {isSubmitting ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+              ) : (
+                <Check className="size-4" />
+              )}
+              Check
+            </Button>
           )}
         </div>
       </div>
